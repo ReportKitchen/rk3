@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RK3 — PDF conversion spike</title>
+<link rel="stylesheet" href="viewer.css">
+</head>
+<body>
+<div id="left">
+  <header>
+    <h1>RK3</h1>
+    <button id="refresh" title="Refresh list">&#8635; Refresh</button>
+  </header>
+  <ul id="doclist"></ul>
+</div>
+<div id="right">
+  <div id="toolbar" hidden>
+    <span id="docname"></span>
+    <label id="layer3-wrap"><input type="checkbox" id="layer3" checked> Original-look CSS (layer 3)</label>
+  </div>
+  <div id="content">
+    <p class="hint">Select a document on the left.</p>
+  </div>
+</div>
+<script src="viewer.js"></script>
+</body>
+</html>

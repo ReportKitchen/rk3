@@ -1,0 +1,57 @@
+/* Layer 2 — plain greyscale default styling: readable spacing, light grey
+   callouts, thin black outlines on boxed content. Deliberately unexciting. */
+
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.55;
+  color: #111;
+  background: #fff;
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: Helvetica, Arial, sans-serif;
+  line-height: 1.2;
+  margin: 1.6em 0 0.5em;
+}
+
+h1 { font-size: 1.9rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+h4, h5, h6 { font-size: 1.05rem; }
+
+p { margin: 0 0 0.9em; }
+
+ul, ol { margin: 0 0 0.9em; }
+li { margin-bottom: 0.25em; }
+
+aside {
+  background: #f0f0f0;
+  border: 1px solid #000;
+}
+
+figure {
+  border: 1px solid #000;
+  padding: 0.75rem;
+}
+
+figcaption {
+  font-size: 0.85rem;
+  color: #444;
+  margin-top: 0.5rem;
+}
+
+th, td {
+  border: 1px solid #000;
+  padding: 0.35em 0.6em;
+  text-align: left;
+}
+
+nav {
+  border-bottom: 1px solid #999;
+  margin-bottom: 2rem;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 0.9rem;
+}
+
+a { color: #111; }
