@@ -29,7 +29,21 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 31
+VERSION = 32
+
+OL_RE = re.compile(r"^(\d{1,2}|[A-Za-z])\s?[.)]\s+")
+
+
+def _ol_marker(text):
+    """Ordinal list marker: ('decimal'|'lower-alpha'|'upper-alpha', n, end)."""
+    m = OL_RE.match(text)
+    if not m:
+        return None
+    raw = m.group(1)
+    if raw.isdigit():
+        return "decimal", int(raw), m.end()
+    style = "upper-alpha" if raw.isupper() else "lower-alpha"
+    return style, ord(raw.lower()) - 96, m.end()
 
 
 def _alnum(text):
@@ -272,7 +286,7 @@ def _audit(ctx, blocks, texts, nodes):
     def count_node(n):
         page = n["page"]
         out[page] += _alnum(n.get("text"))
-        out[page] += sum(_alnum(i) for i in n.get("items", []))
+        out[page] += sum(_alnum(t) for t in _item_texts(n.get("items", [])))
         out[page] += sum(_alnum(c) for row in n.get("rows", []) for c in row)
         out[page] += _alnum(n.get("caption"))
         out[page] += _alnum(n.get("sectionNum"))
@@ -736,6 +750,19 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
                                  node["bbox"], " ".join(items))
         return node
 
+    ol = _ordinal_block(blk)
+    if ol is not None:
+        style, start, items = ol
+        rk = ctx.log.entry("list", page=blk["page"], bbox=blk["bbox"],
+                           items=len(items), ordered=style, start=start,
+                           reason="sequential ordinal markers", block=blk["rk"])
+        node = {"type": "list", "items": items, "ordered": style,
+                "start": start, "page": blk["page"], "bbox": blk["bbox"],
+                "rk": rk, "data": prov}
+        node["nid"] = _stable_id("n", ctx.nids, "list", node["page"],
+                                 node["bbox"], " ".join(_item_texts(items)))
+        return node
+
     strong = in_aside and size > 1.15 * body_size
     refs = []
     for s, e in _merge_sup_ranges(text, rich.get("sups", [])):
@@ -1031,8 +1058,11 @@ def _group_tag_lists(ctx, nodes):
 
 
 def _group_bullet_paragraphs(ctx, nodes):
-    """Bullet items that arrived as separate single-line blocks (so the
-    block-level list rule can't see them) group into one list."""
+    """List items that arrived as separate blocks group into one list:
+    bullet-led paragraphs, or sequential ordinal-led paragraphs (numbered /
+    lettered), with deeper-indented alpha runs nesting under the preceding
+    numeric item."""
+    nodes = _group_ordinal_paragraphs(ctx, nodes)
     out = []
     run = []
 
@@ -1067,6 +1097,78 @@ def _group_bullet_paragraphs(ctx, nodes):
             flush()
             out.append(n)
     flush()
+    return out
+
+
+def _group_ordinal_paragraphs(ctx, nodes):
+    """Consecutive paragraphs led by sequential ordinals become one ordered
+    list; an immediately following deeper-indented alpha run nests under the
+    last numeric item."""
+    out = []
+    i = 0
+    while i < len(nodes):
+        n = nodes[i]
+        m = _ol_marker(n.get("text", "")) if n["type"] == "paragraph" else None
+        if not m:
+            out.append(n)
+            i += 1
+            continue
+        style0, start, _ = m
+        run = []
+        expected = start
+        j = i
+        base_x = n["bbox"][0]
+        while j < len(nodes):
+            cand = nodes[j]
+            cm = _ol_marker(cand.get("text", "")) \
+                if cand["type"] == "paragraph" else None
+            if cm and cm[0] == style0 and cm[1] == expected:
+                run.append({"text": cand["text"][cm[2]:].strip(),
+                            "node": cand})
+                expected += 1
+                j += 1
+                # absorb an immediately following deeper-indent alpha run
+                sub_expected = None
+                while j < len(nodes):
+                    s = nodes[j]
+                    sm = _ol_marker(s.get("text", "")) \
+                        if s["type"] == "paragraph" else None
+                    if sm and sm[0] != style0 and s["bbox"][0] > base_x + 6 \
+                            and (sub_expected is None or sm[1] == sub_expected):
+                        sub = run[-1].setdefault(
+                            "sub", {"ordered": sm[0], "start": sm[1], "items": []})
+                        sub["items"].append(s["text"][sm[2]:].strip())
+                        sub_expected = sm[1] + 1
+                        j += 1
+                    else:
+                        break
+            else:
+                break
+        if len(run) >= 2 or (run and run[0].get("sub")):
+            members = [r["node"] for r in run]
+            page = members[0]["page"]
+            bbox = [min(x["bbox"][0] for x in members),
+                    min(x["bbox"][1] for x in members),
+                    max(x["bbox"][2] for x in members),
+                    max(x["bbox"][3] for x in members)]
+            for x in members:
+                if x["page"] != page:
+                    ctx.audit_moved[x["page"]] += _alnum(x["text"])
+            items = [({"text": r["text"], "sub": r["sub"]} if r.get("sub")
+                      else r["text"]) for r in run]
+            rk = ctx.log.entry("list", page=page, bbox=bbox, items=len(items),
+                               ordered=style0, start=start,
+                               reason="sequential ordinal paragraphs",
+                               merged=[x["rk"] for x in members])
+            out.append({"type": "list", "items": items, "ordered": style0,
+                        "start": start, "page": page, "bbox": bbox, "rk": rk,
+                        "data": dict(members[0].get("data", {})),
+                        "nid": _stable_id("n", ctx.nids, "list", page, bbox,
+                                          " ".join(_item_texts(items)))})
+            i = j
+        else:
+            out.append(n)
+            i += 1
     return out
 
 
@@ -1237,6 +1339,52 @@ def _is_bullet_list(blk):
     has at least two bulleted lines; unbulleted lines are continuations."""
     starts = [l["text"][:1] in BULLETS for l in blk["lines"]]
     return len(starts) >= 2 and starts[0] and sum(starts) >= 2
+
+
+def _item_texts(items):
+    for it in items:
+        if isinstance(it, str):
+            yield it
+        else:
+            yield it.get("text", "")
+            sub = it.get("sub")
+            if sub:
+                yield from sub.get("items", [])
+
+
+def _ordinal_block(blk):
+    """A block whose lines carry sequential ordinal markers (any start, for
+    resumed numbering: <ol start>). Deeper-indented alpha lines under a
+    numeric item nest one level. Returns (style, start, items) or None."""
+    lines = blk["lines"]
+    first = _ol_marker(lines[0]["text"])
+    if first is None or len(lines) < 2:
+        return None
+    style0, start, off0 = first
+    base_x = lines[0]["bbox"][0]
+    items = [{"text": lines[0]["text"][off0:].strip()}]
+    expected = start + 1
+    marked = 1
+    for l in lines[1:]:
+        m = _ol_marker(l["text"])
+        if m and m[0] == style0 and m[1] == expected:
+            items.append({"text": l["text"][m[2]:].strip()})
+            expected += 1
+            marked += 1
+        elif m and m[0] != style0 and l["bbox"][0] > base_x + 6:
+            sub = items[-1].setdefault(
+                "sub", {"ordered": m[0], "start": m[1], "items": []})
+            sub["items"].append(l["text"][m[2]:].strip())
+            marked += 1
+        elif items[-1].get("sub"):
+            items[-1]["sub"]["items"][-1] += " " + l["text"]
+        else:
+            items[-1]["text"] += " " + l["text"]
+    if marked < 2:
+        return None
+    if not any(it.get("sub") for it in items):
+        items = [it["text"] for it in items]
+    return style0, start, items
 
 
 def _bullet_items(blk):

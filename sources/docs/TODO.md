@@ -3,7 +3,7 @@
 Batched from the 29 open feedback notes (2026-06-12 evening review pass).
 Feedback files remain the source of truth; this is just the working order.
 
-## A. Ordered lists (facilitator guide — real feature gap)
+## A. Ordered lists — DONE (41 OLs corpus-wide, type=a, start=, 2-level nesting)
 - OL detection: numbered (1. 2. 3.) and lettered (A) b) c)) markers
 - 2-level OLs (outer numbered, inner lettered)
 - OL numbering continuation across interruptions (list resuming at #4)

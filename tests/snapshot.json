@@ -491,14 +491,14 @@
       "aside": 8,
       "figure": 26,
       "heading": 42,
-      "list": 2,
-      "paragraph": 214,
+      "list": 22,
+      "paragraph": 176,
       "table": 1
     },
-    "asideChildren": 15,
+    "asideChildren": 13,
     "notes": [],
     "questions": 55,
-    "textChars": 44941
+    "textChars": 44668
   },
   "02--jhu-federal-register-comments-pharma-investigation": {
     "status": "done",
@@ -1673,8 +1673,8 @@
       "figure": 16,
       "footnotes": 1,
       "heading": 286,
-      "list": 60,
-      "paragraph": 683
+      "list": 61,
+      "paragraph": 680
     },
     "asideChildren": 118,
     "notes": [
@@ -1686,7 +1686,7 @@
       5
     ],
     "questions": 52,
-    "textChars": 290654
+    "textChars": 290645
   },
   "03--enterprise-annual-report-2022": {
     "status": "done",

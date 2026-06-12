@@ -14,7 +14,12 @@ def node_texts(nodes):
     for n in nodes:
         if n.get("text"):
             yield n["text"]
-        yield from n.get("items", [])
+        for it in n.get("items", []):
+            if isinstance(it, str):
+                yield it
+            else:
+                yield it.get("text", "")
+                yield from (it.get("sub") or {}).get("items", [])
         for row in n.get("rows", []):
             yield from (c for c in row if c)
         for c in n.get("children", []):

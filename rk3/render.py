@@ -9,7 +9,9 @@ import re
 import shutil
 from pathlib import Path
 
-VERSION = 23
+VERSION = 24
+
+OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
 # ; and , are legal in URLs but in print they overwhelmingly join citations,
 # so they terminate a match
@@ -196,8 +198,29 @@ def _render_node(ctx, node, pages, state):
         return (f'<h{lv} {_attrs(node, pages, {"id": node["id"]})}>'
                 f'{body}</h{lv}>')
     if t == "list":
-        items = "\n".join(f"  <li>{html.escape(i)}</li>" for i in node["items"])
-        return f'<ul {_attrs(node, pages)}>\n{items}\n</ul>'
+        ordered = node.get("ordered")
+        tag = "ol" if ordered else "ul"
+        extra = {}
+        if ordered in OL_TYPE:
+            extra["type"] = OL_TYPE[ordered]
+        if node.get("start", 1) and node.get("start", 1) > 1:
+            extra["start"] = node["start"]
+        parts = []
+        for it in node["items"]:
+            if isinstance(it, str):
+                parts.append(f"  <li>{html.escape(it)}</li>")
+                continue
+            sub = it.get("sub") or {}
+            stype = f' type="{OL_TYPE[sub["ordered"]]}"' \
+                if sub.get("ordered") in OL_TYPE else ""
+            sstart = f' start="{sub["start"]}"' \
+                if sub.get("start", 1) > 1 else ""
+            subhtml = "\n".join(f"    <li>{html.escape(s)}</li>"
+                                for s in sub.get("items", []))
+            parts.append(f"  <li>{html.escape(it['text'])}\n"
+                         f"  <ol{stype}{sstart}>\n{subhtml}\n  </ol></li>")
+        items = "\n".join(parts)
+        return f'<{tag} {_attrs(node, pages, extra or None)}>\n{items}\n</{tag}>'
     if t == "paragraph":
         body = _inline(node["text"], node.get("links"), node.get("refs"), state,
                        breaks=node.get("breaks"))
