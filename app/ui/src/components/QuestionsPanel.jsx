@@ -37,9 +37,11 @@ export default function QuestionsPanel({
             {comments.map((c) => (
               <li key={c.id ?? c.ts} className={c.status === "resolved" ? "resolved" : "open"}>
                 {c.nid ? (
-                  <button className="jump" onClick={() => onJump(c.nid)}>p{c.page ?? "?"}</button>
+                  <button className="jump" onClick={() => onJump(c.nid)}>
+                    {c.page != null ? `p${c.page}` : "doc"}
+                  </button>
                 ) : (
-                  <span className="jump-placeholder">p{c.page ?? "?"}</span>
+                  <span className="jump-placeholder">{c.page != null ? `p${c.page}` : "doc"}</span>
                 )}
                 <div className="q-body">
                   {c.selText && <blockquote className="sel-quote">“{c.selText.slice(0, 80)}”</blockquote>}

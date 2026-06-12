@@ -75,7 +75,19 @@ export default function DocumentView({
       if (e.target.closest(".rk-qmark")) return; // markers handle themselves
       e.preventDefault();
       e.stopPropagation();
-      const el = e.target.closest("[data-nid],[data-rk]");
+      let el = e.target.closest("[data-nid],[data-rk]");
+      if (!el) {
+        // click landed in the whitespace between elements: snap to the
+        // vertically nearest anchored element (within 80px)
+        let best = null, dist = 80;
+        for (const cand of idoc.querySelectorAll("[data-nid]")) {
+          const r = cand.getBoundingClientRect();
+          const d = e.clientY < r.top ? r.top - e.clientY
+                  : e.clientY > r.bottom ? e.clientY - r.bottom : 0;
+          if (d < dist) { best = cand; dist = d; }
+        }
+        el = best;
+      }
       const rect = iframeRef.current.getBoundingClientRect();
       const target = el
         ? { nid: el.dataset.nid, rk: el.dataset.rk, page: +el.dataset.page || null }

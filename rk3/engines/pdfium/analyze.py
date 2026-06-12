@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 20
+VERSION = 21
 
 ROMAN = {}
 for _n, _r in enumerate(
@@ -530,14 +530,29 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
 
 
 def _hard_returns(blk):
-    """Sentence-per-line blocks (credits, colophons): wrapped prose almost
-    never has two interior lines ending in terminal punctuation."""
+    """Intentional one-per-line blocks. Two tells:
+    - sentence-per-line (credits): 2+ interior lines end in terminal
+      punctuation — wrapped prose almost never does;
+    - contact-card form: interior lines fall well short of the block edge
+      AND successive lines start new items (capital/digit/paren) without the
+      previous line ending a sentence."""
     lines = blk["lines"]
     if len(lines) < 3:
         return False
     interior = lines[:-1]
     terminal = sum(1 for l in interior if l["text"].rstrip()[-1:] in ".!?:")
-    return terminal >= 2 and terminal >= 0.6 * len(interior)
+    if terminal >= 2 and terminal >= 0.6 * len(interior):
+        return True
+
+    left = min(l["bbox"][0] for l in lines)
+    width = max(max(l["bbox"][2] for l in lines) - left, 1.0)
+    short = sum(1 for l in interior if l["bbox"][2] < left + 0.75 * width)
+    item_starts = sum(
+        1 for prev, nxt in zip(lines, lines[1:])
+        if prev["text"].rstrip()[-1:] not in ".,;:-"
+        and (nxt["text"][:1].isupper() or nxt["text"][:1].isdigit()
+             or nxt["text"][:1] == "("))
+    return short >= 2 and item_starts >= 2 and item_starts >= 0.6 * len(interior)
 
 
 def _figure_node(ctx, reg, pages, fig_count):
