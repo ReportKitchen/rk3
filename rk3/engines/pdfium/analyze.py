@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 29
+VERSION = 30
 
 
 def _alnum(text):
@@ -152,7 +152,8 @@ def run(ctx):
     _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles)
     absorbed.update(dict.fromkeys(skip))
 
-    notes, note_idx = _find_notes(ctx, pages, blocks, texts, absorbed, body_size)
+    notes, note_idx, notes_sectioned = _find_notes(ctx, pages, blocks, texts,
+                                                   absorbed, body_size)
     absorbed.update(dict.fromkeys(note_idx))
 
     main_idx = [i for i in range(len(blocks)) if i not in absorbed]
@@ -227,12 +228,24 @@ def run(ctx):
     if notes:
         last = blocks[max(note_idx)]
         rk = ctx.log.entry("footnotes", count=len(notes),
-                           numbers=[n["n"] for n in notes][:20])
+                           numbers=[n["n"] for n in notes][:20],
+                           sectioned=notes_sectioned)
         node = {"type": "footnotes", "notes": notes, "page": last["page"],
                 "bbox": last["bbox"], "rk": rk, "data": {}}
         node["nid"] = _stable_id("n", ctx.nids, "footnotes", node["page"],
                                  node["bbox"], "footnotes")
-        nodes.append(node)
+        if notes_sectioned:
+            # notes lifted from a section render AT the section's position
+            # (an Endnotes section may be followed by Sources etc.); only
+            # scattered page-bottom notes collect at document end
+            first = min(note_idx, key=lambda i: (blocks[i]["page"],
+                                                 -blocks[i]["bbox"][3]))
+            key = (blocks[first]["page"], -blocks[first]["bbox"][3])
+            pos = next((k for k, n in enumerate(nodes)
+                        if (n["page"], -n["bbox"][3]) > key), len(nodes))
+            nodes.insert(pos, node)
+        else:
+            nodes.append(node)
 
     title = next((n["text"] for n in nodes if n["type"] == "heading" and n["level"] == 1),
                  ctx.source.stem)
@@ -1382,9 +1395,10 @@ NOTES_HEADING = re.compile(r"(end\s*)?notes?|references|sources", re.I)
 def _find_notes(ctx, pages, blocks, texts, skip, body_size):
     """Footnote/endnote text in either form: numbered blocks following a
     notes-section heading, or small numbered text at the bottom of a page.
-    Returns (notes [{n, text, rk}], set of absorbed block indexes)."""
+    Returns (notes, absorbed block indexes, sectioned flag)."""
     notes, note_idx = [], set()
     in_section = False
+    sectioned = False
     expected = None  # next anticipated note number; gates against wrapped DOIs
     for i, (blk, text) in enumerate(zip(blocks, texts)):
         if i in skip:
@@ -1408,6 +1422,7 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
                 notes.extend(new)
                 if new or (lead and notes):
                     note_idx.add(i)
+                    sectioned = True
                 continue
             elif notes and size <= body_size * 1.05 and text[:1].islower():
                 # continuation = a wrap of the previous note (starts
@@ -1431,7 +1446,7 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
                 if new or (lead and notes):
                     note_idx.add(i)
     notes.sort(key=lambda n: n["n"])
-    return notes, note_idx
+    return notes, note_idx, sectioned
 
 
 def _parse_notes(ctx, blk, expected):
