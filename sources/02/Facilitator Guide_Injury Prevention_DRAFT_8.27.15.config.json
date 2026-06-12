@@ -77,6 +77,28 @@
     ],
     "kind": "callout",
     "_source": "answer 0dd810d0"
+   },
+   {
+    "page": 8,
+    "bbox": [
+     108.0,
+     94.32,
+     538.08,
+     133.92
+    ],
+    "kind": "callout",
+    "_source": "note 0777c1f5: callout continues below"
+   },
+   {
+    "page": 11,
+    "bbox": [
+     108.0,
+     73.68,
+     538.08,
+     113.52
+    ],
+    "kind": "callout",
+    "_source": "note c7f57df5: callout broken by pagebreak"
    }
   ]
  }

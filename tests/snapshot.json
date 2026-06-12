@@ -34,7 +34,7 @@
       "heading": 5,
       "paragraph": 27
     },
-    "asideChildren": 30,
+    "asideChildren": 32,
     "notes": [
       1,
       2,
@@ -111,7 +111,7 @@
       73
     ],
     "questions": 1,
-    "textChars": 59445
+    "textChars": 59443
   },
   "01--sample-content-penguin": {
     "status": "done",
@@ -175,7 +175,7 @@
       "figure": 1,
       "footnotes": 1,
       "heading": 13,
-      "paragraph": 16
+      "paragraph": 17
     },
     "asideChildren": 3,
     "notes": [
@@ -184,7 +184,7 @@
       3
     ],
     "questions": 0,
-    "textChars": 12031
+    "textChars": 12032
   },
   "02--baystate-case-study-021624": {
     "status": "done",
@@ -264,7 +264,7 @@
       5
     ],
     "questions": 2,
-    "textChars": 30939
+    "textChars": 30946
   },
   "02--cottonwood-case-study-r5": {
     "status": "done",
@@ -275,20 +275,20 @@
         "colorado affordable housing Cottonwood Case Study | Windsor, CO"
       ],
       [
-        2,
-        "Overview"
-      ],
-      [
         4,
         "Project data"
       ],
       [
-        3,
-        "Planning and design approach"
+        2,
+        "Overview"
       ],
       [
         3,
         "Electrification strategies"
+      ],
+      [
+        3,
+        "Planning and design approach"
       ],
       [
         3,
@@ -489,16 +489,16 @@
     ],
     "counts": {
       "aside": 8,
-      "figure": 26,
+      "figure": 24,
       "heading": 42,
       "list": 22,
-      "paragraph": 176,
+      "paragraph": 179,
       "table": 1
     },
-    "asideChildren": 13,
+    "asideChildren": 15,
     "notes": [],
-    "questions": 55,
-    "textChars": 44668
+    "questions": 54,
+    "textChars": 44752
   },
   "02--jhu-federal-register-comments-pharma-investigation": {
     "status": "done",
@@ -517,7 +517,7 @@
       4
     ],
     "questions": 3,
-    "textChars": 16137
+    "textChars": 16138
   },
   "02--toolkit-hiring2022-copy112222onlineversiononly-1": {
     "status": "done",
@@ -625,10 +625,6 @@
       ],
       [
         2,
-        "Key strategies employed"
-      ],
-      [
-        2,
         "Overview"
       ],
       [
@@ -677,7 +673,7 @@
       ],
       [
         5,
-        "POSITIONS GRADUATES ARE HIRED INTO"
+        "POSITIONS GRADUATES AR•E HIRED INTO"
       ],
       [
         5,
@@ -690,10 +686,6 @@
       [
         3,
         "PHILADELPHIA, PENNSYLVANIA"
-      ],
-      [
-        2,
-        "Key strategies employed"
       ],
       [
         2,
@@ -745,7 +737,7 @@
       ],
       [
         5,
-        "SPECIFIC POSITIONS GRADUATES ARE HIRED INTO"
+        "S• PECIFIC POSITIONS GRADUATES ARE HIRED INTO"
       ],
       [
         5,
@@ -758,10 +750,6 @@
       [
         3,
         "ALAMEDA COUNTY, CALIFORNIA"
-      ],
-      [
-        2,
-        "Key strategies employed"
       ],
       [
         2,
@@ -805,15 +793,15 @@
       ],
       [
         5,
+        "SPECIFIC POSITION TITLES GR•A DUATES ARE HIRED INTO"
+      ],
+      [
+        5,
         "FOR MORE INFORMATION"
       ],
       [
         5,
         "SOURCES"
-      ],
-      [
-        5,
-        "SPECIFIC POSITION TITLES GRADUATES ARE HIRED INTO"
       ],
       [
         1,
@@ -825,7 +813,7 @@
       ],
       [
         2,
-        "Key strategies employed"
+        "Ke• y strategies employed"
       ],
       [
         2,
@@ -865,7 +853,7 @@
       ],
       [
         5,
-        "INVOLVE HIRING MANAGERS IN THE TRAINING PROCESS"
+        "“INVOLVE HIRING MANAGERS IN THE TRAINING PROCESS"
       ],
       [
         5,
@@ -873,7 +861,7 @@
       ],
       [
         5,
-        "POSITIONS GRADUATES ARE HIRED INTO"
+        "PO•S ITIONS GRADUATES ARE HIRED INTO"
       ],
       [
         5,
@@ -890,10 +878,6 @@
       [
         3,
         "AURORA, COLORADO"
-      ],
-      [
-        2,
-        "Key strategies employed"
       ],
       [
         2,
@@ -941,11 +925,11 @@
       ],
       [
         5,
-        "B E N E F I TS"
+        "BE•N EFITS"
       ],
       [
         5,
-        "SPECIFIC POSITIONS GRADUATES ARE HIRED INTO"
+        "SPE• CIFIC POSITIONS GRADUATES ARE HIRED INTO"
       ],
       [
         5,
@@ -965,7 +949,7 @@
       ],
       [
         2,
-        "Key strategies employed"
+        "Ke• y strategies employed"
       ],
       [
         2,
@@ -1013,7 +997,7 @@
       ],
       [
         5,
-        "HOPKINSLOCAL TARGETED POSITIONS"
+        "HO•P KINSLOCAL TARGETED POSITIONS"
       ],
       [
         5,
@@ -1025,7 +1009,7 @@
       ],
       [
         1,
-        "Outside-In Strategies"
+        "“Outside-In Strategies"
       ],
       [
         5,
@@ -1057,7 +1041,7 @@
       ],
       [
         4,
-        "“It’s a closed door center by design. We recruit for specific cohorts, train to "
+        "It’s a closed door center by design. We recruit for specific cohorts, train to a"
       ],
       [
         5,
@@ -1080,12 +1064,12 @@
         "FOCUSING ON JOBS WITH CLEAR CAREER PATHWAYS"
       ],
       [
-        5,
-        "SET ASIDE POSITION VACANCIES OR GUARANTEED INTERVIEWS FOR PIPELINE COHORT GRADUA"
+        4,
+        "One of the things that attracts people to these programs is that once they get i"
       ],
       [
-        4,
-        "“One of the things that attracts people to these programs is that once they get "
+        5,
+        "SET ASIDE POSITION VACANCIES OR GUARANTEED INTERVIEWS FOR PIPELINE COHORT GRADUA"
       ],
       [
         5,
@@ -1125,7 +1109,7 @@
       ],
       [
         1,
-        "Inside-Up Strategies"
+        "“Inside-Up Strategies"
       ],
       [
         5,
@@ -1141,7 +1125,7 @@
       ],
       [
         5,
-        "OTHER RESOURCES"
+        "O• THER RESOURCES"
       ],
       [
         2,
@@ -1225,11 +1209,11 @@
       ],
       [
         5,
-        "SET GOALS FOR LOCAL SOURCING AND RECRUITMENT"
+        "SET• GOALS FOR LOCAL SOURCING AND RECRUITMENT"
       ],
       [
         5,
-        "PLAN FOR LONGEVITY AND SET GOALS FOR SUCCESS"
+        "PLA• N FOR LONGEVITY AND SET GOALS FOR SUCCESS"
       ],
       [
         5,
@@ -1241,11 +1225,11 @@
       ],
       [
         5,
-        "INTERNAL BUY-IN AND OWNERSHIP BUY-IN FROM EXECUTIVE LEADERSHIP"
+        "INTERNAL BUY-IN AND OWNERSHIP BU•Y-IN FROM EXECUTIVE LEADERSHIP"
       ],
       [
         5,
-        "INTERNAL COMMUNICATION TO LEVERAGE SUCCESSFUL BUY-IN"
+        "INT•ERNAL COMMUNICATION TO LEVERAGE SUCCESSFUL BUY-IN"
       ],
       [
         2,
@@ -1305,7 +1289,7 @@
       ],
       [
         3,
-        "DATA INFRASTRUCTURE"
+        "DA• TA INFRASTRUCTURE"
       ],
       [
         3,
@@ -1313,15 +1297,15 @@
       ],
       [
         3,
-        "COMMUNITY COMPARISON"
+        "CO• MMUNITY COMPARISON"
       ],
       [
         3,
-        "HIRING PROCESS"
+        "HI•R ING PROCESS"
       ],
       [
         3,
-        "TURNOVER AND FORECASTING"
+        "TU• RNOVER AND FORECASTING"
       ],
       [
         2,
@@ -1329,27 +1313,27 @@
       ],
       [
         5,
-        "HIRING POLICIES TO CONSIDER"
+        "H• IRING POLICIES TO CONSIDER"
       ],
       [
         5,
-        "HIRING PRACTICES"
+        "H• IRING PRACTICES"
       ],
       [
         5,
-        "TRAINING POLICIES TO CONSIDER"
+        "T• RAINING POLICIES TO CONSIDER"
       ],
       [
         5,
-        "TRAINING PRACTICES TO CONSIDER"
+        "T• RAINING PRACTICES TO CONSIDER"
       ],
       [
         5,
-        "RETENTION POLICIES TO CONSIDER"
+        "R• ETENTION POLICIES TO CONSIDER"
       ],
       [
         5,
-        "RETENTION PRACTICES TO CONSIDER"
+        "R• ETENTION PRACTICES TO CONSIDER"
       ],
       [
         5,
@@ -1365,7 +1349,7 @@
       ],
       [
         5,
-        "MAPPING THE WORKFORCE DEVELOPMENT ECOSYSTEM"
+        "M• APPING THE WORKFORCE DEVELOPMENT ECOSYSTEM"
       ],
       [
         2,
@@ -1417,15 +1401,15 @@
       ],
       [
         5,
-        "EVALUATING THE HIRING PROCESS"
+        "EVA• LUATING THE HIRING PROCESS"
       ],
       [
         5,
-        "EVALUATING THE HIRING PROCESS"
+        "EVA• LUATING THE HIRING PROCESS"
       ],
       [
         5,
-        "EVALUATING CAREER LADDER SUCCESS"
+        "EVA• LUATING CAREER LADDER SUCCESS"
       ],
       [
         2,
@@ -1489,7 +1473,7 @@
       ],
       [
         5,
-        "OTHER COST VARIABLES TO INCLUDE IN ROI CALCULATIONS"
+        "OT•HER COST VARIABLES TO INCLUDE IN ROI CALCULATIONS"
       ],
       [
         1,
@@ -1560,10 +1544,6 @@
         "MAKE DIVERSE, INCLUSIVE, AND LOCAL HIRING AN EXPLICIT GOAL IN THE STRATEGIC PLAN"
       ],
       [
-        2,
-        "Quick Practice Upgrades"
-      ],
-      [
         5,
         "COMMUNICATE WITH WORKFORCE PARTNERS AND INTERMEDIARIES ABOUT FORECASTED JOB NEED"
       ],
@@ -1621,7 +1601,7 @@
       ],
       [
         5,
-        "FACTORS TO CONSIDER"
+        "F• ACTORS TO CONSIDER"
       ],
       [
         5,
@@ -1629,7 +1609,7 @@
       ],
       [
         5,
-        "FACTORS TO CONSIDER"
+        "F• ACTORS TO CONSIDER"
       ],
       [
         5,
@@ -1637,7 +1617,7 @@
       ],
       [
         5,
-        "FACTORS TO CONSIDER"
+        "F• ACTORS TO CONSIDER"
       ],
       [
         5,
@@ -1656,27 +1636,27 @@
         "PROMISING SOLUTIONS TO COMMON CHALLENGES"
       ],
       [
-        2,
-        "Solutions"
-      ],
-      [
         1,
         "Overcoming Barriers"
       ],
       [
         3,
         "PROMISING SOLUTIONS TO COMMON CHALLENGES"
+      ],
+      [
+        2,
+        "Solutions"
       ]
     ],
     "counts": {
       "aside": 43,
       "figure": 16,
       "footnotes": 1,
-      "heading": 286,
-      "list": 61,
-      "paragraph": 680
+      "heading": 281,
+      "list": 37,
+      "paragraph": 832
     },
-    "asideChildren": 118,
+    "asideChildren": 139,
     "notes": [
       1,
       1,
@@ -1685,8 +1665,8 @@
       4,
       5
     ],
-    "questions": 52,
-    "textChars": 290645
+    "questions": 51,
+    "textChars": 290871
   },
   "03--enterprise-annual-report-2022": {
     "status": "done",
@@ -1745,16 +1725,16 @@
         "Celebrating 40 Years of Breaking Barriers and Building Communities"
       ],
       [
+        2,
+        "Stories of Impact"
+      ],
+      [
         3,
         "Breaking the Cycle of Housing Instability in Detroit"
       ],
       [
         3,
         "Hosting Alaska’s First Housing Innovation Summit"
-      ],
-      [
-        2,
-        "Stories of Impact"
       ],
       [
         3,
@@ -1765,12 +1745,12 @@
         "Bringing Faith-based Development Nationwide"
       ],
       [
-        3,
-        "Record Investment Expedites Lead Safe Progress"
-      ],
-      [
         2,
         "Visionary Generosity"
+      ],
+      [
+        3,
+        "Record Investment Expedites Lead Safe Progress"
       ],
       [
         3,
@@ -1814,6 +1794,6 @@
     "asideChildren": 41,
     "notes": [],
     "questions": 20,
-    "textChars": 16720
+    "textChars": 16645
   }
 }

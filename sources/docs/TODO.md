@@ -9,7 +9,7 @@ Feedback files remain the source of truth; this is just the working order.
 - OL numbering continuation across interruptions (list resuming at #4)
 - second-level nesting inside callout LIs
 
-## B. Reading order & structure (cottonwood + facilitator)
+## B. Reading order & structure — DONE (two-column flow, quote-glyph line breaks, fn-3, continuations)
 - two out-of-order blocks (header/paragraph sequence wrong)
 - "Overview" header disappeared (cottonwood p1)
 - callout-continues-below misses (×2, incl. cross-page)

@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 32
+VERSION = 34
 
 OL_RE = re.compile(r"^(\d{1,2}|[A-Za-z])\s?[.)]\s+")
 
@@ -174,7 +174,9 @@ def run(ctx):
     levels = _heading_levels(ctx, [blocks[i] for i in main_idx],
                              [texts[i] for i in main_idx], body_size)
 
-    # weave figure/callout regions into the block flow by vertical position
+    # weave figure/callout regions into the block flow by vertical position;
+    # pages with a clear two-column layout get column-aware reading order
+    # (left column top-down, then right), banded by full-width elements
     page_items = {}
     for i in main_idx:
         page_items.setdefault(blocks[i]["page"], []).append(("block", i))
@@ -186,6 +188,17 @@ def run(ctx):
                 pos = k
                 break
         items.insert(pos, ("region", reg))
+
+    def item_bbox(item):
+        kind, ref = item
+        return blocks[ref]["bbox"] if kind == "block" else ref["bbox"]
+
+    for page_n, items in page_items.items():
+        bboxes = [item_bbox(it) for it in items]
+        split = _column_split(bboxes)
+        if split is not None:
+            page_items[page_n] = _flow_order(items, bboxes, split)
+            ctx.log.entry("two-column", page=page_n, split=round(split, 1))
 
     deepest = max([*tag_levels.values(), *levels.values(), 0])
     kicker_level = min(deepest + 1, 6) if deepest else 0
@@ -1006,6 +1019,67 @@ def _aside_node(ctx, reg, blocks, rich, fonts, body_size, roles):
 
 
 # -------------------------------------------------------------- text utils ---
+
+def _column_split(bboxes):
+    """x of the gutter when the page is laid out in two columns, else None.
+    Requires two well-populated x-clusters of narrow blocks with a clear gap
+    that no narrow block straddles."""
+    if len(bboxes) < 5:
+        return None
+    l0 = min(b[0] for b in bboxes)
+    r0 = max(b[2] for b in bboxes)
+    width = max(r0 - l0, 1.0)
+    narrow = [b for b in bboxes if (b[2] - b[0]) <= 0.6 * width]
+    if len(narrow) < 4:
+        return None
+    centers = sorted((b[0] + b[2]) / 2 for b in narrow)
+    best_gap, split0 = 0.0, None
+    for a, b in zip(centers, centers[1:]):
+        if b - a > best_gap:
+            best_gap, split0 = b - a, (a + b) / 2
+    if split0 is None or best_gap < 0.18 * width:
+        return None
+    left = [b for b in narrow if (b[0] + b[2]) / 2 < split0]
+    right = [b for b in narrow if (b[0] + b[2]) / 2 >= split0]
+    if len(left) < 2 or len(right) < 2:
+        return None
+    # real columns have an empty gutter between the groups' edges
+    gutter_l = max(b[2] for b in left)
+    gutter_r = min(b[0] for b in right)
+    if gutter_r - gutter_l < 6:
+        return None
+    return (gutter_l + gutter_r) / 2
+
+
+def _flow_order(items, bboxes, split):
+    """Reading order for a two-column page: top-down, with full-width
+    elements acting as band separators; within a band, the left column reads
+    fully before the right."""
+    l0 = min(b[0] for b in bboxes)
+    r0 = max(b[2] for b in bboxes)
+    width = max(r0 - l0, 1.0)
+    order = sorted(range(len(items)), key=lambda k: -bboxes[k][3])
+    out = []
+    band = []
+
+    def flush():
+        if not band:
+            return
+        left = [k for k in band if (bboxes[k][0] + bboxes[k][2]) / 2 < split]
+        right = [k for k in band if k not in left]
+        out.extend(sorted(left, key=lambda k: -bboxes[k][3]))
+        out.extend(sorted(right, key=lambda k: -bboxes[k][3]))
+        band.clear()
+
+    for k in order:
+        if (bboxes[k][2] - bboxes[k][0]) > 0.6 * width:
+            flush()
+            out.append(k)
+        else:
+            band.append(k)
+    flush()
+    return [items[k] for k in out]
+
 
 def _group_tag_lists(ctx, nodes):
     """Struct tags declare lists (L > LI > Lbl/LBody) even when the bullet
