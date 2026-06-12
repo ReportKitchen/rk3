@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 30
+VERSION = 31
 
 
 def _alnum(text):
@@ -191,9 +191,12 @@ def run(ctx):
                     fig_count += 1
                     node = _figure_node(ctx, ref, pages, fig_count)
                 else:
-                    node = (_try_table(ctx, ref, blocks, texts, pages)
-                            or _aside_node(ctx, ref, blocks, rich, fonts,
-                                           body_size, roles))
+                    node = _try_table(ctx, ref, blocks, texts, pages)
+                    if node is None:
+                        node = _aside_node(ctx, ref, blocks, rich, fonts,
+                                           body_size, roles)
+                        fig_count = _aside_images(ctx, ref, node, pages,
+                                                  fig_count)
                 nodes.append(node)
                 if ref.get("uncertain") and node["type"] != "table":
                     prompt = (
@@ -901,6 +904,41 @@ def _try_table(ctx, reg, blocks, texts, pages):
     node["nid"] = _stable_id("n", ctx.nids, "table", reg["page"], reg["bbox"],
                              " ".join(rows[0]))
     return node
+
+
+def _aside_images(ctx, reg, node, pages, fig_count):
+    """Images inside a callout region become figure children (the logo /
+    photo lives in the box, not lost to it)."""
+    page = pages[reg["page"]]
+    repeated = _repeated_images(pages)
+    figs = []
+    for o in page.get("objects", []):
+        if o[0] != OBJ_IMAGE or _okey(page["n"], o) in repeated:
+            continue
+        cx, cy = (o[1] + o[3]) / 2, (o[2] + o[4]) / 2
+        if not (reg["bbox"][0] <= cx <= reg["bbox"][2]
+                and reg["bbox"][1] <= cy <= reg["bbox"][3]):
+            continue
+        if (o[3] - o[1]) * (o[4] - o[2]) < 400:
+            continue  # icons
+        fig_count += 1
+        sub = {"page": page["n"], "bbox": [o[1], o[2], o[3], o[4]]}
+        src, w_px, h_px = _crop(ctx, sub, page, fig_count)
+        rk = ctx.log.entry("aside-image", page=page["n"], src=src,
+                           bbox=sub["bbox"], region=reg["rk"])
+        figs.append({"type": "figure", "src": src,
+                     "width": round(o[3] - o[1]),
+                     "height": round(o[4] - o[2]),
+                     "alt": f"Image from page {page['n']}",
+                     "page": page["n"], "bbox": sub["bbox"], "rk": rk,
+                     "data": {"region": reg["rk"]},
+                     "nid": _stable_id("n", ctx.nids, "figure", page["n"],
+                                       sub["bbox"])})
+    if figs:
+        node["children"] = sorted(
+            node["children"] + figs,
+            key=lambda c: (c["page"], -c["bbox"][3]))
+    return fig_count
 
 
 def _aside_node(ctx, reg, blocks, rich, fonts, body_size, roles):

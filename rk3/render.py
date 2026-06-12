@@ -9,7 +9,7 @@ import re
 import shutil
 from pathlib import Path
 
-VERSION = 21
+VERSION = 22
 
 # ; and , are legal in URLs but in print they overwhelmingly join citations,
 # so they terminate a match
@@ -254,6 +254,12 @@ def _inline(text, links, refs, state, breaks=None):
                 href = uri if "://" in uri or uri.startswith(("mailto:", "#")) \
                     else "https://" + uri
                 cls = ' class="autolink"' if payload.get("auto") else ""
+                # when the anchor text IS the url, print wraps corrupt it
+                # (underscores become spaces at line breaks): show the href
+                raw = text[s:e]
+                if raw.lstrip().lower().startswith(("http", "www.")) and \
+                        _alnum_only(raw) == _alnum_only(href):
+                    seg = html.escape(href)
                 out.append(f'<a{cls} href="{html.escape(href, quote=True)}">{seg}</a>')
             else:
                 dest = payload.get("destPage")
@@ -280,6 +286,10 @@ def _inline(text, links, refs, state, breaks=None):
         pos = e
     out.append(html.escape(text[pos:]))
     return "".join(out)
+
+
+def _alnum_only(t):
+    return re.sub(r"[^a-z0-9]+", "", (t or "").lower())
 
 
 def _resolve_anchor(seg_text, targets):

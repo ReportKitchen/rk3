@@ -69,9 +69,10 @@ def test_expectations(corpus, slug):
         for page, prefix in exp["aside_first_child_starts"]:
             aside = next(n for n in body
                          if n["type"] == "aside" and n["page"] == page)
-            first = aside["children"][0].get("text", "")
+            first = next((c.get("text") for c in aside["children"]
+                          if c.get("text")), "")  # images may precede text
             assert first.startswith(prefix), \
-                f"p{page} aside first child {first[:60]!r}"
+                f"p{page} aside first text child {first[:60]!r}"
 
 
 @pytest.mark.parametrize("slug", sorted(EXPECTATIONS))
