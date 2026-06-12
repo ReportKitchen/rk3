@@ -18,9 +18,15 @@ import pypdfium2.raw as pdfium_c
 
 from ...pipeline import ScannedPdfError
 
-VERSION = 5
+VERSION = 6
 
 OBJ_PATH, OBJ_IMAGE, OBJ_SHADING = 2, 3, 4
+
+# struct-tree element types that carry meaning for us; everything else
+# (Document, Sect, Art, Div, NonStruct…) just passes its role down
+SEMANTIC_ROLES = {"Title", "H", "H1", "H2", "H3", "H4", "H5", "H6", "P",
+                  "Figure", "Caption", "Table", "TR", "TH", "TD",
+                  "L", "LI", "Lbl", "LBody", "TOC", "TOCI", "BlockQuote"}
 
 
 def run(ctx):
@@ -93,6 +99,7 @@ def run(ctx):
                 "chars": chars,
                 "objects": _page_objects(page, color_id),
                 "links": _page_links(pdf, page),
+                "tagged": _tagged_regions(page),
             })
 
             bitmap = page.render(scale=scale)
@@ -144,6 +151,79 @@ def _page_objects(page, color_id):
         objects.append([obj.type, round(l, 2), round(b, 2), round(r, 2),
                         round(t, 2), fill, stroke, filled, stroked])
     return objects
+
+
+def _tagged_regions(page):
+    """For tagged PDFs: regions of the page with a structure-tree role,
+    [[l, b, r, t, role], ...]. Built by joining the struct tree (role per
+    marked-content id) with page-object content marks (MCID + bounds).
+    Decorations marked Artifact in the content stream get role "Artifact"
+    even though they have no struct element. Empty list for untagged pages."""
+    roles = _struct_roles(page)
+    regions = []
+    for obj in page.get_objects(max_depth=2):
+        mcid, artifact = _object_mark(obj)
+        role = "Artifact" if artifact else roles.get(mcid)
+        if role is None:
+            continue
+        try:
+            l, b, r, t = obj.get_bounds()
+        except Exception:
+            continue
+        if r - l <= 0 or t - b <= 0:
+            continue
+        regions.append([round(l, 2), round(b, 2), round(r, 2), round(t, 2), role])
+    return regions
+
+
+def _struct_roles(page):
+    """mcid -> nearest semantic ancestor role, from the page's struct tree."""
+    roles = {}
+    st = pdfium_c.FPDF_StructTree_GetForPage(page)
+    if not st:
+        return roles
+
+    buf = ctypes.create_string_buffer(128)
+
+    def walk(elem, inherited):
+        n = pdfium_c.FPDF_StructElement_GetType(elem, buf, len(buf))
+        etype = buf.raw[:max(0, n - 2)].decode("utf-16-le", "replace") if n > 2 else ""
+        role = etype if etype in SEMANTIC_ROLES else inherited
+        if role:
+            cnt = pdfium_c.FPDF_StructElement_GetMarkedContentIdCount(elem)
+            for i in range(max(0, cnt)):
+                mid = pdfium_c.FPDF_StructElement_GetMarkedContentIdAtIndex(elem, i)
+                if mid >= 0:
+                    roles[mid] = role
+        for i in range(pdfium_c.FPDF_StructElement_CountChildren(elem)):
+            child = pdfium_c.FPDF_StructElement_GetChildAtIndex(elem, i)
+            if child:
+                walk(child, role)
+
+    try:
+        for i in range(pdfium_c.FPDF_StructTree_CountChildren(st)):
+            walk(pdfium_c.FPDF_StructTree_GetChildAtIndex(st, i), None)
+    finally:
+        pdfium_c.FPDF_StructTree_Close(st)
+    return roles
+
+
+def _object_mark(obj):
+    """(mcid, is_artifact) from a page object's content marks."""
+    for i in range(pdfium_c.FPDFPageObj_CountMarks(obj.raw)):
+        mark = pdfium_c.FPDFPageObj_GetMark(obj.raw, i)
+        wbuf = (ctypes.c_ushort * 64)()
+        blen = ctypes.c_ulong(0)
+        pdfium_c.FPDFPageObjMark_GetName(mark, wbuf, ctypes.sizeof(wbuf),
+                                         ctypes.byref(blen))
+        name = bytes(wbuf)[:max(0, blen.value - 2)].decode("utf-16-le", "replace")
+        if name == "Artifact":
+            return None, True
+        mcid = ctypes.c_int(-1)
+        if pdfium_c.FPDFPageObjMark_GetParamIntValue(mark, b"MCID",
+                                                     ctypes.byref(mcid)):
+            return mcid.value, False
+    return None, False
 
 
 def _page_links(pdf, page):

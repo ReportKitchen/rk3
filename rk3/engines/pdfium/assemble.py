@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter
 
-VERSION = 8
+VERSION = 11
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -39,7 +39,8 @@ def run(ctx):
 
     ctx.write_artifact("assemble", {
         "pages": [{"n": p["n"], "width": p["width"], "height": p["height"],
-                   "objects": p.get("objects", [])}
+                   "objects": p.get("objects", []),
+                   "tagged": p.get("tagged", [])}
                   for p in ex["pages"]],
         "blocks": kept,
         "fonts": ex["fonts"],
@@ -55,8 +56,10 @@ def _lines(chars, links):
     for c in chars:
         if c[UC] in ("\r", "\n"):
             continue
-        if cur:
-            prev = cur[-1]
+        # spaces often have degenerate boxes; they never trigger a break, and
+        # break checks compare against the last *visible* char
+        if cur and c[UC] != " ":
+            prev = next((x for x in reversed(cur) if x[UC] != " "), cur[-1])
             size = max(c[SIZE], 1.0)
             v_mid_prev = (prev[B] + prev[T]) / 2
             v_mid = (c[B] + c[T]) / 2
@@ -91,13 +94,17 @@ def _finish_line(chars, links):
         sizes[c[SIZE]] += 1
         fonts[c[FONT]] += 1
         colors[c[COLOR]] += 1
-    # strip() equivalent that keeps src aligned
+    # strip() equivalent that keeps src aligned; remember stripped boundary
+    # spaces — they're real PDF chars, and when a visual line is split across
+    # runs the joiner must know a space existed there
+    orig_len = len(text)
     start = 0
-    end = len(text)
+    end = orig_len
     while start < end and text[start] == " ":
         start += 1
     while end > start and text[end - 1] == " ":
         end -= 1
+    space_before, space_after = start > 0, end < orig_len
     text, src = text[start:end], src[start:end]
 
     dom_size = sizes.most_common(1)[0][0]
@@ -109,6 +116,10 @@ def _finish_line(chars, links):
         "fontIdx": fonts.most_common(1)[0][0],
         "colorIdx": colors.most_common(1)[0][0],
     }
+    if space_before:
+        line["spaceBefore"] = True
+    if space_after:
+        line["spaceAfter"] = True
     sups = _sup_ranges(src, dom_size)
     if sups:
         line["sups"] = sups
@@ -230,6 +241,8 @@ def _merge_baseline_fragments(ctx, lines, page_n):
                     joiner = ""
                 elif left_ends_sup and right["text"][:1].isalpha():
                     joiner = " "
+                elif left.get("spaceAfter") or right.get("spaceBefore"):
+                    joiner = " "  # the PDF had a real space at this boundary
                 else:
                     joiner = " " if (gap > 0.2 * size or
                                      right["text"][:1].isupper()) else ""
@@ -244,6 +257,10 @@ def _merge_baseline_fragments(ctx, lines, page_n):
                     "size": keep["size"], "fontIdx": keep["fontIdx"],
                     "colorIdx": keep["colorIdx"],
                 }
+                if left.get("spaceBefore"):
+                    cur["spaceBefore"] = True
+                if right.get("spaceAfter"):
+                    cur["spaceAfter"] = True
                 for key in ("sups", "links", "colors"):
                     merged = list(left.get(key, []))
                     for rng in right.get(key, []):

@@ -9,7 +9,7 @@ import re
 import shutil
 from pathlib import Path
 
-VERSION = 10
+VERSION = 11
 
 # ; and , are legal in URLs but in print they overwhelmingly join citations,
 # so they terminate a match
@@ -144,10 +144,9 @@ def _inline(text, links, refs, state):
             uri = payload.get("uri")
             if payload.get("styled"):
                 # colored like the document's links but has no target in the
-                # PDF (print-styled cross-reference)
-                out.append(f'<a class="styled-link" data-link-styled="true" '
-                           f'title="Styled as a link in the source PDF, but no '
-                           f'target is embedded">{seg}</a>')
+                # PDF (print-styled cross-reference) — not rendered as <a>,
+                # since a link that goes nowhere misleads; provenance kept
+                out.append(f'<span data-link-styled="true">{seg}</span>')
             elif uri:
                 href = uri if "://" in uri or uri.startswith(("mailto:", "#")) \
                     else "https://" + uri

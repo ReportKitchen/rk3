@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 10
+VERSION = 13
 
 BULLETS = "•◦▪‣–—-*·"
 OBJ_PATH, OBJ_IMAGE, OBJ_SHADING = 2, 3, 4
@@ -60,14 +60,27 @@ def run(ctx):
     rich = [_join_block(ctx, blk, link_colors) for blk in blocks]
     texts = [r["text"] for r in rich]
     body_size = _body_size(ctx, blocks)
+    roles = _block_roles(pages, blocks)  # (role, coverage) per block, tag docs only
+    tag_levels = _tag_heading_levels(ctx, roles)
 
-    toc_pages = set()
-    if ctx.cfg["structure"].get("dropToc", True):
-        toc_pages = _toc_pages(ctx, pages, blocks)
+    drop_toc = ctx.cfg["structure"].get("dropToc", True)
+    toc_pages = _toc_pages(ctx, pages, blocks) if drop_toc else set()
     skip = {i for i, blk in enumerate(blocks) if blk["page"] in toc_pages}
     for i in skip:
         ctx.log.entry("toc-drop", page=blocks[i]["page"], block=blocks[i]["rk"],
                       text=texts[i][:60])
+    for i, blk in enumerate(blocks):
+        if i in skip:
+            continue
+        role, cov = roles[i]
+        if role == "Artifact" and cov > 0.5:
+            skip.add(i)
+            ctx.log.entry("strip-artifact", page=blk["page"], block=blk["rk"],
+                          coverage=round(cov, 2), text=texts[i][:60])
+        elif drop_toc and role in ("TOC", "TOCI") and cov > 0.5:
+            skip.add(i)
+            ctx.log.entry("toc-tag-drop", page=blk["page"], block=blk["rk"],
+                          text=texts[i][:60])
 
     regions = _detect_regions(ctx, pages, blocks, texts, body_size, toc_pages)
     regions = _merge_cross_page_callouts(ctx, regions, pages)
@@ -75,7 +88,7 @@ def run(ctx):
     for reg in regions:
         for bi in reg["blockIdx"]:
             absorbed[bi] = reg
-    _find_captions(ctx, regions, blocks, texts, absorbed, body_size)
+    _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles)
     absorbed.update(dict.fromkeys(skip))
 
     notes, note_idx = _find_notes(ctx, pages, blocks, texts, absorbed, body_size)
@@ -105,7 +118,8 @@ def run(ctx):
         for kind, ref in page_items[page_n]:
             if kind == "block":
                 nodes.append(_block_node(ctx, blocks[ref], rich[ref], fonts,
-                                         levels, body_size, used_ids))
+                                         levels, body_size, used_ids,
+                                         role=roles[ref], tag_levels=tag_levels))
             else:
                 if ref["kind"] == "figure":
                     fig_count += 1
@@ -129,6 +143,10 @@ def run(ctx):
                               f"Is “{ref['caption'][:60]}” a caption for this "
                               "figure, or an ordinary paragraph?",
                               ["caption", "paragraph"], "caption")
+
+    # sentences interrupted by page breaks happen in the main flow too,
+    # not just inside callouts
+    nodes = _join_pagebreak_sentences(ctx, nodes)
 
     if notes:
         last = blocks[max(note_idx)]
@@ -287,7 +305,7 @@ def _classify_cluster(ctx, page, cluster, blocks, texts, body_size):
             "uncertain": uncertain, "blockIdx": absorbed_idx}
 
 
-def _find_captions(ctx, regions, blocks, texts, absorbed, body_size):
+def _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles):
     for reg in regions:
         if reg["kind"] != "figure":
             continue
@@ -302,10 +320,13 @@ def _find_captions(ctx, regions, blocks, texts, absorbed, body_size):
             text = texts[i]
             keyword = re.match(r"(figure|fig\.|table|chart|exhibit|source[:.])",
                                text, re.I)
-            captionish = keyword or _dominant_size(blk) < 0.95 * body_size
+            tagged_caption = roles[i][0] == "Caption" and roles[i][1] > 0.5
+            captionish = (keyword or tagged_caption
+                          or _dominant_size(blk) < 0.95 * body_size)
             if captionish and len(text) < 500:
                 reg["caption"] = text
-                reg["captionWeak"] = not keyword  # small font was the only signal
+                # small font as the only signal => genuinely unsure
+                reg["captionWeak"] = not (keyword or tagged_caption)
                 reg["captionBlock"] = blk["rk"]
                 absorbed[i] = reg
                 ctx.log.entry("caption", page=reg["page"], figure=reg["rk"],
@@ -327,23 +348,50 @@ def _is_label(text):
 
 # ------------------------------------------------------------------ nodes ---
 
-def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids, in_aside=False):
+def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
+                in_aside=False, role=(None, 0.0), tag_levels=None):
     text = rich["text"]
     size = _dominant_size(blk)
     font = fonts[blk["lines"][0]["fontIdx"]]
     prov = {"font": font["name"], "weight": font["weight"], "size": size}
+    tag_role, tag_cov = role
+    if tag_role:
+        prov["role"] = tag_role
+
+    if not in_aside and tag_levels and tag_role in tag_levels and tag_cov > 0.5 \
+            and text.strip():
+        level = tag_levels[tag_role]
+        hid = _heading_id(text, used_ids)
+        rk = ctx.log.entry("heading", level=level, page=blk["page"],
+                           bbox=blk["bbox"], size=size, body_size=body_size,
+                           reason=f"struct tag {tag_role} (coverage {tag_cov:.2f})",
+                           text=text[:120], block=blk["rk"])
+        return {"type": "heading", "level": level, "text": text, "id": hid,
+                "page": blk["page"], "bbox": blk["bbox"], "rk": rk, "data": prov,
+                "nid": _stable_id("n", ctx.nids, "heading", blk["page"], blk["bbox"])}
 
     if not in_aside and size in levels and _looks_like_heading(text):
         level = levels[size]
         hid = _heading_id(text, used_ids)
+        # authors tag genuine headings as P often enough that a P tag must
+        # not veto strong size evidence — but the disagreement is exactly
+        # what the question system is for
+        conflict = bool(tag_levels) and tag_role == "P" and tag_cov > 0.5
+        reason = f"size {size} ranked #{level} above body {body_size}"
+        if conflict:
+            reason += " (struct tag says P — kept as heading, question emitted)"
         rk = ctx.log.entry("heading", level=level, page=blk["page"],
                            bbox=blk["bbox"], size=size, body_size=body_size,
-                           reason=f"size {size} ranked #{level} above body {body_size}",
-                           text=text[:120], block=blk["rk"])
+                           reason=reason, text=text[:120], block=blk["rk"])
         node = {"type": "heading", "level": level, "text": text, "id": hid,
                 "page": blk["page"], "bbox": blk["bbox"], "rk": rk, "data": prov}
         node["nid"] = _stable_id("n", ctx.nids, "heading", node["page"], node["bbox"])
-        if size < body_size * 1.3:  # barely above body text: genuinely unsure
+        if conflict:
+            _question(ctx, "tag-conflict-heading", node,
+                      f"“{text[:60]}” looks like a heading by size, but the "
+                      f"document's tags call it a paragraph. Which is right?",
+                      [f"h{level}", "paragraph"], f"h{level}")
+        elif size < body_size * 1.3:  # barely above body text: genuinely unsure
             _question(ctx, "heading-or-paragraph", node,
                       f"“{text[:60]}” is only slightly larger than body text. "
                       f"Heading (h{level}) or ordinary paragraph?",
@@ -567,6 +615,42 @@ def _link_colors(ctx, blocks):
     if linked:
         ctx.log.entry("link-colors", colors=sorted(linked))
     return linked
+
+
+def _block_roles(pages, blocks):
+    """(role, coverage) per block, by area-weighted vote of the tagged regions
+    overlapping its bbox. (None, 0.0) when the page carries no tags."""
+    out = []
+    for blk in blocks:
+        regs = pages[blk["page"]].get("tagged", [])
+        bl, bb, br, bt = blk["bbox"]
+        barea = max((br - bl) * (bt - bb), 1.0)
+        votes = Counter()
+        for l, b, r, t, role in regs:
+            ix = min(br, r) - max(bl, l)
+            iy = min(bt, t) - max(bb, b)
+            if ix > 0 and iy > 0:
+                votes[role] += ix * iy
+        if votes:
+            role, _w = votes.most_common(1)[0]
+            out.append((role, min(1.0, sum(votes.values()) / barea)))
+        else:
+            out.append((None, 0.0))
+    return out
+
+
+def _tag_heading_levels(ctx, roles):
+    """Map the heading roles this document actually uses to dense levels
+    starting at h1 (Title outranks H1 outranks H2…). Empty when the doc tags
+    no headings, in which case size ranking is the only heading signal."""
+    rank = {"Title": 0, "H": 1}
+    used = {r for r, cov in roles
+            if cov > 0.5 and (r in rank or re.fullmatch(r"H[1-6]", r or ""))}
+    ordered = sorted(used, key=lambda r: rank.get(r, int(r[1:])))
+    levels = {r: min(i + 1, 6) for i, r in enumerate(ordered)}
+    if levels:
+        ctx.log.entry("tag-heading-levels", mapping=levels)
+    return levels
 
 
 def _merge_cross_page_callouts(ctx, regions, pages):

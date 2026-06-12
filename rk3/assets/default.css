@@ -69,5 +69,3 @@ sup.fnref a {
 
 .fn-back { text-decoration: none; }
 
-/* link-styled text with no embedded target */
-.styled-link { text-decoration: underline dotted; cursor: help; }
