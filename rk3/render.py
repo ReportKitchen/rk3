@@ -9,7 +9,7 @@ import re
 import shutil
 from pathlib import Path
 
-VERSION = 15
+VERSION = 16
 
 # ; and , are legal in URLs but in print they overwhelmingly join citations,
 # so they terminate a match
@@ -86,8 +86,12 @@ def _render_node(ctx, node, pages, state):
     t = node["type"]
     if t == "heading":
         lv = min(max(node["level"], 1), 6)
+        body = html.escape(node["text"])
+        if node.get("sectionNum"):
+            body = (f'<span class="section-number">{html.escape(node["sectionNum"])}'
+                    f'</span> {body}')
         return (f'<h{lv} {_attrs(node, pages, {"id": node["id"]})}>'
-                f'{html.escape(node["text"])}</h{lv}>')
+                f'{body}</h{lv}>')
     if t == "list":
         items = "\n".join(f"  <li>{html.escape(i)}</li>" for i in node["items"])
         return f'<ul {_attrs(node, pages)}>\n{items}\n</ul>'
@@ -96,6 +100,12 @@ def _render_node(ctx, node, pages, state):
                        breaks=node.get("breaks"))
         if node.get("strong"):
             body = f"<strong>{body}</strong>"
+        if node.get("quoteOpen"):
+            body = (f'<span class="quote-mark open" aria-hidden="true">'
+                    f'{html.escape(node["quoteOpen"])}</span>{body}')
+        if node.get("quoteClose"):
+            body += (f'<span class="quote-mark close" aria-hidden="true">'
+                     f'{html.escape(node["quoteClose"])}</span>')
         return f'<p {_attrs(node, pages)}>{body}</p>'
     if t == "figure":
         cap = (f'\n  <figcaption>{html.escape(node["caption"])}</figcaption>'
@@ -120,7 +130,8 @@ def _render_node(ctx, node, pages, state):
     if t == "aside":
         children = "\n".join(_render_node(ctx, c, pages, state)
                              for c in node["children"])
-        return f'<aside {_attrs(node, pages)}>\n{children}\n</aside>'
+        extra = {"class": "quote"} if node.get("quote") else None
+        return f'<aside {_attrs(node, pages, extra)}>\n{children}\n</aside>'
     if t == "footnotes":
         items = []
         for note in node["notes"]:

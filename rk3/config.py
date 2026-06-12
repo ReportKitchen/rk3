@@ -20,6 +20,10 @@ DEFAULTS = {
         # answers to figure-or-callout questions, applied on re-run:
         # [{"page": n, "bbox": [l,b,r,t], "kind": "figure"|"callout"}]
         "regionOverrides": [],
+        # design-element numerals glued to headings ("4Institutional"):
+        # "styled" (separate <span class="section-number">), "inline" ("4. X"),
+        # or "removed"
+        "sectionNumbers": "styled",
     },
     "output": {
         "imageScale": 2,

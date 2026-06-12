@@ -69,3 +69,12 @@ sup.fnref a {
 
 .fn-back { text-decoration: none; }
 
+/* design-element section numbers (layer 3 may badge/circle these) */
+.section-number {
+  font-weight: 700;
+  margin-right: 0.25em;
+}
+
+/* decorative quotation marks, separated so CSS can restyle or hide them */
+aside.quote .quote-mark { font-weight: 700; }
+

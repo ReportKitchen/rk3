@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter
 
-VERSION = 12
+VERSION = 13
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -279,6 +279,11 @@ def _merge_baseline_fragments(ctx, lines, page_n):
     return out
 
 
+def _is_caps(text):
+    letters = [c for c in text if c.isalpha()]
+    return len(letters) >= 4 and all(c.isupper() for c in letters)
+
+
 def _sup_of(a, b):
     """If one line is a superscript fragment of the other (much smaller and
     raised off the partner's baseline), return that line, else None."""
@@ -303,7 +308,10 @@ def _blocks(lines):
             gap = last["bbox"][1] - ln["bbox"][3]  # prev bottom - this top
             height = max(ln["size"], 1.0)
             same_size = abs(ln["size"] - last["size"]) < 0.6
-            if 0 <= gap <= 0.9 * height and same_size:
+            # an ALL-CAPS kicker followed by mixed-case prose (or vice versa)
+            # is a boundary even at body size
+            same_case = _is_caps(ln["text"]) == _is_caps(last["text"])
+            if 0 <= gap <= 0.9 * height and same_size and same_case:
                 cur["lines"].append(ln)
                 continue
         cur = {"lines": [ln]}
@@ -338,7 +346,9 @@ def _strip_repeating(ctx, blocks, page_dims, n_pages):
         if z:
             seen[(z, norm(blk))] += 1
 
-    min_repeats = max(3, round(0.4 * n_pages))
+    # capped: in long docs many pages legitimately lack the footer (covers,
+    # worksheets), but 8 identical edge-zone repeats is conclusive regardless
+    min_repeats = max(3, min(8, round(0.4 * n_pages)))
     kept = []
     for blk in blocks:
         z = zone(blk)

@@ -184,7 +184,7 @@
       3
     ],
     "questions": 0,
-    "textChars": 12034
+    "textChars": 12033
   },
   "02--baystate-case-study-021624": {
     "status": "done",
@@ -388,11 +388,19 @@
       ],
       [
         5,
-        "Ideal Course for Principles of Health Education: Hom e Injury Prevention & CHASE"
+        "Ideal Course for Principles of Health Education: Hom e Injury Prevention &"
       ],
       [
         5,
-        "Lesson Outline : Principles of Health Education: Home Injury Prevention & CHASE"
+        "CHASE"
+      ],
+      [
+        5,
+        "Lesson Outline : Principles of Health Education: Home Injury Prevention &"
+      ],
+      [
+        5,
+        "CHASE"
       ],
       [
         4,
@@ -482,14 +490,14 @@
     "counts": {
       "aside": 3,
       "figure": 32,
-      "heading": 40,
+      "heading": 42,
       "list": 2,
       "paragraph": 215
     },
-    "asideChildren": 6,
+    "asideChildren": 4,
     "notes": [],
-    "questions": 59,
-    "textChars": 43438
+    "questions": 61,
+    "textChars": 43430
   },
   "02--jhu-federal-register-comments-pharma-investigation": {
     "status": "done",
@@ -523,12 +531,76 @@
         "Fall 2016 | David Zuckerman and Katie Parker | The Democracy Collaborative"
       ],
       [
+        5,
+        "THE DEMOCRACY COLLABORATIVE"
+      ],
+      [
+        5,
+        "ABOUT THE AUTHORS"
+      ],
+      [
         2,
         "Building the pipeline to a healthy community"
       ],
       [
+        5,
+        "ANCHOR INSTITUTION"
+      ],
+      [
+        5,
+        "ANCHOR MISSION"
+      ],
+      [
+        5,
+        "COMMUNITY BENEFIT"
+      ],
+      [
+        5,
+        "COMMUNITY HEALTH NEEDS ASSESSMENT (CHNA)"
+      ],
+      [
+        5,
+        "COMMUNITY WEALTH BUILDING"
+      ],
+      [
         1,
         "Key Terms"
+      ],
+      [
+        5,
+        "HEALTH & HEALTH EQUITY"
+      ],
+      [
+        5,
+        "IMPLICIT BIAS/UNCONSCIOUS BIAS"
+      ],
+      [
+        5,
+        "INCLUSIVE, LOCAL HIRING"
+      ],
+      [
+        5,
+        "LIVING WAGE"
+      ],
+      [
+        5,
+        "RACIAL EQUITY"
+      ],
+      [
+        5,
+        "SOCIAL DETERMINANTS OF HEALTH (SDOH)"
+      ],
+      [
+        5,
+        "WHITE SUPREMACY"
+      ],
+      [
+        5,
+        "WHITE SUPREMACY CULTURE"
+      ],
+      [
+        5,
+        "WORKFORCE INTERMEDIARY"
       ],
       [
         1,
@@ -575,8 +647,36 @@
         "Key strategies employed"
       ],
       [
+        5,
+        "GEOGRAPHIC FOCUS ON HIGH-POVERTY NEIGHBORHOODS"
+      ],
+      [
+        5,
+        "SET ASIDE POSITIONS FOR PIPELINE COHORT GRADUATES"
+      ],
+      [
+        5,
+        "OFFER JOB COACHING FOR NEW-HIRES AND MAP OUT POTENTIAL CAREER PATHWAYS"
+      ],
+      [
+        5,
+        "TUITION ASSISTANCE FOR FRONTLINE EMPLOYEE ACCESSIBLE TRAINING"
+      ],
+      [
+        5,
+        "PARTNERSHIPS WITH LOCAL EDUCATIONAL INSTITUTIONS AND COMMUNITY ORGANIZATIONS"
+      ],
+      [
         2,
         "Possible Career Ladder: Patient Care"
+      ],
+      [
+        5,
+        "POSITIONS GRADUATES ARE HIRED INTO"
+      ],
+      [
+        5,
+        "FOR MORE INFORMATION"
       ],
       [
         3,
@@ -611,6 +711,38 @@
         "Key strategies employed"
       ],
       [
+        5,
+        "FOCUS ON JOBS WITH CLEAR CAREER PATHWAYS"
+      ],
+      [
+        5,
+        "WORK WITH NETWORK OF MULTIPLE EMPLOYERS"
+      ],
+      [
+        5,
+        "UTILIZE A COHORT TRAINING MODEL TARGETED AT SPECIFIC POSITIONS"
+      ],
+      [
+        5,
+        "INVOLVE HIRING MANAGERS IN THE TRAINING PROCESS"
+      ],
+      [
+        5,
+        "PARTNER WITH A WORKFORCE INTERMEDIARY"
+      ],
+      [
+        5,
+        "DESIGNATE A GEOGRAPHIC FOCUS IN HIGH-POVERTY NEIGHBORHOODS"
+      ],
+      [
+        5,
+        "SPECIFIC POSITIONS GRADUATES ARE HIRED INTO"
+      ],
+      [
+        5,
+        "FOR MORE INFORMATION"
+      ],
+      [
         3,
         "ALAMEDA COUNTY, CALIFORNIA"
       ],
@@ -643,6 +775,30 @@
         "Key strategies employed"
       ],
       [
+        5,
+        "COHORT TRAINING MODEL TARGETED AT SPECIFIC POSITIONS"
+      ],
+      [
+        5,
+        "FOCUS ON ADDITIONAL WRAP AROUND SUPPORTS & SOFT SKILLS TRAINING"
+      ],
+      [
+        5,
+        "INTERMEDIARY WITH NETWORK OF MULTIPLE EMPLOYERS"
+      ],
+      [
+        5,
+        "CONNECTED TO HEALTH SYSTEM DIVERSITY AND OUTREACH GOALS"
+      ],
+      [
+        5,
+        "FOR MORE INFORMATION"
+      ],
+      [
+        5,
+        "SPECIFIC POSITION TITLES GRADUATES ARE HIRED INTO"
+      ],
+      [
         1,
         "Partners HealthCare"
       ],
@@ -667,12 +823,48 @@
         "Description of programs"
       ],
       [
+        5,
+        "1. COMMUNITY PIPELINE"
+      ],
+      [
+        5,
+        "2. INCUMBENT PIPELINE"
+      ],
+      [
+        5,
+        "3. YOUTH PIPELINE"
+      ],
+      [
         2,
         "Staffing and budget"
       ],
       [
         2,
         "Key strategies employed"
+      ],
+      [
+        5,
+        "FOSTER COLLABORATION BETWEEN HUMAN RESOURCES AND COMMUNITY HEALTH DEPARTMENTS"
+      ],
+      [
+        5,
+        "INVOLVE HIRING MANAGERS IN THE TRAINING PROCESS"
+      ],
+      [
+        5,
+        "CONNECT PROGRAMMING TO HEALTH SYSTEM DIVERSITY GOALS"
+      ],
+      [
+        5,
+        "POSITIONS GRADUATES ARE HIRED INTO"
+      ],
+      [
+        5,
+        "FOR MORE INFORMATION"
+      ],
+      [
+        5,
+        "ANCHOR INSTITUTION TOOLKIT MEETING"
       ],
       [
         3,
@@ -705,6 +897,34 @@
       [
         2,
         "Key strategies employed"
+      ],
+      [
+        5,
+        "PRIORITIZING COMMUNITY ENGAGEMENT"
+      ],
+      [
+        5,
+        "FUNCTIONING IN A HUB AND NAVIGATOR ROLE"
+      ],
+      [
+        5,
+        "COHORT TRAINING MODEL TARGETED AT SPECIFIC POSITIONS"
+      ],
+      [
+        5,
+        "INVOLVEMENT OF HIRING MANAGERS"
+      ],
+      [
+        5,
+        "TIME INVESTMENT INTO RESEARCH, PLANNING, AND DESIGN"
+      ],
+      [
+        5,
+        "SPECIFIC POSITIONS GRADUATES ARE HIRED INTO"
+      ],
+      [
+        5,
+        "FOR MORE INFORMATION"
       ],
       [
         1,
@@ -743,68 +963,288 @@
         "Key strategies employed"
       ],
       [
+        5,
+        "CONNECT FORECASTING, TRAINING, AND HIRING DEPARTMENTS"
+      ],
+      [
+        5,
+        "COLLABORATE WITH OTHER ANCHORS AND CITY ECONOMIC DEVELOPMENT EFFORTS"
+      ],
+      [
+        5,
+        "OFFER JOB COACHING FOR NEW HIRES AND MAP OUT POTENTIAL CAREER PATHWAYS"
+      ],
+      [
+        5,
+        "WORK WITH RESIDENTS WITH THE GREATEST BARRIERS TO EMPLOYMENT"
+      ],
+      [
+        5,
+        "PROVIDE TUITION ASSISTANCE FOR FRONTLINE EMPLOYEE ACCESSIBLE TRAINING"
+      ],
+      [
+        5,
+        "HOPKINSLOCAL TARGETED POSITIONS"
+      ],
+      [
+        5,
+        "FOR MORE INFORMATION"
+      ],
+      [
         1,
         "Outside-In Strategies"
       ],
       [
+        5,
+        "CRITICAL STRATEGIES"
+      ],
+      [
+        5,
+        "PROGRAM DESIGN STRATEGIES"
+      ],
+      [
+        5,
+        "INTERMEDIARY STRATEGIES"
+      ],
+      [
+        5,
+        "INSTITUTIONAL STRATEGIES"
+      ],
+      [
         2,
-        "1Critical Strategies"
+        "Critical Strategies"
+      ],
+      [
+        5,
+        "PARTNERSHIPS WITH WORKFORCE INTERMEDIARIES"
+      ],
+      [
+        5,
+        "COHORT TRAINING MODEL TARGETED AT SPECIFIC POSITIONS"
       ],
       [
         4,
         "“It’s a closed door center by design. We recruit for specific cohorts, train to "
       ],
       [
+        5,
+        "PAID INTERNSHIP PROGRAMS WITH PATHWAYS TO HIRE"
+      ],
+      [
         2,
-        "2Program Design Strategies"
+        "Program Design Strategies"
+      ],
+      [
+        5,
+        "GEOGRAPHIC FOCUS ON HIGH-POVERTY NEIGHBORHOODS"
+      ],
+      [
+        5,
+        "FOCUS ON RESIDENTS WITH THE GREATEST BARRIERS TO EMPLOYMENT"
+      ],
+      [
+        5,
+        "FOCUSING ON JOBS WITH CLEAR CAREER PATHWAYS"
+      ],
+      [
+        5,
+        "SET ASIDE POSITION VACANCIES OR GUARANTEED INTERVIEWS FOR PIPELINE COHORT GRADUA"
       ],
       [
         4,
         "“One of the things that attracts people to these programs is that once they get "
       ],
       [
-        2,
-        "3Intermediary Strategies"
+        5,
+        "INVOLVEMENT OF HIRING MANAGERS IN THE TRAINING PROCESS"
       ],
       [
         2,
-        "4Institutional Strategies"
+        "Intermediary Strategies"
+      ],
+      [
+        5,
+        "FOCUSING ON ADDITIONAL WRAP AROUND SUPPORTS AND SOFT SKILLS TRAINING"
+      ],
+      [
+        5,
+        "INTERMEDIARY FUNCTIONING IN A HUB/NAVIGATOR ROLE"
+      ],
+      [
+        5,
+        "COLLABORATING WITH OTHER ANCHORS OR CITY ECONOMIC DEVELOPMENT EFFORTS"
+      ],
+      [
+        2,
+        "Institutional Strategies"
+      ],
+      [
+        5,
+        "CONNECTION TO HEALTH SYSTEM DIVERSITY AND OUTREACH GOALS"
+      ],
+      [
+        5,
+        "COLLABORATION BETWEEN HUMAN RESOURCES AND COMMUNITY HEALTH DEPARTMENTS"
+      ],
+      [
+        5,
+        "LEVERAGING VENDOR CONTRACTS AND CONNECTING TO SUPPLY CHAIN"
       ],
       [
         1,
         "Inside-Up Strategies"
       ],
       [
-        2,
-        "1Critical Strategies"
+        5,
+        "CRITICAL STRATEGIES"
+      ],
+      [
+        5,
+        "PROGRAM DESIGN STRATEGIES"
+      ],
+      [
+        5,
+        "INSTITUTIONAL STRATEGIES"
+      ],
+      [
+        5,
+        "OTHER RESOURCES"
       ],
       [
         2,
-        "2Program design strategies"
+        "Critical Strategies"
+      ],
+      [
+        5,
+        "JOB COACHING FOR NEW HIRES AND MAPPING OUT POTENTIAL CAREER PATHWAYS"
+      ],
+      [
+        5,
+        "COACHING MODELS"
+      ],
+      [
+        5,
+        "TUITION ASSISTANCE FOR FRONTLINE WORKER TRAINING"
+      ],
+      [
+        5,
+        "TUITION ADVANCEMENT OR GRANTS"
+      ],
+      [
+        5,
+        "RELEASE TIME AND PAID TRAINING OPPORTUNITIES"
+      ],
+      [
+        5,
+        "MANAGER ENGAGEMENT AND STAFFING SUPPORT"
+      ],
+      [
+        5,
+        "ON-SITE TRAINING PROGRAMS"
       ],
       [
         2,
-        "3Institutional strategies"
+        "Program design strategies"
+      ],
+      [
+        5,
+        "COHORT TRAINING MODEL TARGETED AT SPECIFIC POSITIONS"
+      ],
+      [
+        5,
+        "PARTNERSHIPS WITH LOCAL EDUCATIONAL INSTITUTIONS"
+      ],
+      [
+        5,
+        "PROVIDING ADDITIONAL SUPPORTS TO BUILD EMPLOYEE AND COMMUNITY WEALTH"
+      ],
+      [
+        2,
+        "Institutional strategies"
+      ],
+      [
+        5,
+        "CONNECTION TO HEALTH SYSTEM DIVERSITY AND OUTREACH GOALS"
       ],
       [
         2,
         "4 Other Resources"
       ],
       [
+        5,
+        "TOOLS FOR GETTING STARTED"
+      ],
+      [
         1,
         "Goal Setting"
+      ],
+      [
+        5,
+        "WHO IS AT THE TABLE?"
+      ],
+      [
+        5,
+        "DEFINE KEY TERMS"
+      ],
+      [
+        5,
+        "HOW TO SET GOALS"
+      ],
+      [
+        5,
+        "SET GOALS FOR LOCAL SOURCING AND RECRUITMENT"
+      ],
+      [
+        5,
+        "PLAN FOR LONGEVITY AND SET GOALS FOR SUCCESS"
+      ],
+      [
+        5,
+        "UNDERSTANDING GOALS OVER TIME"
       ],
       [
         3,
         "DEVELOP BUY-IN AND SENSE OF OWNERSHIP ACROSS ALL LEVELS OF LEADERSHIP AND WITH C"
       ],
       [
+        5,
+        "INTERNAL BUY-IN AND OWNERSHIP BUY-IN FROM EXECUTIVE LEADERSHIP"
+      ],
+      [
+        5,
+        "INTERNAL COMMUNICATION TO LEVERAGE SUCCESSFUL BUY-IN"
+      ],
+      [
         2,
         "Retention Strategies"
       ],
       [
+        5,
+        "CULTURAL COMPETENCY AND BIAS TRAINING"
+      ],
+      [
         1,
         "RETENTION STRATEGIES"
+      ],
+      [
+        5,
+        "WORKING WITH HIRING MANAGERS FOR CULTURAL COMPETENCY"
+      ],
+      [
+        5,
+        "LONG-TERM VISION"
+      ],
+      [
+        5,
+        "WRAP-AROUND SERVICES"
+      ],
+      [
+        5,
+        "COLLECTING FEEDBACK"
+      ],
+      [
+        5,
+        "MAINTAINING REALISTIC EXPECTATIONS"
       ],
       [
         1,
@@ -816,7 +1256,7 @@
       ],
       [
         2,
-        "1Measure your workforce baseline"
+        "Measure your workforce baseline"
       ],
       [
         3,
@@ -848,31 +1288,135 @@
       ],
       [
         2,
-        "2Survey your workforce policies and practices"
+        "Survey your workforce policies and practices"
+      ],
+      [
+        5,
+        "HIRING POLICIES TO CONSIDER"
+      ],
+      [
+        5,
+        "HIRING PRACTICES"
+      ],
+      [
+        5,
+        "TRAINING POLICIES TO CONSIDER"
+      ],
+      [
+        5,
+        "TRAINING PRACTICES TO CONSIDER"
+      ],
+      [
+        5,
+        "RETENTION POLICIES TO CONSIDER"
+      ],
+      [
+        5,
+        "RETENTION PRACTICES TO CONSIDER"
+      ],
+      [
+        5,
+        "WHAT POLICIES MIGHT HELP MAKE THE CASE?"
       ],
       [
         2,
-        "3Map your community’s assets"
+        "Map your community’s assets"
+      ],
+      [
+        5,
+        "THE APPLICANT POOL"
+      ],
+      [
+        5,
+        "MAPPING THE WORKFORCE DEVELOPMENT ECOSYSTEM"
       ],
       [
         2,
-        "4Identify your partners"
+        "Identify your partners"
       ],
       [
         3,
         "OUTSIDE PARTNERS"
       ],
       [
+        5,
+        "ORGANIZATION TYPE"
+      ],
+      [
+        5,
+        "POTENTIAL PARTNERS"
+      ],
+      [
+        5,
+        "ORGANIZATION TYPE"
+      ],
+      [
+        5,
+        "POTENTIAL PARTNERS"
+      ],
+      [
         3,
         "INSIDE PARTNERS"
       ],
       [
-        2,
-        "5Design around data and metrics"
+        5,
+        "INTERNAL SKILLSETS"
+      ],
+      [
+        5,
+        "KEY STAFF MEMBERS"
+      ],
+      [
+        5,
+        "KEY STAFF MEMBERS"
       ],
       [
         2,
-        "6Plan for sustainability"
+        "Design around data and metrics"
+      ],
+      [
+        5,
+        "VARIABLES TO MEASURE"
+      ],
+      [
+        5,
+        "EVALUATING THE HIRING PROCESS"
+      ],
+      [
+        5,
+        "EVALUATING THE HIRING PROCESS"
+      ],
+      [
+        5,
+        "EVALUATING CAREER LADDER SUCCESS"
+      ],
+      [
+        2,
+        "Plan for sustainability"
+      ],
+      [
+        5,
+        "1. INVEST TIME IN RESEARCH AND PLANNING"
+      ],
+      [
+        5,
+        "2. FOCUS FIRST ON HIGH-TURNOVER OR IN-DEMAND POSITIONS"
+      ],
+      [
+        5,
+        "3. SET PUBLIC GOALS"
+      ],
+      [
+        5,
+        "4. TRACK AND REPORT ON WHAT MATTERS"
+      ],
+      [
+        5,
+        "5. EDUCATE ALL STAFF"
+      ],
+      [
+        5,
+        "6. ASK FOR FEEDBACK"
       ],
       [
         1,
@@ -907,6 +1451,10 @@
         "SAVE ON TRAINING COSTS THROUGH LEVERAGING PUBLIC AND PHIL- ANTHROPIC RESOURCES B"
       ],
       [
+        5,
+        "OTHER COST VARIABLES TO INCLUDE IN ROI CALCULATIONS"
+      ],
+      [
         1,
         "Additional Benefits"
       ],
@@ -939,6 +1487,10 @@
         "Interviewees & Advisory Committee"
       ],
       [
+        5,
+        "ADVISORY COMMITTEE"
+      ],
+      [
         1,
         "Diving in"
       ],
@@ -949,6 +1501,18 @@
       [
         2,
         "Simple Policy Fixes"
+      ],
+      [
+        5,
+        "TWEAK TUITION REIMBURSEMENT PROGRAMS TO ALLOW FOR TUITION ADVANCEMENT"
+      ],
+      [
+        5,
+        "CHANGE POLICIES PREVENTING THE HIRE OF INDIVIDUALS WITH CRIMINAL RECORDS"
+      ],
+      [
+        5,
+        "MAKE DIVERSE, INCLUSIVE, AND LOCAL HIRING AN EXPLICIT GOAL IN THE STRATEGIC PLAN"
       ],
       [
         2,
@@ -999,6 +1563,22 @@
         "GETTING CLARITY ON WHAT MATTERS FOR YOUR MISSION, STRATEGIES, CULTURE, AND VALUE"
       ],
       [
+        5,
+        "FACTORS TO CONSIDER"
+      ],
+      [
+        5,
+        "FACTORS TO CONSIDER"
+      ],
+      [
+        5,
+        "FACTORS TO CONSIDER"
+      ],
+      [
+        5,
+        "FACTORS TO CONSIDER"
+      ],
+      [
         2,
         "Solutions"
       ],
@@ -1024,16 +1604,16 @@
       ]
     ],
     "counts": {
-      "aside": 44,
-      "figure": 15,
-      "heading": 127,
-      "list": 8,
-      "paragraph": 995
+      "aside": 43,
+      "figure": 16,
+      "heading": 270,
+      "list": 57,
+      "paragraph": 653
     },
-    "asideChildren": 147,
+    "asideChildren": 118,
     "notes": [],
     "questions": 52,
-    "textChars": 279063
+    "textChars": 275286
   },
   "03--enterprise-annual-report-2022": {
     "status": "done",
@@ -1158,9 +1738,9 @@
       "heading": 28,
       "paragraph": 62
     },
-    "asideChildren": 21,
+    "asideChildren": 31,
     "notes": [],
     "questions": 20,
-    "textChars": 14328
+    "textChars": 14308
   }
 }

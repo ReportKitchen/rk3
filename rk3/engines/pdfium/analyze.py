@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 21
+VERSION = 23
 
 ROMAN = {}
 for _n, _r in enumerate(
@@ -136,6 +136,9 @@ def run(ctx):
                 break
         items.insert(pos, ("region", reg))
 
+    deepest = max([*tag_levels.values(), *levels.values(), 0])
+    kicker_level = min(deepest + 1, 6) if deepest else 0
+
     nodes = []
     used_ids = set()
     fig_count = 0
@@ -144,7 +147,8 @@ def run(ctx):
             if kind == "block":
                 nodes.append(_block_node(ctx, blocks[ref], rich[ref], fonts,
                                          levels, body_size, used_ids,
-                                         role=roles[ref], tag_levels=tag_levels))
+                                         role=roles[ref], tag_levels=tag_levels,
+                                         kicker_level=kicker_level))
             else:
                 if ref["kind"] == "figure":
                     fig_count += 1
@@ -172,6 +176,7 @@ def run(ctx):
                               ["caption", "paragraph"], "caption")
 
     nodes = _group_tag_lists(ctx, nodes)
+    nodes = _group_bullet_paragraphs(ctx, nodes)
     # sentences interrupted by page breaks happen in the main flow too,
     # not just inside callouts
     nodes = _join_pagebreak_sentences(ctx, nodes)
@@ -432,8 +437,44 @@ def _is_label(text):
 
 # ------------------------------------------------------------------ nodes ---
 
+def _heading_node(ctx, blk, text, level, reason, prov, used_ids):
+    num, rest = _section_number(ctx, text)
+    if num:
+        mode = ctx.cfg["structure"].get("sectionNumbers", "styled")
+        if mode == "removed":
+            text = rest
+        elif mode == "inline":
+            text = f"{num}. {rest}"
+        else:  # styled: separate element, css decides presentation
+            text = rest
+        ctx.log.entry("section-number", page=blk["page"], num=num,
+                      mode=mode, text=rest[:60])
+    hid = _heading_id(text, used_ids)
+    rk = ctx.log.entry("heading", level=level, page=blk["page"],
+                       bbox=blk["bbox"], size=prov["size"], reason=reason,
+                       text=text[:120], block=blk["rk"])
+    node = {"type": "heading", "level": level, "text": text, "id": hid,
+            "page": blk["page"], "bbox": blk["bbox"], "rk": rk, "data": prov,
+            "nid": _stable_id("n", ctx.nids, "heading", blk["page"],
+                              blk["bbox"], text)}
+    if num and ctx.cfg["structure"].get("sectionNumbers", "styled") == "styled":
+        node["sectionNum"] = num
+    return node
+
+
+def _section_number(ctx, text):
+    """'4Institutional Strategies' — a design-element section number glued to
+    the heading (circle/badge numerals). Only fires with no space between the
+    digits and a capitalized word."""
+    m = re.match(r"^(\d{1,2})(?=[A-Z][a-z])", text)
+    if m:
+        return m.group(1), text[m.end():].strip()
+    return None, text
+
+
 def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
-                in_aside=False, role=(None, 0.0), tag_levels=None):
+                in_aside=False, role=(None, 0.0), tag_levels=None,
+                kicker_level=0):
     text = rich["text"]
     size = _dominant_size(blk)
     font = fonts[blk["lines"][0]["fontIdx"]]
@@ -444,20 +485,12 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
 
     if not in_aside and tag_levels and tag_role in tag_levels and tag_cov > 0.5 \
             and text.strip():
-        level = tag_levels[tag_role]
-        hid = _heading_id(text, used_ids)
-        rk = ctx.log.entry("heading", level=level, page=blk["page"],
-                           bbox=blk["bbox"], size=size, body_size=body_size,
-                           reason=f"struct tag {tag_role} (coverage {tag_cov:.2f})",
-                           text=text[:120], block=blk["rk"])
-        return {"type": "heading", "level": level, "text": text, "id": hid,
-                "page": blk["page"], "bbox": blk["bbox"], "rk": rk, "data": prov,
-                "nid": _stable_id("n", ctx.nids, "heading", blk["page"],
-                                  blk["bbox"], text)}
+        return _heading_node(ctx, blk, text, tag_levels[tag_role],
+                             f"struct tag {tag_role} (coverage {tag_cov:.2f})",
+                             prov, used_ids)
 
     if not in_aside and size in levels and _looks_like_heading(text):
         level = levels[size]
-        hid = _heading_id(text, used_ids)
         # authors tag genuine headings as P often enough that a P tag must
         # not veto strong size evidence — but the disagreement is exactly
         # what the question system is for
@@ -465,13 +498,7 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         reason = f"size {size} ranked #{level} above body {body_size}"
         if conflict:
             reason += " (struct tag says P — kept as heading, question emitted)"
-        rk = ctx.log.entry("heading", level=level, page=blk["page"],
-                           bbox=blk["bbox"], size=size, body_size=body_size,
-                           reason=reason, text=text[:120], block=blk["rk"])
-        node = {"type": "heading", "level": level, "text": text, "id": hid,
-                "page": blk["page"], "bbox": blk["bbox"], "rk": rk, "data": prov}
-        node["nid"] = _stable_id("n", ctx.nids, "heading", node["page"],
-                                 node["bbox"], text)
+        node = _heading_node(ctx, blk, text, level, reason, prov, used_ids)
         if conflict:
             _question(ctx, "tag-conflict-heading", node,
                       f"“{text[:60]}” looks like a heading by size, but the "
@@ -483,6 +510,13 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
                       f"Heading (h{level}) or ordinary paragraph?",
                       [f"h{level}", "paragraph"], f"h{level}")
         return node
+
+    if not in_aside and kicker_level and _is_caps_kicker(text):
+        # high-precision pattern (sampled): no per-instance question, it
+        # would flood the panel on label-heavy docs; feedback covers misses
+        return _heading_node(ctx, blk, text, kicker_level,
+                             "ALL-CAPS standalone kicker at body size",
+                             prov, used_ids)
 
     if _is_bullet_list(blk):
         items = _bullet_items(blk)
@@ -669,13 +703,17 @@ def _aside_node(ctx, reg, blocks, rich, fonts, body_size, roles):
                             set(), in_aside=True, role=roles[i])
                 for i in ordered]
     children = _group_tag_lists(ctx, children)
+    children = _group_bullet_paragraphs(ctx, children)
     children = _join_pagebreak_sentences(ctx, children)
+    is_quote = _extract_quote_marks(ctx, reg, children)
     rk = ctx.log.entry("aside", page=reg["page"],
                        bbox=[round(v, 1) for v in reg["bbox"]],
                        end_page=reg.get("endPage"),
                        region=reg["rk"], children=len(children))
     node = {"type": "aside", "children": children, "page": reg["page"],
             "bbox": reg["bbox"], "rk": rk, "data": {"region": reg["rk"]}}
+    if is_quote:
+        node["quote"] = True
     first_text = next((c.get("text") for c in children if c.get("text")), None)
     node["nid"] = _stable_id("n", ctx.nids, "aside", node["page"], node["bbox"],
                              first_text)
@@ -723,6 +761,65 @@ def _group_tag_lists(ctx, nodes):
             out.append(n)
     flush()
     return out
+
+
+def _group_bullet_paragraphs(ctx, nodes):
+    """Bullet items that arrived as separate single-line blocks (so the
+    block-level list rule can't see them) group into one list."""
+    out = []
+    run = []
+
+    def flush():
+        nonlocal run
+        if len(run) >= 2:
+            items = [re.sub(f"^[{re.escape(BULLETS)}]\\s*", "", n["text"]).strip()
+                     for n in run]
+            bbox = [min(n["bbox"][0] for n in run), min(n["bbox"][1] for n in run),
+                    max(n["bbox"][2] for n in run), max(n["bbox"][3] for n in run)]
+            page = run[0]["page"]
+            rk = ctx.log.entry("list", page=page, bbox=bbox, items=len(items),
+                               reason="consecutive bullet-led paragraphs",
+                               merged=[n["rk"] for n in run])
+            out.append({"type": "list", "items": items, "page": page,
+                        "bbox": bbox, "rk": rk, "data": run[0].get("data", {}),
+                        "nid": _stable_id("n", ctx.nids, "list", page, bbox,
+                                          " ".join(items))})
+        else:
+            out.extend(run)
+        run = []
+
+    for n in nodes:
+        if n["type"] == "paragraph" and n.get("text", "")[:1] in BULLETS:
+            run.append(n)
+        else:
+            flush()
+            out.append(n)
+    flush()
+    return out
+
+
+def _extract_quote_marks(ctx, reg, children):
+    """Quotation glyphs leading/trailing a callout become separate elements
+    so CSS can style or hide them (decorative pull-quote marks)."""
+    QUOTES = "“”‘’\"'„‟"
+    first = next((c for c in children if c.get("text")), None)
+    last = next((c for c in reversed(children) if c.get("text")), None)
+    found = False
+    if first:
+        m = re.match(rf"^([{QUOTES}]{{1,2}})\s*", first["text"])
+        if m:
+            first["quoteOpen"] = m.group(1)
+            first["text"] = first["text"][m.end():]
+            found = True
+    if last:
+        m = re.search(rf"\s*([{QUOTES}]{{1,2}})$", last["text"])
+        if m:
+            last["quoteClose"] = m.group(1)
+            last["text"] = last["text"][:m.start()]
+            found = True
+    if found:
+        ctx.log.entry("quote-callout", page=reg["page"], region=reg["rk"])
+    return found
 
 
 def _join_pagebreak_sentences(ctx, children):
@@ -779,6 +876,17 @@ def _heading_levels(ctx, blocks, texts, body_size):
     ctx.log.entry("heading-levels", body_size=body_size,
                   mapping={str(s): lv for s, lv in levels.items()})
     return levels
+
+
+def _is_caps_kicker(text):
+    """Standalone ALL-CAPS line(s) at body size: small-caps style headers."""
+    text = text.strip()
+    if not (8 <= len(text) <= 90) or text.endswith((".", ",", ";")):
+        return False
+    if len(text.split()) < 2:
+        return False
+    letters = [c for c in text if c.isalpha()]
+    return len(letters) >= 8 and all(c.isupper() for c in letters)
 
 
 def _looks_like_heading(text):
