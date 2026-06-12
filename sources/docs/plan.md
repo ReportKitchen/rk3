@@ -203,10 +203,51 @@ possibly the **HTML that Google Docs exports** (may be skipped). Decisions:
   extension-based engine selection in documents.py get refactored when the
   first docx engine lands (no-backwards-compat rule applies).
 
+## Tagged-PDF signals — done 2026-06-12
+
+Implemented entirely in pypdfium2 (no content-stream parsing needed): struct
+tree gives role→MCID; page-object content marks give MCID→bounds; analyze
+votes a (role, coverage) per block by area overlap. Blending learned from the
+corpus:
+
+- **Artifact marks are the big win**: running headers/footers/decorations are
+  stripped authoritatively (287 blocks in the toolkit, 70 in the annual
+  report — which fixed its heading quality more than anything else).
+- **Tag heading roles are used when present** (dense-ranked, Title>H1>H2…)
+  — but only 1 of 5 tagged sample docs tags headings at all; InDesign
+  commonly tags everything P.
+- **A P tag never vetoes strong size evidence** (authors mistag real
+  headings as P); the disagreement instead emits a tag-conflict question —
+  the refinement loop decides.
+- Caption role strengthens caption matching; TOC/TOCI roles drop TOC blocks.
+
+## Regression tests — added 2026-06-12
+
+Lesson carried over from RK1/RK2: heuristic tuning for one document silently
+breaks others, and rule ordering turns into spaghetti without guardrails.
+
+- `tests/expectations.json` — curated, human-meaningful invariants per
+  document, mostly distilled from resolved viewer feedback (exact headings,
+  must/must-not contain strings, sequential note numbering, aside structure,
+  the scanned-PDF bail-out). A failure here is a regression, full stop.
+  **Workflow rule: when a feedback note is resolved, add its invariant here.**
+- `tests/snapshot.json` — auto-generated structural summary of every doc
+  (headings, node counts, text size). After an intentional rule change run
+  `.venv/bin/python -m tests.regen` and **review the git diff doc by doc** —
+  that diff is the blast radius of the change.
+- Run with `.venv/bin/python -m pytest tests -q` (~7s warm thanks to stage
+  fingerprint skipping). Run before every commit.
+- Rule-ordering discipline: decision order is the literal sequence in each
+  stage's run(); "does X happen before Y" is always answerable by reading it,
+  and decisions log their reasons to the keyed debug logs.
+
 ## Deferred (recorded so we don't lose them)
 
-- Tagged-PDF signal blending (struct tree readable via pdfium; linking roles
-  to text needs MCID-level content-stream parsing via pikepdf — own milestone)
+- Validating intended vs unintended change during per-doc config tuning:
+  per-doc config can't bleed across documents (each doc's fingerprint chain
+  uses only its own config), so cross-doc snapshot diffs always mean a CODE
+  change side effect. Residual problem — separating intended from unintended
+  diffs *within* the tuned document — deferred until config tuning starts.
 - Questions phase 2: answers → per-doc config overrides consumed on re-run
 - Edit ops UI (drag-to-move callouts, retag heading levels, accordion
   grouping) + op log; then WebSocket live presence (tier 2)

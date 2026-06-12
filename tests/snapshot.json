@@ -1,0 +1,1170 @@
+{
+  "01--2020-2026-criteria-comparison-narrative": {
+    "status": "failed",
+    "error": "Scanned/image PDF (median 0 extractable chars/page, threshold 100) — OCR is out of scope."
+  },
+  "01--design-principles-teacher-preparation-1-curriculum": {
+    "status": "done",
+    "title": "Curriculum Rooted in a Deep Understanding of Learners, Learning, and Development",
+    "headings": [
+      [
+        1,
+        "Curriculum Rooted in a Deep Understanding of Learners, Learning, and Development"
+      ],
+      [
+        2,
+        "What the Science Says"
+      ],
+      [
+        2,
+        "Overview"
+      ],
+      [
+        2,
+        "What Teachers and Teacher Educators Can Do"
+      ],
+      [
+        1,
+        "Endnotes"
+      ]
+    ],
+    "counts": {
+      "aside": 4,
+      "footnotes": 1,
+      "heading": 5,
+      "paragraph": 27
+    },
+    "asideChildren": 30,
+    "notes": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73
+    ],
+    "questions": 0,
+    "textChars": 59585
+  },
+  "01--sample-content-penguin": {
+    "status": "done",
+    "title": "The Great Escape",
+    "headings": [
+      [
+        1,
+        "The Great Escape"
+      ],
+      [
+        2,
+        "A Dream of the Wider World"
+      ],
+      [
+        2,
+        "A Daring Plan"
+      ],
+      [
+        2,
+        "A Secret Friendship"
+      ],
+      [
+        2,
+        "The Compromise"
+      ],
+      [
+        1,
+        "The Big Apple"
+      ],
+      [
+        2,
+        "A New Sensory World"
+      ],
+      [
+        2,
+        "Exploring with Leo"
+      ],
+      [
+        2,
+        "A Familiar Face"
+      ],
+      [
+        1,
+        "Home at Last"
+      ],
+      [
+        2,
+        "Finding Love"
+      ],
+      [
+        2,
+        "The Final Journey"
+      ],
+      [
+        2,
+        "A Happy New Life"
+      ]
+    ],
+    "counts": {
+      "aside": 1,
+      "figure": 1,
+      "heading": 13,
+      "paragraph": 19
+    },
+    "asideChildren": 2,
+    "notes": [],
+    "questions": 0,
+    "textChars": 12054
+  },
+  "02--baystate-case-study-021624": {
+    "status": "done",
+    "title": "CASE STUDY",
+    "headings": [
+      [
+        2,
+        "Baystate Health"
+      ],
+      [
+        3,
+        "KEY STRATEGIES"
+      ],
+      [
+        4,
+        "Outside-in"
+      ],
+      [
+        1,
+        "CASE STUDY"
+      ],
+      [
+        4,
+        "Overview and Background"
+      ],
+      [
+        4,
+        "Outside-in and Inside-up Workforce Strategies"
+      ],
+      [
+        4,
+        "Program Design"
+      ],
+      [
+        4,
+        "Key Strategies"
+      ],
+      [
+        5,
+        "OUTSIDE-IN"
+      ],
+      [
+        4,
+        "INSIDE-UP"
+      ],
+      [
+        4,
+        "Program Impact"
+      ],
+      [
+        4,
+        "Robust Staffing & Resources"
+      ],
+      [
+        4,
+        "Lessons Learned & Key Takeaways"
+      ],
+      [
+        5,
+        "Table 1. Workforce Programming, 2022"
+      ],
+      [
+        4,
+        "Endnotes"
+      ],
+      [
+        4,
+        "Sources"
+      ]
+    ],
+    "counts": {
+      "aside": 3,
+      "figure": 4,
+      "footnotes": 1,
+      "heading": 16,
+      "paragraph": 71
+    },
+    "asideChildren": 23,
+    "notes": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "questions": 3,
+    "textChars": 30981
+  },
+  "02--cottonwood-case-study-r5": {
+    "status": "done",
+    "title": "colorado affordable housing Cottonwood Case Study | Windsor, CO",
+    "headings": [
+      [
+        1,
+        "colorado affordable housing Cottonwood Case Study | Windsor, CO"
+      ],
+      [
+        3,
+        "Overview"
+      ],
+      [
+        5,
+        "Project data"
+      ],
+      [
+        2,
+        "Colorado Multifamily Affordable Housing Electrification Hub"
+      ],
+      [
+        4,
+        "Planning and design approach"
+      ],
+      [
+        4,
+        "Electrification strategies"
+      ],
+      [
+        4,
+        "Pre- and post-retrofit operational data"
+      ],
+      [
+        4,
+        "Lessons learned"
+      ],
+      [
+        5,
+        "Project team"
+      ]
+    ],
+    "counts": {
+      "figure": 9,
+      "heading": 9,
+      "paragraph": 18
+    },
+    "asideChildren": 0,
+    "notes": [],
+    "questions": 3,
+    "textChars": 7722
+  },
+  "02--facilitator-guide-injury-prevention-draft-8-27-15": {
+    "status": "done",
+    "title": "INJURY PREVENTION IN PUBLIC HEALTH FACILITATOR GUIDE",
+    "headings": [
+      [
+        1,
+        "INJURY PREVENTION IN PUBLIC HEALTH FACILITATOR GUIDE"
+      ],
+      [
+        3,
+        "Center for Injury Research and Policy Johns Hopkins University Bloomberg School "
+      ],
+      [
+        3,
+        "Department of Public Health Din é College"
+      ],
+      [
+        2,
+        "INTRODUCTION"
+      ],
+      [
+        4,
+        "Facilitator’s Guide for Injury Prevention in Public Health"
+      ],
+      [
+        4,
+        "Learning Session Structure Overview"
+      ],
+      [
+        4,
+        "Overview of Suggeste d Courses for the Recorded Lectures"
+      ],
+      [
+        4,
+        "Facilitator Preparation"
+      ],
+      [
+        4,
+        "Small Group Discussion Tips"
+      ],
+      [
+        2,
+        "LEARNING SESSION GUIDES"
+      ],
+      [
+        4,
+        "Introduction to Public Health"
+      ],
+      [
+        5,
+        "Ideal Course for Introduction to Public Health: Risk & Protective Factors"
+      ],
+      [
+        5,
+        "Lesson Outline : Introduction to Public Health: Risk & Protective Factors"
+      ],
+      [
+        4,
+        "Planning, Implementing, and Evaluating Health Promotion Programs"
+      ],
+      [
+        5,
+        "Ideal Course for Planning, Implementing, and Evaluating Health Promotion Program"
+      ],
+      [
+        5,
+        "Lesson Outline : Planning, Implementing, and Evaluating Health Promotion Program"
+      ],
+      [
+        4,
+        "Principles of Health Education"
+      ],
+      [
+        5,
+        "Ideal Course for Principles of Health Education: Hom e Injury Prevention & CHASE"
+      ],
+      [
+        5,
+        "Lesson Outline : Principles of Health Education: Home Injury Prevention & CHASE"
+      ],
+      [
+        4,
+        "American Indian Maternal, Infant, Child, and Sexual Health"
+      ],
+      [
+        5,
+        "Ideal Course for American Indian Maternal, Infant, Child, and Sexual Health: Red"
+      ],
+      [
+        5,
+        "Lesson Outline : American Indian Maternal, Infant, Child, and Sexual Health: Red"
+      ],
+      [
+        4,
+        "Health Services & Policy"
+      ],
+      [
+        5,
+        "Ideal Course for Health Services & Policy: Seat Belt Policy"
+      ],
+      [
+        5,
+        "Lesson Outline : Health Services & Policy: Seat Belt Policy"
+      ],
+      [
+        4,
+        "Introduction to Wellness"
+      ],
+      [
+        5,
+        "Ideal Course for Introduction to Wellness: Healthy Relationships"
+      ],
+      [
+        5,
+        "Lesson Outline : Introduction to Wellness: Healthy Relationships"
+      ],
+      [
+        4,
+        "Environmental Health"
+      ],
+      [
+        5,
+        "Ideal Course for Environmental Health: Safe Systems"
+      ],
+      [
+        5,
+        "Lesson Outline : Environmental Health: Safe Systems"
+      ],
+      [
+        4,
+        "Public Health Research Methods"
+      ],
+      [
+        5,
+        "Ideal Course for Public Health Research Methods: Research Study Designs in Injur"
+      ],
+      [
+        5,
+        "Lesson Outline : Public Health Research Methods: Research Study Design in Injury"
+      ],
+      [
+        4,
+        "Community Health Assessment and Planning"
+      ],
+      [
+        5,
+        "Ideal Course for Community Health Assessment and Planning: Addressing the Opioi "
+      ],
+      [
+        5,
+        "Lesson Outline : Community Health Assessment and Planning: Addressing the Opioid"
+      ],
+      [
+        4,
+        "Mental Health Issues in Public Health"
+      ],
+      [
+        5,
+        "Background Material for Alcohol & Substance Use"
+      ],
+      [
+        5,
+        "Lesson Outline : Mental Health Issues in Public Health: Alcohol & Substance Use"
+      ]
+    ],
+    "counts": {
+      "aside": 2,
+      "figure": 34,
+      "heading": 40,
+      "list": 1,
+      "paragraph": 216
+    },
+    "asideChildren": 4,
+    "notes": [],
+    "questions": 49,
+    "textChars": 42897
+  },
+  "02--jhu-federal-register-comments-pharma-investigation": {
+    "status": "done",
+    "title": "JHU Federal_Register-Comments_Pharma_Investigation",
+    "headings": [],
+    "counts": {
+      "figure": 10,
+      "footnotes": 1,
+      "paragraph": 49
+    },
+    "asideChildren": 0,
+    "notes": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "questions": 0,
+    "textChars": 16160
+  },
+  "02--toolkit-hiring2022-copy112222onlineversiononly-1": {
+    "status": "done",
+    "title": "Key Terms",
+    "headings": [
+      [
+        4,
+        "Part of the Hospitals Aligned for Healthy Communities toolkit series"
+      ],
+      [
+        4,
+        "Fall 2016 | David Zuckerman and Katie Parker | The Democracy Collaborative"
+      ],
+      [
+        2,
+        "Building the pipeline to a healthy community"
+      ],
+      [
+        1,
+        "Key Terms"
+      ],
+      [
+        1,
+        "Case Studies"
+      ],
+      [
+        3,
+        "LEARN WHAT IS HAPPENING ON THE GROUND"
+      ],
+      [
+        1,
+        "University Hospitals"
+      ],
+      [
+        3,
+        "CLEVELAND, OHIO"
+      ],
+      [
+        2,
+        "Key strategies employed"
+      ],
+      [
+        2,
+        "Overview"
+      ],
+      [
+        2,
+        "Background"
+      ],
+      [
+        2,
+        "Program set-up"
+      ],
+      [
+        2,
+        "Staffing and budget"
+      ],
+      [
+        2,
+        "Funding"
+      ],
+      [
+        2,
+        "Key strategies employed"
+      ],
+      [
+        2,
+        "Possible Career Ladder: Patient Care"
+      ],
+      [
+        3,
+        "PHILADELPHIA, PENNSYLVANIA"
+      ],
+      [
+        2,
+        "Key strategies employed"
+      ],
+      [
+        2,
+        "Overview"
+      ],
+      [
+        2,
+        "Background"
+      ],
+      [
+        2,
+        "Program set-up"
+      ],
+      [
+        2,
+        "Staffing and budget"
+      ],
+      [
+        2,
+        "Funding"
+      ],
+      [
+        2,
+        "Key strategies employed"
+      ],
+      [
+        3,
+        "ALAMEDA COUNTY, CALIFORNIA"
+      ],
+      [
+        2,
+        "Key strategies employed"
+      ],
+      [
+        2,
+        "Overview"
+      ],
+      [
+        2,
+        "Background"
+      ],
+      [
+        2,
+        "Program set-up"
+      ],
+      [
+        2,
+        "Staffing and budget"
+      ],
+      [
+        2,
+        "Funding"
+      ],
+      [
+        2,
+        "Key strategies employed"
+      ],
+      [
+        1,
+        "Partners HealthCare"
+      ],
+      [
+        3,
+        "BOSTON, MASSACHUSETTS"
+      ],
+      [
+        2,
+        "Key strategies employed"
+      ],
+      [
+        2,
+        "Overview"
+      ],
+      [
+        2,
+        "Background"
+      ],
+      [
+        2,
+        "Description of programs"
+      ],
+      [
+        2,
+        "Staffing and budget"
+      ],
+      [
+        2,
+        "Key strategies employed"
+      ],
+      [
+        3,
+        "AURORA, COLORADO"
+      ],
+      [
+        2,
+        "Key strategies employed"
+      ],
+      [
+        2,
+        "Overview"
+      ],
+      [
+        2,
+        "Background"
+      ],
+      [
+        2,
+        "Program set-up"
+      ],
+      [
+        2,
+        "Staffing and budget"
+      ],
+      [
+        2,
+        "Funding"
+      ],
+      [
+        2,
+        "Key strategies employed"
+      ],
+      [
+        1,
+        "Johns Hopkins University & Health System"
+      ],
+      [
+        3,
+        "BALTIMORE, MARYLAND"
+      ],
+      [
+        2,
+        "Key strategies employed"
+      ],
+      [
+        2,
+        "Overview"
+      ],
+      [
+        2,
+        "Background & Origins"
+      ],
+      [
+        2,
+        "Program set-up"
+      ],
+      [
+        2,
+        "Staffing and budget"
+      ],
+      [
+        2,
+        "Funding"
+      ],
+      [
+        2,
+        "Key strategies employed"
+      ],
+      [
+        1,
+        "Outside-In Strategies"
+      ],
+      [
+        2,
+        "1Critical Strategies"
+      ],
+      [
+        4,
+        "“It’s a closed door center by design. We recruit for specific cohorts, train to "
+      ],
+      [
+        2,
+        "2Program Design Strategies"
+      ],
+      [
+        4,
+        "“One of the things that attracts people to these programs is that once they get "
+      ],
+      [
+        2,
+        "3Intermediary Strategies"
+      ],
+      [
+        2,
+        "4Institutional Strategies"
+      ],
+      [
+        1,
+        "Inside-Up Strategies"
+      ],
+      [
+        2,
+        "1Critical Strategies"
+      ],
+      [
+        2,
+        "2Program design strategies"
+      ],
+      [
+        2,
+        "3Institutional strategies"
+      ],
+      [
+        2,
+        "4 Other Resources"
+      ],
+      [
+        1,
+        "Goal Setting"
+      ],
+      [
+        3,
+        "DEVELOP BUY-IN AND SENSE OF OWNERSHIP ACROSS ALL LEVELS OF LEADERSHIP AND WITH C"
+      ],
+      [
+        2,
+        "Retention Strategies"
+      ],
+      [
+        1,
+        "RETENTION STRATEGIES"
+      ],
+      [
+        1,
+        "Laying the Foundations"
+      ],
+      [
+        3,
+        "SETTING THE STAGE FOR TRANSFORMATIVE IMPACT"
+      ],
+      [
+        2,
+        "1Measure your workforce baseline"
+      ],
+      [
+        3,
+        "DEMOGRAPHICS"
+      ],
+      [
+        3,
+        "LOCATION"
+      ],
+      [
+        3,
+        "DATA INFRASTRUCTURE"
+      ],
+      [
+        3,
+        "DIVERSITY"
+      ],
+      [
+        3,
+        "COMMUNITY COMPARISON"
+      ],
+      [
+        3,
+        "HIRING PROCESS"
+      ],
+      [
+        3,
+        "TURNOVER AND FORECASTING"
+      ],
+      [
+        2,
+        "2Survey your workforce policies and practices"
+      ],
+      [
+        2,
+        "3Map your community’s assets"
+      ],
+      [
+        2,
+        "4Identify your partners"
+      ],
+      [
+        3,
+        "OUTSIDE PARTNERS"
+      ],
+      [
+        3,
+        "INSIDE PARTNERS"
+      ],
+      [
+        2,
+        "5Design around data and metrics"
+      ],
+      [
+        2,
+        "6Plan for sustainability"
+      ],
+      [
+        1,
+        "Return on Investment and Measuring Impact"
+      ],
+      [
+        3,
+        "HOW INCLUSIVE, LOCAL HIRING BENEFITS YOUR INSTITUTION, AND HOW TO MEASURE IMPACT"
+      ],
+      [
+        1,
+        "Savings"
+      ],
+      [
+        2,
+        "Reduce job turnover rates"
+      ],
+      [
+        2,
+        "Make the recruitment process more efficient"
+      ],
+      [
+        2,
+        "Reduce time to fill open positions"
+      ],
+      [
+        2,
+        "Save on orientation and internal onboarding costs"
+      ],
+      [
+        3,
+        "SAVE ON TRAINING COSTS THROUGH LEVERAGING PUBLIC AND PHIL\u0002 ANTHROPIC RESOURCES B"
+      ],
+      [
+        1,
+        "Additional Benefits"
+      ],
+      [
+        2,
+        "Address issues of health equity and identified community health needs"
+      ],
+      [
+        2,
+        "Create a more racially and ethnically diverse workforce to improve cultural comp"
+      ],
+      [
+        2,
+        "Improve employee morale"
+      ],
+      [
+        2,
+        "Improve reputation in the community"
+      ],
+      [
+        2,
+        "Increasing the number of residents with access to health insurance"
+      ],
+      [
+        2,
+        "Works Cited"
+      ],
+      [
+        2,
+        "Interviewees & Advisory Committee"
+      ],
+      [
+        1,
+        "Diving in"
+      ],
+      [
+        3,
+        "SMALL PROJECTS WITH BIG IMPACT"
+      ],
+      [
+        2,
+        "Simple Policy Fixes"
+      ],
+      [
+        2,
+        "Quick Practice Upgrades"
+      ],
+      [
+        3,
+        "LEADERSHIP"
+      ],
+      [
+        3,
+        "PARTNERSHIPS AND COMMUNITY ENGAGEMENT"
+      ],
+      [
+        1,
+        "Readiness Checklist"
+      ],
+      [
+        3,
+        "DATA AND REPORTING INFRASTRUCTURE"
+      ],
+      [
+        3,
+        "STAFFING AND INTERDEPARTMENTAL INFRASTRUCTURE"
+      ],
+      [
+        3,
+        "DECISION-MAKING STRUCTURE"
+      ],
+      [
+        3,
+        "STAFFING AND ACCOUNTABILITY"
+      ],
+      [
+        3,
+        "LEGAL REQUIREMENTS AROUND HIRING"
+      ],
+      [
+        3,
+        "EXISTING TRAINING OPPORTUNITIES AND FUNDING OPTIONS"
+      ],
+      [
+        1,
+        "Big Questions Worksheet"
+      ],
+      [
+        3,
+        "GETTING CLARITY ON WHAT MATTERS FOR YOUR MISSION, STRATEGIES, CULTURE, AND VALUE"
+      ],
+      [
+        2,
+        "Solutions"
+      ],
+      [
+        1,
+        "Overcoming Barriers"
+      ],
+      [
+        3,
+        "PROMISING SOLUTIONS TO COMMON CHALLENGES"
+      ],
+      [
+        2,
+        "Solutions"
+      ],
+      [
+        1,
+        "Overcoming Barriers"
+      ],
+      [
+        3,
+        "PROMISING SOLUTIONS TO COMMON CHALLENGES"
+      ]
+    ],
+    "counts": {
+      "aside": 44,
+      "figure": 15,
+      "heading": 127,
+      "list": 7,
+      "paragraph": 996
+    },
+    "asideChildren": 147,
+    "notes": [],
+    "questions": 42,
+    "textChars": 278133
+  },
+  "03--enterprise-annual-report-2022": {
+    "status": "done",
+    "title": "Annual Report from Enterprise Community Partners",
+    "headings": [
+      [
+        1,
+        "Annual Report from Enterprise Community Partners"
+      ],
+      [
+        5,
+        "To the next 40 years!"
+      ],
+      [
+        2,
+        "A Letter from Board Leadership"
+      ],
+      [
+        2,
+        "Th e Challenge"
+      ],
+      [
+        2,
+        "Th e Solution"
+      ],
+      [
+        5,
+        "Increase Housing Supply"
+      ],
+      [
+        5,
+        "Advance Racial Equity"
+      ],
+      [
+        5,
+        "Build Resilience & Upward Mobility"
+      ],
+      [
+        4,
+        "Affordable homes are out of reach"
+      ],
+      [
+        4,
+        "Income stagnation widens the gap"
+      ],
+      [
+        4,
+        "Inequities magnify racial and economic disparities"
+      ],
+      [
+        4,
+        "Housing impacts overall health & well-being"
+      ],
+      [
+        2,
+        "Celebrating 40 Years of Breaking Barriers and Building Communities"
+      ],
+      [
+        3,
+        "Breaking the Cycle of Housing Instability in Detroit"
+      ],
+      [
+        3,
+        "Hosting Alaska’s First Housing Innovation Summit"
+      ],
+      [
+        2,
+        "Stories of Impact"
+      ],
+      [
+        3,
+        "Putting Preservation First"
+      ],
+      [
+        3,
+        "Bringing Faith-based Development Nationwide"
+      ],
+      [
+        3,
+        "Record Investment Expedites Lead Safe Progress"
+      ],
+      [
+        2,
+        "Visionary Generosity"
+      ],
+      [
+        3,
+        "Doubling Down on a Proven Program"
+      ],
+      [
+        2,
+        "Board Members"
+      ],
+      [
+        5,
+        "See a full list of our board members"
+      ],
+      [
+        2,
+        "Financials"
+      ],
+      [
+        5,
+        "See our 2022 financials"
+      ],
+      [
+        2,
+        "Our Donors"
+      ],
+      [
+        5,
+        "See our 2022 donor list"
+      ],
+      [
+        5,
+        "Make a donation"
+      ]
+    ],
+    "counts": {
+      "figure": 29,
+      "heading": 28,
+      "paragraph": 60
+    },
+    "asideChildren": 0,
+    "notes": [],
+    "questions": 19,
+    "textChars": 11886
+  }
+}

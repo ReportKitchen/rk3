@@ -1,0 +1,45 @@
+{
+  "01--2020-2026-criteria-comparison-narrative": {
+    "status": "failed",
+    "error_contains": "OCR is out of scope"
+  },
+  "01--sample-content-penguin": {
+    "headings_include": [[1, "The Great Escape"], [1, "The Big Apple"], [1, "Home at Last"],
+                         [2, "A Dream of the Wider World"], [2, "A Happy New Life"]],
+    "headings_exclude": [[1, "“You’re a penguin"]],
+    "counts": {"figure": 1}
+  },
+  "01--design-principles-teacher-preparation-1-curriculum": {
+    "text_contains": [
+      "students’ backgrounds and experiences",
+      "asset-based approaches to learn about students’ backgrounds",
+      "knowledge”14 that teachers need",
+      "Mindsets of an Equitable Educator.",
+      "two sticks would thereby be 20 pencils, and she revoices"
+    ],
+    "text_not_contains": [
+      "students’background",
+      "Teachers’Knowledge"
+    ],
+    "headings_include": [[1, "Curriculum Rooted in a Deep Understanding"],
+                         [1, "Endnotes"],
+                         [2, "What the Science Says"]],
+    "counts": {"aside": 4},
+    "notes_sequential": [1, 73],
+    "aside_first_child_starts": [[7, "Preparation for Developmentally Grounded"]]
+  },
+  "02--baystate-case-study-021624": {
+    "headings_include": [[2, "Baystate Health"]],
+    "text_not_contains": ["BAYSTATE HEALTH | CASE STUDY"]
+  },
+  "02--toolkit-hiring2022-copy112222onlineversiononly-1": {
+    "headings_include": [[1, "Key Terms"], [1, "University Hospitals"]],
+    "headings_exclude": [[2, "Table of Contents"]]
+  },
+  "03--enterprise-annual-report-2022": {
+    "headings_include": [[1, "Annual Report from Enterprise Community Partners"],
+                         [2, "A Letter from Board Leadership"],
+                         [2, "Stories of Impact"]],
+    "headings_exclude": [[2, "$10.2 Billion"]]
+  }
+}
