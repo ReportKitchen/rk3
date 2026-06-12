@@ -252,7 +252,7 @@
       "figure": 5,
       "footnotes": 1,
       "heading": 14,
-      "paragraph": 66,
+      "paragraph": 76,
       "table": 1
     },
     "asideChildren": 6,
@@ -264,7 +264,7 @@
       5
     ],
     "questions": 2,
-    "textChars": 30949
+    "textChars": 30939
   },
   "02--cottonwood-case-study-r5": {
     "status": "done",
@@ -603,6 +603,10 @@
         "WORKFORCE INTERMEDIARY"
       ],
       [
+        5,
+        "SOURCES"
+      ],
+      [
         1,
         "Case Studies"
       ],
@@ -676,6 +680,10 @@
       ],
       [
         5,
+        "SOURCES"
+      ],
+      [
+        5,
         "FOR MORE INFORMATION"
       ],
       [
@@ -743,6 +751,10 @@
         "FOR MORE INFORMATION"
       ],
       [
+        5,
+        "SOURCES"
+      ],
+      [
         3,
         "ALAMEDA COUNTY, CALIFORNIA"
       ],
@@ -793,6 +805,10 @@
       [
         5,
         "FOR MORE INFORMATION"
+      ],
+      [
+        5,
+        "SOURCES"
       ],
       [
         5,
@@ -864,6 +880,10 @@
       ],
       [
         5,
+        "SOURCES"
+      ],
+      [
+        5,
         "ANCHOR INSTITUTION TOOLKIT MEETING"
       ],
       [
@@ -931,6 +951,10 @@
         "FOR MORE INFORMATION"
       ],
       [
+        5,
+        "SOURCES"
+      ],
+      [
         1,
         "Johns Hopkins University & Health System"
       ],
@@ -989,6 +1013,10 @@
       [
         5,
         "HOPKINSLOCAL TARGETED POSITIONS"
+      ],
+      [
+        5,
+        "SOURCES"
       ],
       [
         5,
@@ -1251,6 +1279,10 @@
         "MAINTAINING REALISTIC EXPECTATIONS"
       ],
       [
+        5,
+        "SOURCES"
+      ],
+      [
         1,
         "Laying the Foundations"
       ],
@@ -1495,6 +1527,14 @@
         "ADVISORY COMMITTEE"
       ],
       [
+        5,
+        "NOTES"
+      ],
+      [
+        5,
+        "NOTES"
+      ],
+      [
         1,
         "Diving in"
       ],
@@ -1576,7 +1616,7 @@
       ],
       [
         5,
-        "FACTORS TO CONSIDER"
+        "NOTES"
       ],
       [
         5,
@@ -1584,7 +1624,23 @@
       ],
       [
         5,
+        "NOTES"
+      ],
+      [
+        5,
         "FACTORS TO CONSIDER"
+      ],
+      [
+        5,
+        "NOTES"
+      ],
+      [
+        5,
+        "FACTORS TO CONSIDER"
+      ],
+      [
+        5,
+        "NOTES"
       ],
       [
         2,
@@ -1614,14 +1670,22 @@
     "counts": {
       "aside": 43,
       "figure": 16,
-      "heading": 272,
+      "footnotes": 1,
+      "heading": 286,
       "list": 60,
-      "paragraph": 703
+      "paragraph": 683
     },
     "asideChildren": 118,
-    "notes": [],
+    "notes": [
+      1,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
     "questions": 52,
-    "textChars": 290666
+    "textChars": 290654
   },
   "03--enterprise-annual-report-2022": {
     "status": "done",

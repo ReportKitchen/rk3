@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 28
+VERSION = 29
 
 
 def _alnum(text):
@@ -700,6 +700,12 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         return _heading_node(ctx, blk, text, kicker_level,
                              "ALL-CAPS standalone kicker at body size",
                              prov, used_ids)
+
+    if not in_aside and kicker_level and len(blk["lines"]) == 1 \
+            and NOTES_HEADING.fullmatch(text.strip()):
+        # section labels like "Sources" deserve a heading even at body size
+        return _heading_node(ctx, blk, text, kicker_level,
+                             "notes-section label", prov, used_ids)
 
     if _is_bullet_list(blk):
         items = _bullet_items(blk)
@@ -1384,8 +1390,12 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
         if i in skip:
             continue
         size = _dominant_size(blk)
-        if NOTES_HEADING.fullmatch(text.strip()) and size > body_size * 1.15:
+        if NOTES_HEADING.fullmatch(text.strip()):
+            # a notes-ish section label (Endnotes, Sources, References) at any
+            # size starts a fresh section — and must never be eaten as a
+            # continuation of the previous section's last note
             in_section = True
+            expected = None
             continue
         marker = _line_marker(blk["lines"][0])
         if in_section:
@@ -1399,10 +1409,15 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
                 if new or (lead and notes):
                     note_idx.add(i)
                 continue
-            elif notes and size <= body_size * 1.05:
-                notes[-1]["text"] += " " + text  # continuation block
+            elif notes and size <= body_size * 1.05 and text[:1].islower():
+                # continuation = a wrap of the previous note (starts
+                # mid-sentence); anything else ends the section instead of
+                # being silently appended to the last note
+                notes[-1]["text"] += " " + text
                 note_idx.add(i)
                 continue
+            else:
+                in_section = False
         if not in_section and marker and size <= 0.92 * body_size:
             page = pages[blk["page"]]
             # bottom of the page, or anywhere when the marker is a leading
