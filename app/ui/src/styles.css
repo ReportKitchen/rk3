@@ -1,0 +1,274 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+#layout { display: flex; height: 100vh; }
+
+/* ------------------------------------------------------------- left list */
+
+#left {
+  width: 320px;
+  min-width: 240px;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+  background: #fafafa;
+}
+
+#left header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+#left h1 { font-size: 1.1rem; margin: 0; }
+
+#doclist { list-style: none; margin: 0; padding: 0; }
+
+#doclist .folder {
+  padding: 0.5rem 1rem 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+}
+
+#doclist .doc {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+#doclist .doc:hover { background: #f0f0f0; }
+#doclist .doc.selected { background: #e2ecf8; }
+
+.badge {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 0.6rem;
+  color: #fff;
+  white-space: nowrap;
+}
+.badge.unconverted { background: #999; }
+.badge.in_progress { background: #d99a06; }
+.badge.done        { background: #2e7d32; }
+.badge.failed      { background: #c62828; }
+
+/* ------------------------------------------------------------ right side */
+
+#right { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+#toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.85rem;
+  background: #fafafa;
+}
+
+#toolbar #toggles { display: flex; gap: 1.25rem; align-items: center; }
+
+#toolbar button.mode {
+  border: 1px solid #bbb;
+  background: #fff;
+  border-radius: 4px;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+#toolbar button.mode.active { background: #fdf3d7; border-color: #b58900; }
+
+#content { flex: 1; overflow: hidden; display: flex; min-height: 0; }
+#content .pane { padding: 2rem; max-width: 40rem; }
+.hint { color: #888; padding: 2rem; }
+
+.split { display: flex; height: 100%; flex: 1; min-width: 0; }
+.split iframe { flex: 1 1 50%; min-width: 0; border: 0; height: 100%; }
+
+.failpane { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.failpane .pdfpane { height: auto; flex: 1; }
+
+.pdfpane {
+  flex: 1 1 50%;
+  min-width: 0;
+  overflow-y: auto;
+  border-left: 1px solid #ccc;
+  background: #666;
+  padding: 8px;
+}
+.pdfpane img {
+  display: block;
+  width: 100%;
+  height: auto;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+.pagewrap { position: relative; margin-bottom: 8px; }
+
+.fb-spot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  border: 1px solid #5b7fb5;
+  background: #e2ecf8;
+  color: #2c4a75;
+  font: 700 0.7rem/1 sans-serif;
+  cursor: help;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+.fb-spot.resolved { border-color: #999; background: #eee; color: #777; }
+
+button.action {
+  font-size: 1rem;
+  padding: 0.5rem 1.25rem;
+  cursor: pointer;
+}
+
+pre.error {
+  background: #fdf0f0;
+  border: 1px solid #c62828;
+  padding: 1rem;
+  white-space: pre-wrap;
+  font-size: 0.8rem;
+}
+
+/* -------------------------------------------------------------- popover */
+
+.popover-backdrop {
+  position: fixed; inset: 0; background: transparent; z-index: 40;
+}
+
+.popover {
+  position: fixed;
+  z-index: 50;
+  width: 320px;
+  background: #fff;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+  padding: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.popover .q-prompt { margin: 0 0 0.5rem; }
+
+.popover textarea {
+  width: 100%;
+  resize: vertical;
+  font: inherit;
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.popover-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* understated delete; arming recolors but never resizes (fixed width fits
+   the longer "Confirm Delete" label) */
+.popover-actions .fb-delete {
+  margin-right: auto;
+  width: 6.8rem;
+  padding: 0.3rem 0;
+  text-align: center;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #999;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.popover-actions .fb-delete:hover { color: #c62828; }
+.popover-actions .fb-delete.armed {
+  background: #c62828;
+  color: #fff;
+  font-weight: 600;
+}
+
+.popover-actions button {
+  padding: 0.3rem 0.8rem;
+  cursor: pointer;
+}
+
+.popover-actions .primary {
+  background: #2e7d32;
+  color: #fff;
+  border: 1px solid #2e7d32;
+  border-radius: 4px;
+}
+.popover-actions .primary:disabled { opacity: 0.5; cursor: default; }
+
+.q-options { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.6rem; }
+.q-option {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+.q-option.chosen { border-color: #2e7d32; background: #e6f2e6; }
+
+/* -------------------------------------------------------- questions panel */
+
+.qpanel {
+  width: 320px;
+  min-width: 280px;
+  border-left: 1px solid #ddd;
+  overflow-y: auto;
+  background: #fafafa;
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+}
+
+.qpanel h2 { font-size: 0.8rem; text-transform: uppercase; color: #888; margin: 1rem 0 0.5rem; }
+.qpanel ul { list-style: none; margin: 0; padding: 0; }
+.qpanel li {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+.qpanel li.resolved { opacity: 0.65; }
+.qpanel .jump, .qpanel .jump-placeholder {
+  flex-shrink: 0;
+  border: 1px solid #bbb;
+  background: #fff;
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  height: fit-content;
+  cursor: pointer;
+  font-size: 0.7rem;
+}
+.qpanel .jump-placeholder { cursor: default; color: #888; }
+.qpanel .q-body { min-width: 0; }
+.qpanel .q-body p { margin: 0 0 0.3rem; }
+.qpanel .q-state { color: #2e7d32; }
+.qpanel .q-answer {
+  border: 1px solid #b58900;
+  background: #fdf3d7;
+  border-radius: 4px;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+}

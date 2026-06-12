@@ -6,7 +6,14 @@ sources/*
 # generated conversion artifacts (rebuildable from sources + code)
 output/
 
+# viewer annotations (scratch working data, per user decision)
+feedback/
+
 # python
 .venv/
 __pycache__/
 *.pyc
+
+# node
+node_modules/
+app/ui/dist/

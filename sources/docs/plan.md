@@ -140,10 +140,79 @@ Acceptance check for v1: all 7 PDFs run through the system; 6 convert, 1 fails
 with the scanned-PDF message; headings, reading order, callouts, and footnotes
 are reasonable on the 01/ and 02/ documents; viewer statuses behave across reloads.
 
+## Viewer (React) & interaction model — added 2026-06-12
+
+The viewer is React + Vite (`app/ui/`, built with Node 22 via nvm; `npm run
+build` → `dist/`, served by FastAPI, later by Express unchanged). Decisions:
+
+- **Stable node IDs**: every IR node carries `nid` (hash of type+page+bbox),
+  emitted as `data-nid`. Unlike per-run `rk` debug keys, nids survive re-runs.
+  All interaction features target nids.
+- **Edits are declarative ops, never DOM mutations** (drag/retag/group UI
+  later emits `{target: nid, op, value}`; applied at render stage; re-run is
+  render-only so sub-second). User edits, question answers, and the future
+  config-agent are all producers of the same op/feedback stream.
+- **Feedback**: viewer feedback mode → click element (or PDF-pane spot) →
+  popover → `feedback/<slug>.jsonl` (gitignored). During development Claude
+  reads and acts on these ("process the feedback"); later the in-codebase
+  agent consumes the same stream and may only edit config + re-run.
+- **Converter questions**: analyze emits low-confidence decisions into
+  ir.json `questions` (stable `qid`), shown as inline (?) markers + a panel;
+  answers are feedback entries of type `answer` (phase 1). Phase 2: answers
+  become config overrides consumed on re-run.
+- **Real-time collab**: tier 2 (live presence, op broadcast over WebSocket,
+  LWW per key) is planned and cheap on this model; tier 3 (CRDT prose
+  co-editing) remains a maybe and bolts on per-text-node later.
+
+### API contract (port spec for the eventual Express backend)
+
+- `GET /api/documents` → `[{slug, name, folder, path, hasConfig, status
+  (unconverted|in_progress|done|failed), error?, finished?, pages}]`
+- `POST /api/convert/{slug}?force=` → `{slug, status}`; conversion runs in a
+  subprocess; status is polled via /api/documents (meta.json is the truth)
+- `GET /api/feedback/{slug}` → array of feedback entries
+- `POST /api/feedback/{slug}` body `{type: comment|answer, text?, nid?, rk?,
+  page?, xf?, yf?, qid?, choice?}` → stored entry (+ts, status:open),
+  appended to `feedback/<slug>.jsonl`
+- Static: `/` viewer; `/output/<engine>/<slug>/…` artifacts (index.html,
+  ir.json, pages/*.png, images/*, debug-*.jsonl, meta.json)
+
+## Additional source formats — decided 2026-06-12
+
+Sources will expand beyond PDF: **MS Word/OpenOffice (DOCX/ODT)** for sure,
+possibly the **HTML that Google Docs exports** (may be skipped). Decisions:
+
+- Each source format is just another engine emitting the shared IR; renderer,
+  CSS layers, nav, footnote placement, autolink, feedback/questions/ops, and
+  the viewer all apply unchanged. **Engines declare their own stage lists**
+  (DOCX ≈ extract→analyze→render, no geometric assemble; HTML skips
+  extraction and starts at cleanup/normalize).
+- **Engines own their nid scheme**: bbox-hash for paginated sources,
+  content+position hash for flowed ones.
+- **Physics vs policy** discipline: getting text/structure out is per-engine;
+  document-shaping decisions (footnote placement, TOC removal, autolink,
+  callout styling) live in shared stages so all sources benefit.
+- Flowed sources have no pages, so no reference pane or sync-scroll by
+  default. Direction chosen: render a reference via `libreoffice --headless`
+  → PDF → existing page-PNG path when LibreOffice is available (NOT currently
+  installed on this box), keeping the compare/annotate UX uniform.
+- Word style mapping: named heading styles map 1:1; direct-formatting soup
+  ("bold 16pt Normal") reuses the size-clustering judgment + question
+  emission with different signals.
+- No structural prep now: pipeline.py's per-engine stage lists and
+  extension-based engine selection in documents.py get refactored when the
+  first docx engine lands (no-backwards-compat rule applies).
+
 ## Deferred (recorded so we don't lose them)
 
+- Tagged-PDF signal blending (struct tree readable via pdfium; linking roles
+  to text needs MCID-level content-stream parsing via pikepdf — own milestone)
+- Questions phase 2: answers → per-doc config overrides consumed on re-run
+- Edit ops UI (drag-to-move callouts, retag heading levels, accordion
+  grouping) + op log; then WebSocket live presence (tier 2)
+- nid remapping across reconversions (bbox drift orphans ops/answers)
 - LLM assist stage (heading adjudication, callout semantics, footnote matching, vision-based layer-3 recovery)
 - Engine #2+, engine-switcher UI
 - Progress indicators, batch processing
 - Configurable footnote placement
-- ExpressJS front-end
+- ExpressJS front-end (API contract above is the port spec)
