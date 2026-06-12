@@ -18,7 +18,7 @@ import pypdfium2.raw as pdfium_c
 
 from ...pipeline import ScannedPdfError
 
-VERSION = 6
+VERSION = 7
 
 OBJ_PATH, OBJ_IMAGE, OBJ_SHADING = 2, 3, 4
 
@@ -127,7 +127,12 @@ def run(ctx):
 
 def _page_objects(page, color_id):
     """Graphic page objects (paths/images/shadings) for figure & callout
-    detection downstream: [type, l, b, r, t, fillIdx, strokeIdx, filled, stroked]."""
+    detection downstream:
+    [type, l, b, r, t, fillIdx, strokeIdx, filled, stroked,
+     strokeWidth, segments]
+    segments (stroked simple paths only): [[x, y, segType, close], ...] in
+    page space — lets analyze tell a left+bottom accent border from a full
+    box outline."""
     objects = []
     for obj in page.get_objects(max_depth=2):
         if obj.type not in (OBJ_PATH, OBJ_IMAGE, OBJ_SHADING):
@@ -138,6 +143,8 @@ def _page_objects(page, color_id):
             continue
         fill = stroke = None
         filled = stroked = 0
+        stroke_w = None
+        segs = None
         if obj.type == OBJ_PATH:
             c = [ctypes.c_uint() for _ in range(4)]
             if pdfium_c.FPDFPageObj_GetFillColor(obj.raw, *map(ctypes.byref, c)):
@@ -148,9 +155,38 @@ def _page_objects(page, color_id):
             if pdfium_c.FPDFPath_GetDrawMode(obj.raw, ctypes.byref(fmode),
                                              ctypes.byref(smode)):
                 filled, stroked = int(fmode.value != 0), int(smode.value != 0)
+            if stroked:
+                w = ctypes.c_float()
+                if pdfium_c.FPDFPageObj_GetStrokeWidth(obj.raw, ctypes.byref(w)):
+                    stroke_w = round(w.value, 2)
+                segs = _path_segments(obj)
         objects.append([obj.type, round(l, 2), round(b, 2), round(r, 2),
-                        round(t, 2), fill, stroke, filled, stroked])
+                        round(t, 2), fill, stroke, filled, stroked,
+                        stroke_w, segs])
     return objects
+
+
+def _path_segments(obj, max_segs=10):
+    """Page-space points of a simple path (None when complex)."""
+    n = pdfium_c.FPDFPath_CountSegments(obj.raw)
+    if not 0 < n <= max_segs:
+        return None
+    m = pdfium_c.FS_MATRIX()
+    if not pdfium_c.FPDFPageObj_GetMatrix(obj.raw, ctypes.byref(m)):
+        m.a, m.b, m.c, m.d, m.e, m.f = 1, 0, 0, 1, 0, 0
+    segs = []
+    for i in range(n):
+        seg = pdfium_c.FPDFPath_GetPathSegment(obj.raw, i)
+        x, y = ctypes.c_float(), ctypes.c_float()
+        if not pdfium_c.FPDFPathSegment_GetPoint(seg, ctypes.byref(x),
+                                                 ctypes.byref(y)):
+            return None
+        px = m.a * x.value + m.c * y.value + m.e
+        py = m.b * x.value + m.d * y.value + m.f
+        segs.append([round(px, 1), round(py, 1),
+                     pdfium_c.FPDFPathSegment_GetType(seg),
+                     int(bool(pdfium_c.FPDFPathSegment_GetClose(seg)))])
+    return segs
 
 
 def _tagged_regions(page):

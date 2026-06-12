@@ -9,7 +9,7 @@ import re
 import shutil
 from pathlib import Path
 
-VERSION = 18
+VERSION = 19
 
 # ; and , are legal in URLs but in print they overwhelmingly join citations,
 # so they terminate a match
@@ -136,8 +136,18 @@ def _render_node(ctx, node, pages, state):
     if t == "aside":
         children = "\n".join(_render_node(ctx, c, pages, state)
                              for c in node["children"])
-        extra = {"class": "quote"} if node.get("quote") else None
-        return f'<aside {_attrs(node, pages, extra)}>\n{children}\n</aside>'
+        classes = []
+        if node.get("quote"):
+            classes.append("quote")
+        if node.get("pullQuote"):
+            classes.append("pull-quote")
+        extra = {}
+        if classes:
+            extra["class"] = " ".join(classes)
+        if node.get("pullQuote"):
+            # duplicated decoration: visible flourish, silent to screen readers
+            extra["aria-hidden"] = "true"
+        return f'<aside {_attrs(node, pages, extra or None)}>\n{children}\n</aside>'
     if t == "footnotes":
         items = []
         for note in node["notes"]:
@@ -346,17 +356,32 @@ def _original_css(ctx, ir):
         if rules:
             out += [f"h{min(lv, 6)} {{", *rules, "}", ""]
 
-    # callout boxes keep their original fill/border
+    # callout boxes keep their original fill/border and (when narrower than
+    # the column) their floated position and width
     for n in ir["body"]:
         d = n.get("data") or {}
-        if n["type"] == "aside" and (d.get("fill") or d.get("stroke")):
-            rules = []
-            if d.get("fill") and d["fill"] not in ("#ffffff",):
-                rules.append(f"  background: {d['fill']};")
-            if d.get("stroke"):
-                rules.append(f"  border: 1px solid {d['stroke']};")
-            elif d.get("fill"):
-                rules.append("  border: none;")
+        if n["type"] != "aside":
+            continue
+        rules = []
+        if d.get("fill") and d["fill"] not in ("#ffffff",):
+            rules.append(f"  background: {d['fill']};")
+        if n.get("borders"):
+            rules.append("  border: none;")
+            for side, spec in sorted(n["borders"].items()):
+                px = round(spec["width"] * 4 / 3)
+                rules.append(f"  border-{side}: {px}px solid {spec['color']};")
+        elif d.get("stroke"):
+            rules.append(f"  border: 1px solid {d['stroke']};")
+        elif d.get("fill"):
+            rules.append("  border: none;")
+        lay = n.get("layout")
+        if lay:
+            pct = round(lay["widthFrac"] * 100)
+            side = lay["anchor"]
+            margin = ("0 0 1rem 1.5rem" if side == "right" else "0 1.5rem 1rem 0")
+            rules += [f"  float: {side};", f"  width: {pct}%;",
+                      f"  margin: {margin};"]
+        if rules:
             out += [f'aside[data-nid="{n["nid"]}"] {{', *rules, "}", ""]
 
     # original list markers (symbol-font glyphs approximate to square)

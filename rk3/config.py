@@ -22,6 +22,9 @@ DEFAULTS = {
         "calloutHints": [],           # future
         "footnotePlacement": "end",   # v1: always end of document
         "dropToc": True,
+        # asides whose text duplicates nearby body text (print pull-quotes):
+        # "keep" (floated decoration, aria-hidden) or "drop"
+        "pullQuotes": "keep",
         # answers to figure-or-callout questions, applied on re-run:
         # [{"page": n, "bbox": [l,b,r,t], "kind": "figure"|"callout"}]
         "regionOverrides": [],

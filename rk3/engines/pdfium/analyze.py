@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 24
+VERSION = 25
 
 
 def _hex(rgba):
@@ -194,6 +194,7 @@ def run(ctx):
     # sentences interrupted by page breaks happen in the main flow too,
     # not just inside callouts
     nodes = _join_pagebreak_sentences(ctx, nodes)
+    nodes = _aside_layout_and_pullquotes(ctx, nodes)
 
     if notes:
         last = blocks[max(note_idx)]
@@ -368,6 +369,9 @@ def _classify_cluster(ctx, page, cluster, blocks, texts, body_size, top_size=Non
         style["fillIdx"] = max(fills, key=lambda x: x[1])[0]
     if strokes:
         style["strokeIdx"] = max(strokes, key=lambda x: x[1])[0]
+    borders = _region_borders(cluster, bbox)
+    if borders:
+        style["borders"] = borders
 
     # user answers (region overrides from config) trump every heuristic
     for ov in ctx.cfg["structure"].get("regionOverrides", []):
@@ -417,6 +421,73 @@ def _classify_cluster(ctx, page, cluster, blocks, texts, body_size, top_size=Non
                               f"chars_inside={chars_inside}")
     return {"kind": kind, "page": page["n"], "bbox": bbox, "rk": rk,
             "uncertain": uncertain, "blockIdx": absorbed_idx, **style}
+
+
+SEG_LINETO, SEG_MOVETO = 0, 2
+
+
+def _region_borders(cluster, bbox):
+    """Per-side accent borders: stroked path segments tell us WHICH sides a
+    box outline actually draws; thin filled bars hugging an edge count too.
+    Returns {side: [colorIdx, width_pt]} only for partial borders."""
+    l0, b0, r0, t0 = bbox
+    borders = {}
+    for o in cluster["objs"]:
+        if o[OT] != OBJ_PATH:
+            continue
+        # thin filled edge bars
+        if o[7] and o[5] is not None:
+            w, h = o[3] - o[1], o[4] - o[2]
+            if w <= 20 and h >= 0.6 * (t0 - b0):
+                side = "left" if abs(o[1] - l0) <= 6 else \
+                       "right" if abs(o[3] - r0) <= 6 else None
+                if side:
+                    borders[side] = [o[5], round(w, 1)]
+            elif h <= 20 and w >= 0.6 * (r0 - l0):
+                side = "bottom" if abs(o[2] - b0) <= 6 else \
+                       "top" if abs(o[4] - t0) <= 6 else None
+                if side:
+                    borders[side] = [o[5], round(h, 1)]
+        # stroked outline with segment data
+        if o[8] and len(o) > 10 and o[10] and o[6] is not None:
+            sides = _seg_sides(o[10], (o[1], o[2], o[3], o[4]),
+                               max(4.0, (o[9] or 1.0)))
+            if 0 < len(sides) < 4:
+                for side in sides:
+                    borders[side] = [o[6], o[9] or 1.0]
+    return borders
+
+
+def _seg_sides(segs, bbox, tol):
+    l0, b0, r0, t0 = bbox
+    sides = set()
+
+    def classify(p1, p2):
+        (x1, y1), (x2, y2) = p1, p2
+        if abs(x1 - x2) <= tol and abs(y1 - y2) > tol:
+            x = (x1 + x2) / 2
+            if abs(x - l0) <= tol:
+                sides.add("left")
+            elif abs(x - r0) <= tol:
+                sides.add("right")
+        elif abs(y1 - y2) <= tol and abs(x1 - x2) > tol:
+            y = (y1 + y2) / 2
+            if abs(y - b0) <= tol:
+                sides.add("bottom")
+            elif abs(y - t0) <= tol:
+                sides.add("top")
+
+    cur = start = None
+    for x, y, styp, close in segs:
+        if styp == SEG_MOVETO:
+            cur = start = (x, y)
+        else:
+            if styp == SEG_LINETO and cur:
+                classify(cur, (x, y))
+            cur = (x, y)
+        if close and cur and start:
+            classify(cur, start)
+    return sides
 
 
 def _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles):
@@ -767,6 +838,9 @@ def _aside_node(ctx, reg, blocks, rich, fonts, body_size, roles):
         node["data"]["fill"] = _hex(ctx.colors[reg["fillIdx"]])
     if reg.get("strokeIdx") is not None:
         node["data"]["stroke"] = _hex(ctx.colors[reg["strokeIdx"]])
+    if reg.get("borders"):
+        node["borders"] = {side: {"color": _hex(ctx.colors[ci]), "width": w}
+                           for side, (ci, w) in reg["borders"].items()}
     if is_quote:
         node["quote"] = True
     first_text = next((c.get("text") for c in children if c.get("text")), None)
@@ -882,6 +956,63 @@ def _extract_quote_marks(ctx, reg, children):
     if found:
         ctx.log.entry("quote-callout", page=reg["page"], region=reg["rk"])
     return found
+
+
+def _aside_layout_and_pullquotes(ctx, nodes):
+    """Two post-passes over the assembled flow:
+    - asides narrower than the text column get layout provenance (width
+      fraction + anchored side) so layer 3 can float them like the original;
+    - an aside whose text duplicates part of a nearby paragraph is a
+      pull-quote: decoration, not content (config structure.pullQuotes:
+      keep => floated + aria-hidden, drop => removed)."""
+    mains = [n for n in nodes if n["type"] in ("paragraph", "heading")]
+    if not mains:
+        return nodes
+    col_l = min(n["bbox"][0] for n in mains)
+    col_r = max(n["bbox"][2] for n in mains)
+    col_w = max(col_r - col_l, 1.0)
+
+    def norm(t):
+        return re.sub(r"[^a-z0-9]+", "", (t or "").lower())
+
+    para_norms = [(n, norm(n.get("text"))) for n in nodes
+                  if n["type"] == "paragraph"]
+    mode = ctx.cfg["structure"].get("pullQuotes", "keep")
+    out = []
+    for n in nodes:
+        if n["type"] != "aside":
+            out.append(n)
+            continue
+        w = n["bbox"][2] - n["bbox"][0]
+        frac = w / col_w
+        if frac <= 0.7:
+            anchor = None
+            if col_r - n["bbox"][2] < 0.08 * col_w and \
+                    n["bbox"][0] - col_l > 0.2 * col_w:
+                anchor = "right"
+            elif n["bbox"][0] - col_l < 0.08 * col_w and \
+                    col_r - n["bbox"][2] > 0.2 * col_w:
+                anchor = "left"
+            if anchor:
+                n["layout"] = {"widthFrac": round(frac, 3), "anchor": anchor}
+                ctx.log.entry("aside-layout", page=n["page"], nid=n["nid"],
+                              widthFrac=n["layout"]["widthFrac"], anchor=anchor)
+
+        texts = [c.get("text", "") for c in n.get("children", [])]
+        total = norm(" ".join(texts))
+        if len(n.get("children", [])) <= 2 and 30 <= len(total) <= 400:
+            dup = next((p for p, pn in para_norms
+                        if total in pn and abs(p["page"] - n["page"]) <= 1), None)
+            if dup is not None:
+                rk = ctx.log.entry("pull-quote", page=n["page"], nid=n["nid"],
+                                   duplicates=dup["nid"], mode=mode,
+                                   text=texts[0][:60] if texts else "")
+                if mode == "drop":
+                    continue
+                n["pullQuote"] = True
+                n["data"]["duplicates"] = dup["nid"]
+        out.append(n)
+    return out
 
 
 def _join_pagebreak_sentences(ctx, children):
