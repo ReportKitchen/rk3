@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter
 
-VERSION = 13
+VERSION = 18
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -74,16 +74,35 @@ def _lines(chars, links):
 
 def _finish_line(chars, links):
     chars = sorted(chars, key=lambda c: c[L])
+    # some PDFs place space chars at geometrically impossible positions
+    # ("i sjust"); a space whose neighbors nearly touch is a lie — drop it,
+    # gap-synthesis below re-derives spacing from actual geometry
+    cleaned = []
+    for idx, c in enumerate(chars):
+        if c[UC] == " " and c[R] - c[L] < 0.3:  # zero-width space glyph
+            prev = cleaned[-1] if cleaned else None
+            nxt = next((x for x in chars[idx + 1:] if x[UC] != " "), None)
+            gap = (nxt[L] - prev[R]) if prev is not None and nxt is not None \
+                else 0.0  # boundary zero-width spaces carry no evidence
+            # judge against the NEIGHBORS' size: these glyphs lie about
+            # their own (size 1, untransformed)
+            ref = max((prev or c)[SIZE], (nxt or c)[SIZE], 1.0)
+            if gap < 0.12 * ref:
+                continue
+        cleaned.append(c)
+    chars = cleaned
     text = []
     src = []  # source char (or None for synthesized spaces), parallel to text
     prev_r = None
     sizes = Counter()
     fonts = Counter()
     colors = Counter()
+    space_em = _space_threshold(chars)
     for c in chars:
         # synthesize a space on a visible horizontal gap (pdfium often includes
-        # real space chars, but not always)
-        if prev_r is not None and c[L] - prev_r > 0.25 * max(c[SIZE], 1.0) \
+        # real space chars, but not always); threshold is adaptive per line —
+        # letter-gap and word-gap sizes vary wildly between fonts/documents
+        if prev_r is not None and c[L] - prev_r > space_em * max(c[SIZE], 1.0) \
                 and text and text[-1] != " " and c[UC] != " ":
             text.append(" ")
             src.append(None)
@@ -97,8 +116,9 @@ def _finish_line(chars, links):
         fonts[c[FONT]] += 1
         colors[c[COLOR]] += 1
     # strip() equivalent that keeps src aligned; remember stripped boundary
-    # spaces — they're real PDF chars, and when a visual line is split across
-    # runs the joiner must know a space existed there
+    # spaces — but only ones that physically exist (real width or a
+    # synthesized gap). Zero-width space glyphs parked at the previous word's
+    # coordinates are typesetting lies and must not force a joiner space.
     orig_len = len(text)
     start = 0
     end = orig_len
@@ -106,7 +126,12 @@ def _finish_line(chars, links):
         start += 1
     while end > start and text[end - 1] == " ":
         end -= 1
-    space_before, space_after = start > 0, end < orig_len
+
+    def _real_space(seg):
+        return any(c is None or (c[R] - c[L]) > 0.3 for c in seg)
+
+    space_before = _real_space(src[:start])
+    space_after = _real_space(src[end:])
     text, src = text[start:end], src[start:end]
 
     dom_size = sizes.most_common(1)[0][0]
@@ -148,6 +173,30 @@ def _color_runs(src, dom_color):
     if cur_color is not None and cur_color != dom_color:
         runs.append([start, len(src), cur_color])
     return [r for r in runs if r[1] - r[0] >= 2]
+
+
+def _space_threshold(chars):
+    """Per-line word-gap threshold (em): find the split between the letter-gap
+    cluster and the word-gap cluster in this line's gap distribution. Falls
+    back to a conservative 0.25 em when the line has no clear two clusters."""
+    gaps = []
+    prev_r = None
+    for c in chars:
+        if c[UC] == " ":
+            continue
+        if prev_r is not None:
+            g = (c[L] - prev_r) / max(c[SIZE], 1.0)
+            if g > 0.01:
+                gaps.append(g)
+        prev_r = c[R]
+    if len(gaps) < 4:
+        return 0.25
+    gaps.sort()
+    best_jump, thresh = 0.0, 0.25
+    for a, b in zip(gaps, gaps[1:]):
+        if b >= 0.13 and b > a * 1.7 and (b - a) > best_jump:
+            best_jump, thresh = b - a, (a + b) / 2
+    return max(thresh, 0.10)
 
 
 def _sup_ranges(src, dom_size):

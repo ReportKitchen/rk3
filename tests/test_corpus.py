@@ -74,6 +74,18 @@ def test_expectations(corpus, slug):
                 f"p{page} aside first child {first[:60]!r}"
 
 
+@pytest.mark.parametrize("slug", sorted(EXPECTATIONS))
+def test_text_accounting(corpus, slug):
+    """Every alnum char extracted must reach the output or be claimed by a
+    logged removal. Silent content loss is a failure, not a user discovery."""
+    if corpus[slug]["status"] != "done":
+        return
+    audit = _ir(slug).get("audit", {})
+    bad = {p: v for p, v in audit.get("pages", {}).items()
+           if v["lost"] > max(60, 0.05 * v["in"])}
+    assert not bad, f"unaccounted text loss in {slug}: {bad}"
+
+
 @pytest.mark.parametrize("slug", sorted(SNAPSHOT))
 def test_snapshot(corpus, slug):
     assert slug in corpus, f"document {slug} missing from sources"

@@ -29,7 +29,11 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 26
+VERSION = 28
+
+
+def _alnum(text):
+    return sum(1 for ch in (text or "") if ch.isalnum())
 
 
 def _hex(rgba):
@@ -92,6 +96,11 @@ def run(ctx):
     ctx.questions = []
     ctx.nids = set()
     ctx.qids = set()
+    # text accounting: every alnum char entering this stage must leave in the
+    # output or be claimed by a logged removal; the audit (in ir.json) makes
+    # silent content loss a test failure instead of a user discovery
+    ctx.audit_claimed = Counter()
+    ctx.audit_moved = Counter()
 
     link_colors = _link_colors(ctx, blocks)
     rich = [_join_block(ctx, blk, link_colors) for blk in blocks]
@@ -106,6 +115,7 @@ def run(ctx):
     for i in skip:
         ctx.log.entry("toc-drop", page=blocks[i]["page"], block=blocks[i]["rk"],
                       text=texts[i][:60])
+        ctx.audit_claimed[blocks[i]["page"]] += _alnum(texts[i])
     for i, blk in enumerate(blocks):
         if i in skip:
             continue
@@ -121,6 +131,7 @@ def run(ctx):
                 skip.add(i)
                 ctx.log.entry("strip-artifact", page=blk["page"], block=blk["rk"],
                               coverage=round(cov, 2), text=texts[i][:60])
+                ctx.audit_claimed[blk["page"]] += _alnum(texts[i])
             else:
                 ctx.log.entry("artifact-kept", page=blk["page"], block=blk["rk"],
                               chars=len(texts[i]), text=texts[i][:60],
@@ -200,6 +211,12 @@ def run(ctx):
                               "figure, or an ordinary paragraph?",
                               ["caption", "paragraph"], "caption")
 
+    # figure regions absorb their text into the cropped image
+    for reg in regions:
+        if reg["kind"] == "figure":
+            for bi in reg["blockIdx"]:
+                ctx.audit_claimed[blocks[bi]["page"]] += _alnum(texts[bi])
+
     nodes = _group_tag_lists(ctx, nodes)
     nodes = _group_bullet_paragraphs(ctx, nodes)
     # sentences interrupted by page breaks happen in the main flow too,
@@ -219,12 +236,52 @@ def run(ctx):
 
     title = next((n["text"] for n in nodes if n["type"] == "heading" and n["level"] == 1),
                  ctx.source.stem)
+    audit = _audit(ctx, blocks, texts, nodes)
     ctx.write_artifact("analyze", {
         "title": title,
         "pages": {str(p["n"]): [p["width"], p["height"]] for p in asm["pages"]},
         "questions": ctx.questions,
+        "audit": audit,
         "body": nodes,
     })
+
+
+def _audit(ctx, blocks, texts, nodes):
+    audit_in = Counter()
+    for blk, text in zip(blocks, texts):
+        audit_in[blk["page"]] += _alnum(text)
+
+    out = Counter()
+
+    def count_node(n):
+        page = n["page"]
+        out[page] += _alnum(n.get("text"))
+        out[page] += sum(_alnum(i) for i in n.get("items", []))
+        out[page] += sum(_alnum(c) for row in n.get("rows", []) for c in row)
+        out[page] += _alnum(n.get("caption"))
+        out[page] += _alnum(n.get("sectionNum"))
+        for note in n.get("notes", []):
+            out[note.get("page", page)] += _alnum(note["text"]) \
+                + _alnum(note.get("marker"))
+        for c in n.get("children", []):
+            count_node(c)
+
+    for n in nodes:
+        count_node(n)
+
+    pages = {}
+    total_in = total_lost = 0
+    for p in sorted(audit_in):
+        i, o = audit_in[p], out.get(p, 0)
+        c, m = ctx.audit_claimed.get(p, 0), ctx.audit_moved.get(p, 0)
+        lost = max(0, i - o - c - m)
+        pages[str(p)] = {"in": i, "out": o, "claimed": c, "moved": m,
+                         "lost": lost}
+        total_in += i
+        total_lost += lost
+        if lost > max(60, 0.05 * i):
+            ctx.log.entry("audit-loss", page=p, **pages[str(p)])
+    return {"pages": pages, "totalIn": total_in, "totalLost": total_lost}
 
 
 def _question(ctx, kind, node, prompt, options, chosen):
@@ -550,6 +607,7 @@ def _heading_node(ctx, blk, text, level, reason, prov, used_ids):
         mode = ctx.cfg["structure"].get("sectionNumbers", "styled")
         if mode == "removed":
             text = rest
+            ctx.audit_claimed[blk["page"]] += _alnum(num)
         elif mode == "inline":
             text = f"{num}. {rest}"
         else:  # styled: separate element, css decides presentation
@@ -884,6 +942,9 @@ def _group_tag_lists(ctx, nodes):
             rk = ctx.log.entry("list", page=page, bbox=bbox, items=len(items),
                                reason="struct tags LBody/LI",
                                merged=[n["rk"] for n in run])
+            for n in run:
+                if n["page"] != page:  # grouped across pages: credit source
+                    ctx.audit_moved[n["page"]] += _alnum(n["text"])
             data = {"role": "L"}
             if last_lbl[0]:
                 data["marker"] = last_lbl[0]
@@ -901,6 +962,7 @@ def _group_tag_lists(ctx, nodes):
                 and len(n.get("text", "")) <= 3:
             last_lbl[0] = n.get("text", "").strip() or last_lbl[0]
             ctx.log.entry("drop-lbl", page=n["page"], text=n.get("text", ""))
+            ctx.audit_claimed[n["page"]] += _alnum(n.get("text"))
             continue
         if n["type"] == "paragraph" and role in ("LBody", "LI"):
             run.append(n)
@@ -928,6 +990,9 @@ def _group_bullet_paragraphs(ctx, nodes):
             rk = ctx.log.entry("list", page=page, bbox=bbox, items=len(items),
                                reason="consecutive bullet-led paragraphs",
                                merged=[n["rk"] for n in run])
+            for n in run:
+                if n["page"] != page:  # grouped across pages: credit source
+                    ctx.audit_moved[n["page"]] += _alnum(n["text"])
             data = dict(run[0].get("data", {}))
             data["marker"] = run[0]["text"][:1]
             out.append({"type": "list", "items": items, "page": page,
@@ -1022,6 +1087,9 @@ def _aside_layout_and_pullquotes(ctx, nodes):
                                    duplicates=dup["nid"], mode=mode,
                                    text=texts[0][:60] if texts else "")
                 if mode == "drop":
+                    for c in n.get("children", []):
+                        ctx.audit_claimed[c["page"]] += _alnum(c.get("text")) \
+                            + sum(_alnum(i) for i in c.get("items", []))
                     continue
                 n["pullQuote"] = True
                 n["data"]["duplicates"] = dup["nid"]
@@ -1042,6 +1110,8 @@ def _join_pagebreak_sentences(ctx, children):
                 and prev["text"][-1] not in ".!?:;”’\""
                 and ch["text"][:1].islower()):
             off = len(prev["text"]) + 1
+            # joined text renders under prev's page; credit the source page
+            ctx.audit_moved[ch["page"]] += _alnum(ch["text"])
             prev["text"] += " " + ch["text"]
             for key in ("refs", "links"):
                 if ch.get(key):
@@ -1363,7 +1433,7 @@ def _parse_notes(ctx, blk, expected):
             num, raw, off, _is_sup = marker
             rk = ctx.log.entry("note", page=blk["page"], n=num, marker=raw,
                                block=blk["rk"], text=l["text"][:80])
-            notes.append({"n": num, "marker": raw,
+            notes.append({"n": num, "marker": raw, "page": blk["page"],
                           "text": l["text"][off:].lstrip(".) ").strip(), "rk": rk})
             expected = num + 1
         else:

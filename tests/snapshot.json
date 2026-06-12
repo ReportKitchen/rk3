@@ -111,7 +111,7 @@
       73
     ],
     "questions": 1,
-    "textChars": 59449
+    "textChars": 59445
   },
   "01--sample-content-penguin": {
     "status": "done",
@@ -184,7 +184,7 @@
       3
     ],
     "questions": 0,
-    "textChars": 12033
+    "textChars": 12031
   },
   "02--baystate-case-study-021624": {
     "status": "done",
@@ -264,7 +264,7 @@
       5
     ],
     "questions": 2,
-    "textChars": 30951
+    "textChars": 30949
   },
   "02--cottonwood-case-study-r5": {
     "status": "done",
@@ -328,7 +328,7 @@
       ],
       [
         3,
-        "Department of Public Health Din é College"
+        "Department of Public Health Diné College"
       ],
       [
         2,
@@ -344,7 +344,7 @@
       ],
       [
         4,
-        "Overview of Suggeste d Courses for the Recorded Lectures"
+        "Overview of Suggested Courses for the Recorded Lectures"
       ],
       [
         4,
@@ -492,12 +492,12 @@
       "figure": 32,
       "heading": 42,
       "list": 2,
-      "paragraph": 215
+      "paragraph": 214
     },
     "asideChildren": 4,
     "notes": [],
     "questions": 61,
-    "textChars": 43430
+    "textChars": 43239
   },
   "02--jhu-federal-register-comments-pharma-investigation": {
     "status": "done",
@@ -516,7 +516,7 @@
       4
     ],
     "questions": 3,
-    "textChars": 16158
+    "textChars": 16137
   },
   "02--toolkit-hiring2022-copy112222onlineversiononly-1": {
     "status": "done",
@@ -917,6 +917,10 @@
       [
         5,
         "TIME INVESTMENT INTO RESEARCH, PLANNING, AND DESIGN"
+      ],
+      [
+        5,
+        "B E N E F I TS"
       ],
       [
         5,
@@ -1610,14 +1614,14 @@
     "counts": {
       "aside": 43,
       "figure": 16,
-      "heading": 271,
+      "heading": 272,
       "list": 60,
-      "paragraph": 704
+      "paragraph": 703
     },
     "asideChildren": 118,
     "notes": [],
     "questions": 52,
-    "textChars": 290652
+    "textChars": 290666
   },
   "03--enterprise-annual-report-2022": {
     "status": "done",
@@ -1637,11 +1641,11 @@
       ],
       [
         2,
-        "Th e Challenge"
+        "The Challenge"
       ],
       [
         2,
-        "Th e Solution"
+        "The Solution"
       ],
       [
         5,
@@ -1745,6 +1749,6 @@
     "asideChildren": 31,
     "notes": [],
     "questions": 20,
-    "textChars": 16724
+    "textChars": 16720
   }
 }
