@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter
 
-VERSION = 21
+VERSION = 22
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -61,13 +61,22 @@ def _lines(chars, links):
         # anchored to one end of the line) never trigger a break and never
         # serve as the comparison reference; thresholds scale with the larger
         # glyph so superscripts don't split off
-        if cur and c[UC] != " " and _full_height(c):
+        if cur and c[UC] != " ":
             prev = next((x for x in reversed(cur)
                          if x[UC] != " " and _full_height(x)), cur[-1])
-            size = max(c[SIZE], prev[SIZE], 1.0)
-            v_mid_prev = (prev[B] + prev[T]) / 2
-            v_mid = (c[B] + c[T]) / 2
-            if abs(v_mid - v_mid_prev) > 0.45 * size or c[L] < prev[L] - 2 * size:
+            if _full_height(c):
+                size = max(c[SIZE], prev[SIZE], 1.0)
+                v_mid_prev = (prev[B] + prev[T]) / 2
+                v_mid = (c[B] + c[T]) / 2
+                split = (abs(v_mid - v_mid_prev) > 0.45 * size
+                         or c[L] < prev[L] - 2 * size)
+            else:
+                # partial-height glyphs anchor to one end of the line, so
+                # their midpoints wander - but they still overlap its band;
+                # one that doesn't (a symbol-font bullet of the next line,
+                # vertically detached) is a real break
+                split = c[T] < prev[B] or c[B] > prev[T]
+            if split:
                 lines.append(_finish_line(cur, links))
                 cur = []
         cur.append(c)
