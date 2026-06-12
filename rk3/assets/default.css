@@ -55,3 +55,19 @@ nav {
 }
 
 a { color: #111; }
+
+sup.fnref a {
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footnotes {
+  margin-top: 3rem;
+  border-top: 1px solid #999;
+  font-size: 0.85rem;
+}
+
+.fn-back { text-decoration: none; }
+
+/* link-styled text with no embedded target */
+.styled-link { text-decoration: underline dotted; cursor: help; }

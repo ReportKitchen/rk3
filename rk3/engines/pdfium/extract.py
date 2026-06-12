@@ -18,7 +18,7 @@ import pypdfium2.raw as pdfium_c
 
 from ...pipeline import ScannedPdfError
 
-VERSION = 3
+VERSION = 5
 
 OBJ_PATH, OBJ_IMAGE, OBJ_SHADING = 2, 3, 4
 
@@ -92,6 +92,7 @@ def run(ctx):
                 "height": round(page.get_height(), 2),
                 "chars": chars,
                 "objects": _page_objects(page, color_id),
+                "links": _page_links(pdf, page),
             })
 
             bitmap = page.render(scale=scale)
@@ -143,3 +144,41 @@ def _page_objects(page, color_id):
         objects.append([obj.type, round(l, 2), round(b, 2), round(r, 2),
                         round(t, 2), fill, stroke, filled, stroked])
     return objects
+
+
+def _page_links(pdf, page):
+    """Link annotations: [l, b, r, t, target] where target is
+    {"uri": ...} or {"destPage": 1-based} (or both null fields absent)."""
+    links = []
+    for i in range(pdfium_c.FPDFPage_GetAnnotCount(page)):
+        annot = pdfium_c.FPDFPage_GetAnnot(page, i)
+        try:
+            if pdfium_c.FPDFAnnot_GetSubtype(annot) != pdfium_c.FPDF_ANNOT_LINK:
+                continue
+            rect = pdfium_c.FS_RECTF()
+            if not pdfium_c.FPDFAnnot_GetRect(annot, ctypes.byref(rect)):
+                continue
+            link = pdfium_c.FPDFAnnot_GetLink(annot)
+            if not link:
+                continue
+            target = {}
+            action = pdfium_c.FPDFLink_GetAction(link)
+            if action and pdfium_c.FPDFAction_GetType(action) == pdfium_c.PDFACTION_URI:
+                n = pdfium_c.FPDFAction_GetURIPath(pdf.raw, action, None, 0)
+                buf = ctypes.create_string_buffer(n)
+                pdfium_c.FPDFAction_GetURIPath(pdf.raw, action, buf, n)
+                target["uri"] = buf.value.decode("utf-8", "replace")
+            else:
+                dest = pdfium_c.FPDFLink_GetDest(pdf.raw, link)
+                if dest:
+                    target["destPage"] = pdfium_c.FPDFDest_GetDestPageIndex(pdf.raw, dest) + 1
+            if target:
+                # FS_RECTF top/bottom are not reliably ordered for annots;
+                # normalize so b <= t and l <= r
+                ys = sorted((rect.bottom, rect.top))
+                xs = sorted((rect.left, rect.right))
+                links.append([round(xs[0], 2), round(ys[0], 2),
+                              round(xs[1], 2), round(ys[1], 2), target])
+        finally:
+            pdfium_c.FPDFPage_CloseAnnot(annot)
+    return links

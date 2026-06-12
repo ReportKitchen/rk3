@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter
 
-VERSION = 4
+VERSION = 8
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -22,7 +22,8 @@ def run(ctx):
     ex = ctx.artifact("extract")
     all_blocks = []
     for page in ex["pages"]:
-        lines = _merge_baseline_fragments(ctx, _lines(page["chars"]), page["n"])
+        lines = _merge_baseline_fragments(
+            ctx, _lines(page["chars"], page.get("links", [])), page["n"])
         blocks = _blocks(lines)
         for blk in blocks:
             blk["page"] = page["n"]
@@ -46,7 +47,7 @@ def run(ctx):
     })
 
 
-def _lines(chars):
+def _lines(chars, links):
     """Group chars into lines following pdfium's content order, breaking on
     vertical jumps or large backward horizontal jumps."""
     lines = []
@@ -60,17 +61,18 @@ def _lines(chars):
             v_mid_prev = (prev[B] + prev[T]) / 2
             v_mid = (c[B] + c[T]) / 2
             if abs(v_mid - v_mid_prev) > 0.45 * size or c[L] < prev[L] - 2 * size:
-                lines.append(_finish_line(cur))
+                lines.append(_finish_line(cur, links))
                 cur = []
         cur.append(c)
     if cur:
-        lines.append(_finish_line(cur))
+        lines.append(_finish_line(cur, links))
     return [ln for ln in lines if ln["text"].strip()]
 
 
-def _finish_line(chars):
+def _finish_line(chars, links):
     chars = sorted(chars, key=lambda c: c[L])
     text = []
+    src = []  # source char (or None for synthesized spaces), parallel to text
     prev_r = None
     sizes = Counter()
     fonts = Counter()
@@ -81,20 +83,101 @@ def _finish_line(chars):
         if prev_r is not None and c[L] - prev_r > 0.25 * max(c[SIZE], 1.0) \
                 and text and text[-1] != " " and c[UC] != " ":
             text.append(" ")
+            src.append(None)
         if not (c[UC] == " " and (not text or text[-1] == " ")):
             text.append(c[UC])
+            src.append(c)
         prev_r = c[R]
         sizes[c[SIZE]] += 1
         fonts[c[FONT]] += 1
         colors[c[COLOR]] += 1
-    return {
-        "text": "".join(text).strip(),
+    # strip() equivalent that keeps src aligned
+    start = 0
+    end = len(text)
+    while start < end and text[start] == " ":
+        start += 1
+    while end > start and text[end - 1] == " ":
+        end -= 1
+    text, src = text[start:end], src[start:end]
+
+    dom_size = sizes.most_common(1)[0][0]
+    line = {
+        "text": "".join(text),
         "bbox": [min(c[L] for c in chars), min(c[B] for c in chars),
                  max(c[R] for c in chars), max(c[T] for c in chars)],
-        "size": sizes.most_common(1)[0][0],
+        "size": dom_size,
         "fontIdx": fonts.most_common(1)[0][0],
         "colorIdx": colors.most_common(1)[0][0],
     }
+    sups = _sup_ranges(src, dom_size)
+    if sups:
+        line["sups"] = sups
+    link_ranges = _link_ranges(src, links)
+    if link_ranges:
+        line["links"] = link_ranges
+    color_runs = _color_runs(src, line["colorIdx"])
+    if color_runs:
+        line["colors"] = color_runs
+    return line
+
+
+def _color_runs(src, dom_color):
+    """Ranges of chars colored differently from the line's dominant color
+    (link styling, colored emphasis): [[s, e, colorIdx], ...]."""
+    runs = []
+    cur_color, start = None, None
+    for i, c in enumerate(src):
+        col = c[COLOR] if c is not None else cur_color  # spaces inherit
+        if col != cur_color:
+            if cur_color is not None and cur_color != dom_color:
+                runs.append([start, i, cur_color])
+            cur_color, start = col, i
+    if cur_color is not None and cur_color != dom_color:
+        runs.append([start, len(src), cur_color])
+    return [r for r in runs if r[1] - r[0] >= 2]
+
+
+def _sup_ranges(src, dom_size):
+    """Index ranges of superscript chars: clearly smaller than the line's
+    dominant size and raised above its baseline."""
+    bases = [c[B] for c in src if c and c[SIZE] >= 0.8 * dom_size]
+    if not bases:
+        return []
+    base_b = sorted(bases)[len(bases) // 2]
+    flags = [bool(c) and c[SIZE] <= 0.8 * dom_size
+             and (c[B] - base_b) > 0.15 * dom_size for c in src]
+    return _runs(flags)
+
+
+def _link_ranges(src, links):
+    """Index ranges covered by link annotation rects, with their targets."""
+    out = []
+    for l, b, r, t, target in links:
+        flags = []
+        for c in src:
+            if not c:  # synthesized space: inherit, so it can't split a link
+                flags.append(bool(flags) and flags[-1])
+                continue
+            cx, cy = (c[L] + c[R]) / 2, (c[B] + c[T]) / 2
+            flags.append(l <= cx <= r and b <= cy <= t)
+        while flags and flags[-1] and src[len(flags) - 1] is None:
+            flags[-1] = False  # but never end on an inherited space
+        out.extend([s, e, target] for s, e in _runs(flags))
+    return out
+
+
+def _runs(flags):
+    runs = []
+    start = None
+    for i, f in enumerate(flags):
+        if f and start is None:
+            start = i
+        elif not f and start is not None:
+            runs.append([start, i])
+            start = None
+    if start is not None:
+        runs.append([start, len(flags)])
+    return runs
 
 
 def _merge_baseline_fragments(ctx, lines, page_n):
@@ -120,20 +203,38 @@ def _merge_baseline_fragments(ctx, lines, page_n):
                     continue
                 other = lines[j]
                 size = max(cur["size"], other["size"], 1.0)
-                if abs(mid(cur) - mid(other)) > 0.35 * size:
+                sup = _sup_of(cur, other)
+                # superscripts sit raised, so allow a looser vertical match
+                tol = 0.75 if sup is not None else 0.35
+                if abs(mid(cur) - mid(other)) > tol * size:
                     continue
                 left, right = (cur, other) if cur["bbox"][0] <= other["bbox"][0] else (other, cur)
                 gap = right["bbox"][0] - left["bbox"][2]
-                if not (-0.3 * size <= gap <= 1.5 * size):
+                # fragments may overlap by most of a glyph (kerned runs split
+                # across text objects), but near-total overlap means a drawn-
+                # twice effect, not a continuation
+                if not (-0.8 * size <= gap <= 1.5 * size):
                     continue
                 ctx.log.entry("merge-baseline", page=page_n, gap=round(gap, 2),
+                              sup=(sup["text"][:12] if sup is not None else None),
                               left=left["text"][-40:], right=right["text"][:40])
                 # space on a visible gap, or on a word-boundary signature
                 # (new fragment starts a capitalized word) even when the gap
-                # is tiny because a space glyph was never emitted
-                joiner = " " if (gap > 0.2 * size or
-                                 (gap > 0.3 and right["text"][:1].isupper())) else ""
+                # is tiny or negative because a space glyph was never emitted.
+                # No space when attaching a superscript itself, but when the
+                # *left* side ends in a superscript and prose follows, the
+                # space after the marker was lost with the run split
+                left_ends_sup = any(e == len(left["text"])
+                                    for s, e in left.get("sups", []))
+                if sup is not None:
+                    joiner = ""
+                elif left_ends_sup and right["text"][:1].isalpha():
+                    joiner = " "
+                else:
+                    joiner = " " if (gap > 0.2 * size or
+                                     right["text"][:1].isupper()) else ""
                 keep = left if len(left["text"]) >= len(right["text"]) else right
+                shift = len(left["text"]) + len(joiner)
                 cur = {
                     "text": left["text"] + joiner + right["text"],
                     "bbox": [min(left["bbox"][0], right["bbox"][0]),
@@ -143,10 +244,33 @@ def _merge_baseline_fragments(ctx, lines, page_n):
                     "size": keep["size"], "fontIdx": keep["fontIdx"],
                     "colorIdx": keep["colorIdx"],
                 }
+                for key in ("sups", "links", "colors"):
+                    merged = list(left.get(key, []))
+                    for rng in right.get(key, []):
+                        merged.append([rng[0] + shift, rng[1] + shift, *rng[2:]])
+                    if merged:
+                        cur[key] = merged
+                if sup is not None:  # record the absorbed superscript's range
+                    rng = ([shift, shift + len(right["text"])] if sup is right
+                           else [0, len(left["text"])])
+                    cur.setdefault("sups", []).append(rng)
                 used[j] = True
                 changed = True
         out.append(cur)
     return out
+
+
+def _sup_of(a, b):
+    """If one line is a superscript fragment of the other (much smaller and
+    raised off the partner's baseline), return that line, else None."""
+    small, big = (a, b) if a["size"] <= b["size"] else (b, a)
+    if small["size"] > 0.82 * big["size"]:
+        return None
+    if len(small["text"]) > 4:
+        return None
+    if small["bbox"][1] > big["bbox"][1] + 0.1 * big["size"]:
+        return small
+    return None
 
 
 def _blocks(lines):

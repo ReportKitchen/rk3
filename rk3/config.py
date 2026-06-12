@@ -21,6 +21,7 @@ DEFAULTS = {
     "output": {
         "imageScale": 2,
         "cssLayers": ["layout", "default", "original"],
+        "autolinkUrls": True,  # plain-text URLs/DOIs become <a class="autolink">
     },
 }
 
