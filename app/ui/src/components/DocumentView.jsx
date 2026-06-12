@@ -29,8 +29,8 @@ const MARKER_CSS = `
 `;
 
 export default function DocumentView({
-  doc, toggles, questions, answers, feedback, onConvert, onAnnotate, onQuestion,
-  scrollToNid, onScrolledToNid, highlightNid,
+  doc, toggles, questions, answers, feedback, pageDims, onConvert, onAnnotate,
+  onQuestion, scrollToNid, onScrolledToNid, highlightNid,
 }) {
   const iframeRef = useRef(null);
   const pdfPaneRef = useRef(null);
@@ -131,7 +131,7 @@ export default function DocumentView({
     if (!idoc?.body) return;
     idoc.querySelectorAll(".rk-fbmark").forEach((m) => m.remove());
     for (const f of feedback ?? []) {
-      if (f.type !== "comment") continue;
+      if (f.type !== "comment" || f.status === "cleared") continue;
       const target = (f.nid && idoc.querySelector(`[data-nid="${f.nid}"]`))
         || (f.rk && idoc.querySelector(`[data-rk="${f.rk}"]`));
       if (!target) continue;
@@ -201,10 +201,19 @@ export default function DocumentView({
     >
       {Array.from({ length: doc.pages }, (_, i) => {
         const spots = (feedback ?? []).filter(
-          (f) => f.type === "comment" && f.xf != null && f.page === i + 1);
+          (f) => f.type === "comment" && f.status !== "cleared"
+            && f.xf != null && f.page === i + 1);
+        const dims = pageDims?.[String(i + 1)];
         return (
           <div key={i + 1} className="pagewrap">
-            <img src={pageUrl(doc.slug, i + 1)} data-page={i + 1} alt={`page ${i + 1}`} />
+            <img
+              src={pageUrl(doc.slug, i + 1)}
+              data-page={i + 1}
+              alt={`page ${i + 1}`}
+              // true page proportions before the PNG loads, so sync-scroll
+              // anchors are correct from the first frame
+              style={dims ? { aspectRatio: `${dims[0]} / ${dims[1]}` } : undefined}
+            />
             {spots.map((f, k) => (
               <span
                 key={k}

@@ -1,7 +1,10 @@
 import React from "react";
 
-export default function QuestionsPanel({ questions, answers, feedback, onJump, onAnswer }) {
-  const comments = feedback.filter((f) => f.type === "comment");
+export default function QuestionsPanel({
+  questions, answers, feedback, onJump, onAnswer, onClear, onEmptyTrash,
+}) {
+  const comments = feedback.filter((f) => f.type === "comment" && f.status !== "cleared");
+  const trashCount = feedback.filter((f) => f.status === "cleared").length;
 
   return (
     <div className="qpanel">
@@ -31,18 +34,39 @@ export default function QuestionsPanel({ questions, answers, feedback, onJump, o
         <>
           <h2>Feedback notes</h2>
           <ul>
-            {comments.map((c, i) => (
-              <li key={i} className={c.status === "resolved" ? "resolved" : "open"}>
+            {comments.map((c) => (
+              <li key={c.id ?? c.ts} className={c.status === "resolved" ? "resolved" : "open"}>
                 {c.nid ? (
                   <button className="jump" onClick={() => onJump(c.nid)}>p{c.page ?? "?"}</button>
                 ) : (
                   <span className="jump-placeholder">p{c.page ?? "?"}</span>
                 )}
-                <div className="q-body"><p>{c.text}</p></div>
+                <div className="q-body">
+                  <p>{c.text}</p>
+                  {c.status === "resolved" && (
+                    <>
+                      {c.resolution && <p className="resolution">{c.resolution}</p>}
+                      <button
+                        className="q-clear"
+                        title="Confirmed — move this note to trash"
+                        onClick={() => onClear(c.id)}
+                      >
+                        Clear
+                      </button>
+                    </>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
         </>
+      )}
+      {trashCount > 0 && (
+        <p className="trash-row">
+          Trash: {trashCount} cleared note{trashCount > 1 ? "s" : ""}
+          {" · "}
+          <button className="trash-empty" onClick={onEmptyTrash}>Empty trash</button>
+        </p>
       )}
     </div>
   );

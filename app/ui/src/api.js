@@ -22,6 +22,12 @@ export const postFeedback = (slug, entry) =>
 export const deleteFeedback = (slug, id) =>
   fetch(`/api/feedback/${slug}/${id}`, { method: "DELETE" }).then(json);
 
+export const clearFeedback = (slug, id) =>
+  fetch(`/api/feedback/${slug}/${id}/clear`, { method: "POST" }).then(json);
+
+export const emptyTrash = (slug) =>
+  fetch(`/api/feedback/${slug}/empty-trash`, { method: "POST" }).then(json);
+
 export const getIr = (slug) =>
   fetch(`/output/${ENGINE}/${slug}/ir.json`).then(json);
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { deleteFeedback, getDocuments, getFeedback, getIr, startConvert, postFeedback } from "./api.js";
+import { clearFeedback, deleteFeedback, emptyTrash, getDocuments, getFeedback, getIr, startConvert, postFeedback } from "./api.js";
 import DocList from "./components/DocList.jsx";
 import DocumentView from "./components/DocumentView.jsx";
 import FeedbackPopover from "./components/FeedbackPopover.jsx";
@@ -74,6 +74,16 @@ export default function App() {
     await refreshFeedback();
   }, [popover, selected, refreshFeedback]);
 
+  const clearNote = useCallback(async (id) => {
+    await clearFeedback(selected, id);
+    await refreshFeedback();
+  }, [selected, refreshFeedback]);
+
+  const emptyNoteTrash = useCallback(async () => {
+    await emptyTrash(selected);
+    await refreshFeedback();
+  }, [selected, refreshFeedback]);
+
   const convert = useCallback(async (slug, force) => {
     await startConvert(slug, force);
     await refresh();
@@ -101,6 +111,7 @@ export default function App() {
               questions={questions}
               answers={answers}
               feedback={feedback}
+              pageDims={ir?.pages}
               onConvert={convert}
               onAnnotate={annotate}
               onQuestion={openQuestion}
@@ -118,6 +129,8 @@ export default function App() {
               feedback={feedback}
               onJump={(nid) => setScrollToNid(nid)}
               onAnswer={(q) => openQuestion(q, { x: window.innerWidth / 2, y: 160 })}
+              onClear={clearNote}
+              onEmptyTrash={emptyNoteTrash}
             />
           )}
         </div>

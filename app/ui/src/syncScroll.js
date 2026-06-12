@@ -8,16 +8,28 @@ export function setupSync(win, doc, pdfPane, isEnabled) {
   let dirty = true;
 
   const markDirty = () => { dirty = true; };
-  for (const img of pdfPane.children) img.addEventListener("load", markDirty);
+  const imgs = pdfPane.querySelectorAll("img[data-page]");
+  for (const img of imgs) img.addEventListener("load", markDirty);
+  window.addEventListener("resize", markDirty);
 
   function buildAnchors() {
+    // viewport-rect based positions: robust against wrapper nesting
+    // (offsetTop is relative to the nearest positioned ancestor, which the
+    // .pagewrap divs broke)
+    const paneBase = pdfPane.scrollTop - pdfPane.getBoundingClientRect().top;
+    const imgRects = new Map();
+    for (const img of imgs) {
+      imgRects.set(img.dataset.page, img.getBoundingClientRect());
+    }
     const list = [];
     for (const el of doc.querySelectorAll("[data-page][data-yf]")) {
-      const p = parseInt(el.dataset.page, 10);
       const yf = parseFloat(el.dataset.yf);
-      const img = pdfPane.querySelector(`img[data-page="${p}"]`);
-      if (!p || !img || isNaN(yf)) continue;
-      list.push({ hy: el.offsetTop, py: img.offsetTop + yf * img.clientHeight });
+      const r = imgRects.get(el.dataset.page);
+      if (!r || !r.height || isNaN(yf)) continue;
+      list.push({
+        hy: el.getBoundingClientRect().top + win.scrollY,
+        py: paneBase + r.top + yf * r.height,
+      });
     }
     list.sort((a, b) => a.hy - b.hy);
     let maxPy = -Infinity;
@@ -67,6 +79,7 @@ export function setupSync(win, doc, pdfPane, isEnabled) {
   return () => {
     win.removeEventListener("scroll", onWinScroll);
     pdfPane.removeEventListener("scroll", onPdfScroll);
-    for (const img of pdfPane.children) img.removeEventListener("load", markDirty);
+    window.removeEventListener("resize", markDirty);
+    for (const img of imgs) img.removeEventListener("load", markDirty);
   };
 }

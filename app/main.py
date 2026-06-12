@@ -122,6 +122,36 @@ def post_feedback(slug: str, entry: FeedbackEntry):
     return rec
 
 
+@app.post("/api/feedback/{slug}/{entry_id}/clear")
+def clear_feedback(slug: str, entry_id: str):
+    """Soft-delete: the user confirms a resolution and moves the note to
+    trash. It stays in the jsonl (status: cleared) until the trash is emptied."""
+    path = _feedback_path(slug)
+    if not path.exists():
+        raise HTTPException(404, "no feedback for document")
+    lines = [json.loads(l) for l in path.read_text().splitlines() if l.strip()]
+    for rec in lines:
+        if rec.get("id") == entry_id:
+            rec["status"] = "cleared"
+            rec["clearedAt"] = datetime.datetime.now(datetime.timezone.utc) \
+                .isoformat(timespec="seconds")
+            path.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n"
+                                    for r in lines))
+            return rec
+    raise HTTPException(404, f"no feedback entry {entry_id!r}")
+
+
+@app.post("/api/feedback/{slug}/empty-trash")
+def empty_trash(slug: str):
+    path = _feedback_path(slug)
+    if not path.exists():
+        return {"emptied": 0}
+    lines = [json.loads(l) for l in path.read_text().splitlines() if l.strip()]
+    kept = [r for r in lines if r.get("status") != "cleared"]
+    path.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in kept))
+    return {"emptied": len(lines) - len(kept)}
+
+
 @app.delete("/api/feedback/{slug}/{entry_id}")
 def delete_feedback(slug: str, entry_id: str):
     path = _feedback_path(slug)

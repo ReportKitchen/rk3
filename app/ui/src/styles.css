@@ -272,3 +272,40 @@ pre.error {
   padding: 0.2rem 0.6rem;
   cursor: pointer;
 }
+
+.qpanel .resolution {
+  font-size: 0.75rem;
+  font-style: italic;
+  color: #2e7d32;
+  border-left: 2px solid #2e7d32;
+  padding-left: 0.5rem;
+}
+
+.qpanel .q-clear {
+  border: 1px solid #bbb;
+  background: #fff;
+  border-radius: 4px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.7rem;
+  cursor: pointer;
+  color: #555;
+}
+.qpanel .q-clear:hover { border-color: #2e7d32; color: #2e7d32; }
+
+.trash-row {
+  margin-top: 1.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #ddd;
+  font-size: 0.75rem;
+  color: #888;
+}
+.trash-row .trash-empty {
+  border: none;
+  background: none;
+  color: #888;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0;
+}
+.trash-row .trash-empty:hover { color: #c62828; }
