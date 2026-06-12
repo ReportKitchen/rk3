@@ -9,7 +9,7 @@ import re
 import shutil
 from pathlib import Path
 
-VERSION = 24
+VERSION = 25
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -223,7 +223,7 @@ def _render_node(ctx, node, pages, state):
         return f'<{tag} {_attrs(node, pages, extra or None)}>\n{items}\n</{tag}>'
     if t == "paragraph":
         body = _inline(node["text"], node.get("links"), node.get("refs"), state,
-                       breaks=node.get("breaks"))
+                       breaks=node.get("breaks"), emph=node.get("emph"))
         if node.get("strong"):
             body = f"<strong>{body}</strong>"
         if node.get("quoteOpen"):
@@ -288,11 +288,11 @@ def _render_node(ctx, node, pages, state):
     return f"<!-- unrendered node type {html.escape(t)} ({node.get('rk')}) -->"
 
 
-def _inline(text, links, refs, state, breaks=None):
-    """Escape text while wrapping link ranges in <a> and footnote-reference
-    ranges in <sup><a>. Overlapping ranges: first (by start) wins. `breaks`
-    are offsets of join-spaces that render as <br> (intentional hard
-    returns)."""
+def _inline(text, links, refs, state, breaks=None, emph=None):
+    """Escape text while wrapping link ranges in <a>, footnote-reference
+    ranges in <sup><a>, and emphasis runs in <strong>/<em>. Overlapping
+    ranges: first (by start) wins — links and refs outrank emphasis. `breaks`
+    are offsets of join-spaces that render as <br>."""
     merged_links = []
     for s, e, target in sorted(links or []):
         if merged_links and s - merged_links[-1][1] <= 1 \
@@ -303,6 +303,8 @@ def _inline(text, links, refs, state, breaks=None):
     events = [(s, e, "link", target) for s, e, target in merged_links]
     events += [(s, e, "ref", n) for s, e, n in (refs or [])]
     events += [(s, s + 1, "br", None) for s in (breaks or [])]
+    events += [(s, e, kind, None) for s, e, kind in (emph or [])
+               if kind in ("strong", "em")]
     if state.get("autolink"):
         events += _autolink_events(text, events)
     # superscript numbers often carry their own link annotation pointing at the
@@ -319,6 +321,10 @@ def _inline(text, links, refs, state, breaks=None):
         seg = html.escape(text[s:e])
         if kind == "br":
             out.append("<br>\n")
+            pos = e
+            continue
+        if kind in ("strong", "em"):
+            out.append(f"<{kind}>{seg}</{kind}>")
             pos = e
             continue
         if kind == "link":

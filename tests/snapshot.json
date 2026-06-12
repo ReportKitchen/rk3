@@ -184,7 +184,7 @@
       3
     ],
     "questions": 0,
-    "textChars": 12032
+    "textChars": 12031
   },
   "02--baystate-case-study-021624": {
     "status": "done",
@@ -331,14 +331,6 @@
         "Department of Public Health Diné College"
       ],
       [
-        2,
-        "INTRODUCTION"
-      ],
-      [
-        4,
-        "Facilitator’s Guide for Injury Prevention in Public Health"
-      ],
-      [
         4,
         "Learning Session Structure Overview"
       ],
@@ -368,7 +360,7 @@
       ],
       [
         5,
-        "Lesson Outline : Introduction to Public Health: Risk & Protective Factors"
+        "Lesson Outline: Introduction to Public Health: Risk & Protective Factors"
       ],
       [
         4,
@@ -380,7 +372,7 @@
       ],
       [
         5,
-        "Lesson Outline : Planning, Implementing, and Evaluating Health Promotion Program"
+        "Lesson Outline: Planning, Implementing, and Evaluating Health Promotion Programs"
       ],
       [
         4,
@@ -388,19 +380,11 @@
       ],
       [
         5,
-        "Ideal Course for Principles of Health Education: Hom e Injury Prevention &"
+        "Ideal Course for Principles of Health Education: Home Injury Prevention & CHASE"
       ],
       [
         5,
-        "CHASE"
-      ],
-      [
-        5,
-        "Lesson Outline : Principles of Health Education: Home Injury Prevention &"
-      ],
-      [
-        5,
-        "CHASE"
+        "Lesson Outline: Principles of Health Education: Home Injury Prevention & CHASE"
       ],
       [
         4,
@@ -412,7 +396,7 @@
       ],
       [
         5,
-        "Lesson Outline : American Indian Maternal, Infant, Child, and Sexual Health: Red"
+        "Lesson Outline: American Indian Maternal, Infant, Child, and Sexual Health: Redu"
       ],
       [
         4,
@@ -424,7 +408,7 @@
       ],
       [
         5,
-        "Lesson Outline : Health Services & Policy: Seat Belt Policy"
+        "Lesson Outline: Health Services & Policy: Seat Belt Policy"
       ],
       [
         4,
@@ -436,7 +420,7 @@
       ],
       [
         5,
-        "Lesson Outline : Introduction to Wellness: Healthy Relationships"
+        "Lesson Outline: Introduction to Wellness: Healthy Relationships"
       ],
       [
         4,
@@ -448,7 +432,7 @@
       ],
       [
         5,
-        "Lesson Outline : Environmental Health: Safe Systems"
+        "Lesson Outline: Environmental Health: Safe Systems"
       ],
       [
         4,
@@ -460,7 +444,7 @@
       ],
       [
         5,
-        "Lesson Outline : Public Health Research Methods: Research Study Design in Injury"
+        "Lesson Outline: Public Health Research Methods: Research Study Design in Injury "
       ],
       [
         4,
@@ -468,11 +452,11 @@
       ],
       [
         5,
-        "Ideal Course for Community Health Assessment and Planning: Addressing the Opioi "
+        "Ideal Course for Community Health Assessment and Planning: Addressing the Opioid"
       ],
       [
         5,
-        "Lesson Outline : Community Health Assessment and Planning: Addressing the Opioid"
+        "Lesson Outline: Community Health Assessment and Planning: Addressing the Opioid "
       ],
       [
         4,
@@ -484,21 +468,21 @@
       ],
       [
         5,
-        "Lesson Outline : Mental Health Issues in Public Health: Alcohol & Substance Use"
+        "Lesson Outline: Mental Health Issues in Public Health: Alcohol & Substance Use"
       ]
     ],
     "counts": {
       "aside": 8,
       "figure": 24,
-      "heading": 42,
+      "heading": 38,
       "list": 22,
-      "paragraph": 179,
+      "paragraph": 164,
       "table": 1
     },
     "asideChildren": 15,
     "notes": [],
-    "questions": 54,
-    "textChars": 44752
+    "questions": 52,
+    "textChars": 42331
   },
   "02--jhu-federal-register-comments-pharma-investigation": {
     "status": "done",
@@ -517,7 +501,7 @@
       4
     ],
     "questions": 3,
-    "textChars": 16138
+    "textChars": 16135
   },
   "02--toolkit-hiring2022-copy112222onlineversiononly-1": {
     "status": "done",
@@ -1666,7 +1650,7 @@
       5
     ],
     "questions": 51,
-    "textChars": 290871
+    "textChars": 290868
   },
   "03--enterprise-annual-report-2022": {
     "status": "done",

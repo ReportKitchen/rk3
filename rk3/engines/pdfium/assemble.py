@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter
 
-VERSION = 20
+VERSION = 21
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -29,6 +29,7 @@ def run(ctx):
             blk["page"] = page["n"]
         all_blocks.extend(blocks)
 
+    all_blocks = _join_amp_wraps(ctx, all_blocks)
     page_dims = {p["n"]: (p["width"], p["height"]) for p in ex["pages"]}
     kept = _strip_repeating(ctx, all_blocks, page_dims, len(ex["pages"]))
 
@@ -88,9 +89,10 @@ def _finish_line(chars, links):
             gap = (nxt[L] - prev[R]) if prev is not None and nxt is not None \
                 else 0.0  # boundary zero-width spaces carry no evidence
             # judge against the NEIGHBORS' size: these glyphs lie about
-            # their own (size 1, untransformed)
+            # their own (size 1, untransformed). 0.17em: above kerned letter
+            # gaps (~0.15 worst seen), below real word gaps (~0.20 floor)
             ref = max((prev or c)[SIZE], (nxt or c)[SIZE], 1.0)
-            if gap < 0.12 * ref:
+            if gap < 0.17 * ref:
                 continue
         cleaned.append(c)
     chars = cleaned
@@ -159,7 +161,26 @@ def _finish_line(chars, links):
     color_runs = _color_runs(src, line["colorIdx"])
     if color_runs:
         line["colors"] = color_runs
+    font_runs = _font_runs(src, line["fontIdx"])
+    if font_runs:
+        line["fontRuns"] = font_runs
     return line
+
+
+def _font_runs(src, dom_font):
+    """Ranges of chars in a different font from the line's dominant one
+    (inline bold/italic emphasis; also the style-signature miner's input)."""
+    runs = []
+    cur_font, start = None, None
+    for i, c in enumerate(src):
+        f = c[FONT] if c is not None else cur_font  # spaces inherit
+        if f != cur_font:
+            if cur_font is not None and cur_font != dom_font:
+                runs.append([start, i, cur_font])
+            cur_font, start = f, i
+    if cur_font is not None and cur_font != dom_font:
+        runs.append([start, len(src), cur_font])
+    return [r for r in runs if r[1] - r[0] >= 3]
 
 
 def _color_runs(src, dom_color):
@@ -319,7 +340,7 @@ def _merge_baseline_fragments(ctx, lines, page_n):
                     cur["spaceBefore"] = True
                 if right.get("spaceAfter"):
                     cur["spaceAfter"] = True
-                for key in ("sups", "links", "colors"):
+                for key in ("sups", "links", "colors", "fontRuns"):
                     merged = list(left.get(key, []))
                     for rng in right.get(key, []):
                         merged.append([rng[0] + shift, rng[1] + shift, *rng[2:]])
@@ -377,6 +398,31 @@ def _blocks(lines):
         blk["bbox"] = [min(b[0] for b in bs), min(b[1] for b in bs),
                        max(b[2] for b in bs), max(b[3] for b in bs)]
     return blocks
+
+
+def _join_amp_wraps(ctx, blocks):
+    """A block ending with '&' is a wrapped continuation — the next block on
+    the page (same size, small gap) is its tail ('… Prevention &' / 'CHASE')."""
+    out = []
+    for blk in blocks:
+        if out:
+            prev = out[-1]
+            last = prev["lines"][-1]
+            gap = last["bbox"][1] - blk["lines"][0]["bbox"][3]
+            if prev["page"] == blk["page"] \
+                    and last["text"].rstrip().endswith("&") \
+                    and abs(last["size"] - blk["lines"][0]["size"]) < 0.6 \
+                    and 0 <= gap <= 1.8 * max(last["size"], 1.0):
+                ctx.log.entry("join-amp", page=blk["page"],
+                              left=last["text"][-30:],
+                              right=blk["lines"][0]["text"][:30])
+                prev["lines"].extend(blk["lines"])
+                bs = [l["bbox"] for l in prev["lines"]]
+                prev["bbox"] = [min(b[0] for b in bs), min(b[1] for b in bs),
+                                max(b[2] for b in bs), max(b[3] for b in bs)]
+                continue
+        out.append(blk)
+    return out
 
 
 def _strip_repeating(ctx, blocks, page_dims, n_pages):

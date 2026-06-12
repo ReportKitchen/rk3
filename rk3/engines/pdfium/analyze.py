@@ -29,7 +29,25 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 34
+VERSION = 35
+
+
+def _font_emphasis(name, weight, base_name):
+    """'strong'/'em' when this font is a bold/italic variant the base isn't."""
+    low = (name or "").lower()
+    base = (base_name or "").lower()
+
+    def bold(s):
+        return any(k in s for k in ("bold", "black", "semibold", "heavy"))
+
+    def italic(s):
+        return "italic" in s or "oblique" in s
+
+    if italic(low) and not italic(base):
+        return "em"
+    if (bold(low) or weight >= 600) and not bold(base):
+        return "strong"
+    return None
 
 OL_RE = re.compile(r"^(\d{1,2}|[A-Za-z])\s?[.)]\s+")
 
@@ -116,6 +134,7 @@ def run(ctx):
     ctx.audit_claimed = Counter()
     ctx.audit_moved = Counter()
 
+    ctx.fonts = fonts
     link_colors = _link_colors(ctx, blocks)
     rich = [_join_block(ctx, blk, link_colors) for blk in blocks]
     texts = [r["text"] for r in rich]
@@ -796,6 +815,8 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         node["refs"] = refs
     if rich.get("links"):
         node["links"] = rich["links"]
+    if rich.get("emph"):
+        node["emph"] = rich["emph"]
     brk_ov = _override_for(ctx.cfg["structure"].get("breakOverrides", []), text)
     if brk_ov is not None:
         ctx.log.entry("break-override", page=blk["page"], block=blk["rk"],
@@ -1479,7 +1500,7 @@ def _join_block(ctx, blk, link_colors=()):
     links without targets).
     Returns {"text", "sups": [[s,e]], "links": [[s,e,target]]}."""
     out = ""
-    sups, links = [], []
+    sups, links, emph = [], [], []
     line_joins = []  # offsets of the spaces where source lines were joined
     for l in blk["lines"]:
         t = l["text"]
@@ -1500,6 +1521,14 @@ def _join_block(ctx, blk, link_colors=()):
         links.extend(real)
         sups.extend([s + base, e + base] for s, e in l.get("sups", []))
 
+        line_font = ctx.fonts[l["fontIdx"]]
+        for s, e, fi in l.get("fontRuns", []):
+            f = ctx.fonts[fi]
+            kind = _font_emphasis(f["name"], f.get("weight", 0),
+                                  line_font["name"])
+            if kind and (e - s) < 0.9 * max(len(t), 1):  # sub-line runs only
+                emph.append([s + base, e + base, kind])
+
         styled = []
         if l["colorIdx"] in link_colors:
             styled.append([base, base + len(t)])
@@ -1509,7 +1538,16 @@ def _join_block(ctx, blk, link_colors=()):
         for s, e in styled:
             if not any(s < re_ and rs < e for rs, re_, _t in real):
                 links.append([s, e, {"styled": True}])
-    return {"text": out, "sups": sups, "links": links, "lineJoins": line_joins}
+    # merge adjacent same-kind emphasis (a phrase wrapped across lines)
+    merged_emph = []
+    for s, e, kind in sorted(emph):
+        if merged_emph and s - merged_emph[-1][1] <= 1 \
+                and merged_emph[-1][2] == kind:
+            merged_emph[-1][1] = e
+        else:
+            merged_emph.append([s, e, kind])
+    return {"text": out, "sups": sups, "links": links,
+            "emph": merged_emph, "lineJoins": line_joins}
 
 
 def _link_colors(ctx, blocks):

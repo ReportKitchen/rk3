@@ -15,7 +15,7 @@ Feedback files remain the source of truth; this is just the working order.
 - callout-continues-below misses (×2, incl. cross-page)
 - fn-3 not marked <sup> while neighbors are (baystate p8)
 
-## C. Text bugs
+## C. Text bugs — DONE (zero-width spaces, &-wrap join, strong/em from font runs)
 - stray spaces (×3 noted; user asks "how do these happen?!?" — answer:
   zero-width/misplaced space glyphs; investigate remaining cases)
 - "CHASE" belongs on the previous line (ends with &)
