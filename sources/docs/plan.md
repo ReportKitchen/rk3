@@ -241,6 +241,23 @@ breaks others, and rule ordering turns into spaghetti without guardrails.
   stage's run(); "does X happen before Y" is always answerable by reading it,
   and decisions log their reasons to the keyed debug logs.
 
+## Milestone 5 (layer-3 CSS + config plumbing) — v1 done 2026-06-12
+
+- original.css is now **generated per document** by the render stage from IR
+  provenance: body/heading fonts (cleaned names + serif/sans fallbacks +
+  weight/style from name), heading colors and rem sizes relative to body,
+  per-aside fill/border from the region's drawn rects, original list markers
+  (symbol glyphs → square), section-number circle badges in the doc's accent
+  color, pull-quote mark styling. Near-white text colors are skipped (they
+  were legible only on the PDF's dark backgrounds).
+- Every question kind now has a config consumption path: figure-or-callout →
+  structure.regionOverrides; heading/caps/tag-conflict → headingOverrides
+  (textPrefix → level, 0 = paragraph); hard-returns → breakOverrides.
+  Overrides trump all heuristics and log their application.
+- output.cssLayers gates which layer <link>s are emitted.
+- Remaining for later passes: per-element font exceptions, aside text
+  colors, layer-3 typography niceties (letter-spacing, small-caps).
+
 ## Templates & plugins — raised 2026-06-12, deferred by design
 
 Both are IR→IR transforms in a stage between analyze and render (the same

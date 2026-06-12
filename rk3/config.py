@@ -13,7 +13,12 @@ DEFAULTS = {
         "pageImageScale": 2,          # scale for the page PNGs written by extract
     },
     "structure": {
-        "headingOverrides": [],       # future: explicit text/size -> level rules
+        # [{"textPrefix": str, "level": int}] — level 0 forces paragraph;
+        # consumption path for heading-or-paragraph / caps / tag-conflict answers
+        "headingOverrides": [],
+        # [{"textPrefix": str, "breaks": bool}] — consumption path for
+        # hard-returns answers
+        "breakOverrides": [],
         "calloutHints": [],           # future
         "footnotePlacement": "end",   # v1: always end of document
         "dropToc": True,

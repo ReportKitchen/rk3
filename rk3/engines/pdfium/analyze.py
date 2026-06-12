@@ -29,7 +29,20 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 23
+VERSION = 24
+
+
+def _hex(rgba):
+    return "#{:02x}{:02x}{:02x}".format(*rgba[:3])
+
+
+def _override_for(overrides, text):
+    low = text.lower()
+    for ov in overrides:
+        p = ov.get("textPrefix", "")
+        if p and low.startswith(p.lower()):
+            return ov
+    return None
 
 ROMAN = {}
 for _n, _r in enumerate(
@@ -73,8 +86,9 @@ def _stable_id(prefix, used, kind, page, bbox, text=None):
 
 def run(ctx):
     asm = ctx.artifact("assemble")
-    blocks, fonts = asm["blocks"], asm["fonts"]
+    blocks, fonts, colors = asm["blocks"], asm["fonts"], asm["colors"]
     pages = {p["n"]: p for p in asm["pages"]}
+    ctx.colors = colors
     ctx.questions = []
     ctx.nids = set()
     ctx.qids = set()
@@ -344,6 +358,17 @@ def _classify_cluster(ctx, page, cluster, blocks, texts, body_size, top_size=Non
     boxed = 1 <= n_paths <= 5 and any(
         o[OT] == OBJ_PATH and (o[7] or o[8]) for o in cluster["objs"])
 
+    # dominant fill/stroke of the region's boxes: layer-3 styling provenance
+    fills = [(o[5], (o[3] - o[1]) * (o[4] - o[2])) for o in cluster["objs"]
+             if o[OT] == OBJ_PATH and o[7] and o[5] is not None]
+    strokes = [(o[6], (o[3] - o[1]) * (o[4] - o[2])) for o in cluster["objs"]
+               if o[OT] == OBJ_PATH and o[8] and o[6] is not None]
+    style = {}
+    if fills:
+        style["fillIdx"] = max(fills, key=lambda x: x[1])[0]
+    if strokes:
+        style["strokeIdx"] = max(strokes, key=lambda x: x[1])[0]
+
     # user answers (region overrides from config) trump every heuristic
     for ov in ctx.cfg["structure"].get("regionOverrides", []):
         if ov.get("page") == page["n"] and _overlap_frac(bbox, ov["bbox"]) > 0.5:
@@ -354,7 +379,7 @@ def _classify_cluster(ctx, page, cluster, blocks, texts, body_size, top_size=Non
             absorbed_idx = (inside if kind == "figure"
                             else sorted(inside + big_inside))
             return {"kind": kind, "page": page["n"], "bbox": bbox, "rk": rk,
-                    "uncertain": False, "blockIdx": absorbed_idx}
+                    "uncertain": False, "blockIdx": absorbed_idx, **style}
 
     # the document's largest text (its title, on the cover) never belongs
     # inside a callout; a band/frame around it is page decoration, not an
@@ -391,7 +416,7 @@ def _classify_cluster(ctx, page, cluster, blocks, texts, body_size, top_size=Non
                        reason=f"images={n_images} shadings={n_shade} paths={n_paths} "
                               f"chars_inside={chars_inside}")
     return {"kind": kind, "page": page["n"], "bbox": bbox, "rk": rk,
-            "uncertain": uncertain, "blockIdx": absorbed_idx}
+            "uncertain": uncertain, "blockIdx": absorbed_idx, **style}
 
 
 def _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles):
@@ -479,9 +504,27 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
     size = _dominant_size(blk)
     font = fonts[blk["lines"][0]["fontIdx"]]
     prov = {"font": font["name"], "weight": font["weight"], "size": size}
+    color_votes = Counter()
+    for l in blk["lines"]:
+        color_votes[l["colorIdx"]] += len(l["text"])
+    if color_votes:
+        prov["color"] = _hex(ctx.colors[color_votes.most_common(1)[0][0]])
     tag_role, tag_cov = role
     if tag_role:
         prov["role"] = tag_role
+
+    ov = _override_for(ctx.cfg["structure"].get("headingOverrides", []), text)
+    if ov is not None and not in_aside:
+        level = ov.get("level", 0)
+        ctx.log.entry("heading-override", page=blk["page"], block=blk["rk"],
+                      level=level, text=text[:60])
+        if level:
+            return _heading_node(ctx, blk, text, min(level, 6),
+                                 "config headingOverride (user answer)",
+                                 prov, used_ids)
+        tag_levels = None   # forced paragraph: fall through, skip heading paths
+        levels = {}
+        kicker_level = 0
 
     if not in_aside and tag_levels and tag_role in tag_levels and tag_cov > 0.5 \
             and text.strip():
@@ -524,6 +567,7 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
                            items=len(items),
                            reason="opens with a bullet; unbulleted lines are wraps",
                            block=blk["rk"])
+        prov["marker"] = blk["lines"][0]["text"][:1]
         node = {"type": "list", "items": items, "page": blk["page"],
                 "bbox": blk["bbox"], "rk": rk, "data": prov}
         node["nid"] = _stable_id("n", ctx.nids, "list", node["page"],
@@ -550,6 +594,13 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         node["refs"] = refs
     if rich.get("links"):
         node["links"] = rich["links"]
+    brk_ov = _override_for(ctx.cfg["structure"].get("breakOverrides", []), text)
+    if brk_ov is not None:
+        ctx.log.entry("break-override", page=blk["page"], block=blk["rk"],
+                      breaks=brk_ov.get("breaks"), text=text[:60])
+        if brk_ov.get("breaks") and rich.get("lineJoins"):
+            node["breaks"] = rich["lineJoins"]
+        return node
     if _hard_returns(blk) and rich.get("lineJoins"):
         node["breaks"] = rich["lineJoins"]
         ctx.log.entry("hard-returns", page=blk["page"], block=blk["rk"],
@@ -712,6 +763,10 @@ def _aside_node(ctx, reg, blocks, rich, fonts, body_size, roles):
                        region=reg["rk"], children=len(children))
     node = {"type": "aside", "children": children, "page": reg["page"],
             "bbox": reg["bbox"], "rk": rk, "data": {"region": reg["rk"]}}
+    if reg.get("fillIdx") is not None:
+        node["data"]["fill"] = _hex(ctx.colors[reg["fillIdx"]])
+    if reg.get("strokeIdx") is not None:
+        node["data"]["stroke"] = _hex(ctx.colors[reg["strokeIdx"]])
     if is_quote:
         node["quote"] = True
     first_text = next((c.get("text") for c in children if c.get("text")), None)
@@ -728,6 +783,7 @@ def _group_tag_lists(ctx, nodes):
     one list node; tiny Lbl marker nodes are dropped."""
     out = []
     run = []
+    last_lbl = [None]
 
     def flush():
         nonlocal run
@@ -740,8 +796,11 @@ def _group_tag_lists(ctx, nodes):
             rk = ctx.log.entry("list", page=page, bbox=bbox, items=len(items),
                                reason="struct tags LBody/LI",
                                merged=[n["rk"] for n in run])
+            data = {"role": "L"}
+            if last_lbl[0]:
+                data["marker"] = last_lbl[0]
             out.append({"type": "list", "items": items, "page": page,
-                        "bbox": bbox, "rk": rk, "data": {"role": "L"},
+                        "bbox": bbox, "rk": rk, "data": data,
                         "nid": _stable_id("n", ctx.nids, "list", page, bbox,
                                           " ".join(items))})
         else:
@@ -752,6 +811,7 @@ def _group_tag_lists(ctx, nodes):
         role = (n.get("data") or {}).get("role")
         if n["type"] == "paragraph" and role == "Lbl" \
                 and len(n.get("text", "")) <= 3:
+            last_lbl[0] = n.get("text", "").strip() or last_lbl[0]
             ctx.log.entry("drop-lbl", page=n["page"], text=n.get("text", ""))
             continue
         if n["type"] == "paragraph" and role in ("LBody", "LI"):
@@ -780,8 +840,10 @@ def _group_bullet_paragraphs(ctx, nodes):
             rk = ctx.log.entry("list", page=page, bbox=bbox, items=len(items),
                                reason="consecutive bullet-led paragraphs",
                                merged=[n["rk"] for n in run])
+            data = dict(run[0].get("data", {}))
+            data["marker"] = run[0]["text"][:1]
             out.append({"type": "list", "items": items, "page": page,
-                        "bbox": bbox, "rk": rk, "data": run[0].get("data", {}),
+                        "bbox": bbox, "rk": rk, "data": data,
                         "nid": _stable_id("n", ctx.nids, "list", page, bbox,
                                           " ".join(items))})
         else:
