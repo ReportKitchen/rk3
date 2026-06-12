@@ -488,16 +488,17 @@
       ]
     ],
     "counts": {
-      "aside": 3,
-      "figure": 32,
+      "aside": 8,
+      "figure": 26,
       "heading": 42,
       "list": 2,
-      "paragraph": 214
+      "paragraph": 214,
+      "table": 1
     },
-    "asideChildren": 4,
+    "asideChildren": 15,
     "notes": [],
-    "questions": 61,
-    "textChars": 43239
+    "questions": 55,
+    "textChars": 44941
   },
   "02--jhu-federal-register-comments-pharma-investigation": {
     "status": "done",
