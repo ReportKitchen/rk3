@@ -1,5 +1,5 @@
 # This is the user's unsorted backlog of tasks
-These are not in order, it should be checked periodically and items that should be done soon should be moved to TODO.md in the order that makes the most stense.
+> These are not in order, it should be checked periodically and items that should be done soon should be moved to TODO.md in the order that makes the most stense.
 
 ## Page breaks
 when deployed to the web, a document will be 4-20 pages or so.  Most often we simply break on H1.  So for the viewer, we want some kind of visual bar that represents a pagebreak, sitting just above each H1, and draggable up or down if it isn't quite right. Also, within each of those drag bars should be a proposed path for that page, user can click to change. (error check they don't use a path name twice)

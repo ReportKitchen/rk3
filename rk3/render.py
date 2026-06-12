@@ -9,7 +9,7 @@ import re
 import shutil
 from pathlib import Path
 
-VERSION = 22
+VERSION = 23
 
 # ; and , are legal in URLs but in print they overwhelmingly join citations,
 # so they terminate a match
@@ -24,6 +24,7 @@ CSS_FILES = ["layout.css", "default.css", "original.css"]
 
 def run(ctx):
     ir = ctx.artifact("analyze")
+    _apply_ops(ctx, ir)
 
     # layers 1+2 are static; layer 3 is generated per document from the
     # style provenance carried in the IR
@@ -71,6 +72,66 @@ def run(ctx):
 """
     (ctx.outdir / "index.html").write_text(doc, encoding="utf-8")
     ctx.log.entry("rendered", nodes=len(ir["body"]), css=CSS_FILES)
+
+
+def _apply_ops(ctx, ir):
+    """Edit ops: durable per-element operations (<name>.ops.json, written by
+    the viewer). The user's one-off cleanups live here instead of as
+    hyper-specific pipeline rules; they survive every re-render and cost no
+    code. v1 vocabulary: set-text, delete, set-level."""
+    ops = ctx.cfg.get("ops", [])
+    if not ops:
+        return
+    by_nid = {}
+    for op in ops:
+        by_nid.setdefault(op.get("nid"), []).append(op)
+
+    def transform(nodes):
+        out = []
+        for n in nodes:
+            if n.get("children"):
+                n["children"] = transform(n["children"])
+            applied = by_nid.get(n.get("nid"), [])
+            drop = False
+            for op in applied:
+                kind = op.get("op")
+                if kind == "delete":
+                    drop = True
+                    ctx.log.entry("op-delete", nid=n["nid"],
+                                  text=(n.get("text") or "")[:50])
+                elif kind == "set-text" and "text" in n:
+                    ctx.log.entry("op-set-text", nid=n["nid"],
+                                  old=(n.get("text") or "")[:50],
+                                  new=str(op.get("value", ""))[:50])
+                    n["text"] = str(op.get("value", ""))
+                    # replacement text invalidates char-range markup
+                    for key in ("refs", "links", "breaks"):
+                        n.pop(key, None)
+                elif kind == "set-level":
+                    level = int(op.get("value", 0))
+                    ctx.log.entry("op-set-level", nid=n["nid"], level=level,
+                                  was=f'{n["type"]}/{n.get("level")}')
+                    if level <= 0 and n["type"] == "heading":
+                        n["type"] = "paragraph"
+                        n.pop("level", None)
+                        n.pop("id", None)
+                    elif level > 0:
+                        if n["type"] == "paragraph":
+                            n["type"] = "heading"
+                            n["id"] = re.sub(r"[^a-z0-9]+", "-",
+                                             (n.get("text") or "")[:60].lower()
+                                             ).strip("-") or n["nid"]
+                            for key in ("refs", "links", "breaks"):
+                                n.pop(key, None)
+                        if n["type"] == "heading":
+                            n["level"] = min(level, 6)
+                if drop:
+                    break
+            if not drop:
+                out.append(n)
+        return out
+
+    ir["body"] = transform(ir["body"])
 
 
 def _norm_anchor(text):

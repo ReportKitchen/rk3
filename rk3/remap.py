@@ -77,6 +77,38 @@ def _match(old_feat, new_feats, taken):
     return None
 
 
+def remap_ops(slug, old_ir, new_ir, log):
+    """Edit ops are nid-keyed like feedback; re-anchor them the same way."""
+    from .documents import source_for_slug
+    src = source_for_slug(slug)
+    if src is None:
+        return
+    path = src.with_name(src.stem + ".ops.json")
+    if not path.exists():
+        return
+    old_f, new_f = _features(old_ir), _features(new_ir)
+    ops = json.loads(path.read_text())
+    taken = set()
+    changed = False
+    for op in ops:
+        nid = op.get("nid")
+        if nid and nid not in new_f:
+            old_feat = old_f.get(nid)
+            new_nid = _match(old_feat, new_f, taken) if old_feat else None
+            if new_nid:
+                taken.add(new_nid)
+                log.entry("remap-op", old=nid, new=new_nid, op=op.get("op"))
+                op["nid"] = new_nid
+                op.pop("orphaned", None)
+                changed = True
+            elif not op.get("orphaned"):
+                log.entry("orphan-op", nid=nid, op=op.get("op"))
+                op["orphaned"] = True
+                changed = True
+    if changed:
+        path.write_text(json.dumps(ops, indent=1, ensure_ascii=False))
+
+
 def remap_feedback(slug, old_ir, new_ir, log):
     path = FEEDBACK / f"{slug}.jsonl"
     if not path.exists():

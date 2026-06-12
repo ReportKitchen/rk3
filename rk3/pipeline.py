@@ -24,7 +24,7 @@ STAGES = [
     ("extract", "rk3.engines.pdfium.extract", ["input"]),
     ("assemble", "rk3.engines.pdfium.assemble", ["input"]),
     ("analyze", "rk3.engines.pdfium.analyze", ["structure", "output.imageScale"]),
-    ("render", "rk3.render", ["output", "structure.footnotePlacement"]),
+    ("render", "rk3.render", ["output", "structure.footnotePlacement", "ops"]),
 ]
 
 ARTIFACTS = {
@@ -136,10 +136,12 @@ def convert(slug: str, force: bool = False) -> dict:
             }
             _write_meta(outdir, meta)
         if old_ir is not None and not meta["stages"]["analyze"].get("skipped"):
-            from .remap import remap_feedback
+            from .remap import remap_feedback, remap_ops
             log = DebugLog(outdir, "remap")
             try:
-                remap_feedback(slug, old_ir, json.loads(ir_path.read_text()), log)
+                new_ir = json.loads(ir_path.read_text())
+                remap_feedback(slug, old_ir, new_ir, log)
+                remap_ops(slug, old_ir, new_ir, log)
             finally:
                 log.close()
         meta["status"] = "done"

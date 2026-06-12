@@ -1,0 +1,12 @@
+{
+  "structure": {
+    "regionOverrides": [
+      {
+        "page": 6,
+        "bbox": [84.2, 160.6, 545.8, 243.8],
+        "kind": "callout",
+        "_source": "viewer answer 2fa5048d (2026-06-12)"
+      }
+    ]
+  }
+}

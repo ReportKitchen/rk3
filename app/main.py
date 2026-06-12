@@ -43,9 +43,14 @@ def documents():
 def start_convert(slug: str, force: bool = False):
     if source_for_slug(slug) is None:
         raise HTTPException(404, f"unknown document {slug!r}")
+    _spawn_convert(slug, force)
+    return {"slug": slug, "status": "in_progress"}
+
+
+def _spawn_convert(slug: str, force: bool = False):
     with _active_lock:
         if slug in _active:
-            return {"slug": slug, "status": "in_progress"}
+            return
         _active.add(slug)
 
     def work():
@@ -60,7 +65,6 @@ def start_convert(slug: str, force: bool = False):
                 _active.discard(slug)
 
     threading.Thread(target=work, daemon=True, name=f"convert-{slug}").start()
-    return {"slug": slug, "status": "in_progress"}
 
 
 class FeedbackEntry(BaseModel):
@@ -167,6 +171,53 @@ def delete_feedback(slug: str, entry_id: str):
         raise HTTPException(404, f"no feedback entry {entry_id!r}")
     path.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in kept))
     return {"deleted": entry_id}
+
+
+class EditOp(BaseModel):
+    """Durable per-element edit: survives every re-render, applied at the
+    render stage. One op per (nid, op) pair — posting again replaces."""
+    nid: str
+    op: str  # set-text | delete | set-level
+    value: str | int | None = None
+
+
+def _ops_path(slug: str) -> Path:
+    src = source_for_slug(slug)
+    if src is None:
+        raise HTTPException(404, f"unknown document {slug!r}")
+    return src.with_name(src.stem + ".ops.json")
+
+
+def _read_ops(path: Path):
+    return json.loads(path.read_text()) if path.exists() else []
+
+
+@app.get("/api/ops/{slug}")
+def get_ops(slug: str):
+    return _read_ops(_ops_path(slug))
+
+
+@app.post("/api/ops/{slug}")
+def post_op(slug: str, op: EditOp):
+    path = _ops_path(slug)
+    ops = [o for o in _read_ops(path)
+           if not (o["nid"] == op.nid and o["op"] == op.op)]
+    ops.append(op.model_dump(exclude_none=True))
+    path.write_text(json.dumps(ops, indent=1, ensure_ascii=False))
+    _spawn_convert(slug)  # ops are in the render fingerprint: render-only
+    return {"ops": len(ops), "status": "in_progress"}
+
+
+@app.delete("/api/ops/{slug}/{op_kind}/{nid}")
+def delete_op(slug: str, op_kind: str, nid: str):
+    path = _ops_path(slug)
+    ops = _read_ops(path)
+    kept = [o for o in ops if not (o["nid"] == nid and o["op"] == op_kind)]
+    if len(kept) == len(ops):
+        raise HTTPException(404, "no such op")
+    path.write_text(json.dumps(kept, indent=1, ensure_ascii=False))
+    _spawn_convert(slug)
+    return {"ops": len(kept), "status": "in_progress"}
 
 
 OUTPUT.mkdir(parents=True, exist_ok=True)

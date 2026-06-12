@@ -28,6 +28,18 @@ export const clearFeedback = (slug, id) =>
 export const emptyTrash = (slug) =>
   fetch(`/api/feedback/${slug}/empty-trash`, { method: "POST" }).then(json);
 
+export const getOps = (slug) => fetch(`/api/ops/${slug}`).then(json);
+
+export const postOp = (slug, op) =>
+  fetch(`/api/ops/${slug}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(op),
+  }).then(json);
+
+export const deleteOp = (slug, opKind, nid) =>
+  fetch(`/api/ops/${slug}/${opKind}/${nid}`, { method: "DELETE" }).then(json);
+
 export const getIr = (slug) =>
   fetch(`/output/${ENGINE}/${slug}/ir.json`).then(json);
 

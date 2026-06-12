@@ -1,7 +1,12 @@
 # source PDFs are large binaries; keep them out of the repo,
-# but do keep the project docs that live under sources/docs
+# but do keep the project docs and the per-document decision files
+# (config + edit ops encode user judgment and must be versioned)
 sources/*
 !sources/docs/
+!sources/0*/
+sources/0*/*
+!sources/0*/*.config.json
+!sources/0*/*.ops.json
 
 # generated conversion artifacts (rebuildable from sources + code)
 output/

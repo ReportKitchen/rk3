@@ -1,10 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { clearFeedback, deleteFeedback, emptyTrash, getDocuments, getFeedback, getIr, startConvert, postFeedback } from "./api.js";
+import { clearFeedback, deleteFeedback, deleteOp, emptyTrash, getDocuments, getFeedback, getIr, getOps, startConvert, postFeedback, postOp } from "./api.js";
 import DocList from "./components/DocList.jsx";
 import DocumentView from "./components/DocumentView.jsx";
 import FeedbackPopover from "./components/FeedbackPopover.jsx";
 import QuestionsPanel from "./components/QuestionsPanel.jsx";
 import Toolbar from "./components/Toolbar.jsx";
+
+function findNode(ir, nid) {
+  for (const n of ir?.body ?? []) {
+    if (n.nid === nid) return n;
+    for (const c of n.children ?? []) if (c.nid === nid) return c;
+  }
+  return null;
+}
 
 export default function App() {
   const [docs, setDocs] = useState([]);
@@ -14,6 +22,8 @@ export default function App() {
   });
   const [ir, setIr] = useState(null);
   const [feedback, setFeedback] = useState([]);
+  const [ops, setOps] = useState([]);
+  const [docVersion, setDocVersion] = useState(0);
   // popover: { pos: {x, y}, target: {...}, question? }
   const [popover, setPopover] = useState(null);
   const [scrollToNid, setScrollToNid] = useState(null);
@@ -37,8 +47,25 @@ export default function App() {
   }, [selected, refreshFeedback]);
 
   useEffect(() => {
-    if (doc?.status === "done") getIr(doc.slug).then(setIr).catch(() => setIr(null));
-  }, [doc?.slug, doc?.status]);
+    if (doc?.status === "done") {
+      getIr(doc.slug).then(setIr).catch(() => setIr(null));
+      getOps(doc.slug).then(setOps).catch(() => setOps([]));
+    }
+  }, [doc?.slug, doc?.status, docVersion]);
+
+  // apply an edit op: server reconverts (render-only); poll, then reload
+  const applyOp = useCallback(async (op) => {
+    if (op.remove) await deleteOp(selected, op.op, op.nid);
+    else await postOp(selected, op);
+    setPopover(null);
+    for (let i = 0; i < 40; i++) {
+      await new Promise((r) => setTimeout(r, 500));
+      const docs2 = await getDocuments();
+      const d = docs2.find((x) => x.slug === selected);
+      if (d && d.status !== "in_progress") { setDocs(docs2); break; }
+    }
+    setDocVersion((v) => v + 1);
+  }, [selected]);
 
   const questions = ir?.questions ?? [];
   const answers = useMemo(() => {
@@ -105,7 +132,7 @@ export default function App() {
         <div id="content">
           {doc ? (
             <DocumentView
-              key={doc.slug}
+              key={doc.slug + ":" + docVersion}
               doc={doc}
               toggles={toggles}
               questions={questions}
@@ -131,6 +158,8 @@ export default function App() {
               onAnswer={(q) => openQuestion(q, { x: window.innerWidth / 2, y: 160 })}
               onClear={clearNote}
               onEmptyTrash={emptyNoteTrash}
+              ops={ops}
+              onRemoveOp={(o) => applyOp({ ...o, remove: true })}
             />
           )}
         </div>
@@ -141,6 +170,8 @@ export default function App() {
           onSubmit={submitPopover}
           onDelete={deletePopover}
           onClose={() => setPopover(null)}
+          onApplyOp={applyOp}
+          nodeInfo={popover.target?.nid ? findNode(ir, popover.target.nid) : null}
         />
       )}
     </div>

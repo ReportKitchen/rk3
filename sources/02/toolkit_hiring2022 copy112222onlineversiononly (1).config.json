@@ -1,0 +1,12 @@
+{
+  "structure": {
+    "regionOverrides": [
+      {
+        "page": 42,
+        "bbox": [89, 460, 469, 691],
+        "kind": "figure",
+        "_source": "viewer note 371aa81d (2026-06-12): 'had this given me a choice I would have said make this an image'"
+      }
+    ]
+  }
+}

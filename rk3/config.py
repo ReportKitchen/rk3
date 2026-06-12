@@ -54,8 +54,15 @@ def _deep_merge(base: dict, override: dict) -> dict:
 def load_config(pdf_path: Path) -> dict:
     cfg_path = pdf_path.with_suffix("").with_name(pdf_path.stem + ".config.json")
     if cfg_path.exists():
-        return _deep_merge(DEFAULTS, json.loads(cfg_path.read_text()))
-    return copy.deepcopy(DEFAULTS)
+        cfg = _deep_merge(DEFAULTS, json.loads(cfg_path.read_text()))
+    else:
+        cfg = copy.deepcopy(DEFAULTS)
+    # edit ops: durable per-element operations (viewer-written), applied at
+    # render; loading them into cfg puts them in the render fingerprint, so
+    # an op change re-runs render alone
+    ops_path = pdf_path.with_name(pdf_path.stem + ".ops.json")
+    cfg["ops"] = json.loads(ops_path.read_text()) if ops_path.exists() else []
+    return cfg
 
 
 def config_slice(cfg: dict, keys: list[str]) -> dict:

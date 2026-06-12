@@ -258,6 +258,22 @@ breaks others, and rule ordering turns into spaghetti without guardrails.
 - Remaining for later passes: per-element font exceptions, aside text
   colors, layer-3 typography niceties (letter-spacing, small-caps).
 
+## Edit-ops layer — v1 done 2026-06-12
+
+Durable per-element operations: `<name>.ops.json` next to the source,
+loaded into cfg (so ops are in the render fingerprint: an op change is a
+render-only, sub-second re-run), applied as the IR transform at the start
+of render. v1 vocabulary: **set-text**, **delete**, **set-level**
+(paragraph↔heading). This is where one-off cleanups live instead of
+hyper-specific pipeline rules (user directive). Viewer: feedback-mode
+popover offers Edit text / level select / Remove element on any element;
+the panel lists all edits with one-click Undo. Ops are nid-keyed and
+remapped across re-runs like feedback (note: a remap lands one conversion
+behind, harmless in practice). Config + ops files are now git-tracked
+(`!sources/0*/​*.config.json`, `*.ops.json`) — they encode user decisions.
+Future vocabulary (move-after, group-collapsible, class-scoped selectors)
+extends the same mechanism per the selector-scopes note below.
+
 ## Templates & plugins — raised 2026-06-12, deferred by design
 
 Both are IR→IR transforms in a stage between analyze and render (the same

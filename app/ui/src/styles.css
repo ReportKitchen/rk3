@@ -284,6 +284,24 @@ pre.error {
   overflow-wrap: anywhere;
 }
 
+.op-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.6rem;
+  flex-wrap: wrap;
+}
+.op-row button, .op-row select {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+.op-row .op-delete:hover { color: #c62828; }
+.op-row .op-delete.armed { background: #c62828; color: #fff; border-color: #c62828; }
+
 .qpanel .resolution {
   font-size: 0.75rem;
   font-style: italic;

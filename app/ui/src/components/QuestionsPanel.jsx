@@ -2,6 +2,7 @@ import React from "react";
 
 export default function QuestionsPanel({
   questions, answers, feedback, onJump, onAnswer, onClear, onEmptyTrash,
+  ops = [], onRemoveOp,
 }) {
   const comments = feedback.filter((f) => f.type === "comment" && f.status !== "cleared");
   const trashCount = feedback.filter((f) => f.status === "cleared").length;
@@ -58,6 +59,27 @@ export default function QuestionsPanel({
                       </button>
                     </>
                   )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {ops.length > 0 && (
+        <>
+          <h2>Edits</h2>
+          <ul>
+            {ops.map((o) => (
+              <li key={o.op + o.nid} className={o.orphaned ? "resolved" : "open"}>
+                <button className="jump" onClick={() => onJump(o.nid)}>→</button>
+                <div className="q-body">
+                  <p>
+                    <strong>{o.op}</strong>
+                    {o.value !== undefined && `: ${String(o.value).slice(0, 60)}`}
+                    {o.orphaned && " (orphaned)"}
+                  </p>
+                  <button className="q-clear" title="Undo this edit"
+                          onClick={() => onRemoveOp(o)}>Undo</button>
                 </div>
               </li>
             ))}
