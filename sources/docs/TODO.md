@@ -11,3 +11,8 @@ This was only touched on a bit in RK1/2 but it would be great to have some high-
 
 ## Sanity checks
 SEPARATE from trying to match the pdf I'd like to run some independent checks, such as: are footontes actually sequential from 1 to the end, not out of order, none skipped nor duplicated.
+
+## Retain images
+Can we pull originals rather than cropping from pngs?  and position/size them as best we can. Also, I anticipate a config option here: resize/recode images for web.  pngcrush, optimpng etc, resize large images down (never up) to a max of double the size we need (for high res displays).  Definitely deferrable though.  
+
+Actually this brings up a point: there could be (like the above) document-wide options. these should be collected and shown in a single panel somehow - ideally most will be multiple choice answers, so it should be a friendly/easy to use panel.

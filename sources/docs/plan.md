@@ -271,6 +271,14 @@ transforms (ordered per-doc list from config) → render.
   editable (HTML-only editor, drag-in variables), per-doc or shared by
   location, and writable by the future config agent. Needs a "raw HTML" IR
   node type carrying data-transform provenance.
+- **Selector scopes** (user, 2026-06-12): transforms/ops/templates must
+  support three scopes with one mechanism — instance (nid), class
+  ({type: aside, anchor: right} → "all callouts 25% width";
+  {type: heading, level: 4} → "all h4s become accordions"), and document.
+  Class scope is the system's value prop vs. a CMS editor: changes apply
+  board-wide and to future conversions. Structural class transforms need a
+  shared **sectionize** primitive (heading + following content → container,
+  for details/summary accordions, section moves, page-break grouping).
 - **Agent-built templates** (user: "game changer"): because templates are
   pure data, the runtime agent can construct them from a text description —
   user selects a target (nid/span gives coordinates), describes the
