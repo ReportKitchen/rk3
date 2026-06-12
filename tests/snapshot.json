@@ -111,7 +111,7 @@
       73
     ],
     "questions": 1,
-    "textChars": 59581
+    "textChars": 59449
   },
   "01--sample-content-penguin": {
     "status": "done",
@@ -1519,6 +1519,10 @@
         "Quick Practice Upgrades"
       ],
       [
+        5,
+        "COMMUNICATE WITH WORKFORCE PARTNERS AND INTERMEDIARIES ABOUT FORECASTED JOB NEED"
+      ],
+      [
         3,
         "LEADERSHIP"
       ],
@@ -1606,14 +1610,14 @@
     "counts": {
       "aside": 43,
       "figure": 16,
-      "heading": 270,
-      "list": 57,
-      "paragraph": 653
+      "heading": 271,
+      "list": 60,
+      "paragraph": 704
     },
     "asideChildren": 118,
     "notes": [],
     "questions": 52,
-    "textChars": 275286
+    "textChars": 290652
   },
   "03--enterprise-annual-report-2022": {
     "status": "done",
@@ -1736,11 +1740,11 @@
       "aside": 6,
       "figure": 22,
       "heading": 28,
-      "paragraph": 62
+      "paragraph": 72
     },
     "asideChildren": 31,
     "notes": [],
     "questions": 20,
-    "textChars": 14308
+    "textChars": 16724
   }
 }

@@ -7,7 +7,7 @@ when deployed to the web, a document will be 4-20 pages or so.  Most often we si
 It would be great if you started working on feedback items as soon as I entered them, then marked them resolved so I would know to refresh.
 
 ## Analysis & Reporting
-This was only touched on a bit in RK1/2 but it would be great to have some high-level stats on the current document.  Things like number of images, number of tables, number of callouts, type of callout if there are different ones, number of footnotes, etc.  Mostly simple counts of items that we're probably already separaing out.  Oh also: a frewuency count table of hexcodes used for colors, and same for fonts.
+This was only touched on a bit in RK1/2 but it would be great to have some high-level stats on the current document.  Things like number of images, number of tables, number of callouts, type of callout if there are different ones, number of footnotes, etc.  Mostly simple counts of items that we're probably already separaing out.  Oh also: a frewuency count table of hexcodes used for colors, and same for fonts, links.
 
 ## Sanity checks
 SEPARATE from trying to match the pdf I'd like to run some independent checks, such as: are footontes actually sequential from 1 to the end, not out of order, none skipped nor duplicated.

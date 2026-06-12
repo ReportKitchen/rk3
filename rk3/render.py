@@ -9,7 +9,7 @@ import re
 import shutil
 from pathlib import Path
 
-VERSION = 19
+VERSION = 21
 
 # ; and , are legal in URLs but in print they overwhelmingly join citations,
 # so they terminate a match
@@ -38,7 +38,9 @@ def run(ctx):
     state = {"fn_nums": {n["n"] for node in ir["body"] if node["type"] == "footnotes"
                          for n in node["notes"]},
              "ref_seq": {},
-             "autolink": ctx.cfg["output"].get("autolinkUrls", True)}
+             "autolink": ctx.cfg["output"].get("autolinkUrls", True),
+             "anchors": _anchor_targets(ir),
+             "pageTargets": _page_targets(ir)}
     parts = []
     for node in ir["body"]:
         parts.append(_render_node(ctx, node, pages, state))
@@ -69,6 +71,40 @@ def run(ctx):
 """
     (ctx.outdir / "index.html").write_text(doc, encoding="utf-8")
     ctx.log.entry("rendered", nodes=len(ir["body"]), css=CSS_FILES)
+
+
+def _norm_anchor(text):
+    return re.sub(r"[^a-z0-9]+", "", (text or "").lower())
+
+
+def _anchor_targets(ir):
+    """Linkable in-document targets: headings (by id) and aside headlines
+    (asides render with id=nid). Lets print-styled cross-references become
+    working internal links."""
+    targets = {}
+    for n in ir["body"]:
+        if n["type"] == "heading":
+            targets[_norm_anchor(n["text"])] = (n["id"], n["page"])
+        elif n["type"] == "aside":
+            first = next((c.get("text") for c in n.get("children", [])
+                          if c.get("text")), None)
+            if first:
+                targets.setdefault(_norm_anchor(first), (n["nid"], n["page"]))
+    return targets
+
+
+def _page_targets(ir):
+    """First anchorable element on each page (heading id or aside nid), so
+    internal destPage links can land somewhere real."""
+    targets = {}
+    for n in ir["body"]:
+        if n["page"] in targets:
+            continue
+        if n["type"] == "heading":
+            targets[n["page"]] = n["id"]
+        elif n["type"] == "aside":
+            targets[n["page"]] = n["nid"]
+    return targets
 
 
 def _attrs(node, pages, extra=None):
@@ -141,18 +177,19 @@ def _render_node(ctx, node, pages, state):
             classes.append("quote")
         if node.get("pullQuote"):
             classes.append("pull-quote")
-        extra = {}
+        extra = {"id": node["nid"]}  # anchor target for internal cross-refs
         if classes:
             extra["class"] = " ".join(classes)
         if node.get("pullQuote"):
             # duplicated decoration: visible flourish, silent to screen readers
             extra["aria-hidden"] = "true"
-        return f'<aside {_attrs(node, pages, extra or None)}>\n{children}\n</aside>'
+        return f'<aside {_attrs(node, pages, extra)}>\n{children}\n</aside>'
     if t == "footnotes":
         items = []
         for note in node["notes"]:
             n = note["n"]
             back = (f' <a class="fn-back" href="#fnref-{n}-1" '
+                    f'title="Back to reference {n} in the text" '
                     f'aria-label="Back to reference {n}">↩</a>'
                     if state["ref_seq"].get(n) else "")
             items.append(f'  <li id="fn-{n}" value="{n}" data-rk="{note["rk"]}">'
@@ -172,7 +209,14 @@ def _inline(text, links, refs, state, breaks=None):
     ranges in <sup><a>. Overlapping ranges: first (by start) wins. `breaks`
     are offsets of join-spaces that render as <br> (intentional hard
     returns)."""
-    events = [(s, e, "link", target) for s, e, target in (links or [])]
+    merged_links = []
+    for s, e, target in sorted(links or []):
+        if merged_links and s - merged_links[-1][1] <= 1 \
+                and merged_links[-1][2] == target:
+            merged_links[-1][1] = e  # one link wrapped across a line split
+        else:
+            merged_links.append([s, e, target])
+    events = [(s, e, "link", target) for s, e, target in merged_links]
     events += [(s, e, "ref", n) for s, e, n in (refs or [])]
     events += [(s, s + 1, "br", None) for s in (breaks or [])]
     if state.get("autolink"):
@@ -196,17 +240,30 @@ def _inline(text, links, refs, state, breaks=None):
         if kind == "link":
             uri = payload.get("uri")
             if payload.get("styled"):
-                # colored like the document's links but has no target in the
-                # PDF (print-styled cross-reference) — not rendered as <a>,
-                # since a link that goes nowhere misleads; provenance kept
-                out.append(f'<span data-link-styled="true">{seg}</span>')
+                # print-styled cross-reference with no PDF target: if the text
+                # names a heading/box in THIS document, link it for real;
+                # otherwise keep it as a marked span (a dead <a> misleads)
+                target = _resolve_anchor(text[s:e], state["anchors"])
+                if target:
+                    tid, tpage = target
+                    out.append(f'<a href="#{tid}" data-link-styled="true" '
+                               f'data-target-page="{tpage}">{seg}</a>')
+                else:
+                    out.append(f'<span data-link-styled="true">{seg}</span>')
             elif uri:
                 href = uri if "://" in uri or uri.startswith(("mailto:", "#")) \
                     else "https://" + uri
                 cls = ' class="autolink"' if payload.get("auto") else ""
                 out.append(f'<a{cls} href="{html.escape(href, quote=True)}">{seg}</a>')
             else:
-                out.append(f'<a data-dest-page="{payload.get("destPage")}">{seg}</a>')
+                dest = payload.get("destPage")
+                tid = state["pageTargets"].get(dest) \
+                    or next((state["pageTargets"][p]
+                             for p in sorted(state["pageTargets"])
+                             if p >= (dest or 0)), None)
+                href = f' href="#{tid}"' if tid else ""
+                out.append(f'<a{href} data-dest-page="{dest}" '
+                           f'data-target-page="{dest}">{seg}</a>')
         elif payload in state["fn_nums"]:
             k = state["ref_seq"].get(payload, 0) + 1
             state["ref_seq"][payload] = k
@@ -214,11 +271,26 @@ def _inline(text, links, refs, state, breaks=None):
             marker = seg.replace(" ", "")
             out.append(f'<sup class="fnref" id="fnref-{payload}-{k}">'
                        f'<a href="#fn-{payload}">{marker}</a></sup>')
+            if e < len(text) and text[e].isalpha():
+                out.append(" ")  # run splits often swallow the space after
         else:
             out.append(f"<sup>{seg.replace(' ', '')}</sup>")
+            if e < len(text) and text[e].isalpha():
+                out.append(" ")
         pos = e
     out.append(html.escape(text[pos:]))
     return "".join(out)
+
+
+def _resolve_anchor(seg_text, targets):
+    norm = _norm_anchor(re.sub(r"[,.;:]+\s*$", "", seg_text))
+    if not norm or len(norm) < 8:
+        return None
+    if norm in targets:
+        return targets[norm]
+    hits = [v for k, v in targets.items()
+            if k.startswith(norm) or norm.startswith(k)]
+    return hits[0] if len(hits) == 1 else None
 
 
 def _autolink_events(text, events):
@@ -358,13 +430,34 @@ def _original_css(ctx, ir):
 
     # callout boxes keep their original fill/border and (when narrower than
     # the column) their floated position and width
+    body_color = body["color"]
     for n in ir["body"]:
         d = n.get("data") or {}
+        if n["type"] == "heading":
+            # heading whose own color differs from its level's dominant color
+            lv_color = heads.get(n["level"], {}).get("color")
+            own = _usable_color(d.get("color"))
+            if own and lv_color and own != lv_color:
+                out += [f'[data-nid="{n["nid"]}"] {{ color: {own}; }}', ""]
         if n["type"] != "aside":
             continue
+        # per-child exceptions: colors/sizes that differ from body text
+        for c in n.get("children", []):
+            cd = c.get("data") or {}
+            crules = []
+            own = _usable_color(cd.get("color"))
+            if own and own != body_color:
+                crules.append(f"  color: {own};")
+            if cd.get("size") and abs(cd["size"] / body_pt - 1) >= 0.12:
+                crules.append(f"  font-size: {round(cd['size'] / body_pt, 2)}em;")
+            if crules:
+                out += [f'[data-nid="{c["nid"]}"] {{', *crules, "}", ""]
         rules = []
         if d.get("fill") and d["fill"] not in ("#ffffff",):
             rules.append(f"  background: {d['fill']};")
+        else:
+            # no fill in the original: the box sits on the page background
+            rules.append("  background: transparent;")
         if n.get("borders"):
             rules.append("  border: none;")
             for side, spec in sorted(n["borders"].items()):

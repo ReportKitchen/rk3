@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 25
+VERSION = 26
 
 
 def _hex(rgba):
@@ -111,9 +111,20 @@ def run(ctx):
             continue
         role, cov = roles[i]
         if role == "Artifact" and cov > 0.5:
-            skip.add(i)
-            ctx.log.entry("strip-artifact", page=blk["page"], block=blk["rk"],
-                          coverage=round(cov, 2), text=texts[i][:60])
+            # authors mis-tag whole designed pages as Artifact; trust the tag
+            # only where decoration lives — page edges or short snippets.
+            # Substantial mid-page text is content regardless of the tag.
+            page = pages[blk["page"]]
+            edge = (blk["bbox"][1] < 0.12 * page["height"]
+                    or blk["bbox"][3] > 0.88 * page["height"])
+            if edge or len(texts[i]) <= 80:
+                skip.add(i)
+                ctx.log.entry("strip-artifact", page=blk["page"], block=blk["rk"],
+                              coverage=round(cov, 2), text=texts[i][:60])
+            else:
+                ctx.log.entry("artifact-kept", page=blk["page"], block=blk["rk"],
+                              chars=len(texts[i]), text=texts[i][:60],
+                              reason="Artifact-tagged but substantial mid-page text")
         elif drop_toc and role in ("TOC", "TOCI") and cov > 0.5:
             skip.add(i)
             ctx.log.entry("toc-tag-drop", page=blk["page"], block=blk["rk"],
@@ -828,6 +839,9 @@ def _aside_node(ctx, reg, blocks, rich, fonts, body_size, roles):
     children = _group_bullet_paragraphs(ctx, children)
     children = _join_pagebreak_sentences(ctx, children)
     is_quote = _extract_quote_marks(ctx, reg, children)
+    if len(children) == 1:
+        # a lone child is the box's content, not a headline over content
+        children[0].pop("strong", None)
     rk = ctx.log.entry("aside", page=reg["page"],
                        bbox=[round(v, 1) for v in reg["bbox"]],
                        end_page=reg.get("endPage"),
@@ -1350,7 +1364,7 @@ def _parse_notes(ctx, blk, expected):
             rk = ctx.log.entry("note", page=blk["page"], n=num, marker=raw,
                                block=blk["rk"], text=l["text"][:80])
             notes.append({"n": num, "marker": raw,
-                          "text": l["text"][off:].strip(), "rk": rk})
+                          "text": l["text"][off:].lstrip(".) ").strip(), "rk": rk})
             expected = num + 1
         else:
             if marker:
