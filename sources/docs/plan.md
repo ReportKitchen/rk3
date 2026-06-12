@@ -313,6 +313,26 @@ transforms (ordered per-doc list from config) → render.
   determinism. Stable nids are the targeting mechanism ("this table here");
   span offsets target sub-element transforms.
 
+## Pattern recognition via style signatures — designed 2026-06-12
+
+The general answer to "the author bolded the same thing 18 times" (RK1 did
+this with hand-written per-doc XPath): a node/run's **signature** is its
+bucketed provenance tuple (font, weight, size, color, role, indent,
+marker). Mining = frequency count of signatures doc-wide; clusters ≥4
+that aren't body text are discovered styles. Surviving class-ish data
+(struct roles, font names) joins the tuple. Applications, in order:
+1. Question grouping: panel collapses same-signature questions ("8
+   occurrences"); one answer writes ONE feature-keyed config override
+   (explicit feature dict, never an opaque cluster id — features are
+   reviewable and don't drift).
+2. Class-scoped selectors for transforms/ops ("everything like this one").
+3. The Analysis & Reporting style inventory (font/color frequency tables)
+   is the miner's intermediate output.
+DOCX named styles later map onto the same IR style concept (mined and
+declared styles unify). Prerequisite: inline font-run capture (like color
+runs) — being built in batch C for <strong>/<em> anyway. Full miner is its
+own phase after batch D.
+
 ## Heuristic boundary values — decided 2026-06-12
 
 They are physics (typography facts), not policy: NOT exposed as config,
