@@ -18,7 +18,7 @@ import pypdfium2.raw as pdfium_c
 
 from ...pipeline import ScannedPdfError
 
-VERSION = 7
+VERSION = 8
 
 OBJ_PATH, OBJ_IMAGE, OBJ_SHADING = 2, 3, 4
 
@@ -61,6 +61,7 @@ def run(ctx):
             chars = []
             buf = ctypes.create_string_buffer(512)
             matrix = pdfium_c.FS_MATRIX()
+            pending = None  # high surrogate awaiting its low half
             for i in range(n_chars):
                 uc = pdfium_c.FPDFText_GetUnicode(tp, i)
                 if uc == 0:
@@ -89,8 +90,27 @@ def run(ctx):
                     ctypes.byref(cb), ctypes.byref(ca))
                 ckey = (cr.value, cg.value, cb.value, ca.value) if ok else (0, 0, 0, 255)
 
-                chars.append([chr(uc), round(l, 2), round(b, 2), round(r, 2),
-                              round(t, 2), font_index[fkey], size, color_id(ckey)])
+                # GetUnicode yields UTF-16 code units: non-BMP characters
+                # arrive as a surrogate pair across two indices - recombine
+                # (union the charboxes), drop unpaired halves
+                ch = [chr(uc), round(l, 2), round(b, 2), round(r, 2),
+                      round(t, 2), font_index[fkey], size, color_id(ckey)]
+                if 0xD800 <= uc <= 0xDBFF:
+                    pending = ch
+                    continue
+                if 0xDC00 <= uc <= 0xDFFF:
+                    if pending is not None:
+                        cp = (0x10000 + ((ord(pending[0]) - 0xD800) << 10)
+                              + (uc - 0xDC00))
+                        chars.append([chr(cp), min(pending[1], ch[1]),
+                                      min(pending[2], ch[2]),
+                                      max(pending[3], ch[3]),
+                                      max(pending[4], ch[4]),
+                                      pending[5], pending[6], pending[7]])
+                    pending = None
+                    continue
+                pending = None
+                chars.append(ch)
 
             pages_out.append({
                 "n": pno + 1,

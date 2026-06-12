@@ -54,8 +54,18 @@ When it comes to naming classes, we probably want sane defaults + config, so the
 ## Amazing UI touch
 Let the user drag the feedback box around by the titlebar.  Let them also, once the popup is open, select-drag text to add as evidence to the already-open popup.
 
-## Comments
-I'd like to let the user drop comments into the text, that don't require any processing on our end. Example is "remember to ask alex if this number is right." Then we want a workflow similar to the feedback -- see a list of them, click to jump, edit, delete.  longterm: assign to another user and track completion status.
+## Another amazing touch: Answering converter questions
+When the user chooses one of the options in the converter, and it's not the one currently being displayed, it'd be amazing if it could flip realtime to show whatever the other option is.  Even if it had to wait to rebuild the document on the server and then pass the diff or whatever - a little spinner is better than a full page load.
 
-# Edit ops
+
+## Comments
+I'd like to let the user drop comments into the text, that don't require any action on our end. Example is "remember to ask alex if this number is right." Then we want a workflow similar to the feedback -- see a list of them, click to jump, edit, delete.  longterm: assign to another user and track completion status.
+
+## Edit ops
 Once an edit has been made, I'd like a toggle to show or hide completed/closed edit bubbles in the text.
+
+## maybe a silly request
+One way I justify this work is by claiming HTML performs better in SEO and AEO than PDF.  I'd like to make the claim that x% of the PDFs we checked, did NOT have easily-spotted semantic headers and thus are harder for an LLM to grasp the outline.  At the bottom of the PDF list in the viewer, can you indicate how many of our pdfs have vs don't have clean semantic headers?
+
+## Let's get smarter
+Whenever the user does a manual override, we should log that and see if we can identify common issues that we could have prevented.  We could periodically do a review of these and select ones for implementation.

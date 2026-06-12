@@ -9,7 +9,7 @@ import re
 import shutil
 from pathlib import Path
 
-VERSION = 25
+VERSION = 26
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -268,6 +268,17 @@ def _render_node(ctx, node, pages, state):
             # duplicated decoration: visible flourish, silent to screen readers
             extra["aria-hidden"] = "true"
         return f'<aside {_attrs(node, pages, extra)}>\n{children}\n</aside>'
+    if t == "columns":
+        cells = {}
+        for c in node["children"]:
+            cells.setdefault(c.get("cell", 0), []).append(c)
+        cols = []
+        for ci in sorted(cells):
+            inner = "\n".join(_render_node(ctx, c, pages, state)
+                              for c in cells[ci])
+            cols.append(f'<div class="col">\n{inner}\n</div>')
+        joined = "\n".join(cols)
+        return f'<div class="columns" {_attrs(node, pages)}>\n{joined}\n</div>'
     if t == "footnotes":
         items = []
         for note in node["notes"]:

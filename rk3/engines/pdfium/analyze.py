@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 35
+VERSION = 37
 
 
 def _font_emphasis(name, weight, base_name):
@@ -213,6 +213,11 @@ def run(ctx):
         return blocks[ref]["bbox"] if kind == "block" else ref["bbox"]
 
     for page_n, items in page_items.items():
+        grouped = _side_rows(ctx, items, blocks, body_size, page_n)
+        if grouped is not None:
+            page_items[page_n] = grouped
+
+    for page_n, items in page_items.items():
         bboxes = [item_bbox(it) for it in items]
         split = _column_split(bboxes)
         if split is not None:
@@ -225,41 +230,59 @@ def run(ctx):
     nodes = []
     used_ids = set()
     fig_count = 0
+
+    def _build_item(kind, ref):
+        nonlocal fig_count
+        if kind == "block":
+            return _block_node(ctx, blocks[ref], rich[ref], fonts,
+                               levels, body_size, used_ids,
+                               role=roles[ref], tag_levels=tag_levels,
+                               kicker_level=kicker_level)
+        if ref["kind"] == "figure":
+            fig_count += 1
+            node = _figure_node(ctx, ref, pages, fig_count)
+        else:
+            node = _try_table(ctx, ref, blocks, texts, pages)
+            if node is None:
+                node = _aside_node(ctx, ref, blocks, rich, fonts,
+                                   body_size, roles)
+                fig_count = _aside_images(ctx, ref, node, pages,
+                                          fig_count)
+        if ref.get("uncertain") and node["type"] != "table":
+            prompt = (
+                "This region is currently a cropped figure image, but it "
+                "contains a lot of text. Make it a callout with real, "
+                "selectable text instead?"
+                if ref["kind"] == "figure" else
+                "This region is currently a callout (styled text box). "
+                "Should it be a cropped image of the original region "
+                "instead?")
+            _question(ctx, "figure-or-callout", node, prompt,
+                      ["figure", "callout"], ref["kind"])
+        if ref.get("captionWeak") and ref.get("caption"):
+            _question(ctx, "caption", node,
+                      f"Is “{ref['caption'][:60]}” a caption for this "
+                      "figure, or an ordinary paragraph?",
+                      ["caption", "paragraph"], "caption")
+        return node
+
     for page_n in sorted(page_items):
         for kind, ref in page_items[page_n]:
-            if kind == "block":
-                nodes.append(_block_node(ctx, blocks[ref], rich[ref], fonts,
-                                         levels, body_size, used_ids,
-                                         role=roles[ref], tag_levels=tag_levels,
-                                         kicker_level=kicker_level))
+            if kind == "row":
+                children = []
+                for ci, cell in enumerate(ref["cells"]):
+                    for k2, r2 in cell:
+                        child = _build_item(k2, r2)
+                        child["cell"] = ci
+                        children.append(child)
+                nodes.append({
+                    "type": "columns", "children": children,
+                    "page": page_n, "bbox": ref["bbox"], "rk": ref["rk"],
+                    "nid": _stable_id("n", ctx.nids, "columns", page_n,
+                                      ref["bbox"],
+                                      "|".join(c["nid"] for c in children))})
             else:
-                if ref["kind"] == "figure":
-                    fig_count += 1
-                    node = _figure_node(ctx, ref, pages, fig_count)
-                else:
-                    node = _try_table(ctx, ref, blocks, texts, pages)
-                    if node is None:
-                        node = _aside_node(ctx, ref, blocks, rich, fonts,
-                                           body_size, roles)
-                        fig_count = _aside_images(ctx, ref, node, pages,
-                                                  fig_count)
-                nodes.append(node)
-                if ref.get("uncertain") and node["type"] != "table":
-                    prompt = (
-                        "This region is currently a cropped figure image, but it "
-                        "contains a lot of text. Make it a callout with real, "
-                        "selectable text instead?"
-                        if ref["kind"] == "figure" else
-                        "This region is currently a callout (styled text box). "
-                        "Should it be a cropped image of the original region "
-                        "instead?")
-                    _question(ctx, "figure-or-callout", node, prompt,
-                              ["figure", "callout"], ref["kind"])
-                if ref.get("captionWeak") and ref.get("caption"):
-                    _question(ctx, "caption", node,
-                              f"Is “{ref['caption'][:60]}” a caption for this "
-                              "figure, or an ordinary paragraph?",
-                              ["caption", "paragraph"], "caption")
+                nodes.append(_build_item(kind, ref))
 
     # figure regions absorb their text into the cropped image
     for reg in regions:
@@ -1040,6 +1063,134 @@ def _aside_node(ctx, reg, blocks, rich, fonts, body_size, roles):
 
 
 # -------------------------------------------------------------- text utils ---
+
+def _side_rows(ctx, items, blocks, body_size, page_n):
+    """Side-by-side card groups. Blocks in disjoint x-ranges whose tops align
+    and that share a style distinct from the page's prose are parallel
+    siblings (a card row), not column flow: grouping them into one full-width
+    "row" item keeps the pair together through column banding, and render
+    emits the cells as a grid. Style match is the discriminator - two-column
+    prose paragraphs routinely share tops, but they carry the page's dominant
+    style and never seed a row."""
+    def sig(item):
+        kind, ref = item
+        if kind != "block":
+            return None
+        ln = blocks[ref]["lines"][0]
+        return (ln.get("fontIdx"), round(ln.get("size", 0.0)),
+                ln.get("colorIdx"))
+
+    def bbox(item):
+        kind, ref = item
+        return blocks[ref]["bbox"] if kind == "block" else ref["bbox"]
+
+    sigs = [sig(it) for it in items]
+    counts = Counter(s for s in sigs if s is not None)
+    body_sig = counts.most_common(1)[0][0] if counts else None
+    boxes = [bbox(it) for it in items]
+
+    # seed pairs: aligned tops, x-disjoint, same non-prose style
+    groups = []  # [member indexes, y_lo, y_hi]
+    for a in range(len(items)):
+        if sigs[a] is None or sigs[a] == body_sig:
+            continue
+        for b in range(a + 1, len(items)):
+            if sigs[b] != sigs[a]:
+                continue
+            A, B = boxes[a], boxes[b]
+            if abs(A[3] - B[3]) > 2.0:
+                continue
+            if not (A[2] + 6 <= B[0] or B[2] + 6 <= A[0]):
+                continue
+            groups.append([{a, b}, min(A[1], B[1]), max(A[3], B[3])])
+    if not groups:
+        return None
+
+    # one card = a stack of seed pairs (title pair above body pair): merge
+    # groups that overlap vertically or sit a line apart with nothing
+    # foreign between them
+    groups.sort(key=lambda g: -g[2])
+    merged = [groups[0]]
+    for g in groups[1:]:
+        prev = merged[-1]
+        if g[0] & prev[0] or g[2] >= prev[1]:
+            overlap = True
+        elif prev[1] - g[2] <= 1.5 * body_size:
+            # a separator (e.g. a heading) lies wholly in the gap; an item
+            # that overlaps either group is row content, not a separator
+            overlap = not any(
+                i not in prev[0] and i not in g[0]
+                and boxes[i][3] > g[2] and boxes[i][1] < prev[1]
+                and boxes[i][1] >= g[2] and boxes[i][3] <= prev[1]
+                for i in range(len(items)))
+        else:
+            overlap = False
+        if overlap:
+            prev[0] |= g[0]
+            prev[1] = min(prev[1], g[1])
+            prev[2] = max(prev[2], g[2])
+        else:
+            merged.append(g)
+
+    rows = []
+    for members, y_lo, y_hi in merged:
+        if len(members) < 4:  # at least two seed pairs make a card row
+            continue
+        # cells from seed x-intervals (overlap-transitive clusters)
+        ivals = sorted((boxes[i][0], boxes[i][2]) for i in members)
+        cells_x = [list(ivals[0])]
+        for lo, hi in ivals[1:]:
+            if lo <= cells_x[-1][1]:
+                cells_x[-1][1] = max(cells_x[-1][1], hi)
+            else:
+                cells_x.append([lo, hi])
+        if len(cells_x) < 2:
+            continue
+        # absorb the rest of the row's vertical span (icon figures etc.),
+        # assigned to the overlapping or nearest cell
+        cells = [[] for _ in cells_x]
+        for i in range(len(items)):
+            box = boxes[i]
+            if i not in members and not (box[1] < y_hi and box[3] > y_lo):
+                continue
+            ci = min(range(len(cells_x)),
+                     key=lambda c: max(cells_x[c][0] - box[2],
+                                       box[0] - cells_x[c][1], 0))
+            cells[ci].append(i)
+        for cell in cells:
+            cell.sort(key=lambda i: -boxes[i][3])
+        used = [i for cell in cells for i in cell]
+        union = [min(boxes[i][0] for i in used),
+                 min(boxes[i][1] for i in used),
+                 max(boxes[i][2] for i in used),
+                 max(boxes[i][3] for i in used)]
+        rk = ctx.log.entry("side-row", page=page_n, bbox=union,
+                           cells=[len(c) for c in cells],
+                           members=[_item_rk(items[i], blocks) for i in used])
+        rows.append((set(used), {
+            "cells": [[items[i] for i in cell] for cell in cells],
+            "bbox": union, "rk": rk}))
+    if not rows:
+        return None
+
+    out = []
+    placed = set()
+    taken = {i for used, _ in rows for i in used}
+    for i, it in enumerate(items):
+        if i not in taken:
+            out.append(it)
+            continue
+        for ri, (used, row) in enumerate(rows):
+            if i in used and ri not in placed:
+                placed.add(ri)
+                out.append(("row", row))
+    return out
+
+
+def _item_rk(item, blocks):
+    kind, ref = item
+    return blocks[ref].get("rk") if kind == "block" else ref.get("rk")
+
 
 def _column_split(bboxes):
     """x of the gutter when the page is laid out in two columns, else None.

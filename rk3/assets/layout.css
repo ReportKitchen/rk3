@@ -38,6 +38,18 @@ aside {
   padding: 1rem 1.25rem;
 }
 
+.columns {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+@media (max-width: 40rem) {
+  .columns { grid-auto-flow: row; }
+}
+
 table {
   border-collapse: collapse;
   width: 100%;
