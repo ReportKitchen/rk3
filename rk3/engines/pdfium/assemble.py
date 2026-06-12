@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter
 
-VERSION = 11
+VERSION = 12
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -87,8 +87,10 @@ def _finish_line(chars, links):
                 and text and text[-1] != " " and c[UC] != " ":
             text.append(" ")
             src.append(None)
-        if not (c[UC] == " " and (not text or text[-1] == " ")):
-            text.append(c[UC])
+        # unmapped control glyphs in symbol fonts are almost always hyphens
+        ch = "-" if ord(c[UC]) < 32 else c[UC]
+        if not (ch == " " and (not text or text[-1] == " ")):
+            text.append(ch)
             src.append(c)
         prev_r = c[R]
         sizes[c[SIZE]] += 1

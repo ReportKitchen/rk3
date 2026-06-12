@@ -14,9 +14,11 @@ def node_texts(nodes):
     for n in nodes:
         if n.get("text"):
             yield n["text"]
+        yield from n.get("items", [])
         for c in n.get("children", []):
             if c.get("text"):
                 yield c["text"]
+            yield from c.get("items", [])
         for note in n.get("notes", []):
             yield note["text"]
 

@@ -111,7 +111,7 @@
       73
     ],
     "questions": 0,
-    "textChars": 59585
+    "textChars": 59581
   },
   "01--sample-content-penguin": {
     "status": "done",
@@ -171,15 +171,20 @@
       ]
     ],
     "counts": {
-      "aside": 1,
+      "aside": 2,
       "figure": 1,
+      "footnotes": 1,
       "heading": 13,
-      "paragraph": 19
+      "paragraph": 16
     },
-    "asideChildren": 2,
-    "notes": [],
+    "asideChildren": 3,
+    "notes": [
+      1,
+      2,
+      3
+    ],
     "questions": 0,
-    "textChars": 12054
+    "textChars": 12034
   },
   "02--baystate-case-study-021624": {
     "status": "done",
@@ -190,74 +195,66 @@
         "Baystate Health"
       ],
       [
-        3,
-        "KEY STRATEGIES"
-      ],
-      [
-        4,
-        "Outside-in"
-      ],
-      [
         1,
         "CASE STUDY"
       ],
       [
-        4,
+        3,
         "Overview and Background"
       ],
       [
-        4,
+        3,
         "Outside-in and Inside-up Workforce Strategies"
       ],
       [
-        4,
+        3,
         "Program Design"
       ],
       [
-        4,
+        3,
         "Key Strategies"
       ],
       [
-        5,
+        4,
         "OUTSIDE-IN"
       ],
       [
-        4,
+        3,
         "INSIDE-UP"
       ],
       [
-        4,
+        3,
         "Program Impact"
       ],
       [
-        4,
+        3,
         "Robust Staffing & Resources"
       ],
       [
-        4,
+        3,
         "Lessons Learned & Key Takeaways"
       ],
       [
-        5,
+        4,
         "Table 1. Workforce Programming, 2022"
       ],
       [
-        4,
+        3,
         "Endnotes"
       ],
       [
-        4,
+        3,
         "Sources"
       ]
     ],
     "counts": {
       "aside": 3,
-      "figure": 4,
+      "figure": 5,
       "footnotes": 1,
-      "heading": 16,
-      "paragraph": 71
+      "heading": 14,
+      "paragraph": 66
     },
-    "asideChildren": 23,
+    "asideChildren": 20,
     "notes": [
       1,
       2,
@@ -266,7 +263,7 @@
       5
     ],
     "questions": 3,
-    "textChars": 30981
+    "textChars": 30951
   },
   "02--cottonwood-case-study-r5": {
     "status": "done",
@@ -277,47 +274,44 @@
         "colorado affordable housing Cottonwood Case Study | Windsor, CO"
       ],
       [
-        3,
+        2,
         "Overview"
       ],
       [
-        5,
+        4,
         "Project data"
       ],
       [
-        2,
-        "Colorado Multifamily Affordable Housing Electrification Hub"
-      ],
-      [
-        4,
+        3,
         "Planning and design approach"
       ],
       [
-        4,
+        3,
         "Electrification strategies"
       ],
       [
-        4,
+        3,
         "Pre- and post-retrofit operational data"
       ],
       [
-        4,
+        3,
         "Lessons learned"
       ],
       [
-        5,
+        4,
         "Project team"
       ]
     ],
     "counts": {
+      "aside": 1,
       "figure": 9,
-      "heading": 9,
+      "heading": 8,
       "paragraph": 18
     },
-    "asideChildren": 0,
+    "asideChildren": 1,
     "notes": [],
-    "questions": 3,
-    "textChars": 7722
+    "questions": 6,
+    "textChars": 7720
   },
   "02--facilitator-guide-injury-prevention-draft-8-27-15": {
     "status": "done",
@@ -486,15 +480,15 @@
     ],
     "counts": {
       "aside": 2,
-      "figure": 34,
+      "figure": 33,
       "heading": 40,
-      "list": 1,
-      "paragraph": 216
+      "list": 2,
+      "paragraph": 215
     },
     "asideChildren": 4,
     "notes": [],
-    "questions": 49,
-    "textChars": 42897
+    "questions": 50,
+    "textChars": 43116
   },
   "02--jhu-federal-register-comments-pharma-investigation": {
     "status": "done",
@@ -513,7 +507,7 @@
       4
     ],
     "questions": 0,
-    "textChars": 16160
+    "textChars": 16158
   },
   "02--toolkit-hiring2022-copy112222onlineversiononly-1": {
     "status": "done",
@@ -909,7 +903,7 @@
       ],
       [
         3,
-        "SAVE ON TRAINING COSTS THROUGH LEVERAGING PUBLIC AND PHIL\u0002 ANTHROPIC RESOURCES B"
+        "SAVE ON TRAINING COSTS THROUGH LEVERAGING PUBLIC AND PHIL- ANTHROPIC RESOURCES B"
       ],
       [
         1,
@@ -1032,13 +1026,13 @@
       "aside": 44,
       "figure": 15,
       "heading": 127,
-      "list": 7,
-      "paragraph": 996
+      "list": 8,
+      "paragraph": 995
     },
     "asideChildren": 147,
     "notes": [],
     "questions": 42,
-    "textChars": 278133
+    "textChars": 279063
   },
   "03--enterprise-annual-report-2022": {
     "status": "done",
@@ -1158,13 +1152,14 @@
       ]
     ],
     "counts": {
-      "figure": 29,
+      "aside": 6,
+      "figure": 22,
       "heading": 28,
-      "paragraph": 60
+      "paragraph": 62
     },
-    "asideChildren": 0,
+    "asideChildren": 21,
     "notes": [],
     "questions": 19,
-    "textChars": 11886
+    "textChars": 14328
   }
 }

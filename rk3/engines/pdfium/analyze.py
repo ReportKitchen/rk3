@@ -29,16 +29,39 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 13
+VERSION = 17
 
-BULLETS = "•◦▪‣–—-*·"
+ROMAN = {}
+for _n, _r in enumerate(
+        "i ii iii iv v vi vii viii ix x xi xii xiii xiv xv xvi xvii xviii xix xx"
+        .split(), start=1):
+    ROMAN[_r] = _n
+
+
+def _marker_value(raw):
+    """Footnote marker -> int (arabic or roman), else None."""
+    raw = raw.strip().rstrip(".)").strip()
+    if raw.isdigit() and len(raw) <= 3:
+        return int(raw)
+    return ROMAN.get(raw.lower())
+
+BULLETS = "•◦▪‣–—-*·§"
 OBJ_PATH, OBJ_IMAGE, OBJ_SHADING = 2, 3, 4
 # objects: [type, l, b, r, t, fillIdx, strokeIdx, filled, stroked]
 OT, OL, OB, OR_, OTOP = range(5)
 
 
-def _stable_id(prefix, used, kind, page, bbox):
-    raw = f"{kind}|{page}|{round(bbox[0])},{round(bbox[1])},{round(bbox[2])},{round(bbox[3])}"
+def _norm_text(text):
+    return re.sub(r"[^a-z0-9]+", "", (text or "").lower())[:60]
+
+
+def _stable_id(prefix, used, kind, page, bbox, text=None):
+    """Durable ids: hashed on normalized text when the node has text (immune
+    to bbox drift from layout fixes), coarse 10pt-grid bbox otherwise."""
+    if text and _norm_text(text):
+        raw = f"{kind}|{page}|{_norm_text(text)}"
+    else:
+        raw = f"{kind}|{page}|" + ",".join(str(round(v / 10)) for v in bbox)
     base = prefix + hashlib.sha1(raw.encode()).hexdigest()[:10]
     sid, i = base, 1
     while sid in used:
@@ -82,7 +105,9 @@ def run(ctx):
             ctx.log.entry("toc-tag-drop", page=blk["page"], block=blk["rk"],
                           text=texts[i][:60])
 
-    regions = _detect_regions(ctx, pages, blocks, texts, body_size, toc_pages)
+    top_size = max((_dominant_size(b) for b in blocks), default=body_size)
+    regions = _detect_regions(ctx, pages, blocks, texts, body_size, toc_pages,
+                              top_size)
     regions = _merge_cross_page_callouts(ctx, regions, pages)
     absorbed = {}  # block index -> region
     for reg in regions:
@@ -125,7 +150,8 @@ def run(ctx):
                     fig_count += 1
                     node = _figure_node(ctx, ref, pages, fig_count)
                 else:
-                    node = _aside_node(ctx, ref, blocks, rich, fonts, body_size)
+                    node = _aside_node(ctx, ref, blocks, rich, fonts,
+                                       body_size, roles)
                 nodes.append(node)
                 if ref.get("uncertain"):
                     prompt = (
@@ -144,6 +170,7 @@ def run(ctx):
                               "figure, or an ordinary paragraph?",
                               ["caption", "paragraph"], "caption")
 
+    nodes = _group_tag_lists(ctx, nodes)
     # sentences interrupted by page breaks happen in the main flow too,
     # not just inside callouts
     nodes = _join_pagebreak_sentences(ctx, nodes)
@@ -154,7 +181,8 @@ def run(ctx):
                            numbers=[n["n"] for n in notes][:20])
         node = {"type": "footnotes", "notes": notes, "page": last["page"],
                 "bbox": last["bbox"], "rk": rk, "data": {}}
-        node["nid"] = _stable_id("n", ctx.nids, "footnotes", node["page"], node["bbox"])
+        node["nid"] = _stable_id("n", ctx.nids, "footnotes", node["page"],
+                                 node["bbox"], "footnotes")
         nodes.append(node)
 
     title = next((n["text"] for n in nodes if n["type"] == "heading" and n["level"] == 1),
@@ -168,7 +196,13 @@ def run(ctx):
 
 
 def _question(ctx, kind, node, prompt, options, chosen):
-    qid = _stable_id("q", ctx.qids, kind, node["page"], node["bbox"])
+    # derived from the (text-stable) nid so questions inherit its durability
+    base = "q" + hashlib.sha1(f"{kind}|{node['nid']}".encode()).hexdigest()[:10]
+    qid, i = base, 1
+    while qid in ctx.qids:
+        i += 1
+        qid = f"{base}-{i}"
+    ctx.qids.add(qid)
     ctx.questions.append({"qid": qid, "nid": node["nid"], "page": node["page"],
                           "kind": kind, "prompt": prompt, "options": options,
                           "chosen": chosen})
@@ -178,7 +212,8 @@ def _question(ctx, kind, node, prompt, options, chosen):
 
 # ---------------------------------------------------------------- regions ---
 
-def _detect_regions(ctx, pages, blocks, texts, body_size, toc_pages=()):
+def _detect_regions(ctx, pages, blocks, texts, body_size, toc_pages=(),
+                    top_size=None):
     """Cluster graphic objects per page, classify clusters as figure/callout."""
     repeated = _repeated_images(pages)
     regions = []
@@ -201,10 +236,24 @@ def _detect_regions(ctx, pages, blocks, texts, body_size, toc_pages=()):
             graphics.append(o)
 
         for cluster in _cluster(graphics):
-            reg = _classify_cluster(ctx, page, cluster, blocks, texts, body_size)
+            reg = _classify_cluster(ctx, page, cluster, blocks, texts,
+                                    body_size, top_size)
             if reg:
                 regions.append(reg)
+            elif len(cluster["objs"]) > 1 and _too_big(cluster["bbox"], w, h):
+                # adjoining layout rects (sidebar + title band) merge into a
+                # page-sized cluster; re-split with overlap-only proximity and
+                # classify the pieces individually
+                for sub in _cluster(cluster["objs"], gap=-2.0):
+                    reg = _classify_cluster(ctx, page, sub, blocks, texts,
+                                            body_size, top_size)
+                    if reg:
+                        regions.append(reg)
     return regions
+
+
+def _too_big(bbox, w, h):
+    return (bbox[2] - bbox[0]) * (bbox[3] - bbox[1]) > 0.9 * w * h
 
 
 def _okey(page_n, o):
@@ -251,11 +300,13 @@ def _union(a, b):
     return [min(a[0], b[0]), min(a[1], b[1]), max(a[2], b[2]), max(a[3], b[3])]
 
 
-def _classify_cluster(ctx, page, cluster, blocks, texts, body_size):
+def _classify_cluster(ctx, page, cluster, blocks, texts, body_size, top_size=None):
     bbox = cluster["bbox"]
     w, h = page["width"], page["height"]
-    if (bbox[2] - bbox[0]) * (bbox[3] - bbox[1]) > 0.9 * w * h:
+    if _too_big(bbox, w, h):
         return None
+    if bbox[3] - bbox[1] < 20 or bbox[2] - bbox[0] < 40:
+        return None  # rules/dividers can't be regions
     n_images = sum(1 for o in cluster["objs"] if o[OT] == OBJ_IMAGE)
     n_shade = sum(1 for o in cluster["objs"] if o[OT] == OBJ_SHADING)
     n_paths = sum(1 for o in cluster["objs"] if o[OT] == OBJ_PATH)
@@ -280,12 +331,25 @@ def _classify_cluster(ctx, page, cluster, blocks, texts, body_size):
     boxed = 1 <= n_paths <= 5 and any(
         o[OT] == OBJ_PATH and (o[7] or o[8]) for o in cluster["objs"])
 
+    # the document's largest text (its title, on the cover) never belongs
+    # inside a callout; a band/frame around it is page decoration, not an
+    # aside. Headline-scale text below the top rank stays eligible.
+    title_size = max(top_size or 0, 1.8 * body_size)
+    if page["n"] == 1 and any(_dominant_size(blocks[i]) >= 0.95 * title_size
+                              for i in inside + big_inside):
+        ctx.log.entry("region-skip-title", page=page["n"],
+                      bbox=[round(v, 1) for v in bbox])
+        return None
+
     uncertain = False
-    if graphic and (n_images >= 1 or chars_inside <= 400):
+    # text-rich regions are callouts even when they contain an image (logo
+    # sidebars); genuine figures carry at most label-scale text
+    if graphic and (chars_inside <= 150 or
+                    (n_images == 0 and chars_inside <= 400)):
         kind = "figure"
-        # text-heavy vector region: the figure/callout call is genuinely close
-        uncertain = n_images == 0 and chars_inside > 150
-    elif (graphic or boxed) and inside:
+        # text-bearing vector region: the figure/callout call is genuinely close
+        uncertain = n_images == 0 and chars_inside > 100
+    elif (graphic or boxed) and (inside or big_inside):
         kind = "callout"
         uncertain = graphic and not boxed
     else:
@@ -368,7 +432,8 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
                            text=text[:120], block=blk["rk"])
         return {"type": "heading", "level": level, "text": text, "id": hid,
                 "page": blk["page"], "bbox": blk["bbox"], "rk": rk, "data": prov,
-                "nid": _stable_id("n", ctx.nids, "heading", blk["page"], blk["bbox"])}
+                "nid": _stable_id("n", ctx.nids, "heading", blk["page"],
+                                  blk["bbox"], text)}
 
     if not in_aside and size in levels and _looks_like_heading(text):
         level = levels[size]
@@ -385,7 +450,8 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
                            reason=reason, text=text[:120], block=blk["rk"])
         node = {"type": "heading", "level": level, "text": text, "id": hid,
                 "page": blk["page"], "bbox": blk["bbox"], "rk": rk, "data": prov}
-        node["nid"] = _stable_id("n", ctx.nids, "heading", node["page"], node["bbox"])
+        node["nid"] = _stable_id("n", ctx.nids, "heading", node["page"],
+                                 node["bbox"], text)
         if conflict:
             _question(ctx, "tag-conflict-heading", node,
                       f"“{text[:60]}” looks like a heading by size, but the "
@@ -399,26 +465,31 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         return node
 
     if _is_bullet_list(blk):
-        items = [re.sub(f"^[{re.escape(BULLETS)}]\\s*", "", l["text"]).strip()
-                 for l in blk["lines"]]
+        items = _bullet_items(blk)
         rk = ctx.log.entry("list", page=blk["page"], bbox=blk["bbox"],
-                           items=len(items), reason="every line starts with a bullet char",
+                           items=len(items),
+                           reason="opens with a bullet; unbulleted lines are wraps",
                            block=blk["rk"])
         node = {"type": "list", "items": items, "page": blk["page"],
                 "bbox": blk["bbox"], "rk": rk, "data": prov}
-        node["nid"] = _stable_id("n", ctx.nids, "list", node["page"], node["bbox"])
+        node["nid"] = _stable_id("n", ctx.nids, "list", node["page"],
+                                 node["bbox"], " ".join(items))
         return node
 
     strong = in_aside and size > 1.15 * body_size
-    refs = [[s, e, int(text[s:e])] for s, e in rich.get("sups", [])
-            if text[s:e].isdigit() and len(text[s:e]) <= 3]
+    refs = []
+    for s, e in _merge_sup_ranges(text, rich.get("sups", [])):
+        val = _marker_value(text[s:e].replace(" ", "")) if e - s <= 7 else None
+        if val:
+            refs.append([s, e, val])
     rk = ctx.log.entry("paragraph", page=blk["page"], bbox=blk["bbox"],
                        size=size, strong=strong, refs=[r[2] for r in refs],
                        links=len(rich.get("links", [])),
                        text=text[:120], block=blk["rk"])
     node = {"type": "paragraph", "text": text, "page": blk["page"],
             "bbox": blk["bbox"], "rk": rk, "data": prov}
-    node["nid"] = _stable_id("n", ctx.nids, "paragraph", node["page"], node["bbox"])
+    node["nid"] = _stable_id("n", ctx.nids, "paragraph", node["page"],
+                             node["bbox"], text)
     if strong:
         node["strong"] = True
     if refs:
@@ -463,15 +534,16 @@ def _crop(ctx, reg, page, fig_count):
     return name, crop.width, crop.height
 
 
-def _aside_node(ctx, reg, blocks, rich, fonts, body_size):
+def _aside_node(ctx, reg, blocks, rich, fonts, body_size, roles):
     # callout boxes are single-column: order children top-down by position
     # (page first, for boxes merged across a page break) so the headline
     # leads regardless of content-stream order
     ordered = sorted(reg["blockIdx"],
                      key=lambda i: (blocks[i]["page"], -blocks[i]["bbox"][3]))
     children = [_block_node(ctx, blocks[i], rich[i], fonts, {}, body_size,
-                            set(), in_aside=True)
+                            set(), in_aside=True, role=roles[i])
                 for i in ordered]
+    children = _group_tag_lists(ctx, children)
     children = _join_pagebreak_sentences(ctx, children)
     rk = ctx.log.entry("aside", page=reg["page"],
                        bbox=[round(v, 1) for v in reg["bbox"]],
@@ -479,11 +551,54 @@ def _aside_node(ctx, reg, blocks, rich, fonts, body_size):
                        region=reg["rk"], children=len(children))
     node = {"type": "aside", "children": children, "page": reg["page"],
             "bbox": reg["bbox"], "rk": rk, "data": {"region": reg["rk"]}}
-    node["nid"] = _stable_id("n", ctx.nids, "aside", node["page"], node["bbox"])
+    first_text = next((c.get("text") for c in children if c.get("text")), None)
+    node["nid"] = _stable_id("n", ctx.nids, "aside", node["page"], node["bbox"],
+                             first_text)
     return node
 
 
 # -------------------------------------------------------------- text utils ---
+
+def _group_tag_lists(ctx, nodes):
+    """Struct tags declare lists (L > LI > Lbl/LBody) even when the bullet
+    glyphs defeat char-based detection. Consecutive LBody/LI paragraphs become
+    one list node; tiny Lbl marker nodes are dropped."""
+    out = []
+    run = []
+
+    def flush():
+        nonlocal run
+        if len(run) >= 2:
+            items = [re.sub(f"^[{re.escape(BULLETS)}]\\s*", "", n["text"]).strip()
+                     for n in run]
+            bbox = [min(n["bbox"][0] for n in run), min(n["bbox"][1] for n in run),
+                    max(n["bbox"][2] for n in run), max(n["bbox"][3] for n in run)]
+            page = run[0]["page"]
+            rk = ctx.log.entry("list", page=page, bbox=bbox, items=len(items),
+                               reason="struct tags LBody/LI",
+                               merged=[n["rk"] for n in run])
+            out.append({"type": "list", "items": items, "page": page,
+                        "bbox": bbox, "rk": rk, "data": {"role": "L"},
+                        "nid": _stable_id("n", ctx.nids, "list", page, bbox,
+                                          " ".join(items))})
+        else:
+            out.extend(run)
+        run = []
+
+    for n in nodes:
+        role = (n.get("data") or {}).get("role")
+        if n["type"] == "paragraph" and role == "Lbl" \
+                and len(n.get("text", "")) <= 3:
+            ctx.log.entry("drop-lbl", page=n["page"], text=n.get("text", ""))
+            continue
+        if n["type"] == "paragraph" and role in ("LBody", "LI"):
+            run.append(n)
+        else:
+            flush()
+            out.append(n)
+    flush()
+    return out
+
 
 def _join_pagebreak_sentences(ctx, children):
     """A sentence interrupted by a page break (previous paragraph ends without
@@ -551,8 +666,20 @@ def _looks_like_heading(text):
 
 
 def _is_bullet_list(blk):
-    return len(blk["lines"]) >= 2 and all(
-        l["text"][:1] in BULLETS for l in blk["lines"])
+    """Bullet items wrap: the block is a list when it opens with a bullet and
+    has at least two bulleted lines; unbulleted lines are continuations."""
+    starts = [l["text"][:1] in BULLETS for l in blk["lines"]]
+    return len(starts) >= 2 and starts[0] and sum(starts) >= 2
+
+
+def _bullet_items(blk):
+    items = []
+    for l in blk["lines"]:
+        if l["text"][:1] in BULLETS:
+            items.append(re.sub(f"^[{re.escape(BULLETS)}]\\s*", "", l["text"]).strip())
+        elif items:
+            items[-1] += " " + l["text"]
+    return items
 
 
 def _join_block(ctx, blk, link_colors=()):
@@ -701,6 +828,36 @@ def _toc_pages(ctx, pages, blocks):
 
 
 NOTE_START = re.compile(r"^(\d{1,3})(?:[.)]\s*|\s+)(?=\S)")
+
+
+def _merge_sup_ranges(text, sups):
+    """Roman markers like 'ii' often arrive as separate single-char sup runs
+    separated only by spaces; merge such neighbors into one range."""
+    merged = []
+    for s, e in sorted(sups):
+        if merged and s - merged[-1][1] <= 1 \
+                and text[merged[-1][1]:s].strip() == "":
+            merged[-1][1] = e
+        else:
+            merged.append([s, e])
+    return merged
+
+
+def _line_marker(line):
+    """Leading footnote marker of a line: (value, raw, text_offset, is_sup).
+    A superscript run at position 0 (arabic or roman) is the strongest form;
+    otherwise the plain numbered-line regex."""
+    text = line["text"]
+    for s, e in _merge_sup_ranges(text, line.get("sups", [])):
+        if s == 0 and 0 < e <= 7:
+            val = _marker_value(text[:e].replace(" ", ""))
+            if val:
+                return val, text[:e].replace(" ", ""), e, True
+            break
+    m = NOTE_START.match(text)
+    if m:
+        return int(m.group(1)), m.group(1), m.end(), False
+    return None
 NOTES_HEADING = re.compile(r"(end\s*)?notes?|references|sources", re.I)
 
 
@@ -718,11 +875,11 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
         if NOTES_HEADING.fullmatch(text.strip()) and size > body_size * 1.15:
             in_section = True
             continue
-        starts_num = NOTE_START.match(text)
+        marker = _line_marker(blk["lines"][0])
         if in_section:
             if size > body_size * 1.15:
                 in_section = False  # next heading ends the notes section
-            elif starts_num:
+            elif marker:
                 new, lead, expected = _parse_notes(ctx, blk, expected)
                 if lead and notes:
                     notes[-1]["text"] += " " + lead
@@ -734,9 +891,12 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
                 notes[-1]["text"] += " " + text  # continuation block
                 note_idx.add(i)
                 continue
-        if not in_section and starts_num and size <= 0.92 * body_size:
+        if not in_section and marker and size <= 0.92 * body_size:
             page = pages[blk["page"]]
-            if blk["bbox"][1] < 0.18 * page["height"]:
+            # bottom of the page, or anywhere when the marker is a leading
+            # superscript (unambiguous footnote form, e.g. roman markers on
+            # the last page)
+            if blk["bbox"][1] < 0.18 * page["height"] or marker[3]:
                 new, lead, expected = _parse_notes(ctx, blk, expected)
                 if lead and notes:
                     notes[-1]["text"] += " " + lead
@@ -756,17 +916,18 @@ def _parse_notes(ctx, blk, expected):
     notes = []
     leading = []
     for l in blk["lines"]:
-        m = NOTE_START.match(l["text"])
-        num = int(m.group(1)) if m else None
-        if m and (expected is None or num == expected):
-            rk = ctx.log.entry("note", page=blk["page"], n=num,
+        marker = _line_marker(l)
+        if marker and (expected is None or marker[0] == expected):
+            num, raw, off, _is_sup = marker
+            rk = ctx.log.entry("note", page=blk["page"], n=num, marker=raw,
                                block=blk["rk"], text=l["text"][:80])
-            notes.append({"n": num, "text": l["text"][m.end():].strip(), "rk": rk})
+            notes.append({"n": num, "marker": raw,
+                          "text": l["text"][off:].strip(), "rk": rk})
             expected = num + 1
         else:
-            if m:
+            if marker:
                 ctx.log.entry("note-continuation", page=blk["page"],
-                              rejected_n=num, expected=expected,
+                              rejected_n=marker[0], expected=expected,
                               text=l["text"][:60])
             if notes:
                 notes[-1]["text"] += " " + l["text"]

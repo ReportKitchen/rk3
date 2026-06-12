@@ -101,6 +101,16 @@ def convert(slug: str, force: bool = False) -> dict:
     meta.setdefault("stages", {})
     _write_meta(outdir, meta)
 
+    # snapshot the previous IR: if analyze re-runs, feedback anchors are
+    # re-matched against the new one (rk3.remap)
+    old_ir = None
+    ir_path = outdir / ARTIFACTS["analyze"]
+    if ir_path.exists():
+        try:
+            old_ir = json.loads(ir_path.read_text())
+        except json.JSONDecodeError:
+            pass
+
     try:
         fp = _file_sha(source)  # chain starts at the source file
         for stage, module_name, cfg_keys in STAGES:
@@ -125,6 +135,13 @@ def convert(slug: str, force: bool = False) -> dict:
                 "skipped": False,
             }
             _write_meta(outdir, meta)
+        if old_ir is not None and not meta["stages"]["analyze"].get("skipped"):
+            from .remap import remap_feedback
+            log = DebugLog(outdir, "remap")
+            try:
+                remap_feedback(slug, old_ir, json.loads(ir_path.read_text()), log)
+            finally:
+                log.close()
         meta["status"] = "done"
     except ScannedPdfError as e:
         meta["status"] = "failed"

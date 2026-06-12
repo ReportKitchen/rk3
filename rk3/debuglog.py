@@ -8,7 +8,8 @@ decision trail:  grep an-000037 output/pdfium/<slug>/debug-*.jsonl
 import json
 from pathlib import Path
 
-STAGE_PREFIX = {"extract": "ex", "assemble": "as", "analyze": "an", "render": "rn"}
+STAGE_PREFIX = {"extract": "ex", "assemble": "as", "analyze": "an",
+                "render": "rn", "remap": "rm"}
 
 
 class DebugLog:

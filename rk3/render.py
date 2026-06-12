@@ -9,7 +9,7 @@ import re
 import shutil
 from pathlib import Path
 
-VERSION = 11
+VERSION = 12
 
 # ; and , are legal in URLs but in print they overwhelmingly join citations,
 # so they terminate a match
@@ -115,8 +115,12 @@ def _render_node(ctx, node, pages, state):
                     if state["ref_seq"].get(n) else "")
             items.append(f'  <li id="fn-{n}" value="{n}" data-rk="{note["rk"]}">'
                          f'{_inline(note["text"], None, None, state)}{back}</li>')
+        # documents that number notes i/ii/iii keep their roman markers
+        roman = all(re.fullmatch(r"[ivxl]+", note.get("marker", "").lower())
+                    for note in node["notes"]) if node["notes"] else False
+        ol = '<ol style="list-style-type: lower-roman">' if roman else "<ol>"
         return (f'<section class="footnotes" {_attrs(node, pages)}>\n'
-                f'<ol>\n' + "\n".join(items) + '\n</ol>\n</section>')
+                f'{ol}\n' + "\n".join(items) + '\n</ol>\n</section>')
     ctx.log.entry("unknown-node", type=t, rk=node.get("rk"))
     return f"<!-- unrendered node type {html.escape(t)} ({node.get('rk')}) -->"
 
