@@ -81,6 +81,11 @@ class FeedbackEntry(BaseModel):
     yf: float | None = None
     qid: str | None = None
     choice: str | None = None
+    # denormalized context captured at click time, so entries stay readable
+    # even if the underlying nid/qid later drifts
+    qKind: str | None = None
+    qPrompt: str | None = None
+    elementText: str | None = None
     # span-level targeting: selected text + char offsets within the node text
     selText: str | None = None
     selStart: int | None = None
