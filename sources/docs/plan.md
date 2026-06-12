@@ -254,6 +254,13 @@ transforms (ordered per-doc list from config) → render.
   editable (HTML-only editor, drag-in variables), per-doc or shared by
   location, and writable by the future config agent. Needs a "raw HTML" IR
   node type carrying data-transform provenance.
+- **Agent-built templates** (user: "game changer"): because templates are
+  pure data, the runtime agent can construct them from a text description —
+  user selects a target (nid/span gives coordinates), describes the
+  transform in the feedback box, agent reads the matched IR nodes, emits
+  the template JSON, render-only re-run shows the result; template stays
+  inspectable/editable. Agent emits data only, never code; suite + snapshot
+  diff bound the blast radius.
 - **Plugins**: Python we write, plugins/<name>.py exporting
   transform(ir, ctx) → ir, referenced from per-doc config (one-doc vs
   shared = same mechanism, different config lists). Examples: CSV-driven
