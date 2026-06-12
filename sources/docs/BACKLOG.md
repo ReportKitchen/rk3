@@ -40,6 +40,8 @@ Also desired: maybe the same issue maybe not. Repeating patterns are common in t
 
 Ex: toolkit p131-132 has the same pattern as 96-97
 
+Another example: all the large tan callouts in Design Principles -- it'd be amazing to select them all and say "take the <strong> subheads plus their following text, and collapse those as accordions."  or "make them go side-by-side (grid or flex) instead." The key is to identify it's a repeating pattern -- in this case *nested* pattern: multiple subhead+txts inside callouts.
+
 
 ## HTML output
 The HTML being shown in the iframe is the debugging version -- the final would eliminate most of the data attributes.  I've found some limited data attributes can help in targeting css at styling time, but that should definitely be a config -- what gets uuid ids added, what gets data attributes added etc.

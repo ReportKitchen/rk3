@@ -313,6 +313,17 @@ transforms (ordered per-doc list from config) → render.
   determinism. Stable nids are the targeting mechanism ("this table here");
   span offsets target sub-element transforms.
 
+## Heuristic boundary values — decided 2026-06-12
+
+They are physics (typography facts), not policy: NOT exposed as config,
+system-wide or per-doc — a per-doc threshold is a hidden one-off patch
+(spaghetti as data). When a heuristic misfires on a document, the lever is
+an OUTCOME override (region/heading/break/ops), which is reviewable and
+durable. When a value proves document-sensitive, the fix is making it
+adaptive — derived from the doc's own distributions (the per-line space
+threshold is the model). Hygiene task queued: consolidate the scattered
+constants into documented per-stage TUNING blocks with rationale.
+
 ## Deferred (recorded so we don't lose them)
 
 - Validating intended vs unintended change during per-doc config tuning:
