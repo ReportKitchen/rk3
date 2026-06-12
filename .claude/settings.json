@@ -3,7 +3,9 @@
     "allow": [
       "Bash(python3 -m venv .venv)",
       "Bash(.venv/bin/pip install *)",
-      "Bash(.venv/bin/pip list *)"
+      "Bash(.venv/bin/pip list *)",
+      "Bash(.venv/bin/python -m rk3 list)",
+      "Bash(/var/www/rk3/.venv/bin/python *)"
     ]
   }
 }

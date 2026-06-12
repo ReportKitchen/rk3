@@ -46,9 +46,11 @@ def output_dir(slug: str) -> Path:
 
 
 def _status(slug: str) -> dict:
+    pages_dir = output_dir(slug) / "pages"
+    n_pages = len(list(pages_dir.glob("page-*.png"))) if pages_dir.is_dir() else 0
     meta_path = output_dir(slug) / "meta.json"
     if not meta_path.exists():
-        return {"status": "unconverted"}
+        return {"status": "unconverted", "pages": n_pages}
     try:
         meta = json.loads(meta_path.read_text())
     except (json.JSONDecodeError, OSError):
@@ -57,4 +59,5 @@ def _status(slug: str) -> dict:
         "status": meta.get("status", "unconverted"),  # in_progress | done | failed
         "error": meta.get("error"),
         "finished": meta.get("finished"),
+        "pages": n_pages,
     }

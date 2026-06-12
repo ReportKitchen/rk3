@@ -18,7 +18,9 @@ import pypdfium2.raw as pdfium_c
 
 from ...pipeline import ScannedPdfError
 
-VERSION = 1
+VERSION = 3
+
+OBJ_PATH, OBJ_IMAGE, OBJ_SHADING = 2, 3, 4
 
 
 def run(ctx):
@@ -34,6 +36,12 @@ def run(ctx):
         pages_out = []
         char_counts = []
 
+        def color_id(rgba) -> int:
+            if rgba not in color_index:
+                color_index[rgba] = len(colors)
+                colors.append(list(rgba))
+            return color_index[rgba]
+
         pages_dir = ctx.outdir / "pages"
         pages_dir.mkdir(exist_ok=True)
         scale = cfg_in.get("pageImageScale", 2)
@@ -46,12 +54,18 @@ def run(ctx):
 
             chars = []
             buf = ctypes.create_string_buffer(512)
+            matrix = pdfium_c.FS_MATRIX()
             for i in range(n_chars):
                 uc = pdfium_c.FPDFText_GetUnicode(tp, i)
                 if uc == 0:
                     continue
                 l, b, r, t = tp.get_charbox(i)
-                size = round(pdfium_c.FPDFText_GetFontSize(tp, i), 2)
+                # nominal font size is often 1.0 with the real size in the text
+                # matrix (InDesign/Quartz), so fold the matrix scale in
+                size = pdfium_c.FPDFText_GetFontSize(tp, i)
+                if pdfium_c.FPDFText_GetMatrix(tp, i, ctypes.byref(matrix)):
+                    size *= (matrix.b ** 2 + matrix.d ** 2) ** 0.5
+                size = round(size, 2)
 
                 flags = ctypes.c_int(0)
                 nlen = pdfium_c.FPDFText_GetFontInfo(
@@ -68,18 +82,16 @@ def run(ctx):
                     tp, i, ctypes.byref(cr), ctypes.byref(cg),
                     ctypes.byref(cb), ctypes.byref(ca))
                 ckey = (cr.value, cg.value, cb.value, ca.value) if ok else (0, 0, 0, 255)
-                if ckey not in color_index:
-                    color_index[ckey] = len(colors)
-                    colors.append(list(ckey))
 
                 chars.append([chr(uc), round(l, 2), round(b, 2), round(r, 2),
-                              round(t, 2), font_index[fkey], size, color_index[ckey]])
+                              round(t, 2), font_index[fkey], size, color_id(ckey)])
 
             pages_out.append({
                 "n": pno + 1,
                 "width": round(page.get_width(), 2),
                 "height": round(page.get_height(), 2),
                 "chars": chars,
+                "objects": _page_objects(page, color_id),
             })
 
             bitmap = page.render(scale=scale)
@@ -103,3 +115,31 @@ def run(ctx):
         })
     finally:
         pdf.close()
+
+
+def _page_objects(page, color_id):
+    """Graphic page objects (paths/images/shadings) for figure & callout
+    detection downstream: [type, l, b, r, t, fillIdx, strokeIdx, filled, stroked]."""
+    objects = []
+    for obj in page.get_objects(max_depth=2):
+        if obj.type not in (OBJ_PATH, OBJ_IMAGE, OBJ_SHADING):
+            continue
+        try:
+            l, b, r, t = obj.get_bounds()
+        except Exception:
+            continue
+        fill = stroke = None
+        filled = stroked = 0
+        if obj.type == OBJ_PATH:
+            c = [ctypes.c_uint() for _ in range(4)]
+            if pdfium_c.FPDFPageObj_GetFillColor(obj.raw, *map(ctypes.byref, c)):
+                fill = color_id(tuple(x.value for x in c))
+            if pdfium_c.FPDFPageObj_GetStrokeColor(obj.raw, *map(ctypes.byref, c)):
+                stroke = color_id(tuple(x.value for x in c))
+            fmode, smode = ctypes.c_int(), ctypes.c_int()
+            if pdfium_c.FPDFPath_GetDrawMode(obj.raw, ctypes.byref(fmode),
+                                             ctypes.byref(smode)):
+                filled, stroked = int(fmode.value != 0), int(smode.value != 0)
+        objects.append([obj.type, round(l, 2), round(b, 2), round(r, 2),
+                        round(t, 2), fill, stroke, filled, stroked])
+    return objects

@@ -1,4 +1,12 @@
-sources
+# source PDFs are large binaries; keep them out of the repo,
+# but do keep the project docs that live under sources/docs
 sources/*
+!sources/docs/
 
-.venv/*
+# generated conversion artifacts (rebuildable from sources + code)
+output/
+
+# python
+.venv/
+__pycache__/
+*.pyc

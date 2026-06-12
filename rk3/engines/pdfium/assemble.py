@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter
 
-VERSION = 1
+VERSION = 4
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -22,7 +22,7 @@ def run(ctx):
     ex = ctx.artifact("extract")
     all_blocks = []
     for page in ex["pages"]:
-        lines = _lines(page["chars"])
+        lines = _merge_baseline_fragments(ctx, _lines(page["chars"]), page["n"])
         blocks = _blocks(lines)
         for blk in blocks:
             blk["page"] = page["n"]
@@ -37,7 +37,8 @@ def run(ctx):
             lines=len(blk["lines"]), text=blk["lines"][0]["text"][:80])
 
     ctx.write_artifact("assemble", {
-        "pages": [{"n": p["n"], "width": p["width"], "height": p["height"]}
+        "pages": [{"n": p["n"], "width": p["width"], "height": p["height"],
+                   "objects": p.get("objects", [])}
                   for p in ex["pages"]],
         "blocks": kept,
         "fonts": ex["fonts"],
@@ -94,6 +95,58 @@ def _finish_line(chars):
         "fontIdx": fonts.most_common(1)[0][0],
         "colorIdx": colors.most_common(1)[0][0],
     }
+
+
+def _merge_baseline_fragments(ctx, lines, page_n):
+    """pdfium sometimes emits one visual line as multiple content runs (out of
+    content order). Merge fragments sharing a baseline that sit horizontally
+    adjacent; the merged line keeps the earlier fragment's position in reading
+    order so multi-column content order is not disturbed."""
+
+    def mid(ln):
+        return (ln["bbox"][1] + ln["bbox"][3]) / 2
+
+    used = [False] * len(lines)
+    out = []
+    for i, ln in enumerate(lines):
+        if used[i]:
+            continue
+        cur = ln
+        changed = True
+        while changed:
+            changed = False
+            for j in range(i + 1, len(lines)):
+                if used[j]:
+                    continue
+                other = lines[j]
+                size = max(cur["size"], other["size"], 1.0)
+                if abs(mid(cur) - mid(other)) > 0.35 * size:
+                    continue
+                left, right = (cur, other) if cur["bbox"][0] <= other["bbox"][0] else (other, cur)
+                gap = right["bbox"][0] - left["bbox"][2]
+                if not (-0.3 * size <= gap <= 1.5 * size):
+                    continue
+                ctx.log.entry("merge-baseline", page=page_n, gap=round(gap, 2),
+                              left=left["text"][-40:], right=right["text"][:40])
+                # space on a visible gap, or on a word-boundary signature
+                # (new fragment starts a capitalized word) even when the gap
+                # is tiny because a space glyph was never emitted
+                joiner = " " if (gap > 0.2 * size or
+                                 (gap > 0.3 and right["text"][:1].isupper())) else ""
+                keep = left if len(left["text"]) >= len(right["text"]) else right
+                cur = {
+                    "text": left["text"] + joiner + right["text"],
+                    "bbox": [min(left["bbox"][0], right["bbox"][0]),
+                             min(left["bbox"][1], right["bbox"][1]),
+                             max(left["bbox"][2], right["bbox"][2]),
+                             max(left["bbox"][3], right["bbox"][3])],
+                    "size": keep["size"], "fontIdx": keep["fontIdx"],
+                    "colorIdx": keep["colorIdx"],
+                }
+                used[j] = True
+                changed = True
+        out.append(cur)
+    return out
 
 
 def _blocks(lines):

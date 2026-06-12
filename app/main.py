@@ -1,5 +1,12 @@
-"""RK3 web app: documents API, async conversion, static viewer + output."""
+"""RK3 web app: documents API, async conversion, static viewer + output.
 
+Conversions run in a subprocess (python -m rk3 convert <slug>), not in-process:
+a heavy or leaky conversion (pdfium bitmaps, PIL crops, large artifacts) must
+not be able to OOM the web server.
+"""
+
+import subprocess
+import sys
 import threading
 from pathlib import Path
 
@@ -7,7 +14,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 
 from rk3.documents import OUTPUT, list_documents, source_for_slug
-from rk3.pipeline import convert
+
+ROOT = Path(__file__).resolve().parent.parent
 
 app = FastAPI(title="RK3")
 
@@ -36,7 +44,11 @@ def start_convert(slug: str, force: bool = False):
 
     def work():
         try:
-            convert(slug, force=force)
+            cmd = [sys.executable, "-m", "rk3", "convert", slug]
+            if force:
+                cmd.append("--force")
+            subprocess.run(cmd, cwd=ROOT, timeout=3600,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         finally:
             with _active_lock:
                 _active.discard(slug)
