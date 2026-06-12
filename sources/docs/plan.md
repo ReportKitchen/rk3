@@ -241,6 +241,30 @@ breaks others, and rule ordering turns into spaghetti without guardrails.
   stage's run(); "does X happen before Y" is always answerable by reading it,
   and decisions log their reasons to the keyed debug logs.
 
+## Templates & plugins — raised 2026-06-12, deferred by design
+
+Both are IR→IR transforms in a stage between analyze and render (the same
+slot reserved for LLM assist). Pipeline shape when built: analyze →
+transforms (ordered per-doc list from config) → render.
+
+- **Templates** (RK2's regex→twig pattern): matcher over IR nodes (type,
+  text regex, href pattern, data-attrs) + extracted variables + an HTML
+  fragment with slots (youtube link → <figure> embed; callouts → modals).
+  Templates are pure data (JSON match-spec + HTML string): front-end
+  editable (HTML-only editor, drag-in variables), per-doc or shared by
+  location, and writable by the future config agent. Needs a "raw HTML" IR
+  node type carrying data-transform provenance.
+- **Plugins**: Python we write, plugins/<name>.py exporting
+  transform(ir, ctx) → ir, referenced from per-doc config (one-doc vs
+  shared = same mechanism, different config lists). Examples: CSV-driven
+  image replacement + attribution captions; nid-targeted Google-Sheets
+  table refresh; chart → interactive d3/chartjs embed.
+- Decisions to honor when building: plugin file content hash joins the
+  stage fingerprint (editing a plugin busts the cache); network-touching
+  plugins are impure — declared TTL or always-rerun, never fake
+  determinism. Stable nids are the targeting mechanism ("this table here");
+  span offsets target sub-element transforms.
+
 ## Deferred (recorded so we don't lose them)
 
 - Validating intended vs unintended change during per-doc config tuning:

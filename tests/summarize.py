@@ -15,6 +15,8 @@ def node_texts(nodes):
         if n.get("text"):
             yield n["text"]
         yield from n.get("items", [])
+        for row in n.get("rows", []):
+            yield from (c for c in row if c)
         for c in n.get("children", []):
             if c.get("text"):
                 yield c["text"]

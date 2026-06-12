@@ -9,7 +9,7 @@ import re
 import shutil
 from pathlib import Path
 
-VERSION = 13
+VERSION = 14
 
 # ; and , are legal in URLs but in print they overwhelmingly join citations,
 # so they terminate a match
@@ -102,6 +102,20 @@ def _render_node(ctx, node, pages, state):
         return (f'<figure {_attrs(node, pages)}>\n'
                 f'  <img src="{node["src"]}" alt="{html.escape(node["alt"], quote=True)}"'
                 f' width="{node["width"]}">{cap}\n</figure>')
+    if t == "table":
+        rows = node["rows"]
+        head = ""
+        body_rows = rows
+        if node.get("header") and len(rows) > 1:
+            head = ("<thead><tr>"
+                    + "".join(f"<th>{html.escape(c)}</th>" for c in rows[0])
+                    + "</tr></thead>\n")
+            body_rows = rows[1:]
+        body = "\n".join(
+            "  <tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in r) + "</tr>"
+            for r in body_rows)
+        return (f'<figure class="table" {_attrs(node, pages)}>\n<table>\n'
+                f'{head}<tbody>\n{body}\n</tbody>\n</table>\n</figure>')
     if t == "aside":
         children = "\n".join(_render_node(ctx, c, pages, state)
                              for c in node["children"])

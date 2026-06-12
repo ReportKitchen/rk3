@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 17
+VERSION = 18
 
 ROMAN = {}
 for _n, _r in enumerate(
@@ -150,10 +150,11 @@ def run(ctx):
                     fig_count += 1
                     node = _figure_node(ctx, ref, pages, fig_count)
                 else:
-                    node = _aside_node(ctx, ref, blocks, rich, fonts,
-                                       body_size, roles)
+                    node = (_try_table(ctx, ref, blocks, texts, pages)
+                            or _aside_node(ctx, ref, blocks, rich, fonts,
+                                           body_size, roles))
                 nodes.append(node)
-                if ref.get("uncertain"):
+                if ref.get("uncertain") and node["type"] != "table":
                     prompt = (
                         "This region is currently a cropped figure image, but it "
                         "contains a lot of text. Make it a callout with real, "
@@ -532,6 +533,75 @@ def _crop(ctx, reg, page, fig_count):
     crop = img.crop(box)
     crop.save(ctx.outdir / name)
     return name, crop.width, crop.height
+
+
+def _try_table(ctx, reg, blocks, texts, pages):
+    """A boxed region whose grid is literally drawn (ruled lines) and whose
+    blocks cluster into columns is a table, not a callout."""
+    idx = reg["blockIdx"]
+    if len(idx) < 4 or reg.get("endPage"):
+        return None
+    page = pages[reg["page"]]
+    l0, b0, r0, t0 = reg["bbox"]
+    hl = vl = 0
+    for o in page.get("objects", []):
+        if o[0] != OBJ_PATH:
+            continue
+        l, b, r, t = o[1:5]
+        if l < l0 - 5 or r > r0 + 5 or b < b0 - 5 or t > t0 + 5:
+            continue
+        if t - b < 3 and r - l > 30:
+            hl += 1
+        elif r - l < 3 and t - b > 10:
+            vl += 1
+    if hl < 3 or vl < 2:
+        return None
+
+    # columns by block center-x
+    by_cx = sorted(idx, key=lambda i: (blocks[i]["bbox"][0] + blocks[i]["bbox"][2]) / 2)
+    col_of = {}
+    col = -1
+    prev_cx = None
+    for i in by_cx:
+        cx = (blocks[i]["bbox"][0] + blocks[i]["bbox"][2]) / 2
+        if prev_cx is None or cx - prev_cx > 50:
+            col += 1
+        col_of[i] = col
+        prev_cx = cx
+    n_cols = col + 1
+    if n_cols < 2:
+        return None
+
+    # rows by vertical-interval grouping (top-down)
+    rows_idx = []
+    for i in sorted(idx, key=lambda i: -blocks[i]["bbox"][3]):
+        b, t = blocks[i]["bbox"][1], blocks[i]["bbox"][3]
+        if rows_idx and t > rows_idx[-1]["min_b"]:
+            rows_idx[-1]["cells"].append(i)
+            rows_idx[-1]["min_b"] = min(rows_idx[-1]["min_b"], b)
+        else:
+            rows_idx.append({"cells": [i], "min_b": b})
+
+    rows = []
+    for row in rows_idx:
+        cells = [""] * n_cols
+        for i in row["cells"]:
+            c = col_of[i]
+            cells[c] = (cells[c] + " " + texts[i]).strip()
+        rows.append(cells)
+    if len(rows) < 2:
+        return None
+
+    header = all(c.strip() for c in rows[0])
+    rk = ctx.log.entry("table", page=reg["page"], bbox=[round(v, 1) for v in reg["bbox"]],
+                       cols=n_cols, rows=len(rows), header=header,
+                       hlines=hl, vlines=vl, region=reg["rk"])
+    node = {"type": "table", "rows": rows, "header": header,
+            "page": reg["page"], "bbox": reg["bbox"], "rk": rk,
+            "data": {"region": reg["rk"]}}
+    node["nid"] = _stable_id("n", ctx.nids, "table", reg["page"], reg["bbox"],
+                             " ".join(rows[0]))
+    return node
 
 
 def _aside_node(ctx, reg, blocks, rich, fonts, body_size, roles):

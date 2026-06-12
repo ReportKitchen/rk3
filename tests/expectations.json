@@ -34,7 +34,9 @@
     "headings_include": [[2, "Baystate Health"]],
     "headings_exclude": [[3, "KEY STRATEGIES"]],
     "text_not_contains": ["BAYSTATE HEALTH | CASE STUDY"],
-    "aside_first_child_starts": [[1, "KEY STRATEGIES"], [2, "KEY STRATEGIES"]]
+    "aside_first_child_starts": [[1, "KEY STRATEGIES"], [2, "KEY STRATEGIES"]],
+    "counts": {"table": 1},
+    "text_contains": ["Apprenticeships Programs"]
   },
   "02--toolkit-hiring2022-copy112222onlineversiononly-1": {
     "headings_include": [[1, "Key Terms"], [1, "University Hospitals"]],
