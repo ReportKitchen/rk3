@@ -31,10 +31,37 @@ const MARKER_CSS = `
 export default function DocumentView({
   doc, toggles, questions, answers, feedback, pageDims, onConvert, onAnnotate,
   onQuestion, scrollToNid, onScrolledToNid, highlightNid,
+  docVersion = 0, flashNid = null,
 }) {
   const iframeRef = useRef(null);
   const pdfPaneRef = useRef(null);
   const [frameLoaded, setFrameLoaded] = useState(false);
+  const savedScroll = useRef(null);
+  const prevVersion = useRef(docVersion);
+
+  // an applied edit reloads only the iframe (?v= cache-buster); capture the
+  // reading position first so the user stays exactly where they were
+  if (docVersion !== prevVersion.current) {
+    prevVersion.current = docVersion;
+    const win = iframeRef.current?.contentWindow;
+    savedScroll.current = { y: win ? win.scrollY : 0 };
+    setFrameLoaded(false);  // render-phase reset: effects rebind on new load
+  }
+
+  useEffect(() => {
+    if (!frameLoaded || !savedScroll.current) return;
+    const win = iframeRef.current?.contentWindow;
+    const idoc = iframeRef.current?.contentDocument;
+    if (win) win.scrollTo(0, savedScroll.current.y);
+    savedScroll.current = null;
+    if (flashNid && idoc) {
+      const el = idoc.querySelector(`[data-nid="${flashNid}"]`);
+      if (el) {
+        el.classList.add("rk-flash");
+        setTimeout(() => el.classList.remove("rk-flash"), 1500);
+      }
+    }
+  }, [frameLoaded, flashNid]);
 
   // refs so iframe-side handlers never see stale state
   const stateRef = useRef({});
@@ -272,7 +299,7 @@ export default function DocumentView({
         <iframe
           title={doc.name}
           ref={iframeRef}
-          src={docUrl(doc.slug)}
+          src={docUrl(doc.slug) + (docVersion ? `?v=${docVersion}` : "")}
           onLoad={() => setFrameLoaded(true)}
         />
         {pdfPane}

@@ -24,6 +24,7 @@ export default function App() {
   const [feedback, setFeedback] = useState([]);
   const [ops, setOps] = useState([]);
   const [docVersion, setDocVersion] = useState(0);
+  const [flashNid, setFlashNid] = useState(null);
   // popover: { pos: {x, y}, target: {...}, question? }
   const [popover, setPopover] = useState(null);
   const [scrollToNid, setScrollToNid] = useState(null);
@@ -53,7 +54,8 @@ export default function App() {
     }
   }, [doc?.slug, doc?.status, docVersion]);
 
-  // apply an edit op: server reconverts (render-only); poll, then reload
+  // apply an edit op: server reconverts (render-only); poll, then reload the
+  // iframe in place (scroll preserved, edited element flashed)
   const applyOp = useCallback(async (op) => {
     if (op.remove) await deleteOp(selected, op.op, op.nid);
     else await postOp(selected, op);
@@ -64,6 +66,7 @@ export default function App() {
       const d = docs2.find((x) => x.slug === selected);
       if (d && d.status !== "in_progress") { setDocs(docs2); break; }
     }
+    setFlashNid(op.remove || op.op === "delete" ? null : op.nid);
     setDocVersion((v) => v + 1);
   }, [selected]);
 
@@ -132,7 +135,9 @@ export default function App() {
         <div id="content">
           {doc ? (
             <DocumentView
-              key={doc.slug + ":" + docVersion}
+              key={doc.slug}
+              docVersion={docVersion}
+              flashNid={flashNid}
               doc={doc}
               toggles={toggles}
               questions={questions}

@@ -40,3 +40,9 @@ When it comes to naming classes, we probably want sane defaults + config, so the
 
 ## Amazing UI touch
 Let the user drag the feedback box around by the titlebar.  Let them also, once the popup is open, select-drag text to add as evidence to the already-open popup.
+
+## Comments
+I'd like to let the user drop comments into the text, that don't require any processing on our end. Example is "remember to ask alex is this number is right." Then we want a workflow similar to the feedback -- see a list of them, click to jump, edit, delete.  longterm: assign to another user and track completion status.
+
+# Edit ops
+Once an edit has been made, I'd like a toggle to show or hide completed/closed edit bubbles in the text.
