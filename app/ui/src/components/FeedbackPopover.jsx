@@ -49,7 +49,12 @@ export default function FeedbackPopover({ popover, onSubmit, onDelete, onClose }
             </div>
           </>
         ) : (
-          <p className="q-prompt">{existing ? `Edit your note on ${where}` : `Feedback on ${where}`}</p>
+          <>
+            <p className="q-prompt">{existing ? `Edit your note on ${where}` : `Feedback on ${where}`}</p>
+            {target.selText && (
+              <blockquote className="sel-quote">“{target.selText.slice(0, 120)}”</blockquote>
+            )}
+          </>
         )}
         <textarea
           autoFocus

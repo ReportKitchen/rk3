@@ -42,6 +42,7 @@ export default function QuestionsPanel({
                   <span className="jump-placeholder">p{c.page ?? "?"}</span>
                 )}
                 <div className="q-body">
+                  {c.selText && <blockquote className="sel-quote">“{c.selText.slice(0, 80)}”</blockquote>}
                   <p>{c.text}</p>
                   {c.status === "resolved" && (
                     <>

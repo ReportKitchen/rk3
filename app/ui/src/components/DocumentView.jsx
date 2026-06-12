@@ -77,9 +77,28 @@ export default function DocumentView({
       e.stopPropagation();
       const el = e.target.closest("[data-nid],[data-rk]");
       const rect = iframeRef.current.getBoundingClientRect();
+      const target = el
+        ? { nid: el.dataset.nid, rk: el.dataset.rk, page: +el.dataset.page || null }
+        : { page: null };
+      // drag-selected text narrows the note to a span within the element;
+      // offsets are relative to the node's text (viewer markers excluded)
+      const sel = idoc.getSelection();
+      if (el && sel && !sel.isCollapsed && el.contains(sel.anchorNode)) {
+        const range = sel.getRangeAt(0);
+        const pre = idoc.createRange();
+        pre.selectNodeContents(el);
+        pre.setEnd(range.startContainer, range.startOffset);
+        let start = pre.toString().length;
+        for (const m of el.querySelectorAll(".rk-qmark,.rk-fbmark")) {
+          if (pre.intersectsNode(m)) start -= m.textContent.length;
+        }
+        const text = sel.toString();
+        target.selText = text.slice(0, 300);
+        target.selStart = Math.max(0, start);
+        target.selEnd = Math.max(0, start) + text.length;
+      }
       s.onAnnotate(
-        el ? { nid: el.dataset.nid, rk: el.dataset.rk, page: +el.dataset.page || null }
-           : { page: null },
+        target,
         { x: rect.left + e.clientX, y: rect.top + e.clientY },
         el ? findExisting(el.dataset.nid, el.dataset.rk) : null,
       );

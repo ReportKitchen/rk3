@@ -36,6 +36,15 @@ def _features(ir):
     return feats
 
 
+def _texts(ir):
+    out = {}
+    for n in ir.get("body", []):
+        for node in [n, *n.get("children", [])]:
+            if node.get("nid"):
+                out[node["nid"]] = node.get("text") or ""
+    return out
+
+
 def _match(old_feat, new_feats, taken):
     otype, opage, otext, obbox = old_feat
     cands = [(nid, f) for nid, f in new_feats.items()
@@ -97,6 +106,17 @@ def remap_feedback(slug, old_ir, new_ir, log):
             elif not rec.get("orphaned"):
                 log.entry("orphan", nid=nid, note=(rec.get("text") or "")[:50])
                 rec["orphaned"] = True
+                changed = True
+
+        # span notes: re-locate the selected text inside the (possibly new)
+        # node text; the quote itself stays as the human-readable fallback
+        if rec.get("selText") and rec.get("nid"):
+            new_text = _texts(new_ir).get(rec["nid"], "")
+            pos = new_text.find(rec["selText"])
+            if pos >= 0 and pos != rec.get("selStart"):
+                log.entry("remap-sel", nid=rec["nid"], old=rec.get("selStart"),
+                          new=pos)
+                rec["selStart"], rec["selEnd"] = pos, pos + len(rec["selText"])
                 changed = True
 
         qid = rec.get("qid")

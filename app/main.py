@@ -77,6 +77,10 @@ class FeedbackEntry(BaseModel):
     yf: float | None = None
     qid: str | None = None
     choice: str | None = None
+    # span-level targeting: selected text + char offsets within the node text
+    selText: str | None = None
+    selStart: int | None = None
+    selEnd: int | None = None
     id: str | None = None  # present => update that entry instead of appending
 
 

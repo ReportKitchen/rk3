@@ -9,7 +9,7 @@ import re
 import shutil
 from pathlib import Path
 
-VERSION = 12
+VERSION = 13
 
 # ; and , are legal in URLs but in print they overwhelmingly join citations,
 # so they terminate a match
@@ -161,10 +161,12 @@ def _inline(text, links, refs, state):
         elif payload in state["fn_nums"]:
             k = state["ref_seq"].get(payload, 0) + 1
             state["ref_seq"][payload] = k
+            # spaces inside a marker are run-split artifacts ("i i" is ii)
+            marker = seg.replace(" ", "")
             out.append(f'<sup class="fnref" id="fnref-{payload}-{k}">'
-                       f'<a href="#fn-{payload}">{seg}</a></sup>')
+                       f'<a href="#fn-{payload}">{marker}</a></sup>')
         else:
-            out.append(f"<sup>{seg}</sup>")
+            out.append(f"<sup>{seg.replace(' ', '')}</sup>")
         pos = e
     out.append(html.escape(text[pos:]))
     return "".join(out)
