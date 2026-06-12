@@ -110,7 +110,7 @@
       72,
       73
     ],
-    "questions": 0,
+    "questions": 1,
     "textChars": 59581
   },
   "01--sample-content-penguin": {
@@ -480,16 +480,16 @@
       ]
     ],
     "counts": {
-      "aside": 2,
-      "figure": 33,
+      "aside": 3,
+      "figure": 32,
       "heading": 40,
       "list": 2,
       "paragraph": 215
     },
-    "asideChildren": 4,
+    "asideChildren": 6,
     "notes": [],
-    "questions": 50,
-    "textChars": 43116
+    "questions": 58,
+    "textChars": 43438
   },
   "02--jhu-federal-register-comments-pharma-investigation": {
     "status": "done",
@@ -1032,7 +1032,7 @@
     },
     "asideChildren": 147,
     "notes": [],
-    "questions": 42,
+    "questions": 49,
     "textChars": 279063
   },
   "03--enterprise-annual-report-2022": {
@@ -1160,7 +1160,7 @@
     },
     "asideChildren": 21,
     "notes": [],
-    "questions": 19,
+    "questions": 20,
     "textChars": 14328
   }
 }

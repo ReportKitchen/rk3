@@ -9,7 +9,7 @@ import re
 import shutil
 from pathlib import Path
 
-VERSION = 14
+VERSION = 15
 
 # ; and , are legal in URLs but in print they overwhelmingly join citations,
 # so they terminate a match
@@ -92,7 +92,8 @@ def _render_node(ctx, node, pages, state):
         items = "\n".join(f"  <li>{html.escape(i)}</li>" for i in node["items"])
         return f'<ul {_attrs(node, pages)}>\n{items}\n</ul>'
     if t == "paragraph":
-        body = _inline(node["text"], node.get("links"), node.get("refs"), state)
+        body = _inline(node["text"], node.get("links"), node.get("refs"), state,
+                       breaks=node.get("breaks"))
         if node.get("strong"):
             body = f"<strong>{body}</strong>"
         return f'<p {_attrs(node, pages)}>{body}</p>'
@@ -139,11 +140,14 @@ def _render_node(ctx, node, pages, state):
     return f"<!-- unrendered node type {html.escape(t)} ({node.get('rk')}) -->"
 
 
-def _inline(text, links, refs, state):
+def _inline(text, links, refs, state, breaks=None):
     """Escape text while wrapping link ranges in <a> and footnote-reference
-    ranges in <sup><a>. Overlapping ranges: first (by start) wins."""
+    ranges in <sup><a>. Overlapping ranges: first (by start) wins. `breaks`
+    are offsets of join-spaces that render as <br> (intentional hard
+    returns)."""
     events = [(s, e, "link", target) for s, e, target in (links or [])]
     events += [(s, e, "ref", n) for s, e, n in (refs or [])]
+    events += [(s, s + 1, "br", None) for s in (breaks or [])]
     if state.get("autolink"):
         events += _autolink_events(text, events)
     # superscript numbers often carry their own link annotation pointing at the
@@ -158,6 +162,10 @@ def _inline(text, links, refs, state):
             continue
         out.append(html.escape(text[pos:s]))
         seg = html.escape(text[s:e])
+        if kind == "br":
+            out.append("<br>\n")
+            pos = e
+            continue
         if kind == "link":
             uri = payload.get("uri")
             if payload.get("styled"):

@@ -11,6 +11,11 @@ export function setupSync(win, doc, pdfPane, isEnabled) {
   const imgs = pdfPane.querySelectorAll("img[data-page]");
   for (const img of imgs) img.addEventListener("load", markDirty);
   window.addEventListener("resize", markDirty);
+  // panel open/close and other layout shifts reflow the panes without a
+  // window resize; observe the actual boxes
+  const ro = new ResizeObserver(markDirty);
+  if (doc.body) ro.observe(doc.body);
+  ro.observe(pdfPane);
 
   function buildAnchors() {
     // viewport-rect based positions: robust against wrapper nesting
@@ -80,6 +85,7 @@ export function setupSync(win, doc, pdfPane, isEnabled) {
     win.removeEventListener("scroll", onWinScroll);
     pdfPane.removeEventListener("scroll", onPdfScroll);
     window.removeEventListener("resize", markDirty);
+    ro.disconnect();
     for (const img of imgs) img.removeEventListener("load", markDirty);
   };
 }

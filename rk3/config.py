@@ -17,6 +17,9 @@ DEFAULTS = {
         "calloutHints": [],           # future
         "footnotePlacement": "end",   # v1: always end of document
         "dropToc": True,
+        # answers to figure-or-callout questions, applied on re-run:
+        # [{"page": n, "bbox": [l,b,r,t], "kind": "figure"|"callout"}]
+        "regionOverrides": [],
     },
     "output": {
         "imageScale": 2,

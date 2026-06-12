@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 18
+VERSION = 20
 
 ROMAN = {}
 for _n, _r in enumerate(
@@ -257,6 +257,13 @@ def _too_big(bbox, w, h):
     return (bbox[2] - bbox[0]) * (bbox[3] - bbox[1]) > 0.9 * w * h
 
 
+def _overlap_frac(a, b):
+    ix = max(0, min(a[2], b[2]) - max(a[0], b[0]))
+    iy = max(0, min(a[3], b[3]) - max(a[1], b[1]))
+    area_a = max((a[2] - a[0]) * (a[3] - a[1]), 1.0)
+    return (ix * iy) / area_a
+
+
 def _okey(page_n, o):
     return (round(o[OL]), round(o[OB]), round(o[OR_]), round(o[OTOP]))
 
@@ -331,6 +338,18 @@ def _classify_cluster(ctx, page, cluster, blocks, texts, body_size, top_size=Non
     graphic = n_images >= 1 or n_shade >= 1 or n_paths >= 6
     boxed = 1 <= n_paths <= 5 and any(
         o[OT] == OBJ_PATH and (o[7] or o[8]) for o in cluster["objs"])
+
+    # user answers (region overrides from config) trump every heuristic
+    for ov in ctx.cfg["structure"].get("regionOverrides", []):
+        if ov.get("page") == page["n"] and _overlap_frac(bbox, ov["bbox"]) > 0.5:
+            kind = ov["kind"]
+            rk = ctx.log.entry(kind, page=page["n"],
+                               bbox=[round(v, 1) for v in bbox],
+                               reason="config regionOverride (user answer)")
+            absorbed_idx = (inside if kind == "figure"
+                            else sorted(inside + big_inside))
+            return {"kind": kind, "page": page["n"], "bbox": bbox, "rk": rk,
+                    "uncertain": False, "blockIdx": absorbed_idx}
 
     # the document's largest text (its title, on the cover) never belongs
     # inside a callout; a band/frame around it is page decoration, not an
@@ -497,7 +516,28 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         node["refs"] = refs
     if rich.get("links"):
         node["links"] = rich["links"]
+    if _hard_returns(blk) and rich.get("lineJoins"):
+        node["breaks"] = rich["lineJoins"]
+        ctx.log.entry("hard-returns", page=blk["page"], block=blk["rk"],
+                      lines=len(blk["lines"]),
+                      reason="2+ interior lines end with terminal punctuation")
+        _question(ctx, "hard-returns", node,
+                  f"“{text[:60]}…” looks like intentional one-per-line text "
+                  "(credits, addresses). Keep the line breaks, or flow it as "
+                  "one paragraph?",
+                  ["line breaks", "flowing paragraph"], "line breaks")
     return node
+
+
+def _hard_returns(blk):
+    """Sentence-per-line blocks (credits, colophons): wrapped prose almost
+    never has two interior lines ending in terminal punctuation."""
+    lines = blk["lines"]
+    if len(lines) < 3:
+        return False
+    interior = lines[:-1]
+    terminal = sum(1 for l in interior if l["text"].rstrip()[-1:] in ".!?:")
+    return terminal >= 2 and terminal >= 0.6 * len(interior)
 
 
 def _figure_node(ctx, reg, pages, fig_count):
@@ -761,6 +801,7 @@ def _join_block(ctx, blk, link_colors=()):
     Returns {"text", "sups": [[s,e]], "links": [[s,e,target]]}."""
     out = ""
     sups, links = [], []
+    line_joins = []  # offsets of the spaces where source lines were joined
     for l in blk["lines"]:
         t = l["text"]
         if out.endswith("-") and t[:1].islower():
@@ -769,6 +810,7 @@ def _join_block(ctx, blk, link_colors=()):
             base = len(out) - 1
             out = out[:-1] + t
         elif out:
+            line_joins.append(len(out))
             base = len(out) + 1
             out += " " + t
         else:
@@ -788,7 +830,7 @@ def _join_block(ctx, blk, link_colors=()):
         for s, e in styled:
             if not any(s < re_ and rs < e for rs, re_, _t in real):
                 links.append([s, e, {"styled": True}])
-    return {"text": out, "sups": sups, "links": links}
+    return {"text": out, "sups": sups, "links": links, "lineJoins": line_joins}
 
 
 def _link_colors(ctx, blocks):
