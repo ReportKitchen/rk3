@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 50
+VERSION = 53
 
 
 def _font_emphasis(name, weight, base_name):
@@ -821,7 +821,12 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
                 kicker_level=0):
     text = rich["text"]
     size = _dominant_size(blk)
-    font = fonts[blk["lines"][0]["fontIdx"]]
+    font_votes = Counter()
+    for l in blk["lines"]:
+        font_votes[l["fontIdx"]] += len(l["text"])
+    # char-weighted dominant, NOT the first line: a styled lead-in line
+    # must not paint the whole paragraph (soft headers)
+    font = fonts[font_votes.most_common(1)[0][0]]
     prov = {"font": font["name"], "weight": font["weight"], "size": size}
     color_votes = Counter()
     for l in blk["lines"]:
@@ -947,6 +952,23 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         if brk_ov.get("breaks") and rich.get("lineJoins"):
             node["breaks"] = _wrap_joins(text, rich["lineJoins"])
         return node
+    lead = _soft_header(ctx, blk, rich)
+    if lead:
+        node["lead"] = lead
+        l0 = blk["lines"][0]
+        prov["leadFont"] = fonts[l0["fontIdx"]]["name"]
+        prov["leadColor"] = _hex(ctx.colors[l0["colorIdx"]])
+        breaks = node.get("breaks") or []
+        if lead not in breaks:
+            node["breaks"] = sorted([*breaks, lead])
+        # the lead outranks any styled-link span inferred over it
+        if node.get("links"):
+            node["links"] = [l for l in node["links"]
+                             if not (l[0] < lead and l[2].get("styled"))]
+            if not node["links"]:
+                del node["links"]
+        ctx.log.entry("soft-header", page=blk["page"], block=blk["rk"],
+                      lead=text[:lead][:50])
     if blk.get("pitch") and not _hard_returns(blk):
         # typed line breaks, joined by the page's line pitch; the
         # document-level typed-lines question owns presentation here.
@@ -1150,6 +1172,38 @@ def _name_emphasis(node, text):
         s, e = segs[k - 1]
         emph.append([s, e, "strong"])
     emph.sort()
+
+
+def _soft_header(ctx, blk, rich):
+    """Run-in 'soft header': the block's first line, entirely in a style the
+    rest of the block doesn't share (blue italic 'Gender'), short, no
+    terminal punctuation. Too local to be a real heading - it renders as
+    <b class="soft-header"> with a line break after it, original styling
+    restored by layer 3. Returns the lead's end offset or None."""
+    lines = blk["lines"]
+    joins = rich.get("lineJoins") or []
+    if len(lines) < 2 or not joins:
+        return None
+    l0 = lines[0]
+    t0 = l0["text"].strip()
+    if not (0 < len(t0) <= 45) or t0[-1:] in ".!?:;,":
+        return None
+    if t0[0] in BULLETS or t0[0] in "“\"‘'":
+        return None  # bullet items and opening quotes are not labels
+    rest_fonts = {l["fontIdx"] for l in lines[1:]}
+    rest_colors = {l["colorIdx"] for l in lines[1:]}
+    if l0["fontIdx"] in rest_fonts and l0["colorIdx"] in rest_colors:
+        return None
+    if len(rest_fonts) > 2:
+        return None  # mixed body: no confidence in "distinct" lead
+    e = joins[0]
+    # a lead with a REAL link annotation is a link; the styled-link
+    # inference (link-colored text without a target) loses to the
+    # soft-header shape - blue labels are labels
+    if any(s < e and not t.get("styled")
+           for s, _e, t in rich.get("links", [])):
+        return None
+    return e
 
 
 def _wrap_joins(text, joins):

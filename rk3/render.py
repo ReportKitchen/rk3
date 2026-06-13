@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 36
+VERSION = 37
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -255,9 +255,17 @@ def _render_node(ctx, node, pages, state):
         items = "\n".join(parts)
         return f'<{tag} {_attrs(node, pages, extra or None)}>\n{items}\n</{tag}>'
     if t == "paragraph":
+        lead = node.get("lead")
+        emph = node.get("emph")
+        marks = node.get("marks")
+        if lead:
+            # the lead's own styling comes from layer-3 .soft-header rules;
+            # inline runs inside it would collide with the lead event
+            emph = [r for r in (emph or []) if r[0] >= lead]
+            marks = [r for r in (marks or []) if r[0] >= lead]
         body = _inline(node["text"], node.get("links"), node.get("refs"), state,
-                       breaks=node.get("breaks"), emph=node.get("emph"),
-                       marks=node.get("marks"))
+                       breaks=node.get("breaks"), emph=emph,
+                       marks=marks, lead=lead)
         if node.get("strong"):
             body = f"<strong>{body}</strong>"
         if node.get("quoteOpen"):
@@ -344,7 +352,8 @@ def _render_node(ctx, node, pages, state):
     return f"<!-- unrendered node type {html.escape(t)} ({node.get('rk')}) -->"
 
 
-def _inline(text, links, refs, state, breaks=None, emph=None, marks=None):
+def _inline(text, links, refs, state, breaks=None, emph=None, marks=None,
+            lead=None):
     """Escape text while wrapping link ranges in <a>, footnote-reference
     ranges in <sup><a>, emphasis runs in <strong>/<em>, and text highlights
     in <mark>. Overlapping ranges: first (by start) wins — links and refs
@@ -363,6 +372,8 @@ def _inline(text, links, refs, state, breaks=None, emph=None, marks=None):
     events += [(s, e, kind, None) for s, e, kind in (emph or [])
                if kind in ("strong", "em")]
     events += [(s, e, "mark", color) for s, e, color in (marks or [])]
+    if lead:
+        events += [(0, lead, "lead", None)]
     if state.get("autolink"):
         events += _autolink_events(text, events)
     # superscript numbers often carry their own link annotation pointing at the
@@ -391,6 +402,11 @@ def _inline(text, links, refs, state, breaks=None, emph=None, marks=None):
             style = f' style="background: {payload}"' \
                 if payload not in ("#ffff00", "#ffff66") else ""
             out.append(f"<mark{style}>{seg}</mark>")
+            pos = e
+            continue
+        if kind == "lead":
+            # run-in soft header: a keyword lead-in, not a document heading
+            out.append(f'<b class="soft-header">{seg}</b>')
             pos = e
             continue
         if kind == "link":
@@ -648,6 +664,7 @@ def _original_css(ctx, ir):
     groups = {}
     group_order = []
     link_exceptions = {}  # color -> [nid]: link paragraphs off the a-rule
+    lead_groups = {}      # rules tuple -> [nid]: soft-header lead styling
 
     def feed_exception(n):
         if n["type"] != "paragraph" and n.get("dl") != "dt":
@@ -687,6 +704,22 @@ def _original_css(ctx, ir):
             if key not in groups:
                 group_order.append(key)
             groups.setdefault(key, []).append(n["nid"])
+        if d.get("leadFont") or d.get("leadColor"):
+            lrules = []
+            if d.get("leadFont"):
+                fam, generic, weight, style = _font_css(d["leadFont"])
+                if fam and fam != body_fam:
+                    lrules.append(f"  font-family: \"{fam}\", {generic};")
+                    note_family(fam, weight, style)
+                if weight:
+                    lrules.append(f"  font-weight: {weight};")
+                if style:
+                    lrules.append(f"  font-style: {style};")
+            lc = _usable_color(d.get("leadColor"))
+            if lc and lc != body["color"]:
+                lrules.append(f"  color: {lc};")
+            if lrules:
+                lead_groups.setdefault(tuple(lrules), []).append(n["nid"])
 
     def feed_all(nodes):
         for n in nodes:
@@ -711,6 +744,11 @@ def _original_css(ctx, ir):
 
     for key in group_order:
         sel = ",\n".join(f'[data-nid="{nid}"]' for nid in groups[key])
+        out += [f"{sel} {{", *key, "}", ""]
+
+    for key in sorted(lead_groups):
+        sel = ",\n".join(f'[data-nid="{nid}"] .soft-header'
+                         for nid in lead_groups[key])
         out += [f"{sel} {{", *key, "}", ""]
 
     # callout boxes keep their original fill/border and (when narrower than
