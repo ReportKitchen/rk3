@@ -315,6 +315,11 @@ transforms (ordered per-doc list from config) → render.
 
 ## Pattern recognition via style signatures — designed 2026-06-12
 
+Test case (added during batch E): toolkit p134-135 W-pattern — "What?"
+rendered much larger inside a blue label, "Why" label left with a 2-line
+text block right, repeated per example. Needs sub-element size runs +
+repeating-pattern recognition (note 82cecd6a).
+
 The general answer to "the author bolded the same thing 18 times" (RK1 did
 this with hand-written per-doc XPath): a node/run's **signature** is its
 bucketed provenance tuple (font, weight, size, color, role, indent,

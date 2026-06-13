@@ -23,6 +23,11 @@ Feedback files remain the source of truth; this is just the working order.
 
 ## D. Styling batch — DONE (grouped style exceptions, Google Fonts, lavish
 ## tables, floats, <mark> highlights, alignment, indent questions)
+
+## E. Structural batch — DONE (whole-line emph, paren wraps, name <strong>,
+## ◊/» lists + local-toc <nav>, <dl> glossaries, stream-order y-sort,
+## cross-page OL continuation, contact-card loosening, region dissolve,
+## 4-side borders, display-size colon headings)
 - colored headings not picking up their colors (×3 spots)
 - Google Fonts: check if the doc's font exists there, load it (user: covers 80%+)
 - Patricia pull-quote: floated, colored text, no box (pull-quote style variant)

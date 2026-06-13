@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 43
+VERSION = 45
 
 
 def _font_emphasis(name, weight, base_name):
@@ -94,7 +94,7 @@ def _marker_value(raw):
         return int(raw)
     return ROMAN.get(raw.lower())
 
-BULLETS = "•◦▪‣–—-*·§"
+BULLETS = "•◦▪‣–—-*·§◊♦►▸✦➤"
 OBJ_PATH, OBJ_IMAGE, OBJ_SHADING = 2, 3, 4
 # objects: [type, l, b, r, t, fillIdx, strokeIdx, filled, stroked]
 OT, OL, OB, OR_, OTOP = range(5)
@@ -229,6 +229,12 @@ def run(ctx):
             page_items[page_n] = _flow_order(items, bboxes, split)
             twocol_pages.add(page_n)
             ctx.log.entry("two-column", page=page_n, split=round(split, 1))
+        else:
+            # designers draw display text last in the content stream (page
+            # titles, ledes), landing it after the body; visual order is
+            # top-down. Quantized so side-by-side items keep stream order.
+            page_items[page_n].sort(
+                key=lambda it: -int(item_bbox(it)[3] // 6))
 
     deepest = max([*tag_levels.values(), *levels.values(), 0])
     kicker_level = min(deepest + 1, 6) if deepest else 0
@@ -307,6 +313,9 @@ def run(ctx):
     # sentences interrupted by page breaks happen in the main flow too,
     # not just inside callouts
     nodes = _join_pagebreak_sentences(ctx, nodes)
+    nodes = _merge_crosspage_lists(ctx, nodes)
+    nodes = _marker_lists(ctx, nodes)
+    nodes = _definition_lists(ctx, nodes)
     nodes = _floating_pullquotes(ctx, nodes, body_size)
     nodes = _aside_layout_and_pullquotes(ctx, nodes, twocol_pages)
     _indents(ctx, nodes)
@@ -544,6 +553,13 @@ def _classify_cluster(ctx, page, cluster, blocks, texts, body_size, top_size=Non
     for ov in ctx.cfg["structure"].get("regionOverrides", []):
         if ov.get("page") == page["n"] and _overlap_frac(bbox, ov["bbox"]) > 0.5:
             kind = ov["kind"]
+            if kind == "text":
+                # dissolve: the box is page decoration, its text is ordinary
+                # flow (no region, no aside, no crop)
+                ctx.log.entry("region-dissolved", page=page["n"],
+                              bbox=[round(v, 1) for v in bbox],
+                              reason="config regionOverride (user answer)")
+                return None
             rk = ctx.log.entry(kind, page=page["n"],
                                bbox=[round(v, 1) for v in bbox],
                                reason="config regionOverride (user answer)")
@@ -594,9 +610,10 @@ SEG_LINETO, SEG_MOVETO = 0, 2
 
 
 def _region_borders(cluster, bbox):
-    """Per-side accent borders: stroked path segments tell us WHICH sides a
-    box outline actually draws; thin filled bars hugging an edge count too.
-    Returns {side: [colorIdx, width_pt]} only for partial borders."""
+    """Per-side borders: stroked path segments tell us WHICH sides a box
+    outline actually draws (and at what width - a full 4-side outline keeps
+    its real stroke width this way); thin filled bars hugging an edge count
+    too. Returns {side: [colorIdx, width_pt]}."""
     l0, b0, r0, t0 = bbox
     borders = {}
     for o in cluster["objs"]:
@@ -615,11 +632,12 @@ def _region_borders(cluster, bbox):
                        "top" if abs(o[4] - t0) <= 6 else None
                 if side:
                     borders[side] = [o[5], round(h, 1)]
-        # stroked outline with segment data
+        # stroked outline with segment data; the path bbox includes the
+        # stroke's overhang, so the tolerance must clear the full width
         if o[8] and len(o) > 10 and o[10] and o[6] is not None:
             sides = _seg_sides(o[10], (o[1], o[2], o[3], o[4]),
-                               max(4.0, (o[9] or 1.0)))
-            if 0 < len(sides) < 4:
+                               max(4.0, 1.5 * (o[9] or 1.0)))
+            if sides:
                 for side in sides:
                     borders[side] = [o[6], o[9] or 1.0]
     return borders
@@ -771,7 +789,8 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
                              f"struct tag {tag_role} (coverage {tag_cov:.2f})",
                              prov, used_ids)
 
-    if not in_aside and size in levels and _looks_like_heading(text):
+    if not in_aside and size in levels \
+            and _looks_like_heading(text, big=size >= 1.5 * body_size):
         level = levels[size]
         # authors tag genuine headings as P often enough that a P tag must
         # not veto strong size evidence — but the disagreement is exactly
@@ -864,10 +883,11 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         ctx.log.entry("break-override", page=blk["page"], block=blk["rk"],
                       breaks=brk_ov.get("breaks"), text=text[:60])
         if brk_ov.get("breaks") and rich.get("lineJoins"):
-            node["breaks"] = rich["lineJoins"]
+            node["breaks"] = _wrap_joins(text, rich["lineJoins"])
         return node
     if _hard_returns(blk) and rich.get("lineJoins"):
-        node["breaks"] = rich["lineJoins"]
+        node["breaks"] = _wrap_joins(text, rich["lineJoins"])
+        _name_emphasis(node, text)
         ctx.log.entry("hard-returns", page=blk["page"], block=blk["rk"],
                       lines=len(blk["lines"]),
                       reason="2+ interior lines end with terminal punctuation")
@@ -877,6 +897,190 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
                   "one paragraph?",
                   ["line breaks", "flowing paragraph"], "line breaks")
     return node
+
+
+GLOSSARY_RE = re.compile(r"\b(key terms|glossary|definitions)\b", re.I)
+
+
+def _definition_lists(ctx, nodes):
+    """A glossary section (heading matching Key Terms/Glossary/Definitions)
+    whose body strictly alternates short term lines with single definition
+    paragraphs becomes a real <dl> - 'lavishly semantic'. The gate is the
+    section heading: ordinary kicker+paragraph structure never converts."""
+    out = []
+    i = 0
+    while i < len(nodes):
+        n = nodes[i]
+        out.append(n)
+        i += 1
+        if n["type"] != "heading" or not GLOSSARY_RE.search(n["text"] or ""):
+            continue
+        # greedy term/definition pairing from the section start; the first
+        # violation (a Sources label, a closing paragraph) ends the list
+        j = i
+        pairs = []
+        while j + 1 < len(nodes):
+            t, d = nodes[j], nodes[j + 1]
+            text = (t.get("text") or "").strip()
+            is_term = (t["type"] in ("heading", "paragraph")
+                       and 0 < len(text) <= 60
+                       and not NOTES_HEADING.fullmatch(text)
+                       and (t["type"] != "heading"
+                            or t["level"] > n["level"]))
+            if not (is_term and d["type"] == "paragraph"
+                    and not (d.get("text") or "").startswith("»")):
+                break
+            pairs.append((t, d))
+            j += 2
+        if len(pairs) < 3:
+            continue
+        children = []
+        for t, d in pairs:
+            t["dl"] = "dt"
+            d["dl"] = "dd"
+            children.extend([t, d])
+        page = children[0]["page"]
+        bbox = [min(c["bbox"][0] for c in children),
+                min(c["bbox"][1] for c in children),
+                max(c["bbox"][2] for c in children),
+                max(c["bbox"][3] for c in children)]
+        rk = ctx.log.entry("deflist", page=page, terms=len(pairs),
+                           section=n["text"][:40])
+        out.append({"type": "deflist", "children": children, "page": page,
+                    "bbox": bbox, "rk": rk, "data": {},
+                    "nid": _stable_id("n", ctx.nids, "deflist", page, bbox,
+                                      children[0].get("text"))})
+        i = j
+    return out
+
+
+def _marker_lists(ctx, nodes):
+    """Consecutive lines led by a jump marker ('» A Note of Welcome') are a
+    list, not a heading run; render upgrades them to a <nav> when the texts
+    resolve to in-document headings."""
+    out = []
+    run = []
+
+    def flush():
+        nonlocal run
+        if len(run) >= 3:
+            items = [re.sub(r"^»\s*", "", r["text"]).strip() for r in run]
+            page = run[0]["page"]
+            bbox = [min(r["bbox"][0] for r in run),
+                    min(r["bbox"][1] for r in run),
+                    max(r["bbox"][2] for r in run),
+                    max(r["bbox"][3] for r in run)]
+            rk = ctx.log.entry("list", page=page, bbox=bbox,
+                               items=len(items), reason="» jump markers",
+                               merged=[r["rk"] for r in run])
+            out.append({"type": "list", "items": items, "page": page,
+                        "bbox": bbox, "rk": rk, "data": {"marker": "»"},
+                        "nid": _stable_id("n", ctx.nids, "list", page, bbox,
+                                          " ".join(items))})
+        else:
+            out.extend(run)
+        run = []
+
+    for n in nodes:
+        if n["type"] in ("heading", "paragraph") \
+                and (n.get("text") or "").startswith("»") \
+                and (not run or n["page"] == run[-1]["page"]):
+            run.append(n)
+        else:
+            flush()
+            out.append(n)
+    flush()
+    return out
+
+
+def _merge_crosspage_lists(ctx, nodes):
+    """An ordered list whose items continue past the page break: the
+    continuation arrives as one fused paragraph ('b. Lecturer:X 9. Community
+    ...') because the marker structure inverts mid-line. Tokens that are
+    exactly the next expected sub-letter or item number are markers; every
+    other digit/letter-dot token is content."""
+    out = []
+    for n in nodes:
+        prev = out[-1] if out else None
+        if (prev is not None and prev["type"] == "list"
+                and prev.get("ordered") == "decimal"
+                and n["type"] == "paragraph"
+                and n["page"] == prev["page"] + 1):
+            added = _parse_list_continuation(prev, n["text"])
+            if added:
+                ctx.log.entry("list-continued", page=n["page"],
+                              into=prev["rk"], segments=added,
+                              text=n["text"][:60])
+                ctx.audit_moved[n["page"]] += _alnum(n["text"])
+                continue
+        out.append(n)
+    return out
+
+
+def _parse_list_continuation(lst, text):
+    items = lst["items"]
+    if not items or not isinstance(items[-1], dict):
+        return 0
+    sub = items[-1].get("sub") or {}
+    sub_style = sub.get("ordered", "lower-alpha")
+    expect_num = lst.get("start", 1) + len(items)
+    expect_sub = sub.get("start", 1) + len(sub.get("items", []))
+    tok = re.compile(r"(?:^|(?<=\s))(\d{1,2}|[a-z])[.)]\s*")
+    accepted = []
+    for m in tok.finditer(text):
+        raw = m.group(1)
+        if raw.isdigit():
+            if int(raw) != expect_num:
+                continue
+            accepted.append(("item", m))
+            expect_num += 1
+            expect_sub = 1
+        else:
+            if ord(raw) - 96 != expect_sub:
+                continue
+            accepted.append(("sub", m))
+            expect_sub += 1
+    if len(accepted) < 2 or text[:accepted[0][1].start()].strip():
+        return 0
+    for (kind, m), nxt in zip(accepted, accepted[1:] + [None]):
+        end = nxt[1].start() if nxt else len(text)
+        content = text[m.end():end].strip()
+        if kind == "item":
+            items.append({"text": content})
+        else:
+            s = items[-1].setdefault(
+                "sub", {"ordered": sub_style, "start": 1, "items": []})
+            s["items"].append(content)
+    return len(accepted)
+
+
+def _name_emphasis(node, text):
+    """Credits blocks alternate names with '(affiliation)' lines; the names
+    deserve <strong> even when the PDF styles them identically - semantic
+    structure the source only implied (≥2 paren lines required)."""
+    breaks = node.get("breaks") or []
+    bounds = [0, *breaks, len(text)]
+    segs = [(bounds[k] + (1 if k else 0), bounds[k + 1])
+            for k in range(len(bounds) - 1)]
+    paren = [k for k, (s, e) in enumerate(segs)
+             if text[s:e].lstrip()[:1] == "("]
+    if len(paren) < 2:
+        return
+    emph = node.setdefault("emph", [])
+    for k in paren:
+        if k == 0 or (k - 1) in paren:
+            continue
+        s, e = segs[k - 1]
+        emph.append([s, e, "strong"])
+    emph.sort()
+
+
+def _wrap_joins(text, joins):
+    """Hard-return blocks reproduce the PDF's line breaks - except inside an
+    unclosed parenthesis, where the break wraps one long item ('(Executive
+    Office of the Secretary | General, United Nations)'), not a new line."""
+    return [j for j in joins
+            if text[:j].count("(") <= text[:j].count(")")]
 
 
 def _hard_returns(blk):
@@ -902,7 +1106,13 @@ def _hard_returns(blk):
         if prev["text"].rstrip()[-1:] not in ".,;:-"
         and (nxt["text"][:1].isupper() or nxt["text"][:1].isdigit()
              or nxt["text"][:1] == "("))
-    return short >= 2 and item_starts >= 2 and item_starts >= 0.6 * len(interior)
+    if short >= 2 and item_starts >= 2 and item_starts >= 0.6 * len(interior):
+        return True
+    # one interior line ending FAR short (under 60% width) never happens in
+    # wrapped prose - enough on its own when transitions look like items
+    # (contact cards whose longest line is the interior address)
+    short60 = sum(1 for l in interior if l["bbox"][2] < left + 0.6 * width)
+    return short60 >= 1 and item_starts >= 0.6 * (len(lines) - 1)
 
 
 def _block_align(blk, size):
@@ -1850,12 +2060,15 @@ def _is_caps_kicker(text):
     return len(letters) >= 8 and all(c.isupper() for c in letters)
 
 
-def _looks_like_heading(text):
+def _looks_like_heading(text, big=False):
     text = text.strip()
     if re.fullmatch(r"[\$€£]?[\d,.\s]+%?", text):
         return False  # numeric/currency labels are not headings
+    # a trailing colon reads as a lead-in, not a heading - unless the text
+    # is display-sized ("Inclusive, local hiring:" at 3x body)
+    enders = (".", ",", ";", "…") if big else (".", ",", ";", ":", "…")
     return (0 < len(text) <= 200
-            and not text.endswith((".", ",", ";", ":", "…"))
+            and not text.endswith(enders)
             and re.search(r"[A-Za-z0-9]{2}", text) is not None)
 
 
@@ -1932,6 +2145,11 @@ def _join_block(ctx, blk, link_colors=()):
     out = ""
     sups, links, emph, marks = [], [], [], []
     line_joins = []  # offsets of the spaces where source lines were joined
+    dom_counts = Counter()
+    for l in blk["lines"]:
+        dom_counts[l["fontIdx"]] += len(l["text"])
+    blk_dom_idx = dom_counts.most_common(1)[0][0]
+    blk_font = ctx.fonts[blk_dom_idx]
     for l in blk["lines"]:
         t = l["text"]
         if out.endswith("-") and t[:1].islower():
@@ -1958,6 +2176,15 @@ def _join_block(ctx, blk, link_colors=()):
                                   line_font["name"])
             if kind and (e - s) < 0.9 * max(len(t), 1):  # sub-line runs only
                 emph.append([s + base, e + base, kind])
+        if l["fontIdx"] != blk_dom_idx:
+            # a whole line in a bold/italic variant of the BLOCK's font:
+            # name lines in contact lists, emphasis wrapping across lines
+            # ('imported APIs can | generally be understood...')
+            kind = _font_emphasis(line_font["name"],
+                                  line_font.get("weight", 0),
+                                  blk_font["name"])
+            if kind:
+                emph.append([base, base + len(t), kind])
 
         marks.extend([s + base, e + base, _hex(ctx.colors[ci])]
                      for s, e, ci in l.get("marks", []))

@@ -525,7 +525,7 @@
       6,
       7
     ],
-    "questions": 224,
+    "questions": 230,
     "textChars": 271654
   },
   "02--baystate-case-study-021624": {
@@ -533,20 +533,20 @@
     "title": "CASE STUDY",
     "headings": [
       [
-        2,
-        "Baystate Health"
-      ],
-      [
         1,
         "CASE STUDY"
       ],
       [
-        3,
-        "Overview and Background"
+        2,
+        "Baystate Health"
       ],
       [
         3,
         "Outside-in and Inside-up Workforce Strategies"
+      ],
+      [
+        3,
+        "Overview and Background"
       ],
       [
         3,
@@ -577,6 +577,10 @@
         "Lessons Learned & Key Takeaways"
       ],
       [
+        3,
+        "Appendix:"
+      ],
+      [
         4,
         "Table 1. Workforce Programming, 2022"
       ],
@@ -593,8 +597,8 @@
       "aside": 4,
       "figure": 5,
       "footnotes": 1,
-      "heading": 14,
-      "paragraph": 75,
+      "heading": 15,
+      "paragraph": 74,
       "table": 1
     },
     "asideChildren": 11,
@@ -828,13 +832,13 @@
       "figure": 23,
       "heading": 40,
       "list": 22,
-      "paragraph": 164,
+      "paragraph": 163,
       "table": 1
     },
     "asideChildren": 17,
     "notes": [],
-    "questions": 58,
-    "textChars": 43229
+    "questions": 57,
+    "textChars": 43201
   },
   "02--jhu-federal-register-comments-pharma-investigation": {
     "status": "done",
@@ -852,7 +856,7 @@
       3,
       4
     ],
-    "questions": 6,
+    "questions": 7,
     "textChars": 16135
   },
   "02--compelling-investment-case-climate-adaptation": {
@@ -900,12 +904,12 @@
         "Resilient infrastructure"
       ],
       [
-        4,
-        "Water"
-      ],
-      [
         2,
         "Adaptation Yields High Returns Even when Disasters Don’t Strike"
+      ],
+      [
+        4,
+        "Water"
       ],
       [
         3,
@@ -940,6 +944,10 @@
         "Investing in Adaptation to Drive Prosperity, Growth and Competitiveness"
       ],
       [
+        5,
+        "About This Report"
+      ],
+      [
         6,
         "A shared narrative"
       ],
@@ -953,7 +961,7 @@
       ],
       [
         5,
-        "About This Report"
+        "Foreword"
       ],
       [
         6,
@@ -962,10 +970,6 @@
       [
         6,
         "COP30 President-Designate"
-      ],
-      [
-        5,
-        "Foreword"
       ],
       [
         5,
@@ -1009,15 +1013,15 @@
       ],
       [
         6,
+        "The Resilience Investment Agenda"
+      ],
+      [
+        6,
         "It is no surprise that the cost of inaction is far greater than the"
       ],
       [
         6,
         "$350 billion - equivalent to 0.5% of EMDEs’ GDP in 203538 - is needed per year t"
-      ],
-      [
-        6,
-        "The Resilience Investment Agenda"
       ],
       [
         6,
@@ -1080,12 +1084,16 @@
         "Development is resilience. Households and communities are only able to withstand"
       ],
       [
+        1,
+        "Chapter Two"
+      ],
+      [
         6,
         "The Returns on Investing in Resilience"
       ],
       [
-        1,
-        "Chapter Two"
+        5,
+        "2.1 The Foundations of Development:"
       ],
       [
         5,
@@ -1125,19 +1133,19 @@
       ],
       [
         6,
-        "Slovenia Flooding Disrupts Global Automotive Supply Chain"
-      ],
-      [
-        6,
         "CASE STUDY 2.2"
       ],
       [
         6,
-        "Senegal"
+        "Slovenia Flooding Disrupts Global Automotive Supply Chain"
       ],
       [
         6,
         "CASE STUDY 2.3"
+      ],
+      [
+        6,
+        "Senegal"
       ],
       [
         6,
@@ -1149,11 +1157,11 @@
       ],
       [
         6,
-        "Floods in Pakistan - Public Budgets For Climate Disasters"
+        "CASE STUDY 2.4"
       ],
       [
         6,
-        "CASE STUDY 2.4"
+        "Floods in Pakistan - Public Budgets For Climate Disasters"
       ],
       [
         5,
@@ -1181,7 +1189,7 @@
       ],
       [
         6,
-        "Cisterns Deliver Development Returns in Brazil"
+        "2.4.2 Losses Are Avoided, Savings Achieved and Value is Created"
       ],
       [
         6,
@@ -1189,15 +1197,7 @@
       ],
       [
         6,
-        "2.4.2 Losses Are Avoided, Savings Achieved and Value is Created"
-      ],
-      [
-        6,
-        "Cold Chain Multistakeholder Partnership in Kenya Led by DanChurchAid"
-      ],
-      [
-        6,
-        "AstraZeneca Invests to Protect Business Continuity207"
+        "Cisterns Deliver Development Returns in Brazil"
       ],
       [
         6,
@@ -1205,11 +1205,15 @@
       ],
       [
         6,
+        "Cold Chain Multistakeholder Partnership in Kenya Led by DanChurchAid"
+      ],
+      [
+        6,
         "CASE STUDY 2.9"
       ],
       [
         6,
-        "Exelon Corporation210"
+        "AstraZeneca Invests to Protect Business Continuity207"
       ],
       [
         6,
@@ -1217,7 +1221,7 @@
       ],
       [
         6,
-        "McCain Chips: Resilient Agriculture Increases Yields222"
+        "Exelon Corporation210"
       ],
       [
         6,
@@ -1225,11 +1229,7 @@
       ],
       [
         6,
-        "Costa Rica’s Natural Capital Recovery: Resilience as a Growth Strategy"
-      ],
-      [
-        6,
-        "Community Efforts to Restore Mangroves as Resilient Natural Infrastructure"
+        "McCain Chips: Resilient Agriculture Increases Yields222"
       ],
       [
         6,
@@ -1237,7 +1237,15 @@
       ],
       [
         6,
+        "Costa Rica’s Natural Capital Recovery: Resilience as a Growth Strategy"
+      ],
+      [
+        6,
         "CASE STUDY 2.13"
+      ],
+      [
+        6,
+        "Community Efforts to Restore Mangroves as Resilient Natural Infrastructure"
       ],
       [
         6,
@@ -1249,11 +1257,11 @@
       ],
       [
         6,
-        "Nestlé’s Value Chain Security Strategy256"
+        "CASE STUDY 2.14"
       ],
       [
         6,
-        "CASE STUDY 2.14"
+        "Nestlé’s Value Chain Security Strategy256"
       ],
       [
         6,
@@ -1270,6 +1278,10 @@
       [
         5,
         "3.1 Investment Scale and Needs"
+      ],
+      [
+        6,
+        "In practice, one can group resilience investments into roughly four categories:"
       ],
       [
         5,
@@ -1325,11 +1337,11 @@
       ],
       [
         6,
-        "IFC’s Building Resilience Index (BRI)285"
+        "CASE STUDY 4.1"
       ],
       [
         6,
-        "CASE STUDY 4.1"
+        "IFC’s Building Resilience Index (BRI)285"
       ],
       [
         6,
@@ -1369,19 +1381,19 @@
       ],
       [
         6,
-        "Africa Adaptation Acceleration Program (AAAP) - Global Center on Adaptation (GCA"
-      ],
-      [
-        6,
         "CASE STUDY 4.4"
       ],
       [
         6,
-        "Insurance and other pre-"
+        "Africa Adaptation Acceleration Program (AAAP) - Global Center on Adaptation (GCA"
       ],
       [
         6,
         "4.2 The Role of Pre-arranged Finance"
+      ],
+      [
+        6,
+        "Insurance and other pre-"
       ],
       [
         6,
@@ -1396,12 +1408,16 @@
         "4.3.1 Narrowing Insurance Protection Gaps"
       ],
       [
+        1,
+        "Call to Action"
+      ],
+      [
         6,
         "Unlocking the Returns on Resilience"
       ],
       [
-        1,
-        "Call to Action"
+        6,
+        "Together, six systemic barriers stall progress:"
       ],
       [
         6,
@@ -1433,11 +1449,11 @@
       ],
       [
         6,
-        "Private Finance Fuels Africa’s City-Based Pipeline Platform - FSD Africa"
+        "CASE STUDY 5.2"
       ],
       [
         6,
-        "CASE STUDY 5.2"
+        "Private Finance Fuels Africa’s City-Based Pipeline Platform - FSD Africa"
       ],
       [
         6,
@@ -1488,12 +1504,12 @@
         "#2 LIVESTOCK, FISHERIES AND AQUACULTURE RESILIENCE"
       ],
       [
-        6,
-        "#3 WATER COLLECTION AND STORAGE"
-      ],
-      [
         2,
         "Water"
+      ],
+      [
+        6,
+        "#3 WATER COLLECTION AND STORAGE"
       ],
       [
         2,
@@ -1517,11 +1533,11 @@
       ],
       [
         6,
-        "By 2100, between 48% and 74% of the global population is projected to be exposed"
+        "#7 HEAT MITIGATION"
       ],
       [
         6,
-        "#7 HEAT MITIGATION"
+        "By 2100, between 48% and 74% of the global population is projected to be exposed"
       ],
       [
         2,
@@ -1544,16 +1560,16 @@
         "#9 COASTAL AND RIVERINE INFRASTRUCTURE RESILIENCE"
       ],
       [
-        6,
-        "Climate change is directly disrupting lives, livelihoods, and economies worldwid"
-      ],
-      [
         2,
         "Community and"
       ],
       [
         2,
         "business resilience"
+      ],
+      [
+        6,
+        "Climate change is directly disrupting lives, livelihoods, and economies worldwid"
       ],
       [
         6,
@@ -1701,8 +1717,8 @@
       "columns": 2,
       "figure": 85,
       "footnotes": 1,
-      "heading": 190,
-      "list": 21,
+      "heading": 193,
+      "list": 20,
       "paragraph": 721,
       "table": 10
     },
@@ -1808,20 +1824,20 @@
       110,
       111
     ],
-    "questions": 35,
-    "textChars": 403733
+    "questions": 37,
+    "textChars": 403736
   },
   "02--rwjf-futures": {
     "status": "done",
     "title": "ren",
     "headings": [
       [
-        6,
-        "DEMOCRATIZING THE IMAGINATION OF THE FUTURE"
-      ],
-      [
         5,
         "We Create"
+      ],
+      [
+        6,
+        "DEMOCRATIZING THE IMAGINATION OF THE FUTURE"
       ],
       [
         6,
@@ -1841,11 +1857,11 @@
       ],
       [
         6,
-        "Our Hope"
+        "ABOUT THIS REPORT"
       ],
       [
         6,
-        "ABOUT THIS REPORT"
+        "Our Hope"
       ],
       [
         6,
@@ -1945,67 +1961,11 @@
       ],
       [
         6,
-        "» A Note of Welcome"
-      ],
-      [
-        6,
-        "» CHAPTER 1: Why We Need More People Imagining More Futures"
-      ],
-      [
-        6,
-        "» CHAPTER 5: Feeling Our Way into Futures"
-      ],
-      [
-        6,
-        "» CHAPTER 7: Making an Impact: Anecdotes and Aha’s"
-      ],
-      [
-        6,
-        "» CHAPTER 9: What We Learned, and What Comes Next"
-      ],
-      [
-        6,
-        "» Glossary"
-      ],
-      [
-        6,
         "Futures Field-builder"
       ],
       [
         6,
-        "» CHAPTER 4: Practicing Participation: Let’s Go to the Future"
-      ],
-      [
-        6,
-        "» CHAPTER 5: Feeling Our Way into Futures"
-      ],
-      [
-        6,
-        "» CHAPTER 6: Resisting Futures: What’s Stopping Us?"
-      ],
-      [
-        6,
-        "» CHAPTER 8: Building the Field: Insights and Opportunities"
-      ],
-      [
-        6,
-        "» CHAPTER 9: What We Learned, and What Comes Next"
-      ],
-      [
-        6,
         "Futures Fan"
-      ],
-      [
-        6,
-        "» CHAPTER 3: When Disruption Creates Possibility"
-      ],
-      [
-        6,
-        "» CHAPTER 6: Resisting Futures: What’s Stopping Us?"
-      ],
-      [
-        6,
-        "» Glossary and Reading and References List"
       ],
       [
         4,
@@ -2053,19 +2013,19 @@
       ],
       [
         6,
-        "Imagination"
-      ],
-      [
-        6,
         "How do you truly make something not just available but accessible?"
       ],
       [
         6,
-        "“The invisible world produces the visible world. So, the richness of one’s imagi"
+        "Imagination"
       ],
       [
         6,
         "“We’ve created a framework for you to imagine an intergalactic space world, alie"
+      ],
+      [
+        6,
+        "“The invisible world produces the visible world. So, the richness of one’s imagi"
       ],
       [
         1,
@@ -2089,11 +2049,11 @@
       ],
       [
         4,
-        "Creates Possibility"
+        "Disruption"
       ],
       [
         4,
-        "Disruption"
+        "Creates Possibility"
       ],
       [
         6,
@@ -2101,19 +2061,19 @@
       ],
       [
         6,
-        "How is philanthropy adopting futuring?"
-      ],
-      [
-        6,
         "“Historically, pandemics have forced humans to break with the past and imagine t"
       ],
       [
         6,
-        "Calls to democratize the futuring field"
+        "How is philanthropy adopting futuring?"
       ],
       [
         6,
         "Who gets to talk about the future? Who gets to predict its path? And who gets to"
+      ],
+      [
+        6,
+        "Calls to democratize the futuring field"
       ],
       [
         6,
@@ -2177,19 +2137,19 @@
       ],
       [
         6,
-        "“Is there a particular kind of stress or pain that foresight professionals are u"
-      ],
-      [
-        6,
         "Tangible tomorrows"
       ],
       [
         6,
-        "Tuning in to hope while processing trauma"
+        "“Is there a particular kind of stress or pain that foresight professionals are u"
       ],
       [
         6,
         "“So what part of the world do we want to show from a story perspective?”"
+      ],
+      [
+        6,
+        "Tuning in to hope while processing trauma"
       ],
       [
         6,
@@ -2225,11 +2185,11 @@
       ],
       [
         6,
-        "Creating safe environments for futuring"
+        "“Bridges built around common interests or goals can support processes to contemp"
       ],
       [
         6,
-        "“Bridges built around common interests or goals can support processes to contemp"
+        "Creating safe environments for futuring"
       ],
       [
         4,
@@ -2245,11 +2205,11 @@
       ],
       [
         6,
-        "On Interviewees"
+        "“How do you create these catalytic moments and then follow them with a sustained"
       ],
       [
         6,
-        "“How do you create these catalytic moments and then follow them with a sustained"
+        "On Interviewees"
       ],
       [
         6,
@@ -2257,11 +2217,11 @@
       ],
       [
         6,
-        "“Introducing the concepts that could potentially produce generational change is "
+        "“It makes my heart so tender to imagine all these young children of color being "
       ],
       [
         6,
-        "“It makes my heart so tender to imagine all these young children of color being "
+        "“Introducing the concepts that could potentially produce generational change is "
       ],
       [
         1,
@@ -2335,17 +2295,18 @@
     "counts": {
       "aside": 54,
       "figure": 43,
-      "heading": 129,
-      "paragraph": 635
+      "heading": 115,
+      "list": 27,
+      "paragraph": 472
     },
     "asideChildren": 65,
     "notes": [],
-    "questions": 51,
-    "textChars": 171815
+    "questions": 49,
+    "textChars": 171465
   },
   "02--toolkit-hiring2022-copy112222onlineversiononly-1": {
     "status": "done",
-    "title": "Key Terms",
+    "title": "Inclusive, local hiring:",
     "headings": [
       [
         4,
@@ -2364,68 +2325,16 @@
         "ABOUT THE AUTHORS"
       ],
       [
+        1,
+        "Inclusive, local hiring:"
+      ],
+      [
         2,
         "Building the pipeline to a healthy community"
       ],
       [
-        5,
-        "ANCHOR INSTITUTION"
-      ],
-      [
-        5,
-        "ANCHOR MISSION"
-      ],
-      [
-        5,
-        "COMMUNITY BENEFIT"
-      ],
-      [
-        5,
-        "COMMUNITY HEALTH NEEDS ASSESSMENT (CHNA)"
-      ],
-      [
-        5,
-        "COMMUNITY WEALTH BUILDING"
-      ],
-      [
         1,
         "Key Terms"
-      ],
-      [
-        5,
-        "HEALTH & HEALTH EQUITY"
-      ],
-      [
-        5,
-        "IMPLICIT BIAS/UNCONSCIOUS BIAS"
-      ],
-      [
-        5,
-        "INCLUSIVE, LOCAL HIRING"
-      ],
-      [
-        5,
-        "LIVING WAGE"
-      ],
-      [
-        5,
-        "RACIAL EQUITY"
-      ],
-      [
-        5,
-        "SOCIAL DETERMINANTS OF HEALTH (SDOH)"
-      ],
-      [
-        5,
-        "WHITE SUPREMACY"
-      ],
-      [
-        5,
-        "WHITE SUPREMACY CULTURE"
-      ],
-      [
-        5,
-        "WORKFORCE INTERMEDIARY"
       ],
       [
         5,
@@ -2488,16 +2397,16 @@
         "OFFER JOB COACHING FOR NEW-HIRES AND MAP OUT POTENTIAL CAREER PATHWAYS"
       ],
       [
+        2,
+        "Possible Career Ladder: Patient Care"
+      ],
+      [
         5,
         "TUITION ASSISTANCE FOR FRONTLINE EMPLOYEE ACCESSIBLE TRAINING"
       ],
       [
         5,
         "PARTNERSHIPS WITH LOCAL EDUCATIONAL INSTITUTIONS AND COMMUNITY ORGANIZATIONS"
-      ],
-      [
-        2,
-        "Possible Career Ladder: Patient Care"
       ],
       [
         5,
@@ -3072,16 +2981,16 @@
         "INTERNAL COMMUNICATION TO LEVERAGE SUCCESSFUL BUY-IN"
       ],
       [
+        1,
+        "RETENTION STRATEGIES"
+      ],
+      [
         2,
         "Retention Strategies"
       ],
       [
         5,
         "CULTURAL COMPETENCY AND BIAS TRAINING"
-      ],
-      [
-        1,
-        "RETENTION STRATEGIES"
       ],
       [
         5,
@@ -3392,16 +3301,16 @@
         "COMMUNICATE WITH WORKFORCE PARTNERS AND INTERMEDIARIES ABOUT FORECASTED JOB NEED"
       ],
       [
+        1,
+        "Readiness Checklist"
+      ],
+      [
         3,
         "LEADERSHIP"
       ],
       [
         3,
         "PARTNERSHIPS AND COMMUNITY ENGAGEMENT"
-      ],
-      [
-        1,
-        "Readiness Checklist"
       ],
       [
         3,
@@ -3468,16 +3377,16 @@
         "NOTES"
       ],
       [
-        2,
-        "Solutions"
-      ],
-      [
         1,
         "Overcoming Barriers"
       ],
       [
         3,
         "PROMISING SOLUTIONS TO COMMON CHALLENGES"
+      ],
+      [
+        2,
+        "Solutions"
       ],
       [
         1,
@@ -3494,13 +3403,14 @@
     ],
     "counts": {
       "aside": 46,
+      "deflist": 1,
       "figure": 16,
       "footnotes": 1,
-      "heading": 286,
+      "heading": 273,
       "list": 61,
-      "paragraph": 681
+      "paragraph": 662
     },
-    "asideChildren": 118,
+    "asideChildren": 101,
     "notes": [
       1,
       1,
@@ -3509,8 +3419,8 @@
       4,
       5
     ],
-    "questions": 55,
-    "textChars": 290642
+    "questions": 58,
+    "textChars": 289969
   },
   "03--enterprise-annual-report-2022": {
     "status": "done",
@@ -3521,12 +3431,12 @@
         "Annual Report from Enterprise Community Partners"
       ],
       [
-        5,
-        "To the next 40 years!"
-      ],
-      [
         2,
         "A Letter from Board Leadership"
+      ],
+      [
+        5,
+        "To the next 40 years!"
       ],
       [
         2,

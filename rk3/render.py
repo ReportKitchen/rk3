@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 29
+VERSION = 31
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -198,9 +198,41 @@ def _render_node(ctx, node, pages, state):
                     f'</span> {body}')
         return (f'<h{lv} {_attrs(node, pages, {"id": node["id"]})}>'
                 f'{body}</h{lv}>')
+    if t == "deflist":
+        parts = []
+        for c in node["children"]:
+            if c.get("dl") == "dt":
+                parts.append(f"  <dt {_attrs(c, pages)}>"
+                             f"{html.escape(c['text'])}</dt>")
+            else:
+                body = _inline(c["text"], c.get("links"), c.get("refs"),
+                               state, breaks=c.get("breaks"),
+                               emph=c.get("emph"), marks=c.get("marks"))
+                parts.append(f"  <dd {_attrs(c, pages)}>{body}</dd>")
+        inner = "\n".join(parts)
+        return f'<dl {_attrs(node, pages)}>\n{inner}\n</dl>'
     if t == "list":
         ordered = node.get("ordered")
         tag = "ol" if ordered else "ul"
+        if (node.get("data") or {}).get("marker") == "»":
+            # jump-marker lists: when the entries name in-document headings,
+            # they are navigation, not content
+            def jump_target(it):
+                return (_resolve_anchor(it, state["anchors"])
+                        or _resolve_anchor(
+                            re.sub(r"(?i)^chapter\s+\d+:\s*", "", it),
+                            state["anchors"]))
+
+            resolved = [(it, jump_target(it))
+                        for it in node["items"] if isinstance(it, str)]
+            hits = sum(1 for _it, tgt in resolved if tgt)
+            if resolved and hits >= 0.6 * len(resolved):
+                lis = "\n".join(
+                    f'  <li><a href="#{tgt[0]}">{html.escape(it)}</a></li>'
+                    if tgt else f"  <li>{html.escape(it)}</li>"
+                    for it, tgt in resolved)
+                return (f'<nav class="local-toc" aria-label="In this section" '
+                        f'{_attrs(node, pages)}>\n<ul>\n{lis}\n</ul>\n</nav>')
         extra = {}
         if ordered in OL_TYPE:
             extra["type"] = OL_TYPE[ordered]
@@ -451,7 +483,8 @@ SYSTEM_FAMILIES = {"helvetica", "arial", "times", "times new roman", "courier",
                    "courier new", "georgia", "verdana", "tahoma", "symbol",
                    "calibri", "cambria", "aptos", "segoe ui"}
 
-MARKER_STYLE = {"•": "disc", "◦": "circle", "·": "disc"}
+MARKER_STYLE = {"•": "disc", "◦": "circle", "·": "disc", "»": '"» "',
+                "◊": '"◊ "'}
 
 
 def _font_css(name):
@@ -600,7 +633,7 @@ def _original_css(ctx, ir):
     group_order = []
 
     def feed_exception(n):
-        if n["type"] != "paragraph":
+        if n["type"] != "paragraph" and n.get("dl") != "dt":
             return
         d = n.get("data") or {}
         rules = []
