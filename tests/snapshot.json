@@ -191,7 +191,7 @@
     "title": "ROBERT WOOD JOHNSON FOUNDATION 2025 NEW JERSEY HEALTH INEQUITIES SURVEY",
     "headings": [
       [
-        4,
+        3,
         "M A R C H 2 0 2 6 • R E P O R T"
       ],
       [
@@ -203,43 +203,11 @@
         "A Representative Statewide Study of New Jersey Adults"
       ],
       [
-        2,
-        "The Eagleton Center for Public Interest Polling (ECPIP), home of the Rutgers- Ea"
-      ],
-      [
-        2,
-        "publication of over 200 public opinion polls on the state of New Jersey, ECPIP"
-      ],
-      [
-        2,
-        "was the first university-based statewide public opinion polling operation in the"
-      ],
-      [
-        2,
-        "Our mission is to provide scientifically sound, non-partisan information about"
-      ],
-      [
-        2,
-        "public opinion. ECPIP conducts research for all levels of government"
-      ],
-      [
-        2,
-        "and nonprofit organizations with a public interest mission, as well as college a"
-      ],
-      [
-        2,
-        "university-based researchers and staff. ECPIP makes it a priority to design"
-      ],
-      [
-        2,
-        "To read more about ECPIP and view all of our press releases and published"
-      ],
-      [
-        4,
+        3,
         "APPENDIX A: SURVEY INSTRUMENT 93"
       ],
       [
-        3,
+        2,
         "The Rutgers-Eagleton/SSRS Garden State Panel"
       ],
       [
@@ -255,7 +223,7 @@
         "How is the Garden State Panel an improvement over opt-in panels?"
       ],
       [
-        3,
+        2,
         "Methodology"
       ],
       [
@@ -267,83 +235,19 @@
         "Sample Design"
       ],
       [
-        2,
-        "About the Rutgers-Eagleton/SSRS Garden State Panel"
-      ],
-      [
-        2,
-        "About the SSRS Opinion Panel"
-      ],
-      [
-        2,
-        "About L2"
-      ],
-      [
-        2,
-        "Survey Sampling"
-      ],
-      [
         1,
         "Weighting"
       ],
       [
         2,
-        "Base Weight"
-      ],
-      [
-        2,
-        "Garden State Panel Base Weight"
-      ],
-      [
-        2,
-        "SSRS Opinion Panel Base Weight"
-      ],
-      [
-        2,
-        "L2 Sample"
-      ],
-      [
-        2,
-        "Composite Adjustment"
-      ],
-      [
-        2,
-        "Final Base Weight"
-      ],
-      [
-        2,
-        "Calibration"
-      ],
-      [
-        2,
-        "Effects of Sample Design on Statistical Inference"
-      ],
-      [
-        2,
-        "Reported Analysis"
-      ],
-      [
-        3,
         "WEIGHTED SAMPLE CHARACTERISTICS"
       ],
       [
-        3,
+        2,
         "KEY TERMS, DEFINITIONS, AND GROUPINGS"
       ],
       [
-        1,
-        "Race and Ethnicity"
-      ],
-      [
-        1,
-        "Region"
-      ],
-      [
-        1,
-        "Parent Status"
-      ],
-      [
-        3,
+        2,
         "KEY TAKEAWAYS"
       ],
       [
@@ -379,7 +283,7 @@
         "Systemic Discrimination and Reparations"
       ],
       [
-        3,
+        2,
         "REPORT"
       ],
       [
@@ -427,97 +331,99 @@
         "Conclusion"
       ],
       [
-        3,
+        2,
         "APPENDIX A: SURVEY INSTRUMENT"
       ],
       [
-        4,
+        3,
         "EVERYDAY INTERACTIONS"
       ],
       [
-        4,
+        3,
         "PERCEPTIONS OF DISCRIMINATION AND RACISM"
       ],
       [
-        4,
+        3,
         "PERSONAL HEALTH"
       ],
       [
-        4,
+        3,
         "[RANDOMIZE ORDER]"
       ],
       [
-        4,
+        3,
         "[RANDOMIZE ORDER]"
       ],
       [
-        4,
+        3,
         "HEALTH IN NEW JERSEY"
       ],
       [
-        4,
+        3,
         "[START RANDOM SPLIT SAMPLE – ½ VERSION A, ½ VERSION B] [1/2 VERSION A] [RANDOMIZ"
       ],
       [
-        4,
+        3,
         "[1/2 VERSION B] [RANDOMIZE]"
       ],
       [
-        4,
+        3,
         "HEALTHCARE INEQUITIES"
       ],
       [
-        4,
+        3,
         "MATERNAL/CHILD HEALTH"
       ],
       [
-        4,
+        3,
         "POLICY PROPOSALS/SOLUTIONS"
       ],
       [
-        4,
+        3,
         "[START RANDOM SPLIT SAMPLE – ½ VERSION A, ½ VERSION B] [1/2 VERSION A] [RANDOMIZ"
       ],
       [
-        4,
+        3,
         "[1/2 VERSION B] [RANDOMIZE]"
       ],
       [
-        4,
+        3,
         "[SPLIT SAMPLE – ½ OF RESPONDENTS RECEIVE S6A AND ½ RECEIVE S6B]"
       ],
       [
-        4,
+        3,
         "[ASK IF RESPONDENT RECEIVED S6A]"
       ],
       [
-        4,
+        3,
         "[ASK IF RESPONDENT RECEIVED S6B]"
       ],
       [
-        4,
+        3,
         "RESPONSE TO DEI ROLLBACKS AND CONNECTION TO HEALTH EQUITY"
       ],
       [
-        3,
+        2,
         "APPENDIX B: VERBATIM OPEN-ENDED RESPONSES"
       ],
       [
-        3,
+        2,
         "APPENDIX C: FREQUENCY AND CROSSTAB TABLES"
       ]
     ],
     "counts": {
-      "aside": 222,
+      "aside": 221,
+      "deflist": 1,
       "figure": 278,
       "footnotes": 1,
-      "heading": 79,
-      "list": 11,
-      "paragraph": 2243,
+      "heading": 55,
+      "list": 10,
+      "paragraph": 1014,
       "table": 86
     },
-    "asideChildren": 340,
+    "asideChildren": 339,
     "notes": [
+      1,
       2,
       3,
       4,
@@ -525,8 +431,8 @@
       6,
       7
     ],
-    "questions": 230,
-    "textChars": 271654
+    "questions": 4,
+    "textChars": 268866
   },
   "02--baystate-case-study-021624": {
     "status": "done",
@@ -837,7 +743,7 @@
     },
     "asideChildren": 17,
     "notes": [],
-    "questions": 57,
+    "questions": 55,
     "textChars": 43201
   },
   "02--jhu-federal-register-comments-pharma-investigation": {
@@ -1719,10 +1625,10 @@
       "footnotes": 1,
       "heading": 193,
       "list": 20,
-      "paragraph": 721,
+      "paragraph": 716,
       "table": 10
     },
-    "asideChildren": 304,
+    "asideChildren": 255,
     "notes": [
       13,
       14,
@@ -1824,8 +1730,8 @@
       110,
       111
     ],
-    "questions": 37,
-    "textChars": 403736
+    "questions": 49,
+    "textChars": 403451
   },
   "02--rwjf-futures": {
     "status": "done",
@@ -2301,7 +2207,7 @@
     },
     "asideChildren": 65,
     "notes": [],
-    "questions": 49,
+    "questions": 77,
     "textChars": 171465
   },
   "02--toolkit-hiring2022-copy112222onlineversiononly-1": {
@@ -3407,8 +3313,8 @@
       "figure": 16,
       "footnotes": 1,
       "heading": 273,
-      "list": 61,
-      "paragraph": 662
+      "list": 63,
+      "paragraph": 559
     },
     "asideChildren": 101,
     "notes": [
@@ -3419,8 +3325,8 @@
       4,
       5
     ],
-    "questions": 58,
-    "textChars": 289969
+    "questions": 66,
+    "textChars": 291251
   },
   "03--enterprise-annual-report-2022": {
     "status": "done",

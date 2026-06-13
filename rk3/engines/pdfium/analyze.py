@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 45
+VERSION = 50
 
 
 def _font_emphasis(name, weight, base_name):
@@ -320,6 +320,34 @@ def run(ctx):
     nodes = _aside_layout_and_pullquotes(ctx, nodes, twocol_pages)
     _indents(ctx, nodes)
 
+    # flood guard: questionnaire-style documents raise the same per-block
+    # question hundreds of times (the survey: 174 figure-or-callout, 131
+    # hard-returns). Past 50 the panel keeps the first of that kind; the
+    # per-block lever is config. Stopgap until question grouping lands -
+    # the bar is high so living queues (facilitator ~40) are untouched.
+    for kind in ("hard-returns", "figure-or-callout"):
+        flood = [q for q in ctx.questions if q["kind"] == kind]
+        if len(flood) > 50:
+            keep = flood[0]["qid"]
+            ctx.questions = [q for q in ctx.questions
+                             if q["kind"] != kind or q["qid"] == keep]
+            ctx.log.entry("question-flood", kind=kind,
+                          suppressed=len(flood) - 1)
+
+    typed = [n for n in nodes if (n.get("data") or {}).get("pitch")]
+    if len(typed) >= 5:
+        # one document-level choice, anchored at the first joined paragraph
+        mode = ctx.cfg["structure"].get("typedLines", "join")
+        ctx.log.entry("typed-lines", paragraphs=len(typed), mode=mode)
+        _question(ctx, "typed-lines", typed[0],
+                  f"This document hard-types its line breaks ({len(typed)} "
+                  "paragraphs were joined from typed lines, document-wide). "
+                  "Join them into flowing paragraphs, or preserve the "
+                  "original line breaks?",
+                  ["join into paragraphs", "preserve line breaks"],
+                  "join into paragraphs" if mode == "join"
+                  else "preserve line breaks")
+
     if notes:
         last = blocks[max(note_idx)]
         rk = ctx.log.entry("footnotes", count=len(notes),
@@ -367,6 +395,7 @@ def _audit(ctx, blocks, texts, nodes):
         out[page] += sum(_alnum(t) for t in _item_texts(n.get("items", [])))
         out[page] += sum(_alnum(c) for row in n.get("rows", []) for c in row)
         out[page] += _alnum(n.get("caption"))
+        out[page] += _alnum(n.get("title"))
         out[page] += _alnum(n.get("sectionNum"))
         for note in n.get("notes", []):
             out[note.get("page", page)] += _alnum(note["text"]) \
@@ -549,6 +578,17 @@ def _classify_cluster(ctx, page, cluster, blocks, texts, body_size, top_size=Non
     if borders:
         style["borders"] = borders
 
+    # a page-bottom cluster whose only text is small note-marker lines is a
+    # footnote with decoration (separator rule, highlighter fills) - the
+    # notes pass owns it, not a callout
+    if inside and bbox[3] < 0.2 * h:
+        blks = [blocks[i] for i in inside]
+        if all(_dominant_size(b) <= 0.92 * body_size for b in blks) \
+                and _line_marker(blks[0]["lines"][0]):
+            ctx.log.entry("region-footnote-skip", page=page["n"],
+                          bbox=[round(v, 1) for v in bbox])
+            return None
+
     # user answers (region overrides from config) trump every heuristic
     for ov in ctx.cfg["structure"].get("regionOverrides", []):
         if ov.get("page") == page["n"] and _overlap_frac(bbox, ov["bbox"]) > 0.5:
@@ -701,6 +741,28 @@ def _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles):
                 absorbed[i] = reg
                 ctx.log.entry("caption", page=reg["page"], figure=reg["rk"],
                               gap=round(gap, 1), text=text[:80])
+                break
+        # a labeled line directly ABOVE the figure is its title ("Figure 1:
+        # ..."): the figure's header, kept inside the <figure>
+        for i, blk in enumerate(blocks):
+            if i in absorbed or blk["page"] != reg["page"]:
+                continue
+            gap = blk["bbox"][1] - reg["bbox"][3]  # block bottom - region top
+            if not (-2 <= gap <= 25):
+                continue
+            if not _h_overlap(reg["bbox"], blk["bbox"]):
+                continue
+            text = texts[i]
+            keyword = re.match(r"(figure|fig\.|table|chart|exhibit)\b",
+                               text, re.I)
+            tagged = roles[i][0] == "Caption" and roles[i][1] > 0.5
+            if (keyword or tagged) and len(text) < 300:
+                reg["title"] = text
+                reg["titleBlock"] = blk["rk"]
+                absorbed[i] = reg
+                ctx.log.entry("figure-title", page=reg["page"],
+                              figure=reg["rk"], gap=round(gap, 1),
+                              text=text[:80])
                 break
 
 
@@ -885,7 +947,17 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         if brk_ov.get("breaks") and rich.get("lineJoins"):
             node["breaks"] = _wrap_joins(text, rich["lineJoins"])
         return node
-    if _hard_returns(blk) and rich.get("lineJoins"):
+    if blk.get("pitch") and not _hard_returns(blk):
+        # typed line breaks, joined by the page's line pitch; the
+        # document-level typed-lines question owns presentation here.
+        # Blocks with their own hard-returns evidence (short item lines:
+        # 'English Phone 1%' stacks) keep the per-block path below even in
+        # a typed document.
+        prov["pitch"] = True
+        if ctx.cfg["structure"].get("typedLines", "join") == "preserve" \
+                and rich.get("lineJoins"):
+            node["breaks"] = _wrap_joins(text, rich["lineJoins"])
+    elif _hard_returns(blk) and rich.get("lineJoins"):
         node["breaks"] = _wrap_joins(text, rich["lineJoins"])
         _name_emphasis(node, text)
         ctx.log.entry("hard-returns", page=blk["page"], block=blk["rk"],
@@ -924,9 +996,14 @@ def _definition_lists(ctx, nodes):
             text = (t.get("text") or "").strip()
             is_term = (t["type"] in ("heading", "paragraph")
                        and 0 < len(text) <= 60
-                       and not NOTES_HEADING.fullmatch(text)
-                       and (t["type"] != "heading"
-                            or t["level"] > n["level"]))
+                       and not NOTES_HEADING.fullmatch(text))
+            if is_term and pairs:
+                # terms share one style; a heading styled differently is
+                # the next section, not a term - that's the list boundary
+                t0 = pairs[0][0].get("data") or {}
+                td = t.get("data") or {}
+                is_term = all(td.get(k) == t0.get(k)
+                              for k in ("font", "size", "color"))
             if not (is_term and d["type"] == "paragraph"
                     and not (d.get("text") or "").startswith("»")):
                 break
@@ -1112,7 +1189,13 @@ def _hard_returns(blk):
     # wrapped prose - enough on its own when transitions look like items
     # (contact cards whose longest line is the interior address)
     short60 = sum(1 for l in interior if l["bbox"][2] < left + 0.6 * width)
-    return short60 >= 1 and item_starts >= 0.6 * (len(lines) - 1)
+    if short60 >= 1 and item_starts >= 0.6 * (len(lines) - 1):
+        return True
+    # a uniform stack of short item lines ('English Phone 1%' label-value
+    # stats): wrapped prose lines run long, so equal-width short lines with
+    # every transition starting an item are a stack, not a wrap
+    return (len(lines) >= 3 and item_starts == len(lines) - 1
+            and all(len(l["text"]) <= 45 for l in lines))
 
 
 def _block_align(blk, size):
@@ -1140,18 +1223,22 @@ def _figure_node(ctx, reg, pages, fig_count):
     page = pages[reg["page"]]
     src, w_px, h_px = _crop(ctx, reg, page, fig_count)
     caption = reg.get("caption")
+    title = reg.get("title")
     rk = ctx.log.entry("figure-crop", page=reg["page"], src=src,
                        bbox=[round(v, 1) for v in reg["bbox"]],
-                       region=reg["rk"], caption=(caption or "")[:80])
+                       region=reg["rk"], caption=(caption or "")[:80],
+                       title=(title or "")[:80])
     node = {"type": "figure", "src": src,
             "width": round(reg["bbox"][2] - reg["bbox"][0]),
             "height": round(reg["bbox"][3] - reg["bbox"][1]),
-            "alt": caption or f"Figure from page {reg['page']}",
+            "alt": title or caption or f"Figure from page {reg['page']}",
             "page": reg["page"], "bbox": reg["bbox"], "rk": rk,
             "data": {"region": reg["rk"]}}
     node["nid"] = _stable_id("n", ctx.nids, "figure", node["page"], node["bbox"])
     if caption:
         node["caption"] = caption
+    if title:
+        node["title"] = title
     return node
 
 
@@ -2298,10 +2385,11 @@ def _merge_cross_page_callouts(ctx, regions, pages):
 
 
 def _indents(ctx, nodes):
-    """Paragraphs indented from their page's prevailing left edge: web
-    convention flushes print indents, so the default removes them - but each
-    is a converter choice (question), preservable per paragraph or
-    document-wide (structure.indents / indentOverrides)."""
+    """Page-geometry pass: paragraphs offset from the page's prevailing
+    left edge are centered when their margins balance (single lines too -
+    _block_align can't judge those), otherwise indented. Indents are a
+    converter choice (question), preservable per paragraph or document-wide
+    (structure.indents / indentOverrides); web convention removes them."""
     by_page = {}
     for n in nodes:
         if n["type"] == "paragraph" and not (n.get("data") or {}).get("align"):
@@ -2313,9 +2401,16 @@ def _indents(ctx, nodes):
         if len(paras) < 3:
             continue
         base = Counter(round(n["bbox"][0]) for n in paras).most_common(1)[0][0]
+        right = max(n["bbox"][2] for n in paras)
         for n in paras:
             size = (n.get("data") or {}).get("size") or 10.0
             ind = n["bbox"][0] - base
+            rm = right - n["bbox"][2]
+            if ind > 2 * size and abs(ind - rm) < 0.1 * max(right - base, 1):
+                n["data"]["align"] = "center"
+                ctx.log.entry("centered", page=page_n, nid=n["nid"],
+                              text=(n.get("text") or "")[:50])
+                continue
             if not (0.8 * size <= ind <= 6 * size):
                 continue
             em = round(ind / size, 1)

@@ -18,3 +18,8 @@ Do not necessarily promote when it is just a category badge:
 - FUN FACT
 
 The reason: lots of generic “Note” / “Tip” headings can pollute the heading outline without helping navigation.
+
+## Identify long blocks of text without any headers or other landmarks
+
+
+## Validate links

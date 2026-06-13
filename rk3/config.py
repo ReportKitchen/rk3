@@ -38,6 +38,10 @@ DEFAULTS = {
         # [{"textPrefix": str, "mode": "preserve"|"remove"}]
         "indents": "remove",
         "indentOverrides": [],
+        # typed documents hard-break their lines (Word exports); the
+        # adaptive line pitch joins them into paragraphs. "preserve" keeps
+        # the original breaks as <br> instead. One document-level question.
+        "typedLines": "join",
     },
     "output": {
         "imageScale": 2,

@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter
 
-VERSION = 23
+VERSION = 24
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -429,9 +429,31 @@ def _sup_of(a, b):
     return None
 
 
+def _line_pitch(lines):
+    """Modal vertical gap between consecutive same-size lines - the page's
+    line pitch. Typed documents (Word exports at 1.5/double spacing) set it
+    well above the geometric merge threshold, with paragraph gaps in a
+    separate cluster above it. Only trusted when well populated."""
+    gaps = []
+    for a, b in zip(lines, lines[1:]):
+        if abs(a["size"] - b["size"]) >= 0.6:
+            continue
+        g = a["bbox"][1] - b["bbox"][3]
+        if 0 <= g <= 2.2 * max(b["size"], 1.0):
+            gaps.append(round(g))
+    if len(gaps) < 8:
+        return None
+    mode, count = Counter(gaps).most_common(1)[0]
+    return float(mode) if count >= 0.35 * len(gaps) else None
+
+
 def _blocks(lines):
     """Merge consecutive lines into blocks on small vertical gaps and similar
-    dominant font size. PDF y decreases down the page."""
+    dominant font size. PDF y decreases down the page. The gap threshold
+    adapts to the page's line pitch, so typed line breaks join into real
+    paragraphs; pitch-joined blocks are marked (a document-level question
+    lets the user keep the original breaks instead)."""
+    pitch = _line_pitch(lines)
     blocks = []
     cur = None
     for ln in lines:
@@ -439,12 +461,17 @@ def _blocks(lines):
             last = cur["lines"][-1]
             gap = last["bbox"][1] - ln["bbox"][3]  # prev bottom - this top
             height = max(ln["size"], 1.0)
+            limit = 0.9 * height
+            if pitch is not None and pitch > limit:
+                limit = min(pitch + 0.45 * height, 1.7 * height)
             same_size = abs(ln["size"] - last["size"]) < 0.6
             # an ALL-CAPS kicker followed by mixed-case prose (or vice versa)
             # is a boundary even at body size
             same_case = _is_caps(ln["text"]) == _is_caps(last["text"])
-            if 0 <= gap <= 0.9 * height and same_size and same_case:
+            if 0 <= gap <= limit and same_size and same_case:
                 cur["lines"].append(ln)
+                if gap > 0.9 * height:
+                    cur["pitch"] = True
                 continue
         cur = {"lines": [ln]}
         blocks.append(cur)

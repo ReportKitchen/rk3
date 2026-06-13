@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 31
+VERSION = 36
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -268,11 +268,21 @@ def _render_node(ctx, node, pages, state):
                      f'{html.escape(node["quoteClose"])}</span>')
         return f'<p {_attrs(node, pages)}>{body}</p>'
     if t == "figure":
-        cap = (f'\n  <figcaption>{html.escape(node["caption"])}</figcaption>'
-               if node.get("caption") else "")
-        return (f'<figure {_attrs(node, pages)}>\n'
+        title = node.get("title")
+        cap = node.get("caption")
+        head = (f'  <figcaption>{html.escape(title)}</figcaption>\n'
+                if title else "")
+        if cap and title:
+            # one figcaption per figure: the title heads it, the source/
+            # caption line keeps its place below the image
+            tail = f'\n  <p class="fig-source">{html.escape(cap)}</p>'
+        elif cap:
+            tail = f'\n  <figcaption>{html.escape(cap)}</figcaption>'
+        else:
+            tail = ""
+        return (f'<figure {_attrs(node, pages)}>\n{head}'
                 f'  <img src="{node["src"]}" alt="{html.escape(node["alt"], quote=True)}"'
-                f' width="{node["width"]}">{cap}\n</figure>')
+                f' width="{node["width"]}">{tail}\n</figure>')
     if t == "table":
         rows = node["rows"]
         head = ""
@@ -620,8 +630,14 @@ def _original_css(ctx, ir):
     link_votes = Counter()
 
     def feed_links(n):
+        if n["type"] != "paragraph":
+            return  # headings with links carry heading color, not link color
         links = n.get("links") or []
         own = _usable_color((n.get("data") or {}).get("color"))
+        if own:
+            r, g, b = (int(own[i:i + 2], 16) for i in (1, 3, 5))
+            if max(r, g, b) - min(r, g, b) < 24:
+                own = None  # greys aren't link styling, just dark text
         if links and own and own != body["color"]:
             span = sum(e - s for s, e, _ in links)
             if span >= 0.6 * max(len(n.get("text", "") or ""), 1):
@@ -631,6 +647,7 @@ def _original_css(ctx, ir):
     # the body profile; identical departures share one grouped rule
     groups = {}
     group_order = []
+    link_exceptions = {}  # color -> [nid]: link paragraphs off the a-rule
 
     def feed_exception(n):
         if n["type"] != "paragraph" and n.get("dl") != "dt":
@@ -649,8 +666,16 @@ def _original_css(ctx, ir):
                 if style and style != b_style:
                     rules.append(f"  font-style: {style};")
         own = _usable_color(d.get("color"))
+        # a link-dominated paragraph's color IS the link color: the `a`
+        # rule styles it, the surrounding text keeps body color (documents
+        # that mix link colors get per-node a-rules below)
+        link_span = sum(e - s for s, e, _t in n.get("links") or [])
+        link_dom = link_span >= 0.5 * max(len(n.get("text", "") or ""), 1)
         if own and own != body["color"]:
-            rules.append(f"  color: {own};")
+            if link_dom:
+                link_exceptions.setdefault(own, []).append(n["nid"])
+            else:
+                rules.append(f"  color: {own};")
         if d.get("size") and abs(d["size"] / body_pt - 1) >= 0.12:
             rules.append(f"  font-size: {round(d['size'] / body_pt, 2)}em;")
         if d.get("align"):
@@ -676,6 +701,13 @@ def _original_css(ctx, ir):
         out += ["a {", f"  color: {link_color};",
                 "  text-decoration: none;", "}",
                 "a:hover { text-decoration: underline; }", ""]
+        # documents that mix link colors: the minority styles keep theirs
+        for c in sorted(link_exceptions):
+            if c == link_color:
+                continue
+            sel = ",\n".join(f'[data-nid="{nid}"] a'
+                             for nid in link_exceptions[c])
+            out += [f"{sel} {{ color: {c}; }}", ""]
 
     for key in group_order:
         sel = ",\n".join(f'[data-nid="{nid}"]' for nid in groups[key])
