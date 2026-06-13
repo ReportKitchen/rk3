@@ -357,6 +357,9 @@ constants into documented per-stage TUNING blocks with rationale.
 - nid remapping across reconversions (bbox drift orphans ops/answers)
 - LLM assist stage (heading adjudication, callout semantics, footnote matching, vision-based layer-3 recovery)
 - Engine #2+, engine-switcher UI
+- Chart recreation: third figure-or-callout option that rebuilds simple
+  charts with a charting package (user request 2026-06-12, cottonwood p3);
+  fits the template/plugin layer (IR→IR transform)
 - Progress indicators, batch processing
 - Configurable footnote placement
 - ExpressJS front-end (API contract above is the port spec)

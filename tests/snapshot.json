@@ -526,7 +526,7 @@
       7
     ],
     "questions": 224,
-    "textChars": 271740
+    "textChars": 271654
   },
   "02--baystate-case-study-021624": {
     "status": "done",
@@ -590,14 +590,14 @@
       ]
     ],
     "counts": {
-      "aside": 2,
+      "aside": 4,
       "figure": 5,
       "footnotes": 1,
       "heading": 14,
-      "paragraph": 79,
+      "paragraph": 75,
       "table": 1
     },
-    "asideChildren": 7,
+    "asideChildren": 11,
     "notes": [
       1,
       2,
@@ -648,14 +648,15 @@
     "counts": {
       "aside": 1,
       "columns": 1,
-      "figure": 8,
+      "figure": 6,
       "heading": 8,
-      "paragraph": 14
+      "paragraph": 14,
+      "table": 2
     },
     "asideChildren": 1,
     "notes": [],
-    "questions": 6,
-    "textChars": 7720
+    "questions": 4,
+    "textChars": 7943
   },
   "02--facilitator-guide-injury-prevention-draft-8-27-15": {
     "status": "done",
@@ -672,6 +673,14 @@
       [
         3,
         "Department of Public Health Diné College"
+      ],
+      [
+        2,
+        "INTRODUCTION"
+      ],
+      [
+        4,
+        "Facilitator’s Guide for Injury Prevention in Public Health"
       ],
       [
         4,
@@ -815,17 +824,17 @@
       ]
     ],
     "counts": {
-      "aside": 8,
-      "figure": 24,
-      "heading": 38,
+      "aside": 9,
+      "figure": 23,
+      "heading": 40,
       "list": 22,
-      "paragraph": 161,
+      "paragraph": 164,
       "table": 1
     },
-    "asideChildren": 15,
+    "asideChildren": 17,
     "notes": [],
-    "questions": 52,
-    "textChars": 42287
+    "questions": 58,
+    "textChars": 43229
   },
   "02--jhu-federal-register-comments-pharma-investigation": {
     "status": "done",
@@ -843,7 +852,7 @@
       3,
       4
     ],
-    "questions": 3,
+    "questions": 6,
     "textChars": 16135
   },
   "02--compelling-investment-case-climate-adaptation": {
@@ -919,7 +928,7 @@
     },
     "asideChildren": 29,
     "notes": [],
-    "questions": 3,
+    "questions": 8,
     "textChars": 13032
   },
   "02--gates-earth": {
@@ -1688,16 +1697,16 @@
       ]
     ],
     "counts": {
-      "aside": 37,
+      "aside": 34,
       "columns": 2,
       "figure": 85,
       "footnotes": 1,
       "heading": 190,
       "list": 21,
       "paragraph": 721,
-      "table": 7
+      "table": 10
     },
-    "asideChildren": 439,
+    "asideChildren": 304,
     "notes": [
       13,
       14,
@@ -1799,8 +1808,8 @@
       110,
       111
     ],
-    "questions": 39,
-    "textChars": 403666
+    "questions": 35,
+    "textChars": 403733
   },
   "02--rwjf-futures": {
     "status": "done",
@@ -2331,7 +2340,7 @@
     },
     "asideChildren": 65,
     "notes": [],
-    "questions": 47,
+    "questions": 51,
     "textChars": 171815
   },
   "02--toolkit-hiring2022-copy112222onlineversiononly-1": {
@@ -3484,14 +3493,14 @@
       ]
     ],
     "counts": {
-      "aside": 43,
+      "aside": 46,
       "figure": 16,
       "footnotes": 1,
       "heading": 286,
       "list": 61,
-      "paragraph": 684
+      "paragraph": 681
     },
-    "asideChildren": 115,
+    "asideChildren": 118,
     "notes": [
       1,
       1,
@@ -3500,7 +3509,7 @@
       4,
       5
     ],
-    "questions": 52,
+    "questions": 55,
     "textChars": 290642
   },
   "03--enterprise-annual-report-2022": {

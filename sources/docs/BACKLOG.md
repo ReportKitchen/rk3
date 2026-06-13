@@ -57,9 +57,11 @@ Let the user drag the feedback box around by the titlebar.  Let them also, once 
 ## Another amazing touch: Answering converter questions
 When the user chooses one of the options in the converter, and it's not the one currently being displayed, it'd be amazing if it could flip realtime to show whatever the other option is.  Even if it had to wait to rebuild the document on the server and then pass the diff or whatever - a little spinner is better than a full page load.
 
+Same would apply to intentional enhancements like making text into an accordion.  Ideally that would happen in front of your eyes without a refresh.
+
 
 ## Comments
-I'd like to let the user drop comments into the text, that don't require any action on our end. Example is "remember to ask alex if this number is right." Then we want a workflow similar to the feedback -- see a list of them, click to jump, edit, delete.  longterm: assign to another user and track completion status.
+I'd like to let the user drop comment bubbles into the text, that don't require any action on our end. Example is "remember to ask alex if this number is right." Then we want a workflow similar to the feedback -- see a list of them, click to jump, edit, delete.  longterm: assign to another user and track completion status.
 
 ## Edit ops
 Once an edit has been made, I'd like a toggle to show or hide completed/closed edit bubbles in the text.

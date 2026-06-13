@@ -32,6 +32,12 @@ DEFAULTS = {
         # "styled" (separate <span class="section-number">), "inline" ("4. X"),
         # or "removed"
         "sectionNumbers": "styled",
+        # paragraphs indented from the page's prevailing left edge: web
+        # convention flushes them left ("remove"); "preserve" keeps the
+        # indent in layer 3. Per-paragraph answers:
+        # [{"textPrefix": str, "mode": "preserve"|"remove"}]
+        "indents": "remove",
+        "indentOverrides": [],
     },
     "output": {
         "imageScale": 2,

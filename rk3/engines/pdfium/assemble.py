@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter
 
-VERSION = 22
+VERSION = 23
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -22,8 +22,15 @@ def run(ctx):
     ex = ctx.artifact("extract")
     all_blocks = []
     for page in ex["pages"]:
+        # candidate text-highlight rects: small filled paths (height-checked
+        # per line later; big callout/cell fills never qualify)
+        fills = [(o[1], o[2], o[3], o[4], o[5])
+                 for o in page.get("objects", [])
+                 if o[0] == 2 and o[7] and o[5] is not None
+                 and (o[4] - o[2]) < 40]
         lines = _merge_baseline_fragments(
-            ctx, _lines(page["chars"], page.get("links", [])), page["n"])
+            ctx, _lines(page["chars"], page.get("links", []), fills),
+            page["n"])
         blocks = _blocks(lines)
         for blk in blocks:
             blk["page"] = page["n"]
@@ -49,7 +56,7 @@ def run(ctx):
     })
 
 
-def _lines(chars, links):
+def _lines(chars, links, fills=()):
     """Group chars into lines following pdfium's content order, breaking on
     vertical jumps or large backward horizontal jumps."""
     lines = []
@@ -77,15 +84,15 @@ def _lines(chars, links):
                 # vertically detached) is a real break
                 split = c[T] < prev[B] or c[B] > prev[T]
             if split:
-                lines.append(_finish_line(cur, links))
+                lines.append(_finish_line(cur, links, fills))
                 cur = []
         cur.append(c)
     if cur:
-        lines.append(_finish_line(cur, links))
+        lines.append(_finish_line(cur, links, fills))
     return [ln for ln in lines if ln["text"].strip()]
 
 
-def _finish_line(chars, links):
+def _finish_line(chars, links, fills=()):
     chars = sorted(chars, key=lambda c: c[L])
     # some PDFs place space chars at geometrically impossible positions
     # ("i sjust"); a space whose neighbors nearly touch is a lie — drop it,
@@ -173,7 +180,46 @@ def _finish_line(chars, links):
     font_runs = _font_runs(src, line["fontIdx"])
     if font_runs:
         line["fontRuns"] = font_runs
+    marks = _mark_runs(src, line, fills)
+    if marks:
+        line["marks"] = marks
     return line
+
+
+def _mark_runs(src, line, fills):
+    """Text highlights: a fill rect hugging part of the line (height within
+    1.8x the text size, vertically overlapping it) marks the chars it covers,
+    like the PDF highlighter tool: [[s, e, colorIdx], ...]. Tall fills are
+    callout boxes and table cells, not highlights - excluded upstream and by
+    the height check."""
+    if not fills:
+        return None
+    lb, lt = line["bbox"][1], line["bbox"][3]
+    runs = []
+    for fl, fb, fr, ft, ci in fills:
+        if ft - fb > 1.8 * max(line["size"], 1.0):
+            continue
+        if min(ft, lt) - max(fb, lb) < 0.5 * (lt - lb):
+            continue
+        s = e = None
+        for idx, c in enumerate(src):
+            if c is None:
+                continue
+            cx = (c[L] + c[R]) / 2
+            if fl - 1 <= cx <= fr + 1:
+                if s is None:
+                    s = idx
+                e = idx + 1
+        if s is not None and e - s >= 2:
+            runs.append([s, e, ci])
+    runs.sort()
+    merged = []
+    for s, e, ci in runs:
+        if merged and ci == merged[-1][2] and s <= merged[-1][1] + 1:
+            merged[-1][1] = max(merged[-1][1], e)
+        else:
+            merged.append([s, e, ci])
+    return merged or None
 
 
 def _font_runs(src, dom_font):
@@ -349,7 +395,7 @@ def _merge_baseline_fragments(ctx, lines, page_n):
                     cur["spaceBefore"] = True
                 if right.get("spaceAfter"):
                     cur["spaceAfter"] = True
-                for key in ("sups", "links", "colors", "fontRuns"):
+                for key in ("sups", "links", "colors", "fontRuns", "marks"):
                     merged = list(left.get(key, []))
                     for rng in right.get(key, []):
                         merged.append([rng[0] + shift, rng[1] + shift, *rng[2:]])

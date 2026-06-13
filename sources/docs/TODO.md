@@ -21,7 +21,8 @@ Feedback files remain the source of truth; this is just the working order.
 - "CHASE" belongs on the previous line (ends with &)
 - JHU: bold-run detection for inline <strong> (final phrase "Imported APIs…")
 
-## D. Styling batch (mostly layer-3 generation extensions)
+## D. Styling batch — DONE (grouped style exceptions, Google Fonts, lavish
+## tables, floats, <mark> highlights, alignment, indent questions)
 - colored headings not picking up their colors (×3 spots)
 - Google Fonts: check if the doc's font exists there, load it (user: covers 80%+)
 - Patricia pull-quote: floated, colored text, no box (pull-quote style variant)

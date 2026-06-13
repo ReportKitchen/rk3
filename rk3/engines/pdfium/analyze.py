@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 37
+VERSION = 43
 
 
 def _font_emphasis(name, weight, base_name):
@@ -143,8 +143,12 @@ def run(ctx):
     tag_levels = _tag_heading_levels(ctx, roles)
 
     drop_toc = ctx.cfg["structure"].get("dropToc", True)
-    toc_pages = _toc_pages(ctx, pages, blocks) if drop_toc else set()
-    skip = {i for i, blk in enumerate(blocks) if blk["page"] in toc_pages}
+    toc_bands = _toc_pages(ctx, pages, blocks) if drop_toc else {}
+    skip = set()
+    for i, blk in enumerate(blocks):
+        band = toc_bands.get(blk["page"])
+        if band and band[0] <= (blk["bbox"][1] + blk["bbox"][3]) / 2 <= band[1]:
+            skip.add(i)
     for i in skip:
         ctx.log.entry("toc-drop", page=blocks[i]["page"], block=blocks[i]["rk"],
                       text=texts[i][:60])
@@ -175,7 +179,7 @@ def run(ctx):
                           text=texts[i][:60])
 
     top_size = max((_dominant_size(b) for b in blocks), default=body_size)
-    regions = _detect_regions(ctx, pages, blocks, texts, body_size, toc_pages,
+    regions = _detect_regions(ctx, pages, blocks, texts, body_size, toc_bands,
                               top_size)
     regions = _merge_cross_page_callouts(ctx, regions, pages)
     absorbed = {}  # block index -> region
@@ -217,11 +221,13 @@ def run(ctx):
         if grouped is not None:
             page_items[page_n] = grouped
 
+    twocol_pages = set()
     for page_n, items in page_items.items():
         bboxes = [item_bbox(it) for it in items]
         split = _column_split(bboxes)
         if split is not None:
             page_items[page_n] = _flow_order(items, bboxes, split)
+            twocol_pages.add(page_n)
             ctx.log.entry("two-column", page=page_n, split=round(split, 1))
 
     deepest = max([*tag_levels.values(), *levels.values(), 0])
@@ -239,8 +245,14 @@ def run(ctx):
                                role=roles[ref], tag_levels=tag_levels,
                                kicker_level=kicker_level)
         if ref["kind"] == "figure":
-            fig_count += 1
-            node = _figure_node(ctx, ref, pages, fig_count)
+            # grid-ruled, text-dense "figures" are tables (strict gate keeps
+            # charts with gridlines out); the region stops claiming its text
+            node = _try_table(ctx, ref, blocks, texts, pages, strict=True)
+            if node is not None:
+                ref["kind"] = "table"
+            else:
+                fig_count += 1
+                node = _figure_node(ctx, ref, pages, fig_count)
         else:
             node = _try_table(ctx, ref, blocks, texts, pages)
             if node is None:
@@ -295,7 +307,9 @@ def run(ctx):
     # sentences interrupted by page breaks happen in the main flow too,
     # not just inside callouts
     nodes = _join_pagebreak_sentences(ctx, nodes)
-    nodes = _aside_layout_and_pullquotes(ctx, nodes)
+    nodes = _floating_pullquotes(ctx, nodes, body_size)
+    nodes = _aside_layout_and_pullquotes(ctx, nodes, twocol_pages)
+    _indents(ctx, nodes)
 
     if notes:
         last = blocks[max(note_idx)]
@@ -819,6 +833,9 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         return node
 
     strong = in_aside and size > 1.15 * body_size
+    align = _block_align(blk, size)
+    if align:
+        prov["align"] = align
     refs = []
     for s, e in _merge_sup_ranges(text, rich.get("sups", [])):
         val = _marker_value(text[s:e].replace(" ", "")) if e - s <= 7 else None
@@ -840,6 +857,8 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         node["links"] = rich["links"]
     if rich.get("emph"):
         node["emph"] = rich["emph"]
+    if rich.get("marks"):
+        node["marks"] = rich["marks"]
     brk_ov = _override_for(ctx.cfg["structure"].get("breakOverrides", []), text)
     if brk_ov is not None:
         ctx.log.entry("break-override", page=blk["page"], block=blk["rk"],
@@ -886,6 +905,27 @@ def _hard_returns(blk):
     return short >= 2 and item_starts >= 2 and item_starts >= 0.6 * len(interior)
 
 
+def _block_align(blk, size):
+    """'right'/'center' when the block's line edges say so: aligned right
+    edges over a ragged left mean right-aligned, agreeing midpoints over
+    ragged edges mean centered. Justified text agrees on the left too, so
+    it never matches. Single lines carry no evidence."""
+    lines = blk["lines"]
+    if len(lines) < 2:
+        return None
+    ls = [l["bbox"][0] for l in lines]
+    rs = [l["bbox"][2] for l in lines]
+    l_spread = max(ls) - min(ls)
+    r_spread = max(rs) - min(rs)
+    if r_spread < 0.3 * size and l_spread > 1.5 * size:
+        return "right"
+    mids = [(a + b) / 2 for a, b in zip(ls, rs)]
+    if (max(mids) - min(mids) < 0.3 * size
+            and l_spread > 1.5 * size and r_spread > 1.5 * size):
+        return "center"
+    return None
+
+
 def _figure_node(ctx, reg, pages, fig_count):
     page = pages[reg["page"]]
     src, w_px, h_px = _crop(ctx, reg, page, fig_count)
@@ -921,15 +961,59 @@ def _crop(ctx, reg, page, fig_count):
     return name, crop.width, crop.height
 
 
-def _try_table(ctx, reg, blocks, texts, pages):
-    """A boxed region whose grid is literally drawn (ruled lines) and whose
-    blocks cluster into columns is a table, not a callout."""
+def _color_segments(line):
+    """Partition a line into its color runs: [[s, e, colorIdx]], merged and
+    stripped of boundary spaces; None when the line is single-colored."""
+    runs = line.get("colors") or []
+    if not runs:
+        return None
+    text = line["text"]
+    segs = []
+    pos = 0
+    for s, e, ci in sorted(runs):
+        if s > pos:
+            segs.append([pos, s, line["colorIdx"]])
+        segs.append([s, e, ci])
+        pos = max(pos, e)
+    if pos < len(text):
+        segs.append([pos, len(text), line["colorIdx"]])
+    merged = []
+    for s, e, ci in segs:
+        while s < e and text[s] == " ":
+            s += 1
+        while e > s and text[e - 1] == " ":
+            e -= 1
+        if s >= e:
+            continue
+        if merged and merged[-1][2] == ci:
+            merged[-1][1] = e
+        else:
+            merged.append([s, e, ci])
+    return merged if len(merged) > 1 else None
+
+
+def _try_table(ctx, reg, blocks, texts, pages, strict=False):
+    """A boxed region whose grid is literally drawn (ruled lines or cell
+    fills) and whose blocks cluster into columns is a table, not a callout.
+
+    Column boundaries come from the drawn verticals and fill edges; a block
+    spanning several columns is split into cells at its color-run boundaries
+    (label/value panels print the label white-on-fill and the value dark).
+    Cell/row/column fills, text colors and rule colors are captured as the
+    table's style so layer 3 can recreate the original look.
+
+    strict mode (regions classified as figures): also require ≥3 rows and a
+    mostly-filled cell lattice, so charts with gridlines and sparse axis
+    labels never convert."""
     idx = reg["blockIdx"]
     if len(idx) < 4 or reg.get("endPage"):
         return None
     page = pages[reg["page"]]
     l0, b0, r0, t0 = reg["bbox"]
     hl = vl = 0
+    vxs = []
+    fills = []
+    border_votes = Counter()
     for o in page.get("objects", []):
         if o[0] != OBJ_PATH:
             continue
@@ -938,53 +1022,155 @@ def _try_table(ctx, reg, blocks, texts, pages):
             continue
         if t - b < 3 and r - l > 30:
             hl += 1
+            if o[8] and o[6] is not None:
+                border_votes[o[6]] += 1
         elif r - l < 3 and t - b > 10:
             vl += 1
+            vxs.append((l + r) / 2)
+            if o[8] and o[6] is not None:
+                border_votes[o[6]] += 1
+        elif o[7] and o[5] is not None and r - l > 10 and t - b > 8:
+            fills.append((l, b, r, t, o[5]))
     if hl < 3 or vl < 2:
         return None
 
-    # columns by block center-x
-    by_cx = sorted(idx, key=lambda i: (blocks[i]["bbox"][0] + blocks[i]["bbox"][2]) / 2)
-    col_of = {}
-    col = -1
-    prev_cx = None
-    for i in by_cx:
-        cx = (blocks[i]["bbox"][0] + blocks[i]["bbox"][2]) / 2
-        if prev_cx is None or cx - prev_cx > 50:
-            col += 1
-        col_of[i] = col
-        prev_cx = cx
-    n_cols = col + 1
+    # column ranges between internal boundaries (verticals + fill edges)
+    cand = sorted(vxs + [x for f in fills for x in (f[0], f[2])])
+    clusters = []
+    for x in cand:
+        if x < l0 + 8 or x > r0 - 8:
+            continue
+        if clusters and x - clusters[-1][-1] < 6:
+            clusters[-1].append(x)
+        else:
+            clusters.append([x])
+    edges = [l0, *(sum(c) / len(c) for c in clusters), r0]
+    cols = list(zip(edges, edges[1:]))
+    if len(cols) < 2:
+        # no internal boundaries drawn: columns from block center clusters
+        centers = sorted((blocks[i]["bbox"][0] + blocks[i]["bbox"][2]) / 2
+                         for i in idx)
+        edges = [l0]
+        for a, b in zip(centers, centers[1:]):
+            if b - a > 50:
+                edges.append((a + b) / 2)
+        edges.append(r0)
+        cols = list(zip(edges, edges[1:]))
+    n_cols = len(cols)
     if n_cols < 2:
         return None
 
-    # rows by vertical-interval grouping (top-down)
-    rows_idx = []
-    for i in sorted(idx, key=lambda i: -blocks[i]["bbox"][3]):
-        b, t = blocks[i]["bbox"][1], blocks[i]["bbox"][3]
-        if rows_idx and t > rows_idx[-1]["min_b"]:
-            rows_idx[-1]["cells"].append(i)
-            rows_idx[-1]["min_b"] = min(rows_idx[-1]["min_b"], b)
+    # cells: (col, top, bottom, text, colorIdx); blocks spanning several
+    # columns split at color-run boundaries, joined per column across lines
+    cells = []
+    for i in idx:
+        blk = blocks[i]
+        bl, bb, br, bt = blk["bbox"]
+        span = [c for c, (xl, xr) in enumerate(cols)
+                if min(br, xr) - max(bl, xl) > 4]
+        dom = Counter()
+        for line in blk["lines"]:
+            dom[line["colorIdx"]] += len(line["text"])
+        if len(span) <= 1:
+            c = span[0] if span else min(
+                range(n_cols), key=lambda c: abs((cols[c][0] + cols[c][1]) / 2
+                                                 - (bl + br) / 2))
+            cells.append([c, bt, bb, texts[i], dom.most_common(1)[0][0]])
+            continue
+        parts = {}
+        ok = True
+        for line in blk["lines"]:
+            segs = _color_segments(line)
+            if not segs or len(segs) != len(span):
+                ok = False
+                break
+            for c, (s, e, ci) in zip(span, segs):
+                part = parts.setdefault(c, ["", ci])
+                part[0] = (part[0] + " " + line["text"][s:e].strip()).strip()
+        if ok:
+            for c in sorted(parts):
+                if parts[c][0]:
+                    cells.append([c, bt, bb, parts[c][0], parts[c][1]])
         else:
-            rows_idx.append({"cells": [i], "min_b": b})
+            cells.append([span[0], bt, bb, texts[i],
+                          dom.most_common(1)[0][0]])
+
+    # rows by vertical-interval grouping (top-down)
+    rows_cells = []
+    for cell in sorted(cells, key=lambda c: -c[1]):
+        if rows_cells and cell[1] > rows_cells[-1]["min_b"]:
+            rows_cells[-1]["cells"].append(cell)
+            rows_cells[-1]["min_b"] = min(rows_cells[-1]["min_b"], cell[2])
+        else:
+            rows_cells.append({"cells": [cell], "min_b": cell[2],
+                               "max_t": cell[1]})
 
     rows = []
-    for row in rows_idx:
-        cells = [""] * n_cols
-        for i in row["cells"]:
-            c = col_of[i]
-            cells[c] = (cells[c] + " " + texts[i]).strip()
-        rows.append(cells)
+    row_colors = []
+    for row in rows_cells:
+        texts_r = [""] * n_cols
+        colors_r = [None] * n_cols
+        for c, _t, _b, txt, ci in row["cells"]:
+            texts_r[c] = (texts_r[c] + " " + txt).strip()
+            colors_r[c] = ci
+        rows.append(texts_r)
+        row_colors.append(colors_r)
     if len(rows) < 2:
         return None
+    if strict:
+        filled = sum(1 for r in rows for c in r if c.strip())
+        if len(rows) < 3 or filled < 0.6 * len(rows) * n_cols:
+            return None
 
-    header = all(c.strip() for c in rows[0])
+    # style: header band fill, per-column fills and text colors, rule color
+    style = {}
+    r0_top, r0_bot = rows_cells[0]["max_t"], rows_cells[0]["min_b"]
+    head_fill = next(
+        (f for f in fills
+         if f[2] - f[0] > 0.7 * (r0 - l0) and f[1] <= r0_bot and f[3] >= r0_top
+         and f[3] - f[1] < 0.5 * (t0 - b0)), None)
+    body_fg = Counter(ci for rc in row_colors[1:] for ci in rc
+                      if ci is not None)
+    header = all(c.strip() for c in rows[0]) and (
+        head_fill is not None
+        or (body_fg and set(filter(None, row_colors[0]))
+            and not set(filter(None, row_colors[0])) & set(body_fg)))
+    if head_fill:
+        style["headBg"] = _hex(ctx.colors[head_fill[4]])
+        head_fg = Counter(ci for ci in row_colors[0] if ci is not None)
+        if head_fg:
+            style["headFg"] = _hex(ctx.colors[head_fg.most_common(1)[0][0]])
+    body_top = r0_bot if header else t0
+    col_bg = []
+    col_fg = []
+    for c, (xl, xr) in enumerate(cols):
+        bg = next((f for f in fills
+                   if min(f[2], xr) - max(f[0], xl) > 0.6 * (xr - xl)
+                   and f[2] - f[0] < 1.5 * (xr - xl)
+                   and min(f[3], body_top) - max(f[1], b0)
+                   > 0.5 * (body_top - b0)), None)
+        col_bg.append(_hex(ctx.colors[bg[4]]) if bg else None)
+        fg = Counter(rc[c] for rc in row_colors[1 if header else 0:]
+                     if rc[c] is not None)
+        col_fg.append(_hex(ctx.colors[fg.most_common(1)[0][0]]) if fg else None)
+    if any(col_bg):
+        style["colBg"] = col_bg
+    if any(col_fg):
+        style["colFg"] = col_fg
+    border = next((ci for ci, _ in border_votes.most_common()
+                   if _hex(ctx.colors[ci]) != "#ffffff"), None)
+    if border is not None:
+        style["border"] = _hex(ctx.colors[border])
+
     rk = ctx.log.entry("table", page=reg["page"], bbox=[round(v, 1) for v in reg["bbox"]],
                        cols=n_cols, rows=len(rows), header=header,
-                       hlines=hl, vlines=vl, region=reg["rk"])
+                       hlines=hl, vlines=vl, region=reg["rk"], style=style,
+                       strict=strict)
     node = {"type": "table", "rows": rows, "header": header,
             "page": reg["page"], "bbox": reg["bbox"], "rk": rk,
             "data": {"region": reg["rk"]}}
+    if style:
+        node["style"] = style
     node["nid"] = _stable_id("n", ctx.nids, "table", reg["page"], reg["bbox"],
                              " ".join(rows[0]))
     return node
@@ -1442,10 +1628,87 @@ def _extract_quote_marks(ctx, reg, children):
     return found
 
 
-def _aside_layout_and_pullquotes(ctx, nodes):
+def _floating_pullquotes(ctx, nodes, body_size):
+    """A distinctly styled paragraph sitting in the margin beside the text
+    column - plus the attribution line under it - is a floating pull-quote:
+    an unboxed aside, floated like the original. (The boxed/duplicated kind
+    is handled in _aside_layout_and_pullquotes; this text is NOT duplicated,
+    so it stays visible to screen readers.)"""
+    paras = [n for n in nodes if n["type"] == "paragraph"]
+    if len(paras) < 4:
+        return nodes
+    col_l = Counter(round(n["bbox"][0]) for n in paras).most_common(1)[0][0]
+    col_paras = [n for n in paras if abs(round(n["bbox"][0]) - col_l) <= 2]
+    if len(col_paras) < 3:
+        return nodes
+    # the column's right edge is page-local: the quote hangs past the text
+    # on ITS page, not past the widest paragraph in the document
+    col_r_page = {}
+    for n in col_paras:
+        col_r_page[n["page"]] = max(col_r_page.get(n["page"], 0),
+                                    n["bbox"][2])
+
+    quotes = {}  # id(quote node) -> [quote, attribution...]
+    claimed = set()
+    for p in paras:
+        col_r = col_r_page.get(p["page"])
+        if col_r is None or p["bbox"][0] <= col_r or id(p) in claimed:
+            continue
+        d = p.get("data") or {}
+        distinct = (d.get("size", body_size) >= 1.2 * body_size
+                    or QUOTE_CHARS & set(p.get("text", "")[:2]))
+        beside = any(c["page"] == p["page"]
+                     and min(c["bbox"][3], p["bbox"][3])
+                     - max(c["bbox"][1], p["bbox"][1]) > 20
+                     for c in col_paras)
+        if not (distinct and beside and len(p.get("text", "")) >= 60):
+            continue
+        group = [p]
+        claimed.add(id(p))
+        for a in paras:
+            if id(a) in claimed or a["page"] != p["page"]:
+                continue
+            if a["bbox"][0] >= p["bbox"][0] - 20 \
+                    and a["bbox"][3] < p["bbox"][1] \
+                    and p["bbox"][1] - a["bbox"][3] < 6 * body_size \
+                    and a.get("text", "")[:1] in "-–—":
+                group.append(a)
+                claimed.add(id(a))
+        quotes[id(p)] = group
+
+    if not quotes:
+        return nodes
+    out = []
+    for n in nodes:
+        if id(n) in claimed and id(n) not in quotes:
+            continue
+        group = quotes.get(id(n))
+        if group is None:
+            out.append(n)
+            continue
+        bbox = [min(c["bbox"][0] for c in group),
+                min(c["bbox"][1] for c in group),
+                max(c["bbox"][2] for c in group),
+                max(c["bbox"][3] for c in group)]
+        rk = ctx.log.entry("pull-quote-floating", page=n["page"], bbox=bbox,
+                           children=[c["nid"] for c in group],
+                           text=n["text"][:60])
+        out.append({"type": "aside", "children": group, "page": n["page"],
+                    "bbox": bbox, "rk": rk, "data": {}, "pullQuote": True,
+                    "nid": _stable_id("n", ctx.nids, "aside", n["page"], bbox,
+                                      n["text"])})
+    return out
+
+
+QUOTE_CHARS = set("“\"‘'")
+
+
+def _aside_layout_and_pullquotes(ctx, nodes, twocol_pages=()):
     """Two post-passes over the assembled flow:
-    - asides narrower than the text column get layout provenance (width
-      fraction + anchored side) so layer 3 can float them like the original;
+    - asides (and, on single-column pages, figures) narrower than the text
+      column get layout provenance (width fraction + anchored side) so
+      layer 3 can float them like the original; two-column pages keep
+      figures inline - their position is column flow, not a float;
     - an aside whose text duplicates part of a nearby paragraph is a
       pull-quote: decoration, not content (config structure.pullQuotes:
       keep => floated + aria-hidden, drop => removed)."""
@@ -1464,7 +1727,8 @@ def _aside_layout_and_pullquotes(ctx, nodes):
     mode = ctx.cfg["structure"].get("pullQuotes", "keep")
     out = []
     for n in nodes:
-        if n["type"] != "aside":
+        if n["type"] not in ("aside", "figure") or \
+                (n["type"] == "figure" and n["page"] in twocol_pages):
             out.append(n)
             continue
         w = n["bbox"][2] - n["bbox"][0]
@@ -1477,10 +1741,25 @@ def _aside_layout_and_pullquotes(ctx, nodes):
             elif n["bbox"][0] - col_l < 0.08 * col_w and \
                     col_r - n["bbox"][2] > 0.2 * col_w:
                 anchor = "left"
+            if anchor and n["type"] == "figure":
+                # a float is real only when text actually runs beside it;
+                # banners, logos and stacked charts stay inline
+                h = n["bbox"][3] - n["bbox"][1]
+                beside = any(
+                    m["page"] == n["page"]
+                    and min(m["bbox"][3], n["bbox"][3])
+                    - max(m["bbox"][1], n["bbox"][1]) > 0.5 * h
+                    for m in mains)
+                if not beside:
+                    anchor = None
             if anchor:
                 n["layout"] = {"widthFrac": round(frac, 3), "anchor": anchor}
                 ctx.log.entry("aside-layout", page=n["page"], nid=n["nid"],
-                              widthFrac=n["layout"]["widthFrac"], anchor=anchor)
+                              kind=n["type"], anchor=anchor,
+                              widthFrac=n["layout"]["widthFrac"])
+        if n["type"] == "figure":
+            out.append(n)
+            continue
 
         texts = [c.get("text", "") for c in n.get("children", [])]
         total = norm(" ".join(texts))
@@ -1651,7 +1930,7 @@ def _join_block(ctx, blk, link_colors=()):
     links without targets).
     Returns {"text", "sups": [[s,e]], "links": [[s,e,target]]}."""
     out = ""
-    sups, links, emph = [], [], []
+    sups, links, emph, marks = [], [], [], []
     line_joins = []  # offsets of the spaces where source lines were joined
     for l in blk["lines"]:
         t = l["text"]
@@ -1680,6 +1959,9 @@ def _join_block(ctx, blk, link_colors=()):
             if kind and (e - s) < 0.9 * max(len(t), 1):  # sub-line runs only
                 emph.append([s + base, e + base, kind])
 
+        marks.extend([s + base, e + base, _hex(ctx.colors[ci])]
+                     for s, e, ci in l.get("marks", []))
+
         styled = []
         if l["colorIdx"] in link_colors:
             styled.append([base, base + len(t)])
@@ -1698,7 +1980,7 @@ def _join_block(ctx, blk, link_colors=()):
         else:
             merged_emph.append([s, e, kind])
     return {"text": out, "sups": sups, "links": links,
-            "emph": merged_emph, "lineJoins": line_joins}
+            "emph": merged_emph, "marks": marks, "lineJoins": line_joins}
 
 
 def _link_colors(ctx, blocks):
@@ -1788,23 +2070,76 @@ def _merge_cross_page_callouts(ctx, regions, pages):
     return out
 
 
+def _indents(ctx, nodes):
+    """Paragraphs indented from their page's prevailing left edge: web
+    convention flushes print indents, so the default removes them - but each
+    is a converter choice (question), preservable per paragraph or
+    document-wide (structure.indents / indentOverrides)."""
+    by_page = {}
+    for n in nodes:
+        if n["type"] == "paragraph" and not (n.get("data") or {}).get("align"):
+            by_page.setdefault(n["page"], []).append(n)
+    default = ctx.cfg["structure"].get("indents", "remove")
+    overrides = ctx.cfg["structure"].get("indentOverrides", [])
+    found = []
+    for page_n, paras in by_page.items():
+        if len(paras) < 3:
+            continue
+        base = Counter(round(n["bbox"][0]) for n in paras).most_common(1)[0][0]
+        for n in paras:
+            size = (n.get("data") or {}).get("size") or 10.0
+            ind = n["bbox"][0] - base
+            if not (0.8 * size <= ind <= 6 * size):
+                continue
+            em = round(ind / size, 1)
+            ov = _override_for(overrides, n["text"])
+            mode = ov.get("mode", default) if ov is not None else default
+            ctx.log.entry("indent", page=page_n, nid=n["nid"], em=em,
+                          mode=mode, text=n["text"][:60])
+            n["data"]["indent"] = em
+            if mode == "preserve":
+                n["data"]["indentKeep"] = True
+            found.append((n, mode))
+    # indent-heavy documents (questionnaires, outlines) would flood the
+    # panel; their lever is document-wide config until question grouping
+    if len(found) <= 8:
+        for n, mode in found:
+            _question(ctx, "indent", n,
+                      f"“{n['text'][:50]}…” is indented in the source. Keep "
+                      "the indent, or flush left (web convention)?",
+                      ["preserve", "remove"], mode)
+
+
+TOC_TITLE = re.compile(r"(table of )?contents", re.I)
+
+
 def _toc_pages(ctx, pages, blocks):
-    """Pages that are a table of contents: many dot-leader lines, or a
-    'Contents' title plus several lines ending in page numbers. The TOC is
-    dropped entirely; navigation is reconstructed from our heading tree."""
-    toc = set()
+    """TOC bands per page: many dot-leader lines, or a 'Contents' title plus
+    several lines ending in page numbers. Only the vertical band spanned by
+    those lines is dropped - the title and group labels sandwiched between
+    entries go with it, but content sharing the page (a TOC that ends
+    mid-page) survives. Navigation is reconstructed from our heading tree."""
+    bands = {}
     for p in pages.values():
-        lines = [l["text"] for blk in blocks if blk["page"] == p["n"]
-                 for l in blk["lines"]]
+        page_blocks = [blk for blk in blocks if blk["page"] == p["n"]]
+        lines = [l["text"] for blk in page_blocks for l in blk["lines"]]
         leader = sum(1 for t in lines if re.search(r"\.{3,}\s*\d{1,3}$", t))
         trailing = sum(1 for t in lines if re.search(r"\s\d{1,3}$", t))
-        titled = any(re.fullmatch(r"(table of )?contents", t.strip(), re.I)
-                     for t in lines)
-        if leader >= 5 or (titled and trailing >= 3):
-            toc.add(p["n"])
-            ctx.log.entry("toc-page", page=p["n"], leader_lines=leader,
-                          trailing_num_lines=trailing, titled=titled)
-    return toc
+        titled = any(TOC_TITLE.fullmatch(t.strip()) for t in lines)
+        if not (leader >= 5 or (titled and trailing >= 3)):
+            continue
+        pat = r"\.{3,}\s*\d{1,3}$" if leader >= 5 else r"\s\d{1,3}$"
+        tocish = [blk for blk in page_blocks
+                  if any(re.search(pat, l["text"])
+                         or TOC_TITLE.fullmatch(l["text"].strip())
+                         for l in blk["lines"])]
+        bot = min(blk["bbox"][1] for blk in tocish) - 2
+        top = max(blk["bbox"][3] for blk in tocish) + 2
+        bands[p["n"]] = (bot, top)
+        ctx.log.entry("toc-page", page=p["n"], leader_lines=leader,
+                      trailing_num_lines=trailing, titled=titled,
+                      band=[round(bot, 1), round(top, 1)])
+    return bands
 
 
 NOTE_START = re.compile(r"^(\d{1,3})(?:[.)]\s*|\s+)(?=\S)")
