@@ -1,0 +1,112 @@
+"""Provider-agnostic LLM access for AI-assisted features.
+
+Provider + model are configured via config.json (the ``ai`` section) or
+environment variables (AI_ENABLED / AI_PROVIDER / AI_MODEL); API keys come from
+.env. Anthropic uses the official ``anthropic`` SDK; OpenAI and DeepSeek
+(OpenAI-compatible) use the ``openai`` SDK. There is no admin UI yet — switch
+providers by editing config.json or .env.
+"""
+
+import json
+import os
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+
+# default model per provider; "model": null in config falls through to these
+DEFAULT_MODELS = {
+    "anthropic": "claude-opus-4-8",
+    "openai": "gpt-4o",
+    "deepseek": "deepseek-chat",
+}
+
+
+def _load_env() -> None:
+    """Load .env into the process environment (without clobbering real env)."""
+    env = ROOT / ".env"
+    if not env.exists():
+        return
+    for line in env.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, val = line.split("=", 1)
+        os.environ.setdefault(key.strip(), val.strip())
+
+
+_load_env()
+
+
+def get_ai_config() -> dict:
+    cfg = {}
+    path = ROOT / "config.json"
+    if path.exists():
+        try:
+            cfg = json.loads(path.read_text()).get("ai", {})
+        except (json.JSONDecodeError, OSError):
+            cfg = {}
+
+    enabled = cfg.get("enabled")
+    if enabled is None:
+        enabled = os.getenv("AI_ENABLED", "true").lower() not in ("0", "false", "no", "off")
+    provider = cfg.get("provider") or os.getenv("AI_PROVIDER", "anthropic")
+    model = cfg.get("model") or os.getenv("AI_MODEL") or DEFAULT_MODELS.get(provider)
+    return {"enabled": bool(enabled), "provider": provider, "model": model}
+
+
+def ai_enabled() -> bool:
+    return get_ai_config()["enabled"]
+
+
+def _parse_json(text: str) -> dict:
+    text = text.strip()
+    if text.startswith("```"):  # strip a ```json fence if a model adds one
+        text = text.split("\n", 1)[1].rsplit("```", 1)[0]
+    return json.loads(text)
+
+
+def complete_json(system: str, user: str, schema: dict, *, max_tokens: int = 2000) -> dict:
+    """Run a single structured-extraction call and return the parsed object.
+    Raises on any failure; callers decide whether to fall back to heuristics."""
+    cfg = get_ai_config()
+    if cfg["provider"] == "anthropic":
+        return _anthropic_json(system, user, schema, cfg["model"], max_tokens)
+    return _openai_json(system, user, schema, cfg["model"], cfg["provider"], max_tokens)
+
+
+def _anthropic_json(system, user, schema, model, max_tokens) -> dict:
+    import anthropic
+
+    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    resp = client.messages.create(
+        model=model,
+        max_tokens=max_tokens,
+        system=system,
+        messages=[{"role": "user", "content": user}],
+        output_config={"format": {"type": "json_schema", "schema": schema}},
+    )
+    text = next((b.text for b in resp.content if b.type == "text"), "")
+    return _parse_json(text)
+
+
+def _openai_json(system, user, schema, model, provider, max_tokens) -> dict:
+    from openai import OpenAI
+
+    if provider == "deepseek":
+        client = OpenAI(api_key=os.environ["DEEPSEEK_API_KEY"], base_url="https://api.deepseek.com")
+        # DeepSeek supports json_object mode but not full json_schema — give it
+        # the schema in the prompt instead
+        system = f"{system}\n\nReturn ONLY a JSON object matching this schema:\n{json.dumps(schema)}"
+        response_format = {"type": "json_object"}
+    else:
+        client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+        response_format = {"type": "json_schema",
+                           "json_schema": {"name": "result", "schema": schema, "strict": False}}
+
+    resp = client.chat.completions.create(
+        model=model,
+        max_tokens=max_tokens,
+        response_format=response_format,
+        messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
+    )
+    return _parse_json(resp.choices[0].message.content or "")

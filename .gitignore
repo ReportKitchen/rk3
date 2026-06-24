@@ -16,6 +16,11 @@ output/
 # viewer annotations (scratch working data, per user decision)
 feedback/
 
+# secrets — API keys etc. (never commit)
+.env
+.env.*
+!.env.example
+
 # python
 .venv/
 __pycache__/

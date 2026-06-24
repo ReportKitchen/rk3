@@ -41,7 +41,8 @@ def _title(p):
 def _summary(p, heading=""):
     if not p["summary"]:
         return None
-    return {"type": "summary", "props": {"text": p["summary"], "source": "heuristic", "heading": heading}}
+    return {"type": "summary", "props": {
+        "text": p["summary"], "source": p.get("summary_source", "heuristic"), "heading": heading}}
 
 def _cover(p):
     alt = f"{p['title']} — cover" if p["title"] else "Document cover"
@@ -82,9 +83,20 @@ def _toolkit(p):
 TEMPLATES = {"research": _research, "campaign": _campaign, "annual": _annual, "toolkit": _toolkit}
 
 
-def build_config(ir: dict, name: str = "", archetype: str | None = None) -> dict:
-    """Assemble a landing config for the detected (or given) archetype."""
+def build_config(ir: dict, name: str = "", archetype: str | None = None, ai: dict | None = None) -> dict:
+    """Assemble a landing config for the detected (or given) archetype.
+
+    `ai` (when present) is the cached AI content pass; its title/summary/
+    highlights replace the deterministic heuristics."""
     pieces = extract_pieces(ir)
+    if ai:
+        if ai.get("title"):
+            pieces["title_pieces"] = ai["title"]
+        if ai.get("summary"):
+            pieces["summary"] = ai["summary"]
+            pieces["summary_source"] = "ai"
+        if ai.get("highlights"):
+            pieces["highlights"] = ai["highlights"]
     arch = archetype if archetype in TEMPLATES else detect_archetype(ir, name)
     blocks = [b for b in TEMPLATES[arch](pieces) if b]
     for i, b in enumerate(blocks, 1):

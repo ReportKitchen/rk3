@@ -1,0 +1,7 @@
+{
+  "ai": {
+    "enabled": true,
+    "provider": "anthropic",
+    "model": null
+  }
+}

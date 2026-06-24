@@ -115,6 +115,7 @@ def extract_pieces(ir: dict) -> dict:
         "title": title,
         "title_pieces": _title_pieces(title),
         "summary": _summary(body),
+        "summary_source": "heuristic",
         "toc": _toc(body),
         "highlights": _highlights(body),
         "cover_src": "pages/page-0001.png",

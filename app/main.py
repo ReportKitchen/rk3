@@ -19,7 +19,9 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from rk3.ai import ai_enabled
 from rk3.documents import OUTPUT, list_documents, output_dir, source_for_slug
+from rk3.landing.ai import generate_landing_ai
 from rk3.landing.extract import build_default_theme
 from rk3.landing.templates import ARCHETYPE_LABELS, build_config
 
@@ -253,19 +255,46 @@ def _doc_name(slug: str) -> str:
     return src.name if src else ""
 
 
+def _landing_ai(slug: str, ir: dict) -> dict | None:
+    """The AI content pass, cached next to the source so it runs once per doc
+    (survives output regeneration). Returns None when AI is off or fails —
+    callers fall back to the deterministic heuristics."""
+    path = _landing_path(slug, ".landing-ai.json")
+    if path.exists():
+        return json.loads(path.read_text())
+    if not ai_enabled():
+        return None
+    try:
+        data = generate_landing_ai(ir)
+    except Exception:  # any provider/parse error -> heuristics
+        return None
+    path.write_text(json.dumps(data, indent=1, ensure_ascii=False))
+    return data
+
+
 @app.get("/api/landing/{slug}")
 def get_landing(slug: str):
     path = _landing_path(slug, ".landing.json")
     if path.exists():
         return json.loads(path.read_text())
-    return build_config(_ir_for(slug), name=_doc_name(slug))
+    ir = _ir_for(slug)
+    return build_config(ir, name=_doc_name(slug), ai=_landing_ai(slug, ir))
 
 
 @app.get("/api/landing/{slug}/template/{archetype}")
 def get_landing_template(slug: str, archetype: str):
     """Re-seed the page from a chosen archetype (the template switcher).
     Returns a fresh config but does not persist — the client saves on edit."""
-    return build_config(_ir_for(slug), name=_doc_name(slug), archetype=archetype)
+    ir = _ir_for(slug)
+    return build_config(ir, name=_doc_name(slug), archetype=archetype, ai=_landing_ai(slug, ir))
+
+
+@app.post("/api/landing/{slug}/ai-refresh")
+def refresh_landing_ai(slug: str):
+    """Discard the cached AI content and regenerate it (no admin UI yet)."""
+    _landing_path(slug, ".landing-ai.json").unlink(missing_ok=True)
+    ai = _landing_ai(slug, _ir_for(slug))
+    return {"refreshed": ai is not None}
 
 
 @app.get("/api/landing-archetypes")
