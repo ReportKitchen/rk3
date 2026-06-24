@@ -7,6 +7,8 @@ sources/*
 sources/0*/*
 !sources/0*/*.config.json
 !sources/0*/*.ops.json
+!sources/0*/*.landing.json
+!sources/0*/*.landing-theme.json
 
 # generated conversion artifacts (rebuildable from sources + code)
 output/

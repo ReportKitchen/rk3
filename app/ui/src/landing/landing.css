@@ -1,0 +1,67 @@
+/* Landing Page Maker tab (the app-side chrome; the landing page's own styles
+   live in css.js and are scoped to the preview iframe / export). */
+
+.lp-maker { min-width: 0; }
+.lp-loading { padding: 2rem; }
+
+.lp-controls-panel { min-width: 0; }
+.lp-preview-panel { display: flex; min-width: 0; }
+.lp-preview-frame { flex: 1; width: 100%; height: 100%; border: 0; background: #fff; }
+
+.lp-controls {
+  height: 100%;
+  overflow-y: auto;
+  padding: 0.75rem 1rem 2rem;
+  font-size: 0.85rem;
+  background: #fafafa;
+  border-right: 1px solid #ddd;
+}
+.lp-controls-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+.lp-controls-head h2 { font-size: 1rem; margin: 0; }
+.lp-saved { font-size: 0.7rem; color: #888; }
+
+.lp-controls section { margin-top: 1.25rem; }
+.lp-controls h3 {
+  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;
+  color: #888; margin: 0 0 0.5rem;
+}
+
+.lp-elements { list-style: none; margin: 0; padding: 0; }
+.lp-elements li {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.3rem 0; border-bottom: 1px solid #eee;
+}
+.lp-elements li.off { opacity: 0.55; }
+.lp-el-toggle { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+.lp-tag {
+  font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.04em;
+  background: #e2ecf8; color: #2c4a75; border-radius: 3px; padding: 0.05rem 0.3rem;
+}
+.lp-reorder { display: flex; gap: 0.15rem; }
+.lp-reorder button {
+  border: 1px solid #ccc; background: #fff; border-radius: 4px;
+  width: 1.5rem; cursor: pointer; line-height: 1.2;
+}
+.lp-reorder button:disabled { opacity: 0.35; cursor: default; }
+
+.lp-width { display: flex; align-items: center; gap: 0.5rem; }
+.lp-width input[type="range"] { flex: 1; }
+.lp-width input[type="number"] { width: 4.5rem; padding: 0.2rem; }
+.lp-unit { color: #888; }
+
+.lp-colors { list-style: none; margin: 0; padding: 0; }
+.lp-colors li { display: flex; align-items: center; gap: 0.6rem; padding: 0.2rem 0; }
+.lp-colors input[type="color"] {
+  width: 2rem; height: 1.5rem; padding: 0; border: 1px solid #ccc; border-radius: 4px;
+  background: none; cursor: pointer;
+}
+
+.lp-export {
+  width: 100%; padding: 0.6rem; border: 1px solid #1b4965; border-radius: 6px;
+  background: #1b4965; color: #fff; font-weight: 600; cursor: pointer;
+}
+.lp-export:disabled { opacity: 0.6; cursor: default; }
+.lp-export-hint { color: #999; font-size: 0.72rem; margin: 0.4rem 0 0; text-align: center; }

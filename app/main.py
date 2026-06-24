@@ -15,10 +15,12 @@ import uuid
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from rk3.documents import OUTPUT, list_documents, source_for_slug
+from rk3.documents import OUTPUT, list_documents, output_dir, source_for_slug
+from rk3.landing.extract import build_default_config, build_default_theme
 
 ROOT = Path(__file__).resolve().parent.parent
 FEEDBACK = ROOT / "feedback"
@@ -223,6 +225,66 @@ def delete_op(slug: str, op_kind: str, nid: str):
     path.write_text(json.dumps(kept, indent=1, ensure_ascii=False))
     _spawn_convert(slug)
     return {"ops": len(kept), "status": "in_progress"}
+
+
+# ---------------------------------------------------------------- landing page
+# The Landing Page Maker builds an SEO/AEO/a11y landing page from a document.
+# Config + theme are the editable source of truth; they're stored next to the
+# source PDF (like edit ops) so they survive output regeneration. Defaults are
+# derived from ir.json on first access and only persisted once the user edits.
+
+def _ir_for(slug: str) -> dict:
+    ir_path = output_dir(slug) / "ir.json"
+    if not ir_path.exists():
+        raise HTTPException(404, f"{slug!r} has no IR yet (not converted)")
+    return json.loads(ir_path.read_text())
+
+
+def _landing_path(slug: str, suffix: str) -> Path:
+    src = source_for_slug(slug)
+    if src is None:
+        raise HTTPException(404, f"unknown document {slug!r}")
+    return src.with_name(src.stem + suffix)
+
+
+@app.get("/api/landing/{slug}")
+def get_landing(slug: str):
+    path = _landing_path(slug, ".landing.json")
+    if path.exists():
+        return json.loads(path.read_text())
+    return build_default_config(_ir_for(slug))
+
+
+@app.post("/api/landing/{slug}")
+def post_landing(slug: str, config: dict):
+    path = _landing_path(slug, ".landing.json")
+    path.write_text(json.dumps(config, indent=1, ensure_ascii=False))
+    return {"saved": True, "blocks": len(config.get("blocks", []))}
+
+
+@app.get("/api/landing-theme/{slug}")
+def get_landing_theme(slug: str):
+    path = _landing_path(slug, ".landing-theme.json")
+    if path.exists():
+        return json.loads(path.read_text())
+    return build_default_theme(_ir_for(slug))
+
+
+@app.post("/api/landing-theme/{slug}")
+def post_landing_theme(slug: str, theme: dict):
+    path = _landing_path(slug, ".landing-theme.json")
+    path.write_text(json.dumps(theme, indent=1, ensure_ascii=False))
+    return {"saved": True}
+
+
+@app.get("/api/source/{slug}")
+def get_source(slug: str):
+    """The original PDF — powers the landing page Download CTA and lets the
+    export bundle the file into the zip."""
+    src = source_for_slug(slug)
+    if src is None or not src.exists():
+        raise HTTPException(404, f"unknown document {slug!r}")
+    return FileResponse(src, media_type="application/pdf", filename=src.name)
 
 
 OUTPUT.mkdir(parents=True, exist_ok=True)

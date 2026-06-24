@@ -45,5 +45,26 @@ export const getIr = (slug) =>
 
 export const docUrl = (slug) => `/output/${ENGINE}/${slug}/index.html`;
 
+// landing page maker
+export const assetBase = (slug) => `/output/${ENGINE}/${slug}`;
+export const sourceUrl = (slug) => `/api/source/${slug}`;
+
+export const getLanding = (slug) => fetch(`/api/landing/${slug}`).then(json);
+export const getLandingTheme = (slug) => fetch(`/api/landing-theme/${slug}`).then(json);
+
+export const postLanding = (slug, config) =>
+  fetch(`/api/landing/${slug}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(config),
+  }).then(json);
+
+export const postLandingTheme = (slug, theme) =>
+  fetch(`/api/landing-theme/${slug}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(theme),
+  }).then(json);
+
 export const pageUrl = (slug, p) =>
   `/output/${ENGINE}/${slug}/pages/page-${String(p).padStart(4, "0")}.png`;

@@ -114,7 +114,6 @@ body {
    with the questions panel alongside it */
 .convert-tab { flex: 1; min-height: 0; flex-direction: column; }
 .convert-body { flex: 1; min-height: 0; display: flex; }
-.landing-tab { flex: 1; min-height: 0; overflow: auto; }
 
 .doc-toolbar {
   display: flex;

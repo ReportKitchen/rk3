@@ -4,6 +4,7 @@ import { docUrl, pageUrl } from "../api.js";
 import { setupSync } from "../syncScroll.js";
 import DocToolbar from "./DocToolbar.jsx";
 import QuestionsPanel from "./QuestionsPanel.jsx";
+import LandingMaker from "../landing/LandingMaker.jsx";
 
 // content-area views; "convert" is the full document view (html + pdf), the
 // rest are alternate representations of the same content
@@ -374,12 +375,7 @@ export default function DocumentView({
           </div>
         </div>
 
-        {tab === "landing" && (
-          <div className="landing-tab pane">
-            <p><strong>Landing Page</strong></p>
-            <p className="hint">This representation is not built yet.</p>
-          </div>
-        )}
+        {tab === "landing" && <LandingMaker doc={doc} />}
       </div>
     );
   }
