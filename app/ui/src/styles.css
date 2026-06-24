@@ -77,9 +77,57 @@ body {
   background: #fafafa;
 }
 
-#toolbar #toggles { display: flex; gap: 1.25rem; align-items: center; }
+#content { flex: 1; overflow: hidden; display: flex; min-height: 0; }
+#content .pane { padding: 2rem; max-width: 40rem; }
+.hint { color: #888; padding: 2rem; }
 
-#toolbar button.mode {
+/* tabbed content area: a tab strip over the active representation */
+.docview { display: flex; flex-direction: column; height: 100%; flex: 1; min-width: 0; }
+
+.tabs {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0.25rem;
+  padding: 0.3rem 0.5rem 0;
+  border-bottom: 1px solid #ddd;
+  background: #fafafa;
+}
+.tabs .tab {
+  border: 1px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  border-radius: 4px 4px 0 0;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.8rem;
+  color: #555;
+  cursor: pointer;
+}
+.tabs .tab:hover { background: #f0f0f0; }
+.tabs .tab.active {
+  background: #fff;
+  border-color: #ddd;
+  color: #000;
+  margin-bottom: -1px;
+}
+
+/* Convert Document tab: own toolbar over the resizable html|pdf split,
+   with the questions panel alongside it */
+.convert-tab { flex: 1; min-height: 0; flex-direction: column; }
+.convert-body { flex: 1; min-height: 0; display: flex; }
+.landing-tab { flex: 1; min-height: 0; overflow: auto; }
+
+.doc-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  flex-shrink: 0;
+  padding: 0.4rem 1rem;
+  border-bottom: 1px solid #ddd;
+  background: #fafafa;
+  font-size: 0.85rem;
+}
+.doc-toolbar button.mode {
   border: 1px solid #bbb;
   background: #fff;
   border-radius: 4px;
@@ -87,23 +135,30 @@ body {
   cursor: pointer;
   font-size: 0.8rem;
 }
-#toolbar button.mode.active { background: #fdf3d7; border-color: #b58900; }
+.doc-toolbar button.mode.active { background: #fdf3d7; border-color: #b58900; }
 
-#content { flex: 1; overflow: hidden; display: flex; min-height: 0; }
-#content .pane { padding: 2rem; max-width: 40rem; }
-.hint { color: #888; padding: 2rem; }
+/* resizable split: the panels own their widths (persisted to localStorage) */
+.split { min-width: 0; }
+.content-panel { display: flex; min-width: 0; }
+.content-panel iframe { flex: 1; min-width: 0; height: 100%; border: 0; }
+.pdf-panel { min-width: 0; }
 
-.split { display: flex; height: 100%; flex: 1; min-width: 0; }
-.split iframe { flex: 1 1 50%; min-width: 0; border: 0; height: 100%; }
+.resizer {
+  width: 6px;
+  flex-shrink: 0;
+  background: #ddd;
+  cursor: col-resize;
+}
+.resizer:hover,
+.resizer[data-separator="active"] { background: #b58900; }
 
 .failpane { display: flex; flex-direction: column; flex: 1; min-width: 0; }
 .failpane .pdfpane { height: auto; flex: 1; }
 
 .pdfpane {
-  flex: 1 1 50%;
-  min-width: 0;
+  height: 100%;
+  width: 100%;
   overflow-y: auto;
-  border-left: 1px solid #ccc;
   background: #666;
   padding: 8px;
 }

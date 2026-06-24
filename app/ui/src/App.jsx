@@ -3,7 +3,6 @@ import { clearFeedback, deleteFeedback, deleteOp, emptyTrash, getDocuments, getF
 import DocList from "./components/DocList.jsx";
 import DocumentView from "./components/DocumentView.jsx";
 import FeedbackPopover from "./components/FeedbackPopover.jsx";
-import QuestionsPanel from "./components/QuestionsPanel.jsx";
 import Toolbar from "./components/Toolbar.jsx";
 
 function findNode(ir, nid) {
@@ -27,7 +26,6 @@ export default function App() {
   const [flashNid, setFlashNid] = useState(null);
   // popover: { pos: {x, y}, target: {...}, question? }
   const [popover, setPopover] = useState(null);
-  const [scrollToNid, setScrollToNid] = useState(null);
 
   const doc = docs.find((d) => d.slug === selected);
 
@@ -127,15 +125,7 @@ export default function App() {
     <div id="layout">
       <DocList docs={docs} selected={selected} onSelect={setSelected} onRefresh={refresh} />
       <div id="right">
-        {doc && (
-          <Toolbar
-            doc={doc}
-            toggles={toggles}
-            setToggles={setToggles}
-            questionCount={questions.length}
-            answeredCount={questions.filter((q) => answers.has(q.qid)).length}
-          />
-        )}
+        {doc && <Toolbar doc={doc} />}
         <div id="content">
           {doc ? (
             <DocumentView
@@ -144,32 +134,22 @@ export default function App() {
               flashNid={flashNid}
               doc={doc}
               toggles={toggles}
+              setToggles={setToggles}
               questions={questions}
               answers={answers}
               feedback={feedback}
+              ops={ops}
               pageDims={ir?.pages}
               onConvert={convert}
               onAnnotate={annotate}
               onQuestion={openQuestion}
-              scrollToNid={scrollToNid}
-              onScrolledToNid={() => setScrollToNid(null)}
+              onClearNote={clearNote}
+              onEmptyTrash={emptyNoteTrash}
+              onRemoveOp={(o) => applyOp({ ...o, remove: true })}
               highlightNid={popover?.target?.nid ?? null}
             />
           ) : (
             <p className="hint">Select a document on the left.</p>
-          )}
-          {toggles.panelOpen && doc?.status === "done" && (
-            <QuestionsPanel
-              questions={questions}
-              answers={answers}
-              feedback={feedback}
-              onJump={(nid) => setScrollToNid(nid)}
-              onAnswer={(q) => openQuestion(q, { x: window.innerWidth / 2, y: 160 })}
-              onClear={clearNote}
-              onEmptyTrash={emptyNoteTrash}
-              ops={ops}
-              onRemoveOp={(o) => applyOp({ ...o, remove: true })}
-            />
           )}
         </div>
       </div>

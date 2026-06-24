@@ -1,6 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panels";
 import { docUrl, pageUrl } from "../api.js";
 import { setupSync } from "../syncScroll.js";
+import DocToolbar from "./DocToolbar.jsx";
+import QuestionsPanel from "./QuestionsPanel.jsx";
+
+// content-area views; "convert" is the full document view (html + pdf), the
+// rest are alternate representations of the same content
+const TABS = [
+  { id: "convert", label: "Convert Document" },
+  { id: "landing", label: "Landing Page" },
+];
 
 const MARKER_CSS = `
 .rk-qmark {
@@ -29,13 +39,18 @@ const MARKER_CSS = `
 `;
 
 export default function DocumentView({
-  doc, toggles, questions, answers, feedback, pageDims, onConvert, onAnnotate,
-  onQuestion, scrollToNid, onScrolledToNid, highlightNid,
+  doc, toggles, setToggles, questions, answers, feedback, ops, pageDims, onConvert, onAnnotate,
+  onQuestion, onClearNote, onEmptyTrash, onRemoveOp, highlightNid,
   docVersion = 0, flashNid = null,
 }) {
   const iframeRef = useRef(null);
   const pdfPaneRef = useRef(null);
   const [frameLoaded, setFrameLoaded] = useState(false);
+  const [tab, setTab] = useState("convert");
+  // jump-to-node requests from the questions panel (now rendered inside this view)
+  const [scrollToNid, setScrollToNid] = useState(null);
+  // persists the content|pdf divider position to localStorage
+  const splitLayout = useDefaultLayout({ id: "rk3-content-split", panelIds: ["content", "pdf"] });
   const savedScroll = useRef(null);
   const prevVersion = useRef(docVersion);
 
@@ -234,8 +249,8 @@ export default function DocumentView({
       el.classList.add("rk-flash");
       setTimeout(() => el.classList.remove("rk-flash"), 1200);
     }
-    onScrolledToNid();
-  }, [scrollToNid, frameLoaded, onScrolledToNid]);
+    setScrollToNid(null);
+  }, [scrollToNid, frameLoaded]);
 
   const onPdfClick = (e) => {
     if (!stateRef.current.toggles.feedbackMode) return;
@@ -295,14 +310,76 @@ export default function DocumentView({
 
   if (doc.status === "done") {
     return (
-      <div className="split">
-        <iframe
-          title={doc.name}
-          ref={iframeRef}
-          src={docUrl(doc.slug) + (docVersion ? `?v=${docVersion}` : "")}
-          onLoad={() => setFrameLoaded(true)}
-        />
-        {pdfPane}
+      <div className="docview">
+        <div className="tabs" role="tablist">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              role="tab"
+              aria-selected={tab === t.id}
+              className={"tab" + (tab === t.id ? " active" : "")}
+              onClick={() => setTab(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Convert Document: kept mounted (display-toggled) so the iframe's
+            scroll position, markers and sync survive tab switches */}
+        <div className="convert-tab" style={{ display: tab === "convert" ? "flex" : "none" }}>
+          <DocToolbar
+            doc={doc}
+            toggles={toggles}
+            setToggles={setToggles}
+            questionCount={questions.length}
+            answeredCount={questions.filter((q) => answers.has(q.qid)).length}
+          />
+          <div className="convert-body">
+            <Group
+              orientation="horizontal"
+              className="split"
+              style={{ flex: 1, minWidth: 0, minHeight: 0, height: "auto" }}
+              defaultLayout={splitLayout.defaultLayout}
+              onLayoutChanged={splitLayout.onLayoutChanged}
+            >
+              <Panel id="content" minSize="20%" className="content-panel">
+                <iframe
+                  title={doc.name}
+                  ref={iframeRef}
+                  src={docUrl(doc.slug) + (docVersion ? `?v=${docVersion}` : "")}
+                  onLoad={() => setFrameLoaded(true)}
+                />
+              </Panel>
+              {pdfPane && <Separator className="resizer" />}
+              {pdfPane && (
+                <Panel id="pdf" defaultSize="50%" minSize="20%" className="pdf-panel">
+                  {pdfPane}
+                </Panel>
+              )}
+            </Group>
+            {toggles.panelOpen && (
+              <QuestionsPanel
+                questions={questions}
+                answers={answers}
+                feedback={feedback}
+                ops={ops}
+                onJump={(nid) => setScrollToNid(nid)}
+                onAnswer={(q) => onQuestion(q, { x: window.innerWidth / 2, y: 160 })}
+                onClear={onClearNote}
+                onEmptyTrash={onEmptyTrash}
+                onRemoveOp={onRemoveOp}
+              />
+            )}
+          </div>
+        </div>
+
+        {tab === "landing" && (
+          <div className="landing-tab pane">
+            <p><strong>Landing Page</strong></p>
+            <p className="hint">This representation is not built yet.</p>
+          </div>
+        )}
       </div>
     );
   }
