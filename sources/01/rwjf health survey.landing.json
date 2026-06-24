@@ -1,0 +1,63 @@
+{
+ "version": 1,
+ "template": "default",
+ "blocks": [
+  {
+   "id": "b1",
+   "type": "title",
+   "props": {
+    "eyebrow": "March 2026 Report",
+    "title": "Robert Wood Johnson Foundation 2025 New Jersey Health Inequities Survey",
+    "subtitle": "A Representative Statewide Study of New Jersey Adults"
+   }
+  },
+  {
+   "id": "b2",
+   "type": "summary",
+   "props": {
+    "text": "Where you live, your background, and your history can shape your health in ways that aren't always visible. In this report, we present findings from a representative statewide survey of New Jersey adults, conducted by the Eagleton Center for Public Interest Polling with support from the Robert Wood Johnson Foundation, to understand how residents view health equity, discrimination, and responses to recent DEI rollbacks.",
+    "source": "intro",
+    "heading": ""
+   }
+  },
+  {
+   "id": "b3",
+   "type": "highlights",
+   "props": {
+    "items": [
+     "Representative statewide survey of 2,089 New Jersey adults aged 18+, conducted December 29, 2025–January 16, 2026, with a margin of error of ±3.5 percentage points",
+     "Examines New Jerseyans' responses to DEI rollbacks and their connection to health equity",
+     "Explores public attitudes on historical discrimination and reparations",
+     "Built on the Rutgers-Eagleton/SSRS Garden State Panel, the largest probability-based opinion panel in New Jersey, ensuring scientifically sound results",
+     "Conducted multi-mode (web and phone) in English and Spanish, with 97% of responses collected via English web"
+    ],
+    "heading": "Key findings",
+    "bgColor": "#eef3fa"
+   }
+  },
+  {
+   "id": "b4",
+   "type": "download",
+   "props": {
+    "label": "Download the full report (PDF)",
+    "bgColor": "#1b4965",
+    "textColor": "#ffffff"
+   }
+  },
+  {
+   "id": "b5",
+   "type": "secondaryCta",
+   "props": {
+    "label": "Subscribe for updates",
+    "url": "",
+    "bgColor": "#ffffff",
+    "textColor": "#1b4965"
+   }
+  },
+  {
+   "id": "b6",
+   "type": "share",
+   "props": {}
+  }
+ ]
+}
