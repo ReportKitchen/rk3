@@ -1,10 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panels";
 import { docUrl, pageUrl } from "../api.js";
 import { setupSync } from "../syncScroll.js";
 import DocToolbar from "./DocToolbar.jsx";
 import QuestionsPanel from "./QuestionsPanel.jsx";
-import LandingMaker from "../landing/LandingMaker.jsx";
+
+// Puck is heavy (~90kB gzip); load the Landing Page Maker only when its tab opens
+const LandingMaker = lazy(() => import("../landing/LandingMaker.jsx"));
 
 // content-area views; "convert" is the full document view (html + pdf), the
 // rest are alternate representations of the same content
@@ -375,7 +377,11 @@ export default function DocumentView({
           </div>
         </div>
 
-        {tab === "landing" && <LandingMaker doc={doc} />}
+        {tab === "landing" && (
+          <Suspense fallback={<div className="hint" style={{ padding: "2rem" }}>Loading editor…</div>}>
+            <LandingMaker doc={doc} />
+          </Suspense>
+        )}
       </div>
     );
   }

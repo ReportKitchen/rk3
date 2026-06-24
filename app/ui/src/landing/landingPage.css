@@ -1,0 +1,80 @@
+/* The landing page's own styles — used in three places from this single
+   source: bundled so Puck copies it into its canvas iframe; imported ?raw and
+   inlined into the export HTML; and matching the live preview. Page-wide values
+   are CSS variables (set from the theme); per-element colors come from each
+   block's props as inline styles, so they're edited in context. */
+
+.lp-body {
+  margin: 0;
+  background: var(--lp-page-bg, #ffffff);
+  color: var(--lp-text, #111);
+  font-family: var(--lp-font, system-ui, sans-serif);
+  line-height: 1.6;
+}
+.lp-page { min-height: 100vh; padding: 40px 20px; }
+
+.lp-content,
+.lp-page > * {
+  max-width: var(--lp-width, 800px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.lp-block {
+  background: var(--lp-content-bg, #fff);
+  padding: 28px 36px;
+}
+.lp-block + .lp-block { padding-top: 0; }
+
+.lp-block h1, .lp-block h2 { color: var(--lp-heading, #111); line-height: 1.25; }
+.lp-title h1 { font-size: 2.1rem; font-weight: 700; margin: 0; }
+.lp-eyebrow {
+  margin: 0 0 0.4rem; font-size: 0.8rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--lp-accent, #1b4965);
+}
+.lp-subtitle { margin: 0.6rem 0 0; font-size: 1.2rem; color: #555; font-weight: 400; }
+.lp-summary h2 {
+  font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: #666; margin: 0 0 0.6rem;
+}
+.lp-summary p { font-size: 1.15rem; margin: 0; }
+
+.lp-cover, .lp-hero { margin-top: 0; margin-bottom: 0; }
+.lp-cover img, .lp-hero img {
+  display: block; width: 100%; height: auto;
+  border: 1px solid #e6e6e6; border-radius: 4px;
+}
+
+.lp-toc h2, .lp-highlights h2 {
+  font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: #666; margin: 0 0 0.6rem;
+}
+.lp-toc ul { list-style: none; margin: 0; padding: 0; }
+.lp-toc li { padding: 0.2rem 0; }
+.lp-toc li.lvl-3 { padding-left: 1rem; }
+.lp-toc li.lvl-4 { padding-left: 2rem; }
+.lp-toc a { color: var(--lp-accent, #1b4965); text-decoration: none; }
+.lp-toc a:hover { text-decoration: underline; }
+
+/* highlights background comes from the block's bgColor prop (inline) */
+.lp-highlights ul { margin: 0; padding-left: 1.2rem; }
+.lp-highlights li { margin: 0.3rem 0; }
+
+.lp-share { display: flex; align-items: center; gap: 0.75rem; }
+.lp-share .lp-share-label {
+  font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: #666;
+}
+.lp-share a {
+  border: 1px solid #d0d0d0; border-radius: 4px; padding: 0.3rem 0.7rem;
+  font-size: 0.85rem; color: var(--lp-accent, #1b4965); text-decoration: none;
+}
+
+/* CTA colors come from the block's bgColor/textColor props (inline) */
+.lp-download, .lp-secondary { text-align: center; }
+.lp-cta {
+  display: inline-block;
+  padding: 0.8rem 1.6rem; border-radius: 6px;
+  font-weight: 600; text-decoration: none;
+}
+.lp-cta:hover { filter: brightness(1.08); }
+.lp-cta-outline { border: 1px solid currentColor; }

@@ -1,67 +1,89 @@
-/* Landing Page Maker tab (the app-side chrome; the landing page's own styles
-   live in css.js and are scoped to the preview iframe / export). */
+/* Landing Page Maker tab chrome. The landing page's own styles are in
+   landingPage.css (scoped to the Puck canvas / export). */
 
-.lp-maker { min-width: 0; }
+.lp-maker { flex: 1; min-width: 0; min-height: 0; display: flex; }
+.lp-maker > div { flex: 1; min-width: 0; min-height: 0; }
 .lp-loading { padding: 2rem; }
 
-.lp-controls-panel { min-width: 0; }
-.lp-preview-panel { display: flex; min-width: 0; }
-.lp-preview-frame { flex: 1; width: 100%; height: 100%; border: 0; background: #fff; }
-
-.lp-controls {
-  height: 100%;
-  overflow-y: auto;
-  padding: 0.75rem 1rem 2rem;
-  font-size: 0.85rem;
-  background: #fafafa;
-  border-right: 1px solid #ddd;
+/* header actions (replaces Puck's default Publish button) */
+.lp-header-actions { display: flex; align-items: center; gap: 0.75rem; }
+.lp-template { display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; color: #555; }
+.lp-template select {
+  font: inherit; padding: 0.25rem 0.4rem; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;
 }
-.lp-controls-head {
-  display: flex; align-items: baseline; justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-.lp-controls-head h2 { font-size: 1rem; margin: 0; }
-.lp-saved { font-size: 0.7rem; color: #888; }
+.lp-saved { font-size: 0.75rem; color: #888; }
 
-.lp-controls section { margin-top: 1.25rem; }
-.lp-controls h3 {
-  font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;
-  color: #888; margin: 0 0 0.5rem;
+/* "+ Add" button + component picker modal (replaces Puck's left palette) */
+.lp-add-btn {
+  padding: 0.45rem 0.9rem; border: 1px solid #1b4965; border-radius: 6px;
+  background: #fff; color: #1b4965; font-weight: 600; cursor: pointer;
 }
-
-.lp-elements { list-style: none; margin: 0; padding: 0; }
-.lp-elements li {
+.lp-add-btn:hover { background: #eef3fa; }
+.lp-add-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100000;
+  display: flex; align-items: flex-start; justify-content: center; padding-top: 10vh;
+}
+.lp-add-modal {
+  background: #fff; border-radius: 8px; width: 480px; max-width: 90vw;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.3); overflow: hidden;
+}
+.lp-add-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0.3rem 0; border-bottom: 1px solid #eee;
+  padding: 0.9rem 1.1rem; border-bottom: 1px solid #eee;
 }
-.lp-elements li.off { opacity: 0.55; }
-.lp-el-toggle { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
-.lp-tag {
-  font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.04em;
-  background: #e2ecf8; color: #2c4a75; border-radius: 3px; padding: 0.05rem 0.3rem;
+.lp-add-head h3 { margin: 0; font-size: 1rem; }
+.lp-add-close { border: none; background: none; font-size: 1.5rem; line-height: 1; cursor: pointer; color: #888; }
+.lp-add-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; padding: 1.1rem; }
+.lp-add-item {
+  padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px; background: #fafafa;
+  cursor: pointer; font-size: 0.9rem; text-align: left;
 }
-.lp-reorder { display: flex; gap: 0.15rem; }
-.lp-reorder button {
-  border: 1px solid #ccc; background: #fff; border-radius: 4px;
-  width: 1.5rem; cursor: pointer; line-height: 1.2;
-}
-.lp-reorder button:disabled { opacity: 0.35; cursor: default; }
-
-.lp-width { display: flex; align-items: center; gap: 0.5rem; }
-.lp-width input[type="range"] { flex: 1; }
-.lp-width input[type="number"] { width: 4.5rem; padding: 0.2rem; }
-.lp-unit { color: #888; }
-
-.lp-colors { list-style: none; margin: 0; padding: 0; }
-.lp-colors li { display: flex; align-items: center; gap: 0.6rem; padding: 0.2rem 0; }
-.lp-colors input[type="color"] {
-  width: 2rem; height: 1.5rem; padding: 0; border: 1px solid #ccc; border-radius: 4px;
-  background: none; cursor: pointer;
-}
-
+.lp-add-item:hover { border-color: #1b4965; background: #eef3fa; }
 .lp-export {
-  width: 100%; padding: 0.6rem; border: 1px solid #1b4965; border-radius: 6px;
+  padding: 0.45rem 0.9rem; border: 1px solid #1b4965; border-radius: 6px;
   background: #1b4965; color: #fff; font-weight: 600; cursor: pointer;
 }
 .lp-export:disabled { opacity: 0.6; cursor: default; }
-.lp-export-hint { color: #999; font-size: 0.72rem; margin: 0.4rem 0 0; text-align: center; }
+
+/* content-width slider field */
+.lp-field-width { display: flex; align-items: center; gap: 0.5rem; }
+.lp-field-width input[type="range"] { flex: 1; }
+.lp-field-width input[type="number"] { width: 4.5rem; padding: 0.2rem; }
+.lp-field-width span { color: #888; font-size: 0.8rem; }
+
+/* ---- page simulator (Puck canvas only; never exported) ---- */
+.lp-sim { display: flex; flex-direction: column; min-height: 100%; background: #fff; }
+.lp-sim-bar {
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #a0a0a8; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em;
+  background: repeating-linear-gradient(45deg, #ebebee, #ebebee 9px, #f4f4f6 9px, #f4f4f6 18px);
+}
+.lp-sim-header { height: 120px; border-bottom: 1px solid #e2e2e6; }
+.lp-sim-footer { height: 96px; border-top: 1px solid #e2e2e6; }
+.lp-sim-mid { flex: 1; display: flex; align-items: stretch; }
+/* sidebars only exist when toggled on, so an off sidebar takes no space and
+   the content area is whatever's left */
+.lp-sim-side {
+  flex: 0 1 240px; min-width: 0;
+  background: repeating-linear-gradient(45deg, #ebebee, #ebebee 9px, #f4f4f6 9px, #f4f4f6 18px);
+  border-left: 1px solid #e2e2e6; border-right: 1px solid #e2e2e6;
+  display: flex; justify-content: center; padding-top: 1.5rem;
+  color: #a0a0a8; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em;
+}
+/* content area = remaining space; the column is centered within it */
+.lp-sim-area { flex: 1; min-width: 0; display: flex; justify-content: center; }
+.lp-sim-content {
+  flex: 0 1 auto; width: var(--lp-width, 800px); max-width: 100%;
+  background: var(--lp-page-bg, #ffffff);
+  color: var(--lp-text, #111); font-family: var(--lp-font, system-ui, sans-serif);
+}
+.lp-sim-content .lp-page { min-height: 100%; }
+
+/* custom color-swatch field in the Puck fields panel */
+.lp-field-color { display: flex; align-items: center; gap: 0.5rem; }
+.lp-field-color input[type="color"] {
+  width: 2rem; height: 1.6rem; padding: 0; border: 1px solid #ccc;
+  border-radius: 4px; background: none; cursor: pointer;
+}
+.lp-field-color span { font-size: 0.8rem; color: #666; font-variant-numeric: tabular-nums; }

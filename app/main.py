@@ -20,7 +20,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from rk3.documents import OUTPUT, list_documents, output_dir, source_for_slug
-from rk3.landing.extract import build_default_config, build_default_theme
+from rk3.landing.extract import build_default_theme
+from rk3.landing.templates import ARCHETYPE_LABELS, build_config
 
 ROOT = Path(__file__).resolve().parent.parent
 FEEDBACK = ROOT / "feedback"
@@ -247,12 +248,29 @@ def _landing_path(slug: str, suffix: str) -> Path:
     return src.with_name(src.stem + suffix)
 
 
+def _doc_name(slug: str) -> str:
+    src = source_for_slug(slug)
+    return src.name if src else ""
+
+
 @app.get("/api/landing/{slug}")
 def get_landing(slug: str):
     path = _landing_path(slug, ".landing.json")
     if path.exists():
         return json.loads(path.read_text())
-    return build_default_config(_ir_for(slug))
+    return build_config(_ir_for(slug), name=_doc_name(slug))
+
+
+@app.get("/api/landing/{slug}/template/{archetype}")
+def get_landing_template(slug: str, archetype: str):
+    """Re-seed the page from a chosen archetype (the template switcher).
+    Returns a fresh config but does not persist — the client saves on edit."""
+    return build_config(_ir_for(slug), name=_doc_name(slug), archetype=archetype)
+
+
+@app.get("/api/landing-archetypes")
+def landing_archetypes():
+    return ARCHETYPE_LABELS
 
 
 @app.post("/api/landing/{slug}")

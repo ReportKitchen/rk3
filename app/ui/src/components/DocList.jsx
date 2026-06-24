@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const LABELS = {
   unconverted: "unconverted",
@@ -8,6 +8,25 @@ const LABELS = {
 };
 
 export default function DocList({ docs, selected, onSelect, onRefresh }) {
+  const [collapsed, setCollapsed] = useState(
+    () => localStorage.getItem("rk3-left-collapsed") === "1");
+  const setCollapse = (v) => {
+    setCollapsed(v);
+    localStorage.setItem("rk3-left-collapsed", v ? "1" : "0");
+  };
+
+  if (collapsed) {
+    return (
+      <div id="left" className="collapsed">
+        <button className="left-rail" onClick={() => setCollapse(false)}
+          title="Expand Source Documents">
+          <span className="rail-icon">»</span>
+          <span className="rail-title">Source Documents</span>
+        </button>
+      </div>
+    );
+  }
+
   const groups = [];
   let folder = null;
   for (const d of docs) {
@@ -21,8 +40,12 @@ export default function DocList({ docs, selected, onSelect, onRefresh }) {
   return (
     <div id="left">
       <header>
-        <h1>RK3</h1>
-        <button onClick={onRefresh} title="Refresh list">&#8635; Refresh</button>
+        <h1>Source Documents</h1>
+        <span className="left-actions">
+          <button onClick={onRefresh} title="Refresh list">&#8635; Refresh</button>
+          <button className="collapse-btn" onClick={() => setCollapse(true)}
+            title="Collapse">&#8249;</button>
+        </span>
       </header>
       <ul id="doclist">
         {groups.map((g) => (

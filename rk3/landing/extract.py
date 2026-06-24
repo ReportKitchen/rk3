@@ -59,18 +59,32 @@ def _summary(body) -> str:
     return _trim(paras[0]["text"]) if paras else ""
 
 
-def _toc(body) -> list[dict]:
-    items = []
-    for h in _walk(body):
-        if h.get("type") != "heading":
-            continue
-        level = h.get("level", 1)
-        if level <= 1:  # level-1 is the document title
-            continue
-        text = h.get("text", "").strip()
-        if text:
-            items.append({"text": text, "level": level, "anchor": h.get("id", "")})
-    return items
+def _toc(body, limit: int = 8) -> list[dict]:
+    """A landing-page 'what's inside', not a full outline. Take only the major
+    sections (level 2; fall back to level 3 if there are no level-2 headings)
+    and cap the count — nobody wants 185 lines on a landing page."""
+    heads = [h for h in _walk(body) if h.get("type") == "heading"]
+    for level in (2, 3):
+        items = [
+            {"text": h.get("text", "").strip(), "level": level, "anchor": h.get("id", "")}
+            for h in heads if h.get("level") == level and h.get("text", "").strip()
+        ]
+        if items:
+            return items[:limit]
+    return []
+
+
+def _title_pieces(title: str) -> dict:
+    """Split a report title into eyebrow / title / subtitle. Many report titles
+    arrive as multiple pieces joined by a colon or pipe, e.g. 'Returns on
+    Resilience: Investing in Adaptation to Drive Prosperity'."""
+    title = " ".join((title or "").split())
+    for sep in (":", "|", " — ", " – "):
+        if sep in title:
+            head, tail = title.split(sep, 1)
+            if head.strip() and tail.strip():
+                return {"eyebrow": "", "title": head.strip(), "subtitle": tail.strip()}
+    return {"eyebrow": "", "title": title, "subtitle": ""}
 
 
 def _highlights(body, limit: int = 6) -> list[str]:
@@ -92,55 +106,36 @@ def _largest_figure(body):
     return max(figs, key=lambda f: (f.get("width") or 0) * (f.get("height") or 0))
 
 
-def build_default_config(ir: dict) -> dict:
-    """ir.json -> default landing page config (an ordered list of blocks)."""
+def extract_pieces(ir: dict) -> dict:
+    """The raw materials a template assembles from. Pure extraction; the
+    archetype templates (templates.py) decide which pieces to use and how."""
     title = (ir.get("title") or "").strip()
     body = ir.get("body", [])
-    blocks: list[dict] = []
-
-    def add(btype: str, props: dict, enabled: bool = True):
-        blocks.append({
-            "id": f"b{len(blocks) + 1}",
-            "type": btype,
-            "enabled": enabled,
-            "props": props,
-        })
-
-    add("title", {"text": title})
-
-    summary = _summary(body)
-    add("summary", {"text": summary, "source": "heuristic"}, enabled=bool(summary))
-
-    add("cover", {"src": "pages/page-0001.png", "alt": f"{title} — cover" if title else "Document cover"})
-
-    hero = _largest_figure(body)
-    if hero:
-        add("hero", {"src": hero["src"], "alt": hero.get("alt") or "Hero image"}, enabled=False)
-
-    add("toc", {"items": _toc(body)})
-    add("highlights", {"items": _highlights(body)})
-    add("share", {})
-    add("download", {"label": "Download the full report (PDF)"})
-
-    return {"version": CONFIG_VERSION, "template": "default", "blocks": blocks}
+    return {
+        "title": title,
+        "title_pieces": _title_pieces(title),
+        "summary": _summary(body),
+        "toc": _toc(body),
+        "highlights": _highlights(body),
+        "cover_src": "pages/page-0001.png",
+        "hero": _largest_figure(body),
+    }
 
 
 def build_default_theme(ir: dict) -> dict:
-    """System-default look: black-on-white, Public Sans, centered 800px column."""
+    """System-default look: black-on-white, Public Sans, centered 800px column.
+
+    Page-wide values only; per-element colors live on the blocks themselves."""
     return {
         "version": THEME_VERSION,
         "source": "system",
         "contentWidth": 800,
         "vars": {
-            "--lp-page-bg": "#f4f4f5",
+            "--lp-page-bg": "#ffffff",
             "--lp-content-bg": "#ffffff",
             "--lp-text": "#111111",
             "--lp-heading": "#111111",
             "--lp-accent": "#1b4965",
             "--lp-font": "'Public Sans', system-ui, -apple-system, sans-serif",
-        },
-        "elementColors": {
-            "download": {"bg": "#1b4965", "fg": "#ffffff"},
-            "highlights": {"bg": "#eef3fa"},
         },
     }

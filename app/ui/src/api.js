@@ -51,6 +51,9 @@ export const sourceUrl = (slug) => `/api/source/${slug}`;
 
 export const getLanding = (slug) => fetch(`/api/landing/${slug}`).then(json);
 export const getLandingTheme = (slug) => fetch(`/api/landing-theme/${slug}`).then(json);
+export const getLandingTemplate = (slug, archetype) =>
+  fetch(`/api/landing/${slug}/template/${archetype}`).then(json);
+export const getArchetypes = () => fetch(`/api/landing-archetypes`).then(json);
 
 export const postLanding = (slug, config) =>
   fetch(`/api/landing/${slug}`, {

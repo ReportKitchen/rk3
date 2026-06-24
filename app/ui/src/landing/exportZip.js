@@ -1,7 +1,8 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import JSZip from "jszip";
-import { LANDING_CSS, FONT_LINK, themeCssVars } from "./css.js";
+import { FONT_LINK, themeCssVars } from "./css.js";
+import landingCss from "./landingPage.css?raw";
 import { LandingRenderer } from "./LandingRenderer.jsx";
 import { assetBase, sourceUrl } from "../api.js";
 
@@ -18,7 +19,7 @@ const titleOf = (config) =>
 export async function exportZip(slug, config, theme, docName) {
   const zip = new JSZip();
 
-  const hasDownload = config.blocks.some((b) => b.enabled && b.type === "download");
+  const hasDownload = config.blocks.some((b) => b.type === "download");
   const pdfHref = hasDownload ? `./${encodeURIComponent(docName)}` : "#";
 
   const html = renderToStaticMarkup(
@@ -37,7 +38,7 @@ export async function exportZip(slug, config, theme, docName) {
 <title>${esc(titleOf(config) || docName)}</title>
 <link rel="stylesheet" href="${FONT_LINK}">
 <style>
-${LANDING_CSS}
+${landingCss}
 ${themeCssVars(theme)}
 </style>
 </head>
@@ -54,7 +55,7 @@ ${html}
   const imgFolder = zip.folder("images");
   const used = new Set(
     config.blocks
-      .filter((b) => b.enabled && (b.type === "cover" || b.type === "hero") && b.props?.src)
+      .filter((b) => (b.type === "cover" || b.type === "hero") && b.props?.src)
       .map((b) => b.props.src),
   );
   for (const src of used) {
