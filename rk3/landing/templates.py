@@ -38,11 +38,16 @@ def detect_archetype(ir: dict, name: str = "") -> str:
 def _title(p):
     return {"type": "title", "props": {**p["title_pieces"]}}
 
+def _summary_props(p, heading=""):
+    # the chosen text + which version it is; the full set of versions is served
+    # separately (block-defaults) and drives the editor's Version switch
+    return {"text": p["summary"], "source": p.get("summary_source", "heuristic"), "heading": heading}
+
+
 def _summary(p, heading=""):
     if not p["summary"]:
         return None
-    return {"type": "summary", "props": {
-        "text": p["summary"], "source": p.get("summary_source", "heuristic"), "heading": heading}}
+    return {"type": "summary", "props": _summary_props(p, heading)}
 
 def _cover(p):
     alt = f"{p['title']} — cover" if p["title"] else "Document cover"
@@ -83,22 +88,59 @@ def _toolkit(p):
 TEMPLATES = {"research": _research, "campaign": _campaign, "annual": _annual, "toolkit": _toolkit}
 
 
-def build_config(ir: dict, name: str = "", archetype: str | None = None, ai: dict | None = None) -> dict:
-    """Assemble a landing config for the detected (or given) archetype.
+# preferred default summary version, in order of preference
+_SUMMARY_ORDER = ("intro", "neutral", "hardsell", "heuristic")
 
-    `ai` (when present) is the cached AI content pass; its title/summary/
-    highlights replace the deterministic heuristics."""
+
+def _pieces(ir: dict, ai: dict | None = None) -> dict:
+    """Extracted pieces with the AI content pass layered over the heuristics.
+    Keeps every summary version (intro / neutral / hardsell / heuristic) so the
+    editor can switch between them; picks the first available as the default."""
     pieces = extract_pieces(ir)
+    variants = {"intro": "", "neutral": "", "hardsell": "", "heuristic": pieces["summary"]}
     if ai:
         if ai.get("title"):
             pieces["title_pieces"] = ai["title"]
-        if ai.get("summary"):
-            pieces["summary"] = ai["summary"]
-            pieces["summary_source"] = "ai"
+        # new schema: ai["summaries"]; tolerate the old single-string ai["summary"]
+        sums = ai.get("summaries") or ({"neutral": ai["summary"]} if ai.get("summary") else {})
+        for k in ("intro", "neutral", "hardsell"):
+            if sums.get(k):
+                variants[k] = sums[k]
         if ai.get("highlights"):
             pieces["highlights"] = ai["highlights"]
+    pieces["summary_variants"] = variants
+    default = next((k for k in _SUMMARY_ORDER if variants[k]), "heuristic")
+    pieces["summary_source"] = default
+    pieces["summary"] = variants[default]
+    return pieces
+
+
+def build_config(ir: dict, name: str = "", archetype: str | None = None, ai: dict | None = None) -> dict:
+    """Assemble a landing config for the detected (or given) archetype."""
+    pieces = _pieces(ir, ai)
     arch = archetype if archetype in TEMPLATES else detect_archetype(ir, name)
     blocks = [b for b in TEMPLATES[arch](pieces) if b]
     for i, b in enumerate(blocks, 1):
         b["id"] = f"b{i}"
     return {"version": 1, "template": arch, "blocks": blocks}
+
+
+def block_defaults(ir: dict, name: str = "", ai: dict | None = None) -> dict:
+    """Document-aware default props for every block type, so inserting a block
+    from the editor's "+ Add" arrives prepopulated rather than empty."""
+    p = _pieces(ir, ai)
+    title = (ir.get("title") or "").strip()
+    hero = p["hero"]
+    return {
+        "title": dict(p["title_pieces"]),
+        # variants drives the editor's Version switch (stripped before insert)
+        "summary": {**_summary_props(p, "Executive summary"), "variants": p["summary_variants"]},
+        "cover": {"src": p["cover_src"], "alt": f"{title} — cover" if title else "Document cover"},
+        "hero": ({"src": hero["src"], "alt": hero.get("alt") or "Hero image"}
+                 if hero else {"src": "", "alt": "Hero image"}),
+        "toc": {"items": p["toc"]},
+        "highlights": {"items": p["highlights"], "heading": "Highlights", "bgColor": "#eef3fa"},
+        "share": {},
+        "download": {"label": "Download the full report (PDF)", "bgColor": "#1b4965", "textColor": "#ffffff"},
+        "secondaryCta": {"label": "Learn more", "url": "", "bgColor": "#ffffff", "textColor": "#1b4965"},
+    }

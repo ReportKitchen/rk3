@@ -128,10 +128,30 @@ export const puckConfig = {
     Summary: {
       label: "Summary",
       fields: {
+        source: {
+          type: "radio",
+          label: "Version",
+          options: [
+            { label: "Report intro", value: "intro" },
+            { label: "Summary", value: "neutral" },
+            { label: "Hard sell", value: "hardsell" },
+            { label: "Heuristic", value: "heuristic" },
+          ],
+        },
         heading: { type: "text", label: "Heading (optional)" },
-        text: { type: "textarea", label: "Summary — aim for 2–3 sentences", contentEditable: true },
+        text: { type: "textarea", label: "Summary", contentEditable: true },
       },
-      defaultProps: { heading: "", text: "A short summary of the document." },
+      defaultProps: { source: "intro", heading: "", text: "A short summary of the document." },
+      // switching Version swaps the text to the chosen variant. Source of truth
+      // is the live extraction (metadata.summaryVariants), so it works even for
+      // saved configs that predate this field. If the chosen version doesn't
+      // exist (e.g. the heuristics found nothing), go blank — never silently
+      // substitute a different version.
+      resolveData: ({ props }, { changed, metadata }) => {
+        if (!changed?.source) return { props };
+        const v = metadata?.summaryVariants || {};
+        return { props: { ...props, text: v[props.source] || "" } };
+      },
       render: ({ text, source, heading }) => <Summary text={text} source={source} heading={heading} />,
     },
     Cover: {

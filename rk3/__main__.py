@@ -1,9 +1,13 @@
-"""CLI for direct pipeline runs:  python -m rk3 list | convert <slug> [--force]"""
+"""CLI for direct pipeline runs:
+  python -m rk3 list                         list documents and conversion status
+  python -m rk3 convert <slug> [--force]     convert a document (--force reconverts)
+  python -m rk3 remove <slug|file.pdf>       delete a document and all its artifacts
+"""
 
 import json
 import sys
 
-from .documents import list_documents
+from .documents import list_documents, remove_document, resolve_slug
 from .pipeline import convert
 
 
@@ -16,6 +20,15 @@ def main():
         meta = convert(args[1], force="--force" in args)
         print(json.dumps(meta, indent=2))
         sys.exit(0 if meta["status"] == "done" else 1)
+    elif args[:1] == ["remove"] and len(args) >= 2:
+        slug = resolve_slug(args[1])
+        removed = remove_document(slug)
+        if not removed:
+            print(f"Nothing to remove for {args[1]!r}")
+            sys.exit(1)
+        print(f"Removed {slug}:")
+        for p in removed:
+            print(f"  {p}")
     else:
         print(__doc__)
         sys.exit(2)

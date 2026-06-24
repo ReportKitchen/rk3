@@ -2,6 +2,7 @@
 
 import json
 import re
+import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -43,6 +44,40 @@ def source_for_slug(slug: str) -> Path | None:
 
 def output_dir(slug: str) -> Path:
     return OUTPUT / ENGINE / slug
+
+
+# per-document sidecar files that live next to the source PDF
+_SIDECARS = (".config.json", ".ops.json", ".landing.json", ".landing-theme.json", ".landing-ai.json")
+
+
+def resolve_slug(arg: str) -> str:
+    """Accept a slug, a PDF filename, or a path; return the slug. Falls back to
+    the arg itself (so orphaned output can still be cleaned by slug)."""
+    for d in list_documents():
+        if arg in (d["slug"], d["name"]) or d["path"] == arg or d["path"].endswith("/" + arg):
+            return d["slug"]
+    return arg
+
+
+def document_artifacts(slug: str) -> list[Path]:
+    """Every existing artifact derived from a document (read-only; for listing)."""
+    paths = []
+    src = source_for_slug(slug)
+    if src:
+        paths.append(src)
+        paths += [src.with_name(src.stem + s) for s in _SIDECARS]
+    paths.append(output_dir(slug))
+    paths.append(ROOT / "feedback" / f"{slug}.jsonl")
+    return [p for p in paths if p.exists()]
+
+
+def remove_document(slug: str) -> list[Path]:
+    """Delete a document and all its derived artifacts. Returns what was removed."""
+    removed = []
+    for p in document_artifacts(slug):
+        shutil.rmtree(p) if p.is_dir() else p.unlink()
+        removed.append(p)
+    return removed
 
 
 def _status(slug: str) -> dict:

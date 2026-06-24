@@ -23,7 +23,7 @@ from rk3.ai import ai_enabled
 from rk3.documents import OUTPUT, list_documents, output_dir, source_for_slug
 from rk3.landing.ai import generate_landing_ai
 from rk3.landing.extract import build_default_theme
-from rk3.landing.templates import ARCHETYPE_LABELS, build_config
+from rk3.landing.templates import ARCHETYPE_LABELS, block_defaults, build_config
 
 ROOT = Path(__file__).resolve().parent.parent
 FEEDBACK = ROOT / "feedback"
@@ -287,6 +287,13 @@ def get_landing_template(slug: str, archetype: str):
     Returns a fresh config but does not persist — the client saves on edit."""
     ir = _ir_for(slug)
     return build_config(ir, name=_doc_name(slug), archetype=archetype, ai=_landing_ai(slug, ir))
+
+
+@app.get("/api/landing/{slug}/block-defaults")
+def get_block_defaults(slug: str):
+    """Document-aware default props per block type (for prepopulate-on-insert)."""
+    ir = _ir_for(slug)
+    return block_defaults(ir, name=_doc_name(slug), ai=_landing_ai(slug, ir))
 
 
 @app.post("/api/landing/{slug}/ai-refresh")

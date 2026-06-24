@@ -5,7 +5,7 @@ import "./landingPage.css"; // bundled so Puck copies it into the canvas iframe
 import "./landing.css";
 import {
   assetBase, sourceUrl, getIr, getLanding, getLandingTheme,
-  getLandingTemplate, getArchetypes, postLanding, postLandingTheme,
+  getLandingTemplate, getArchetypes, getBlockDefaults, postLanding, postLandingTheme,
 } from "../api.js";
 import { puckConfig } from "./puckConfig.jsx";
 import { toPuck, fromPuck } from "./puckAdapter.js";
@@ -31,6 +31,7 @@ export default function LandingMaker({ doc }) {
   const [initial, setInitial] = useState(null); // seed Puck (re-seeded on switch)
   const [seedKey, setSeedKey] = useState(0);     // bump to remount Puck on re-seed
   const [images, setImages] = useState([]);
+  const [blockDefaults, setBlockDefaults] = useState(null);
   const [archetypes, setArchetypes] = useState({});
   const [arch, setArch] = useState("");
   const [saved, setSaved] = useState(true);
@@ -41,6 +42,7 @@ export default function LandingMaker({ doc }) {
     let alive = true;
     setInitial(null);
     getArchetypes().then((a) => alive && setArchetypes(a)).catch(() => {});
+    getBlockDefaults(slug).then((d) => alive && setBlockDefaults(d)).catch(() => {});
     Promise.all([getLanding(slug), getLandingTheme(slug)])
       .then(([config, theme]) => {
         if (!alive) return;
@@ -109,12 +111,19 @@ export default function LandingMaker({ doc }) {
         data={initial}
         viewports={VIEWPORTS}
         onChange={onChange}
-        metadata={{ assetBase: assetBase(slug), downloadHref: sourceUrl(slug), images }}
+        metadata={{
+          assetBase: assetBase(slug),
+          downloadHref: sourceUrl(slug),
+          images,
+          // live summary variants (intro/neutral/hardsell/heuristic), so the
+          // Summary "Version" switch is always driven by the current extraction
+          summaryVariants: blockDefaults?.summary?.variants || {},
+        }}
         overrides={{
           ...noChrome,
           headerActions: () => (
             <span className="lp-header-actions">
-              <AddMenu />
+              <AddMenu blockDefaults={blockDefaults} />
               <label className="lp-template">
                 Template:
                 <select value={arch} onChange={(e) => switchTemplate(e.target.value)}>

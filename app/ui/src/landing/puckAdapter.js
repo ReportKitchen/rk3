@@ -40,7 +40,7 @@ function rootToTheme(p = {}) {
 }
 
 // ---- per-block prop shape differences (Puck array fields store objects) ----
-function propsToPuck(type, props) {
+export function propsToPuck(type, props) {
   if (type === "highlights") {
     return { ...props, items: (props.items || []).map((v) => ({ value: v })) };
   }
