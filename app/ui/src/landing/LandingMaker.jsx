@@ -133,9 +133,13 @@ export default function LandingMaker({ doc }) {
     if (next === arch) return;
     const tmpl = await getLandingTemplate(slug, next);
     const { config: cur, theme } = fromPuck(dataRef.current);
+    // Reuse current blocks of shared types (preserving edits), in the new
+    // template's order. Templates use positional ids (b1..bN), so a reused
+    // block and a new block can collide — assign every merged block a fresh
+    // unique id to avoid duplicate ids (which break Puck selection).
     const merged = tmpl.blocks.map((tb) => {
       const c = cur.blocks.find((cb) => cb.type === tb.type);
-      return c ? { ...c } : tb;
+      return { ...(c || tb), id: `${tb.type}-${crypto.randomUUID()}` };
     });
     reseed({ version: 1, template: next, blocks: merged }, theme);
   }, [arch, slug, reseed]);
