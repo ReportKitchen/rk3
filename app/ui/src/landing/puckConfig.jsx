@@ -47,6 +47,13 @@ const resolver = (puck) => {
 };
 const dlHref = (puck) => puck?.metadata?.downloadHref || "#";
 
+// prepopulate a freshly-dragged block from the document-aware defaults
+// (metadata.blockDefaults is keyed by Puck type, already in Puck prop shape)
+const insertDefaults = (key) => ({ props }, { trigger, metadata }) =>
+  trigger === "insert" && metadata?.blockDefaults?.[key]
+    ? { props: { ...props, ...metadata.blockDefaults[key] } }
+    : { props };
+
 // image picker: a select over the document's figures (from metadata)
 const imageField = {
   type: "custom",
@@ -123,6 +130,7 @@ export const puckConfig = {
         subtitle: { type: "text", label: "Subtitle / deck", contentEditable: true },
       },
       defaultProps: { eyebrow: "", title: "Document title", subtitle: "" },
+      resolveData: insertDefaults("Title"),
       render: ({ eyebrow, title, subtitle }) => <Title eyebrow={eyebrow} title={title} subtitle={subtitle} />,
     },
     Summary: {
@@ -147,10 +155,16 @@ export const puckConfig = {
       // saved configs that predate this field. If the chosen version doesn't
       // exist (e.g. the heuristics found nothing), go blank — never silently
       // substitute a different version.
-      resolveData: ({ props }, { changed, metadata }) => {
-        if (!changed?.source) return { props };
-        const v = metadata?.summaryVariants || {};
-        return { props: { ...props, text: v[props.source] || "" } };
+      resolveData: ({ props }, { changed, trigger, metadata }) => {
+        if (trigger === "insert") {
+          const d = metadata?.blockDefaults?.Summary;
+          return d ? { props: { ...props, ...d } } : { props };
+        }
+        if (changed?.source) {
+          const v = metadata?.summaryVariants || {};
+          return { props: { ...props, text: v[props.source] || "" } };
+        }
+        return { props };
       },
       render: ({ text, source, heading }) => <Summary text={text} source={source} heading={heading} />,
     },
@@ -158,12 +172,14 @@ export const puckConfig = {
       label: "Report cover",
       fields: { src: imageField, alt: { type: "text" } },
       defaultProps: { src: "pages/page-0001.png", alt: "Document cover" },
+      resolveData: insertDefaults("Cover"),
       render: ({ src, alt, puck }) => <Cover src={src} alt={alt} resolveAsset={resolver(puck)} />,
     },
     Hero: {
       label: "Hero image",
       fields: { src: imageField, alt: { type: "text" } },
       defaultProps: { src: "", alt: "Hero image" },
+      resolveData: insertDefaults("Hero"),
       render: ({ src, alt, puck }) => <Hero src={src} alt={alt} resolveAsset={resolver(puck)} />,
     },
     Toc: {
@@ -180,6 +196,7 @@ export const puckConfig = {
         },
       },
       defaultProps: { items: [] },
+      resolveData: insertDefaults("Toc"),
       render: ({ items }) => <Toc items={items} />,
     },
     Highlights: {
@@ -195,6 +212,7 @@ export const puckConfig = {
         bgColor: { ...color("Box color") },
       },
       defaultProps: { heading: "Highlights", items: [], bgColor: "#eef3fa" },
+      resolveData: insertDefaults("Highlights"),
       // array fields store objects; map to strings for the renderer
       render: ({ items, bgColor, heading }) => (
         <Highlights heading={heading} bgColor={bgColor}
@@ -215,6 +233,7 @@ export const puckConfig = {
         textColor: { ...color("Text color") },
       },
       defaultProps: { label: "Download the full report (PDF)", bgColor: "#1b4965", textColor: "#ffffff" },
+      resolveData: insertDefaults("Download"),
       render: ({ label, bgColor, textColor, puck }) => (
         <Download label={label} bgColor={bgColor} textColor={textColor} downloadHref={dlHref(puck)} />
       ),
@@ -228,6 +247,7 @@ export const puckConfig = {
         textColor: { ...color("Text color") },
       },
       defaultProps: { label: "Learn more", url: "", bgColor: "#ffffff", textColor: "#1b4965" },
+      resolveData: insertDefaults("SecondaryCta"),
       render: ({ label, url, bgColor, textColor }) => (
         <SecondaryCta label={label} url={url} bgColor={bgColor} textColor={textColor} />
       ),

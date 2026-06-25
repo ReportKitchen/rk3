@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Puck } from "@measured/puck";
 import "@measured/puck/puck.css";
 import "./landingPage.css"; // bundled so Puck copies it into the canvas iframe
@@ -7,36 +7,56 @@ import {
   assetBase, sourceUrl, getIr, getLanding, getLandingTheme,
   getLandingTemplate, getArchetypes, getBlockDefaults, postLanding, postLandingTheme,
 } from "../api.js";
-import { puckConfig } from "./puckConfig.jsx";
-import { toPuck, fromPuck } from "./puckAdapter.js";
+import { puckConfig, TYPE_TO_PUCK } from "./puckConfig.jsx";
+import { toPuck, fromPuck, propsToPuck } from "./puckAdapter.js";
 import { exportZip } from "./exportZip.js";
-import AddMenu from "./AddMenu.jsx";
+import { LandingCtx } from "./landingCtx.js";
+import RightPanel, { SavedStatus } from "./RightPanel.jsx";
 
-// trimmed Puck chrome: no outline, no always-on palette (we add via the modal)
-const noChrome = { outline: () => null, components: () => null };
-
-// the viewport picker now means "simulated host-page width", complementary to
-// the content-width slider (our column inside that page)
+// the viewport picker means "simulated host-page width", complementary to the
+// content-width slider (our column inside that page)
 const VIEWPORTS = [
   { width: 400, height: "auto", label: "Mobile" },
   { width: 800, height: "auto", label: "Laptop" },
   { width: 1200, height: "auto", label: "Desktop" },
 ];
 
-// Landing Page Maker, on Puck. Our landing.json/theme remain the source of
-// truth: we seed Puck from them via the adapter and autosave changes back.
-// The document gets an auto-detected archetype template; the user can switch.
+// stable override slots (no live state captured here — RightPanel/SavedStatus
+// read live values from LandingCtx, so this object can be created once)
+// NOTE: don't override `components` — Puck.Components (our Add catalog) renders
+// through that slot. The default left sidebar is hidden via UI state instead.
+const OVERRIDES = {
+  outline: () => null,
+  headerActions: () => <SavedStatus />,
+  fields: ({ children }) => <RightPanel>{children}</RightPanel>,
+};
+
+// Landing Page Maker, on Puck. Our landing.json/theme are the source of truth:
+// seed Puck from them via the adapter and autosave changes back.
 export default function LandingMaker({ doc }) {
   const slug = doc.slug;
-  const [initial, setInitial] = useState(null); // seed Puck (re-seeded on switch)
-  const [seedKey, setSeedKey] = useState(0);     // bump to remount Puck on re-seed
+  const [initial, setInitial] = useState(null);
+  const [seedKey, setSeedKey] = useState(0);
   const [images, setImages] = useState([]);
   const [blockDefaults, setBlockDefaults] = useState(null);
   const [archetypes, setArchetypes] = useState({});
   const [arch, setArch] = useState("");
   const [saved, setSaved] = useState(true);
+  const [dirty, setDirty] = useState(false);    // edited since the last seed
   const [exporting, setExporting] = useState(false);
-  const dataRef = useRef(null); // latest Puck data (from onChange)
+  const [fading, setFading] = useState(false);   // crossfade during a re-seed
+  const [open, setOpen] = useState("page");       // accordion section (survives re-seed)
+  const dataRef = useRef(null);
+  const seedingRef = useRef(false);              // swallow the onChange right after a seed
+  const dispatchRef = useRef(null);              // Puck's dispatch, registered by RightPanel
+  const setDispatch = useCallback((d) => { dispatchRef.current = d; }, []);
+  const archRef = useRef("");                    // current template (not stored in Puck data)
+  useEffect(() => { archRef.current = arch; }, [arch]);
+
+  const markSeeded = () => {
+    seedingRef.current = true;
+    setTimeout(() => { seedingRef.current = false; }, 400);
+  };
 
   useEffect(() => {
     let alive = true;
@@ -49,6 +69,8 @@ export default function LandingMaker({ doc }) {
         setArch(config.template || "");
         const d = toPuck(config, theme);
         dataRef.current = d;
+        markSeeded();
+        setDirty(false);
         setInitial(d);
       }).catch(() => {});
     getIr(slug).then((ir) => {
@@ -71,75 +93,110 @@ export default function LandingMaker({ doc }) {
 
   const onChange = useCallback((data) => {
     dataRef.current = data;
+    if (!seedingRef.current) setDirty(true);
     setSaved(false);
     clearTimeout(timer.current);
     timer.current = setTimeout(() => {
       const { config, theme } = fromPuck(data);
+      config.template = archRef.current || config.template; // template is our state, not in Puck data
       save(config, theme);
     }, 600);
   }, [save]);
   useEffect(() => () => clearTimeout(timer.current), []);
 
+  // re-seed Puck from a config, with a brief crossfade
+  const reseed = useCallback((config, theme) => {
+    setFading(true);
+    // let the iframe fade out (matches the 0.28s CSS transition), then swap
+    // content in place via setData — no remount, so the canvas column keeps
+    // its width and the right panel doesn't jump — then fade back in
+    setTimeout(() => {
+      const d = toPuck(config, theme);
+      dataRef.current = d;
+      setArch(config.template || "");
+      markSeeded();
+      setDirty(false);
+      if (dispatchRef.current) {
+        dispatchRef.current({ type: "setData", data: d });
+      } else {
+        setInitial(d);
+        setSeedKey((k) => k + 1);
+      }
+      save(config, theme);
+      setTimeout(() => setFading(false), 80);
+    }, 300);
+  }, [save]);
+
+  // switch templates: type-merge so the user's edits to shared blocks survive;
+  // add the new template's blocks, drop the ones it doesn't use, reorder to it
   const switchTemplate = useCallback(async (next) => {
     if (next === arch) return;
-    if (!window.confirm(`Switch to the “${archetypes[next] || next}” template? This replaces the current layout (your colors and width are kept).`)) return;
-    const config = await getLandingTemplate(slug, next);
-    const { theme } = fromPuck(dataRef.current); // keep current theme
-    const d = toPuck(config, theme);
-    dataRef.current = d;
-    setArch(next);
-    setInitial(d);
-    setSeedKey((k) => k + 1); // remount Puck with the new content
-    save(config, theme);
-  }, [arch, archetypes, slug, save]);
+    const tmpl = await getLandingTemplate(slug, next);
+    const { config: cur, theme } = fromPuck(dataRef.current);
+    const merged = tmpl.blocks.map((tb) => {
+      const c = cur.blocks.find((cb) => cb.type === tb.type);
+      return c ? { ...c } : tb;
+    });
+    reseed({ version: 1, template: next, blocks: merged }, theme);
+  }, [arch, slug, reseed]);
+
+  // reset the current template to its pristine default
+  const reloadTemplate = useCallback(async () => {
+    const tmpl = await getLandingTemplate(slug, arch);
+    const { theme } = fromPuck(dataRef.current);
+    reseed(tmpl, theme);
+  }, [arch, slug, reseed]);
 
   const onExport = useCallback(async () => {
     setExporting(true);
     try {
       const { config, theme } = fromPuck(dataRef.current);
+      config.template = archRef.current || config.template;
       await exportZip(slug, config, theme, doc.name);
     } finally { setExporting(false); }
   }, [slug, doc.name]);
 
+  // block defaults converted to Puck prop shape, keyed by Puck type, for
+  // prepopulate-on-insert (resolveData reads metadata.blockDefaults)
+  const puckBlockDefaults = useMemo(() => {
+    if (!blockDefaults) return {};
+    const out = {};
+    for (const [ourType, props] of Object.entries(blockDefaults)) {
+      let p = props;
+      if (ourType === "summary" && p.variants) { const { variants, ...rest } = p; p = rest; }
+      out[TYPE_TO_PUCK[ourType]] = propsToPuck(ourType, p);
+    }
+    return out;
+  }, [blockDefaults]);
+
+  const metadata = useMemo(() => ({
+    assetBase: assetBase(slug),
+    downloadHref: sourceUrl(slug),
+    images,
+    summaryVariants: blockDefaults?.summary?.variants || {},
+    blockDefaults: puckBlockDefaults,
+  }), [slug, images, blockDefaults, puckBlockDefaults]);
+
+  const ctx = useMemo(() => ({
+    archetypes, arch, dirty, exporting, saved, open, setOpen, setDispatch,
+    onSwitch: switchTemplate, onReload: reloadTemplate, onExport,
+  }), [archetypes, arch, dirty, exporting, saved, open, setDispatch, switchTemplate, reloadTemplate, onExport]);
+
   if (!initial) return <div className="lp-loading hint">Loading editor…</div>;
 
   return (
-    <div className="lp-maker">
-      <Puck
-        key={seedKey}
-        config={puckConfig}
-        data={initial}
-        viewports={VIEWPORTS}
-        onChange={onChange}
-        metadata={{
-          assetBase: assetBase(slug),
-          downloadHref: sourceUrl(slug),
-          images,
-          // live summary variants (intro/neutral/hardsell/heuristic), so the
-          // Summary "Version" switch is always driven by the current extraction
-          summaryVariants: blockDefaults?.summary?.variants || {},
-        }}
-        overrides={{
-          ...noChrome,
-          headerActions: () => (
-            <span className="lp-header-actions">
-              <AddMenu blockDefaults={blockDefaults} />
-              <label className="lp-template">
-                Template:
-                <select value={arch} onChange={(e) => switchTemplate(e.target.value)}>
-                  {Object.entries(archetypes).map(([k, label]) => (
-                    <option key={k} value={k}>{label}</option>
-                  ))}
-                </select>
-              </label>
-              <span className="lp-saved">{saved ? "Saved" : "Saving…"}</span>
-              <button className="lp-export" onClick={onExport} disabled={exporting}>
-                {exporting ? "Building…" : "Download .zip"}
-              </button>
-            </span>
-          ),
-        }}
-      />
-    </div>
+    <LandingCtx.Provider value={ctx}>
+      <div className={"lp-maker" + (fading ? " fading" : "")}>
+        <Puck
+          key={seedKey}
+          config={puckConfig}
+          data={initial}
+          viewports={VIEWPORTS}
+          onChange={onChange}
+          metadata={metadata}
+          overrides={OVERRIDES}
+        />
+      </div>
+    </LandingCtx.Provider>
   );
 }

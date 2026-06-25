@@ -5,40 +5,48 @@
 .lp-maker > div { flex: 1; min-width: 0; min-height: 0; }
 .lp-loading { padding: 2rem; }
 
-/* header actions (replaces Puck's default Publish button) */
-.lp-header-actions { display: flex; align-items: center; gap: 0.75rem; }
-.lp-template { display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; color: #555; }
-.lp-template select {
-  font: inherit; padding: 0.25rem 0.4rem; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;
-}
 .lp-saved { font-size: 0.75rem; color: #888; }
 
-/* "+ Add" button + component picker modal (replaces Puck's left palette) */
-.lp-add-btn {
-  padding: 0.45rem 0.9rem; border: 1px solid #1b4965; border-radius: 6px;
-  background: #fff; color: #1b4965; font-weight: 600; cursor: pointer;
-}
-.lp-add-btn:hover { background: #eef3fa; }
-.lp-add-backdrop {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100000;
-  display: flex; align-items: flex-start; justify-content: center; padding-top: 10vh;
-}
-.lp-add-modal {
-  background: #fff; border-radius: 8px; width: 480px; max-width: 90vw;
-  box-shadow: 0 12px 48px rgba(0,0,0,0.3); overflow: hidden;
-}
-.lp-add-head {
+/* crossfade only the canvas iframe during a template re-seed (the panel and
+   header stay steady) */
+.lp-maker iframe { transition: opacity 0.28s ease; }
+.lp-maker.fading iframe { opacity: 0; }
+
+/* ---- right-panel accordion ---- */
+.lp-acc { display: flex; flex-direction: column; }
+.lp-acc-sec { display: flex; flex-direction: column; }
+.lp-acc-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0.9rem 1.1rem; border-bottom: 1px solid #eee;
+  text-align: left; padding: 0.6rem 0.9rem; border: none; border-bottom: 1px solid #e6e6e6;
+  background: #fafafa; font: 600 0.85rem/1.2 inherit; color: #333; cursor: pointer;
 }
-.lp-add-head h3 { margin: 0; font-size: 1rem; }
-.lp-add-close { border: none; background: none; font-size: 1.5rem; line-height: 1; cursor: pointer; color: #888; }
-.lp-add-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; padding: 1.1rem; }
-.lp-add-item {
-  padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px; background: #fafafa;
-  cursor: pointer; font-size: 0.9rem; text-align: left;
+.lp-acc-head:hover { background: #f0f0f0; }
+.lp-acc-sec.open > .lp-acc-head { background: #fff; color: #000; box-shadow: inset 3px 0 0 #1b4965; }
+.lp-acc-head::after { content: "▸"; color: #aaa; font-size: 0.7rem; transition: transform 0.25s ease; }
+.lp-acc-sec.open > .lp-acc-head::after { transform: rotate(90deg); }
+/* grid 0fr→1fr animates height smoothly without measuring content */
+.lp-acc-wrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.28s ease; }
+.lp-acc-sec.open > .lp-acc-wrap { grid-template-rows: 1fr; }
+.lp-acc-clip { overflow: hidden; min-height: 0; }
+.lp-acc-body { padding: 0.75rem 0.9rem; border-bottom: 1px solid #eee; }
+.lp-hint-sm { color: #888; font-size: 0.8rem; margin: 0; }
+
+/* template picker buttons */
+.lp-templates { display: flex; flex-direction: column; gap: 0.5rem; }
+.lp-tmpl {
+  text-align: left; border: 1px solid #ddd; border-radius: 6px; background: #fff;
+  padding: 0.55rem 0.7rem; cursor: pointer;
 }
-.lp-add-item:hover { border-color: #1b4965; background: #eef3fa; }
+.lp-tmpl:hover { border-color: #1b4965; background: #f7fafc; }
+.lp-tmpl.active { border-color: #1b4965; background: #eef3fa; }
+.lp-tmpl-top { display: flex; align-items: center; justify-content: space-between; }
+.lp-tmpl-name { font-weight: 600; font-size: 0.85rem; }
+.lp-tmpl-desc { display: block; font-size: 0.72rem; color: #666; margin-top: 0.2rem; line-height: 1.35; }
+.lp-tmpl-reload {
+  font-size: 0.95rem; color: #1b4965; line-height: 1; padding: 0 0.25rem; border-radius: 4px;
+}
+.lp-tmpl-reload:hover { background: #dce8f5; }
+
 .lp-export {
   padding: 0.45rem 0.9rem; border: 1px solid #1b4965; border-radius: 6px;
   background: #1b4965; color: #fff; font-weight: 600; cursor: pointer;
