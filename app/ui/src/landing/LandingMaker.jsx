@@ -21,6 +21,15 @@ const VIEWPORTS = [
   { width: 1200, height: "auto", label: "Desktop" },
 ];
 
+// fresh unique ids for a block and any nested slot blocks (templates use
+// positional ids that collide when merged across templates)
+function freshIds(b) {
+  const block = { ...b, id: `${b.type}-${crypto.randomUUID()}` };
+  const media = b.props?.media;
+  if (Array.isArray(media)) block.props = { ...b.props, media: media.map(freshIds) };
+  return block;
+}
+
 // stable override slots (no live state captured here — RightPanel/SavedStatus
 // read live values from LandingCtx, so this object can be created once)
 // NOTE: don't override `components` — Puck.Components (our Add catalog) renders
@@ -139,7 +148,7 @@ export default function LandingMaker({ doc }) {
     // unique id to avoid duplicate ids (which break Puck selection).
     const merged = tmpl.blocks.map((tb) => {
       const c = cur.blocks.find((cb) => cb.type === tb.type);
-      return { ...(c || tb), id: `${tb.type}-${crypto.randomUUID()}` };
+      return freshIds(c || tb);
     });
     reseed({ version: 1, template: next, blocks: merged }, theme);
   }, [arch, slug, reseed]);
@@ -166,25 +175,28 @@ export default function LandingMaker({ doc }) {
     if (!blockDefaults) return {};
     const out = {};
     for (const [ourType, props] of Object.entries(blockDefaults)) {
-      let p = props;
-      if (ourType === "summary" && p.variants) { const { variants, ...rest } = p; p = rest; }
+      // strip the editor-only option lists (Version variants / Section list)
+      // before they become a block's insert defaults
+      const { variants, sections, ...p } = props;
       out[TYPE_TO_PUCK[ourType]] = propsToPuck(ourType, p);
     }
     return out;
   }, [blockDefaults]);
 
+  const summarySections = blockDefaults?.docSummary?.sections || [];
   const metadata = useMemo(() => ({
     assetBase: assetBase(slug),
     downloadHref: sourceUrl(slug),
     images,
     summaryVariants: blockDefaults?.summary?.variants || {},
+    summarySections,
     blockDefaults: puckBlockDefaults,
-  }), [slug, images, blockDefaults, puckBlockDefaults]);
+  }), [slug, images, blockDefaults, summarySections, puckBlockDefaults]);
 
   const ctx = useMemo(() => ({
-    archetypes, arch, dirty, exporting, saved, open, setOpen, setDispatch,
+    archetypes, arch, dirty, exporting, saved, open, setOpen, setDispatch, summarySections,
     onSwitch: switchTemplate, onReload: reloadTemplate, onExport,
-  }), [archetypes, arch, dirty, exporting, saved, open, setDispatch, switchTemplate, reloadTemplate, onExport]);
+  }), [archetypes, arch, dirty, exporting, saved, open, setDispatch, summarySections, switchTemplate, reloadTemplate, onExport]);
 
   if (!initial) return <div className="lp-loading hint">Loading editor…</div>;
 

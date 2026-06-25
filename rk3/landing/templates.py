@@ -49,6 +49,29 @@ def _summary(p, heading=""):
         return None
     return {"type": "summary", "props": _summary_props(p, heading)}
 
+
+def _doc_summary_props(p, heading="", media=None):
+    ds = p["doc_summary"]
+    return {"heading": heading or ds["heading"], "sectionId": ds["sectionId"],
+            "blocks": ds["blocks"], "media": media or [], "floatTop": 0}
+
+def _doc_summary(p, heading="", with_cover=False):
+    # the verbatim Document Summary; an optional cover sits in its media slot
+    # (floated, text wrapping) — the prime visual pattern
+    media = [_cover(p)] if with_cover else []
+    return {"type": "docSummary", "props": _doc_summary_props(p, heading, media)}
+
+def _summary_region(p, heading="", floated_cover=False):
+    """The summary area: a whole verbatim section (Document Summary) when one was
+    found, else the short heuristic/AI summary. Returns a list of blocks so the
+    no-section fallback can still place a separate cover."""
+    if p["summary_sections"]:
+        return [_doc_summary(p, heading, with_cover=floated_cover)]
+    blocks = [_summary(p, heading)]
+    if floated_cover:
+        blocks.insert(0, _cover(p))
+    return blocks
+
 def _cover(p):
     alt = f"{p['title']} — cover" if p["title"] else "Document cover"
     return {"type": "cover", "props": {"src": p["cover_src"], "alt": alt}}
@@ -74,16 +97,16 @@ def _secondary(label):
 
 # ---- archetype templates (the recurring information architectures) ----
 def _research(p):
-    return [_title(p), _summary(p, "Executive summary"), _cover(p), _toc(p), _download(), _share()]
+    return [_title(p), *_summary_region(p, "Executive summary", floated_cover=True), _toc(p), _download(), _share()]
 
 def _campaign(p):
-    return [_title(p), _summary(p), _highlights(p, "Key findings"), _download(), _secondary("Subscribe for updates"), _share()]
+    return [_title(p), *_summary_region(p), _highlights(p, "Key findings"), _download(), _secondary("Subscribe for updates"), _share()]
 
 def _annual(p):
-    return [_title(p), _cover(p), _highlights(p, "Impact highlights"), _summary(p), _secondary("Donate"), _download()]
+    return [_title(p), *_summary_region(p, floated_cover=True), _highlights(p, "Impact highlights"), _secondary("Donate"), _download()]
 
 def _toolkit(p):
-    return [_title(p), _summary(p), _download()]
+    return [_title(p), *_summary_region(p), _download()]
 
 TEMPLATES = {"research": _research, "campaign": _campaign, "annual": _annual, "toolkit": _toolkit}
 
@@ -120,9 +143,24 @@ def build_config(ir: dict, name: str = "", archetype: str | None = None, ai: dic
     pieces = _pieces(ir, ai)
     arch = archetype if archetype in TEMPLATES else detect_archetype(ir, name)
     blocks = [b for b in TEMPLATES[arch](pieces) if b]
-    for i, b in enumerate(blocks, 1):
-        b["id"] = f"b{i}"
+    _assign_ids(blocks)
     return {"version": 1, "template": arch, "blocks": blocks}
+
+
+def _assign_ids(blocks) -> None:
+    """Assign unique ids across the tree, descending into the media slot so
+    nested blocks (a cover inside a Document Summary) are addressable too."""
+    counter = [0]
+
+    def walk(bs):
+        for b in bs:
+            counter[0] += 1
+            b["id"] = f"b{counter[0]}"
+            media = (b.get("props") or {}).get("media")
+            if media:
+                walk(media)
+
+    walk(blocks)
 
 
 def block_defaults(ir: dict, name: str = "", ai: dict | None = None) -> dict:
@@ -135,6 +173,10 @@ def block_defaults(ir: dict, name: str = "", ai: dict | None = None) -> dict:
         "title": dict(p["title_pieces"]),
         # variants drives the editor's Version switch (stripped before insert)
         "summary": {**_summary_props(p, "Executive summary"), "variants": p["summary_variants"]},
+        # sections drives the Document Summary's section picker (stripped on insert)
+        "docSummary": {**_doc_summary_props(p), "sections": [
+            {"id": s["id"], "heading": s["heading"], "blocks": s["blocks"], "chars": s["chars"]}
+            for s in p["summary_sections"]]},
         "cover": {"src": p["cover_src"], "alt": f"{title} — cover" if title else "Document cover"},
         "hero": ({"src": hero["src"], "alt": hero.get("alt") or "Hero image"}
                  if hero else {"src": "", "alt": "Hero image"}),

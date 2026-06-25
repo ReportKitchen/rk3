@@ -1,8 +1,66 @@
-import React from "react";
+import React, { useContext } from "react";
+import { usePuck } from "@measured/puck";
 import { themeProps } from "./css.js";
+import { LandingCtx } from "./landingCtx.js";
 import {
-  Title, Summary, Cover, Hero, Toc, Highlights, Share, Download, SecondaryCta,
+  Title, Summary, DocSummary, Cover, Hero, Toc, Highlights, Share, Download, SecondaryCta,
 } from "./LandingRenderer.jsx";
+
+// Document Summary render: reads the global drag state so the empty media slot
+// (the floated-image drop target) only appears while something is being dragged.
+function DocSummaryRender({ heading, blocks, floatTop, media: Media }) {
+  const { appState } = usePuck();
+  return (
+    <DocSummary heading={heading} blocks={blocks} floatTop={floatTop}
+      dragging={appState?.ui?.isDragging}>
+      {Media ? <Media /> : null}
+    </DocSummary>
+  );
+}
+
+// slider to place the floated image between paragraphs: text above it runs
+// full-width, text from there wraps around it (a float only affects what
+// follows it, so this avoids the whitespace gap a margin-offset would leave)
+function FloatPosition({ value, onChange }) {
+  const { selectedItem } = usePuck();
+  const max = (selectedItem?.props?.blocks || []).length;
+  const v = Math.min(value || 0, max);
+  return (
+    <div className="lp-field-width">
+      <input type="range" min="0" max={max || 1} step="1" value={v}
+        onChange={(e) => onChange(+e.target.value)} />
+      <span>{v === 0 ? "top" : `after ¶${v}`}</span>
+    </div>
+  );
+}
+const floatTopField = {
+  type: "custom",
+  label: "Floated image position",
+  render: ({ value, onChange }) => <FloatPosition value={value} onChange={onChange} />,
+};
+
+// the Document Summary's section picker: a radio list of the document's detected
+// intro/summary sections (fed via LandingCtx, since they're per-document)
+function SectionPicker({ value, onChange }) {
+  const { summarySections = [] } = useContext(LandingCtx);
+  if (!summarySections.length) return <p className="lp-hint-sm">No verbatim sections detected.</p>;
+  return (
+    <div className="lp-section-pick">
+      {summarySections.map((s) => (
+        <label key={s.id} className={value === s.id ? "active" : ""}>
+          <input type="radio" name="lp-section" checked={value === s.id} onChange={() => onChange(s.id)} />
+          <span className="lp-sec-h">{s.heading}</span>
+          <span className="lp-sec-len">{Math.round((s.chars || 0) / 100) / 10}k</span>
+        </label>
+      ))}
+    </div>
+  );
+}
+const sectionField = {
+  type: "custom",
+  label: "Section (from the document)",
+  render: ({ value, onChange }) => <SectionPicker value={value} onChange={onChange} />,
+};
 
 const FONT = "'Public Sans', system-ui, -apple-system, sans-serif";
 
@@ -93,6 +151,7 @@ export const puckConfig = {
     },
     render: ({ contentWidth, pageBg, contentBg, textColor, headingColor, accent,
                leftSidebar, rightSidebar, children }) => {
+      const { appState } = usePuck();
       const style = themeProps({
         contentWidth,
         vars: {
@@ -105,7 +164,7 @@ export const puckConfig = {
       // always, optional left/right sidebars; our content column is centered
       // and width-constrained, everything else is the host site's chrome
       return (
-        <div className="lp-sim">
+        <div className={"lp-sim" + (appState?.ui?.isDragging ? " lp-dragging" : "")}>
           <div className="lp-sim-bar lp-sim-header">Site header</div>
           <div className="lp-sim-mid">
             {leftSidebar ? <div className="lp-sim-side">Sidebar</div> : null}
@@ -134,7 +193,7 @@ export const puckConfig = {
       render: ({ eyebrow, title, subtitle }) => <Title eyebrow={eyebrow} title={title} subtitle={subtitle} />,
     },
     Summary: {
-      label: "Summary",
+      label: "AI Summary",
       fields: {
         source: {
           type: "radio",
@@ -167,6 +226,30 @@ export const puckConfig = {
         return { props };
       },
       render: ({ text, source, heading }) => <Summary text={text} source={source} heading={heading} />,
+    },
+    DocSummary: {
+      label: "Document Summary",
+      fields: {
+        sectionId: sectionField,
+        heading: { type: "text", label: "Heading" },
+        // drag a Cover or Hero in here to float it inside the text
+        media: { type: "slot", label: "Floated image (drag a cover/hero here)", allow: ["Cover", "Hero"] },
+        floatTop: floatTopField,
+      },
+      defaultProps: { sectionId: "", heading: "Summary", blocks: [], media: [], floatTop: 0 },
+      // picking a Section swaps in that section's verbatim blocks + heading
+      resolveData: ({ props }, { changed, trigger, metadata }) => {
+        if (trigger === "insert") {
+          const d = metadata?.blockDefaults?.DocSummary;
+          return d ? { props: { ...props, ...d } } : { props };
+        }
+        if (changed?.sectionId) {
+          const s = (metadata?.summarySections || []).find((x) => x.id === props.sectionId);
+          return s ? { props: { ...props, blocks: s.blocks, heading: s.heading } } : { props };
+        }
+        return { props };
+      },
+      render: DocSummaryRender,
     },
     Cover: {
       label: "Report cover",
@@ -257,9 +340,11 @@ export const puckConfig = {
 
 // component type <-> our block type (Puck keys are capitalized)
 export const TYPE_TO_PUCK = {
-  title: "Title", summary: "Summary", cover: "Cover", hero: "Hero",
+  title: "Title", summary: "Summary", docSummary: "DocSummary", cover: "Cover", hero: "Hero",
   toc: "Toc", highlights: "Highlights", share: "Share", download: "Download",
   secondaryCta: "SecondaryCta",
 };
+// props that hold slot content (nested blocks), by Puck type
+export const SLOT_PROPS = { DocSummary: ["media"] };
 export const PUCK_TO_TYPE = Object.fromEntries(
   Object.entries(TYPE_TO_PUCK).map(([k, v]) => [v, k]));

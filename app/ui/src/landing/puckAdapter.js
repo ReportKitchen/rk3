@@ -1,7 +1,7 @@
 // Adapter: our landing.json (source of truth) <-> Puck's Data shape. Keeping
 // our own format means the editor stays swappable and the export/Python side
 // never has to know about Puck.
-import { TYPE_TO_PUCK, PUCK_TO_TYPE } from "./puckConfig.jsx";
+import { TYPE_TO_PUCK, PUCK_TO_TYPE, SLOT_PROPS } from "./puckConfig.jsx";
 
 const FONT = "'Public Sans', system-ui, -apple-system, sans-serif";
 
@@ -55,14 +55,36 @@ function propsFromPuck(type, props) {
   return rest;
 }
 
+// ---- block <-> Puck content item (recursing into slot props) ----
+function blockToPuck(b) {
+  const puckType = TYPE_TO_PUCK[b.type];
+  if (!puckType) return null;
+  const slots = SLOT_PROPS[puckType] || [];
+  const flat = {}, slotData = {};
+  for (const [k, v] of Object.entries(b.props || {})) {
+    if (slots.includes(k)) slotData[k] = (v || []).map(blockToPuck).filter(Boolean);
+    else flat[k] = v;
+  }
+  return { type: puckType, props: { id: b.id, ...propsToPuck(b.type, flat), ...slotData } };
+}
+
+function blockFromPuck(item) {
+  const type = PUCK_TO_TYPE[item.type];
+  if (!type) return null;
+  const slots = SLOT_PROPS[item.type] || [];
+  const flat = {}, slotData = {};
+  for (const [k, v] of Object.entries(item.props || {})) {
+    if (slots.includes(k)) slotData[k] = (v || []).map(blockFromPuck).filter(Boolean);
+    else flat[k] = v;
+  }
+  return { id: item.props?.id, type, props: { ...propsFromPuck(type, flat), ...slotData } };
+}
+
 // ---- public API ----
 export function toPuck(config, theme) {
   return {
     root: { props: themeToRoot(theme) },
-    content: (config?.blocks || []).map((b) => ({
-      type: TYPE_TO_PUCK[b.type],
-      props: { id: b.id, ...propsToPuck(b.type, b.props || {}) },
-    })).filter((c) => c.type),
+    content: (config?.blocks || []).map(blockToPuck).filter(Boolean),
     zones: {},
   };
 }
@@ -71,11 +93,7 @@ export function fromPuck(data) {
   const config = {
     version: 1,
     template: "default",
-    blocks: (data?.content || []).map((item) => {
-      const type = PUCK_TO_TYPE[item.type];
-      if (!type) return null;
-      return { id: item.props?.id, type, props: propsFromPuck(type, item.props || {}) };
-    }).filter(Boolean),
+    blocks: (data?.content || []).map(blockFromPuck).filter(Boolean),
   };
   const theme = rootToTheme(data?.root?.props);
   return { config, theme };

@@ -15,6 +15,21 @@ import re
 _SUMMARY_HEADING = re.compile(
     r"\b(abstract|executive\s+summary|summary|overview|introduction)\b", re.I)
 
+# section-intro headings, with a priority (higher = stronger intro signal). Used
+# to pull a whole verbatim section ("Document Summary"), not just a snippet.
+_DOC_NOUN = (r"(report|study|document|toolkit|guide|guidebook|playbook|handbook|"
+             r"brief|paper|book|project|work|series|publication|initiative|case\s+study)")
+_SECTION_PATTERNS = [
+    (re.compile(r"\bexecutive\s+summary\b", re.I), 6),
+    (re.compile(r"\babstract\b", re.I), 5),
+    (re.compile(rf"\babout\s+(this|the|our)\s+{_DOC_NOUN}\b", re.I), 5),
+    (re.compile(r"\b(introduction|foreword|preface)\b", re.I), 4),
+    (re.compile(r"\b(overview|summary|background)\b", re.I), 2),
+]
+# headings that look like captions / back-matter, never an intro section
+_SKIP_HEADING = re.compile(
+    r"^\s*(figure|table|appendix|references|bibliography|acknowledg|notes?\b|endnotes|index)", re.I)
+
 CONFIG_VERSION = 1
 THEME_VERSION = 1
 
@@ -57,6 +72,102 @@ def _summary(body) -> str:
         if len(p["text"]) >= 120:
             return _trim(p["text"])
     return _trim(paras[0]["text"]) if paras else ""
+
+
+def _esc(s: str) -> str:
+    return (s or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def _flat(body, skip=("aside", "figure", "footnotes")):
+    """Reading-order walk that does NOT descend into figures/asides (their inner
+    text is caption/label noise, not part of a readable section)."""
+    for node in body or []:
+        if node.get("type") in skip:
+            continue
+        yield node
+        if node.get("children"):
+            yield from _flat(node["children"], skip)
+
+
+def _section_blocks(nodes) -> list[str]:
+    """A section's nodes as a list of block-level HTML chunks (paragraphs, its
+    sub-headings, lists). A list — not one blob — so the editor can place a
+    floated image *between* blocks, letting the text above it run full-width and
+    the text below wrap around it. Figures/asides are excluded by _flat."""
+    out = []
+    for n in nodes:
+        t = n.get("type")
+        text = (n.get("text") or "").strip()
+        if t == "paragraph" and text:
+            out.append(f"<p>{_esc(text)}</p>")
+        elif t == "heading" and text and not _SKIP_HEADING.match(text):
+            lvl = min(max(n.get("level", 3), 3), 4)  # sub-headings → h3/h4
+            out.append(f"<h{lvl}>{_esc(text)}</h{lvl}>")
+        elif t == "list" and n.get("items"):
+            lis = "".join(f"<li>{_esc(str(i).strip())}</li>" for i in n["items"] if str(i).strip())
+            if lis:
+                out.append(f"<ul>{lis}</ul>")
+    return out
+
+
+def _section_priority(text: str) -> int:
+    for pat, score in _SECTION_PATTERNS:
+        if pat.search(text):
+            return score
+    return 0
+
+
+def extract_summary_sections(body, max_sections: int = 4, min_chars: int = 200) -> list[dict]:
+    """Whole verbatim intro/summary sections for the Document Summary element.
+
+    Find headings that look like an intro (executive summary / abstract / about /
+    introduction / overview…) and take the ENTIRE section — every node until the
+    next heading of equal-or-higher rank — as semantic HTML. Rank candidates so a
+    real 'Executive Summary' beats a chapter's 'Overview' subsection."""
+    seq = list(_flat(body))
+    heads = [(i, n) for i, n in enumerate(seq) if n.get("type") == "heading"]
+    out = []
+    for k, (i, h) in enumerate(heads):
+        text = (h.get("text") or "").strip()
+        if _SKIP_HEADING.match(text):
+            continue
+        prio = _section_priority(text)
+        if not prio:
+            continue
+        level = h.get("level", 1)
+        if level >= 5:  # deep "headings" are usually running-header artifacts
+            continue
+        # the section runs until the next heading of equal-or-higher rank
+        end = len(seq)
+        for j, n2 in heads:
+            if j > i and n2.get("level", 99) <= level:
+                end = j
+                break
+        blocks = _section_blocks(seq[i + 1:end])
+        chars = len(re.sub("<[^>]+>", "", " ".join(blocks)))
+        if chars < min_chars:
+            continue
+        # weak keywords (overview/summary/background) only count near the front
+        # and at a top level, where they're plausibly the document's intro
+        front = i <= len(seq) * 0.5
+        if prio <= 2 and not (front and level <= 2):
+            continue
+        out.append({
+            "heading": text, "anchor": h.get("id", ""), "level": level,
+            "blocks": blocks, "chars": chars,
+            "_score": prio * 1000 + max(0, 1000 - i),  # strong keyword, then earlier
+        })
+    out.sort(key=lambda s: s["_score"], reverse=True)
+    # dedupe repeated headers (e.g. a running header misread as a heading)
+    seen, deduped = set(), []
+    for s in out:
+        key = re.sub(r"[^a-z0-9]+", "", s["heading"].lower())
+        if key in seen:
+            continue
+        seen.add(key)
+        del s["_score"]
+        deduped.append(s)
+    return deduped[:max_sections]
 
 
 def _toc(body, limit: int = 8) -> list[dict]:
@@ -111,11 +222,23 @@ def extract_pieces(ir: dict) -> dict:
     archetype templates (templates.py) decide which pieces to use and how."""
     title = (ir.get("title") or "").strip()
     body = ir.get("body", [])
+    snippet = _summary(body)
+    sections = [{"id": f"s{i}", **s} for i, s in enumerate(extract_summary_sections(body))]
+    # the Document Summary's default content: the top-ranked section, else the
+    # short heuristic snippet wrapped as a paragraph (still verbatim)
+    if sections:
+        s0 = sections[0]
+        doc_summary = {"heading": s0["heading"], "sectionId": s0["id"], "blocks": s0["blocks"]}
+    else:
+        doc_summary = {"heading": "Summary", "sectionId": "",
+                       "blocks": [f"<p>{_esc(snippet)}</p>"] if snippet else []}
     return {
         "title": title,
         "title_pieces": _title_pieces(title),
-        "summary": _summary(body),
+        "summary": snippet,
         "summary_source": "heuristic",
+        "summary_sections": sections,  # whole verbatim intro sections, each id'd
+        "doc_summary": doc_summary,
         "toc": _toc(body),
         "highlights": _highlights(body),
         "cover_src": "pages/page-0001.png",

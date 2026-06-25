@@ -29,6 +29,28 @@ export function Summary({ text, source, heading }) {
   );
 }
 
+// Verbatim Document Summary: a whole intro/exec-summary section (rich HTML),
+// with an optional image floated in its media slot so the text wraps around it.
+// `children` is the slot content (a Cover/Hero), floated via CSS.
+export function DocSummary({ heading, blocks, floatTop, dragging, children }) {
+  const chunks = blocks || [];
+  // place the floated image *between* blocks: blocks before it run full-width,
+  // blocks from there wrap around it (a float only affects following content)
+  const at = Math.max(0, Math.min(floatTop || 0, chunks.length));
+  const media = children ? <div className="lp-docsum-media">{children}</div> : null;
+  const Chunk = (h, i) => <div key={i} dangerouslySetInnerHTML={{ __html: h }} />;
+  return (
+    <section className={"lp-block lp-docsum" + (dragging ? " lp-dragging" : "")}>
+      {heading ? <h2>{heading}</h2> : null}
+      <div className="lp-docsum-body">
+        {chunks.slice(0, at).map(Chunk)}
+        {media}
+        {chunks.slice(at).map((h, i) => Chunk(h, at + i))}
+      </div>
+    </section>
+  );
+}
+
 export function Cover({ src, alt, resolveAsset = ident }) {
   if (!src) return null;
   return (
@@ -109,30 +131,35 @@ export function SecondaryCta({ label, url, bgColor, textColor }) {
 }
 
 export const BLOCKS = {
-  title: Title, summary: Summary, cover: Cover, hero: Hero,
+  title: Title, summary: Summary, docSummary: DocSummary, cover: Cover, hero: Hero,
   toc: Toc, highlights: Highlights, share: Share, download: Download,
   secondaryCta: SecondaryCta,
 };
 
 export const BLOCK_LABELS = {
-  title: "Title", summary: "Summary", cover: "Report cover", hero: "Hero image",
-  toc: "Table of contents", highlights: "Highlights", share: "Social share",
+  title: "Title", summary: "AI Summary", docSummary: "Document Summary",
+  cover: "Report cover", hero: "Hero image", toc: "Table of contents",
+  highlights: "Highlights", share: "Social share",
   download: "Download CTA", secondaryCta: "Secondary CTA",
 };
+
+// Render one block, recursing into the media slot (nested blocks become the
+// component's children — e.g. a cover floated inside a Document Summary).
+function renderBlock(b, ctx) {
+  const Comp = BLOCKS[b.type];
+  if (!Comp) return null;
+  const { media, ...props } = b.props || {};
+  const children = (media || []).map((m) => renderBlock(m, ctx));
+  return (
+    <Comp key={b.id} {...props} resolveAsset={ctx.resolveAsset} downloadHref={ctx.downloadHref}>
+      {children.length ? children : null}
+    </Comp>
+  );
+}
 
 // Render a whole config (used by the static export). Editing uses Puck, which
 // renders these same components per block.
 export function LandingRenderer({ config, resolveAsset, downloadHref }) {
-  return (
-    <>
-      {(config?.blocks || []).map((b) => {
-        const Comp = BLOCKS[b.type];
-        if (!Comp) return null;
-        return (
-          <Comp key={b.id} {...(b.props || {})}
-            resolveAsset={resolveAsset} downloadHref={downloadHref} />
-        );
-      })}
-    </>
-  );
+  const ctx = { resolveAsset, downloadHref };
+  return <>{(config?.blocks || []).map((b) => renderBlock(b, ctx))}</>;
 }

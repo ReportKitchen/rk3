@@ -39,6 +39,38 @@
 }
 .lp-summary p { font-size: 1.15rem; margin: 0; }
 
+/* Document Summary: a whole verbatim section, with an optional image floated
+   in its media slot so the prose wraps around it */
+.lp-docsum h2 {
+  font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em;
+  color: #666; margin: 0 0 0.8rem;
+}
+.lp-docsum-media {
+  float: right; width: 40%; max-width: 360px; margin: 0 0 1rem 1.5rem;
+}
+.lp-docsum-media .lp-block { padding: 0; } /* the floated cover sheds page padding */
+.lp-docsum-media img { width: 100%; }
+/* the drop target (an empty media slot) is hidden until a drag is in progress,
+   then shows as a dashed placeholder; a filled slot (:has(img)) always shows */
+.lp-docsum:not(.lp-dragging) .lp-docsum-media:not(:has(img)) { display: none; }
+.lp-docsum.lp-dragging .lp-docsum-media:not(:has(img)) {
+  min-height: 90px; border: 2px dashed #9bb7d4; border-radius: 6px; background: #f2f7fc;
+}
+.lp-docsum-body { font-size: 1.05rem; line-height: 1.6; }
+.lp-docsum-body::after { content: ""; display: block; clear: both; } /* contain the float */
+.lp-docsum-body > div:first-child > :first-child { margin-top: 0; }
+.lp-docsum-body p { margin: 0 0 0.9rem; }
+.lp-docsum-body h3 { font-size: 1.15rem; margin: 1.4rem 0 0.5rem; }
+.lp-docsum-body h4 { font-size: 1rem; margin: 1.1rem 0 0.4rem; }
+.lp-docsum-body ul { margin: 0 0 0.9rem; padding-left: 1.3rem; }
+.lp-docsum-body li { margin: 0.3rem 0; }
+
+/* while dragging, cap tall images (a vertical cover can exceed the screen
+   height, making it hard to drop) so the dragged element stays manageable.
+   Editor-only: the export has no .lp-sim and never drags. */
+.lp-sim.lp-dragging .lp-cover img,
+.lp-sim.lp-dragging .lp-hero img { max-height: 25vh; width: auto; }
+
 .lp-cover, .lp-hero { margin-top: 0; margin-bottom: 0; }
 .lp-cover img, .lp-hero img {
   display: block; width: 100%; height: auto;

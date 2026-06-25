@@ -51,13 +51,16 @@ ${html}
 `;
   zip.file("index.html", doc);
 
-  // images used by enabled image blocks → images/<basename>
+  // images used by enabled image blocks (incl. ones nested in a media slot)
   const imgFolder = zip.folder("images");
-  const used = new Set(
-    config.blocks
-      .filter((b) => (b.type === "cover" || b.type === "hero") && b.props?.src)
-      .map((b) => b.props.src),
-  );
+  const used = new Set();
+  const collect = (blocks) => {
+    for (const b of blocks || []) {
+      if ((b.type === "cover" || b.type === "hero") && b.props?.src) used.add(b.props.src);
+      if (Array.isArray(b.props?.media)) collect(b.props.media);
+    }
+  };
+  collect(config.blocks);
   for (const src of used) {
     const res = await fetch(`${assetBase(slug)}/${src}`);
     if (res.ok) imgFolder.file(basename(src), await res.blob());

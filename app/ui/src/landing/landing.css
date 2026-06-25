@@ -31,6 +31,17 @@
 .lp-acc-body { padding: 0.75rem 0.9rem; border-bottom: 1px solid #eee; }
 .lp-hint-sm { color: #888; font-size: 0.8rem; margin: 0; }
 
+/* Document Summary section picker (Content panel) */
+.lp-section-pick { display: flex; flex-direction: column; gap: 0.3rem; }
+.lp-section-pick label {
+  display: flex; align-items: center; gap: 0.45rem; padding: 0.4rem 0.5rem;
+  border: 1px solid #ddd; border-radius: 5px; cursor: pointer; font-size: 0.82rem;
+}
+.lp-section-pick label:hover { border-color: #1b4965; background: #f7fafc; }
+.lp-section-pick label.active { border-color: #1b4965; background: #eef3fa; }
+.lp-section-pick .lp-sec-h { flex: 1; font-weight: 600; }
+.lp-section-pick .lp-sec-len { color: #888; font-variant-numeric: tabular-nums; }
+
 /* template picker buttons */
 .lp-templates { display: flex; flex-direction: column; gap: 0.5rem; }
 .lp-tmpl {
