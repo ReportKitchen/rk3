@@ -185,6 +185,7 @@ export default function LandingMaker({ doc }) {
 
   const summarySections = blockDefaults?.docSummary?.sections || [];
   const metadata = useMemo(() => ({
+    slug,
     assetBase: assetBase(slug),
     downloadHref: sourceUrl(slug),
     images,

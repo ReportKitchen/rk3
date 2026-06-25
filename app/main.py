@@ -21,7 +21,7 @@ from pydantic import BaseModel
 
 from rk3.ai import ai_enabled
 from rk3.documents import OUTPUT, list_documents, output_dir, source_for_slug
-from rk3.landing.ai import generate_landing_ai
+from rk3.landing.ai import generate_landing_ai, generate_summary_variant
 from rk3.landing.extract import build_default_theme
 from rk3.landing.templates import ARCHETYPE_LABELS, block_defaults, build_config
 
@@ -302,6 +302,29 @@ def refresh_landing_ai(slug: str):
     _landing_path(slug, ".landing-ai.json").unlink(missing_ok=True)
     ai = _landing_ai(slug, _ir_for(slug))
     return {"refreshed": ai is not None}
+
+
+@app.get("/api/landing/{slug}/ai-summary")
+def get_ai_summary(slug: str, style: str, length: str):
+    """Lazily generate (and cache) one AI summary variant for a (style, length).
+    Returns {"text": ...}; empty string when AI is off or generation fails."""
+    ir = _ir_for(slug)
+    _landing_ai(slug, ir)  # ensure the base cache (title/highlights/default summaries) exists
+    path = _landing_path(slug, ".landing-ai.json")
+    data = json.loads(path.read_text()) if path.exists() else {}
+    key = f"{style}:{length}"
+    cached = (data.get("summaries") or {}).get(key)
+    if cached is not None:
+        return {"text": cached}
+    if not ai_enabled():
+        return {"text": ""}
+    try:
+        text = generate_summary_variant(ir, style, length)
+    except Exception:
+        return {"text": ""}
+    data.setdefault("summaries", {})[key] = text
+    path.write_text(json.dumps(data, indent=1, ensure_ascii=False))
+    return {"text": text}
 
 
 @app.get("/api/landing-archetypes")

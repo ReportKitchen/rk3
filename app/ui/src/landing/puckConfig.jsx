@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { usePuck } from "@measured/puck";
 import { themeProps } from "./css.js";
 import { LandingCtx } from "./landingCtx.js";
+import { getAiSummary } from "../api.js";
 import {
   Title, Summary, DocSummary, Cover, Hero, Toc, Highlights, Share, Download, SecondaryCta,
 } from "./LandingRenderer.jsx";
@@ -195,37 +196,49 @@ export const puckConfig = {
     Summary: {
       label: "AI Summary",
       fields: {
-        source: {
+        style: {
           type: "radio",
-          label: "Version",
+          label: "Style",
           options: [
             { label: "Report intro", value: "intro" },
             { label: "Summary", value: "neutral" },
             { label: "Hard sell", value: "hardsell" },
-            { label: "Heuristic", value: "heuristic" },
+          ],
+        },
+        length: {
+          type: "radio",
+          label: "Length",
+          options: [
+            { label: "Short", value: "short" },
+            { label: "Medium", value: "medium" },
+            { label: "Long", value: "long" },
           ],
         },
         heading: { type: "text", label: "Heading (optional)" },
         text: { type: "textarea", label: "Summary", contentEditable: true },
       },
-      defaultProps: { source: "intro", heading: "", text: "A short summary of the document." },
-      // switching Version swaps the text to the chosen variant. Source of truth
-      // is the live extraction (metadata.summaryVariants), so it works even for
-      // saved configs that predate this field. If the chosen version doesn't
-      // exist (e.g. the heuristics found nothing), go blank — never silently
-      // substitute a different version.
-      resolveData: ({ props }, { changed, trigger, metadata }) => {
+      defaultProps: { style: "intro", length: "medium", heading: "", text: "A short summary of the document." },
+      // changing Style/Length swaps in that variant. Combos already generated
+      // live in metadata.summaryVariants (keyed "style:length"); others are
+      // generated lazily on the backend (async) and cached there.
+      resolveData: async ({ props }, { changed, trigger, metadata }) => {
         if (trigger === "insert") {
           const d = metadata?.blockDefaults?.Summary;
           return d ? { props: { ...props, ...d } } : { props };
         }
-        if (changed?.source) {
+        if (changed?.style || changed?.length) {
+          const key = `${props.style}:${props.length}`;
           const v = metadata?.summaryVariants || {};
-          return { props: { ...props, text: v[props.source] || "" } };
+          if (v[key] != null) return { props: { ...props, text: v[key] } };
+          if (!metadata?.slug) return { props };
+          try {
+            const text = await getAiSummary(metadata.slug, props.style, props.length);
+            return { props: { ...props, text } };
+          } catch { return { props }; }
         }
         return { props };
       },
-      render: ({ text, source, heading }) => <Summary text={text} source={source} heading={heading} />,
+      render: ({ text, style, heading }) => <Summary text={text} source={style} heading={heading} />,
     },
     DocSummary: {
       label: "Document Summary",

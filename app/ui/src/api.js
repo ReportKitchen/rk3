@@ -56,6 +56,9 @@ export const getLandingTemplate = (slug, archetype) =>
 export const getBlockDefaults = (slug) =>
   fetch(`/api/landing/${slug}/block-defaults`).then(json);
 export const getArchetypes = () => fetch(`/api/landing-archetypes`).then(json);
+export const getAiSummary = (slug, style, length) =>
+  fetch(`/api/landing/${slug}/ai-summary?style=${style}&length=${length}`)
+    .then(json).then((d) => d.text);
 
 export const postLanding = (slug, config) =>
   fetch(`/api/landing/${slug}`, {

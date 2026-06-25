@@ -6,6 +6,7 @@ We detect the best-fit archetype for a document and assemble its template from
 the extracted pieces. The user can switch archetypes anytime.
 """
 
+from rk3.landing.ai import DEFAULT_LENGTH, DEFAULT_STYLE
 from rk3.landing.extract import _walk, extract_pieces
 
 ARCHETYPES = ("research", "campaign", "annual", "toolkit")
@@ -39,9 +40,10 @@ def _title(p):
     return {"type": "title", "props": {**p["title_pieces"]}}
 
 def _summary_props(p, heading=""):
-    # the chosen text + which version it is; the full set of versions is served
-    # separately (block-defaults) and drives the editor's Version switch
-    return {"text": p["summary"], "source": p.get("summary_source", "heuristic"), "heading": heading}
+    # the default AI summary (style + length); the variants map is served
+    # separately (block-defaults) and drives the editor's Style/Length switch
+    d = p["ai_default"]
+    return {"text": d["text"], "style": d["style"], "length": d["length"], "heading": heading}
 
 
 def _summary(p, heading=""):
@@ -111,30 +113,25 @@ def _toolkit(p):
 TEMPLATES = {"research": _research, "campaign": _campaign, "annual": _annual, "toolkit": _toolkit}
 
 
-# preferred default summary version, in order of preference
-_SUMMARY_ORDER = ("intro", "neutral", "hardsell", "heuristic")
-
-
 def _pieces(ir: dict, ai: dict | None = None) -> dict:
     """Extracted pieces with the AI content pass layered over the heuristics.
-    Keeps every summary version (intro / neutral / hardsell / heuristic) so the
-    editor can switch between them; picks the first available as the default."""
+    The AI Summary varies on style × length; ``summary_variants`` is keyed by
+    ``"<style>:<length>"`` (the combos generated so far) and drives the editor's
+    Style/Length switch, falling back to the heuristic snippet."""
     pieces = extract_pieces(ir)
-    variants = {"intro": "", "neutral": "", "hardsell": "", "heuristic": pieces["summary"]}
+    variants = dict((ai or {}).get("summaries") or {})  # keyed "style:length"
     if ai:
         if ai.get("title"):
             pieces["title_pieces"] = ai["title"]
-        # new schema: ai["summaries"]; tolerate the old single-string ai["summary"]
-        sums = ai.get("summaries") or ({"neutral": ai["summary"]} if ai.get("summary") else {})
-        for k in ("intro", "neutral", "hardsell"):
-            if sums.get(k):
-                variants[k] = sums[k]
         if ai.get("highlights"):
             pieces["highlights"] = ai["highlights"]
     pieces["summary_variants"] = variants
-    default = next((k for k in _SUMMARY_ORDER if variants[k]), "heuristic")
-    pieces["summary_source"] = default
-    pieces["summary"] = variants[default]
+    default_key = f"{DEFAULT_STYLE}:{DEFAULT_LENGTH}"
+    pieces["ai_default"] = {
+        "style": DEFAULT_STYLE, "length": DEFAULT_LENGTH,
+        # the default combo if AI ran, else the verbatim heuristic snippet
+        "text": variants.get(default_key) or pieces["summary"],
+    }
     return pieces
 
 
