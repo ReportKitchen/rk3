@@ -159,9 +159,11 @@ def extract_summary_sections(body, max_sections: int = 4, min_chars: int = 200,
                 end = j
                 break
         blocks = _section_blocks(seq[i + 1:end])
-        chars = len(re.sub("<[^>]+>", "", " ".join(blocks)))
+        plain = re.sub("<[^>]+>", "", " ".join(blocks))
+        chars = len(plain)
         if chars < min_chars:
             continue
+        words = len(plain.split())
         # weak keywords (overview/summary/background) only count near the front
         # and at a top level, where they're plausibly the document's intro
         front = i <= len(seq) * 0.5
@@ -169,7 +171,7 @@ def extract_summary_sections(body, max_sections: int = 4, min_chars: int = 200,
             continue
         out.append({
             "heading": text, "anchor": h.get("id", ""), "level": level,
-            "blocks": blocks, "chars": chars,
+            "blocks": blocks, "chars": chars, "words": words,
             # an AI-identified section ranks above all keyword matches
             "_score": (10000 if is_hint else prio * 1000) + max(0, 1000 - i),
         })

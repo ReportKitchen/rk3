@@ -179,7 +179,7 @@ def block_defaults(ir: dict, name: str = "", ai: dict | None = None) -> dict:
         "summary": {**_summary_props(p, "Executive summary"), "variants": p["summary_variants"]},
         # sections drives the Document Summary's section picker (stripped on insert)
         "docSummary": {**_doc_summary_props(p), "sections": [
-            {"id": s["id"], "heading": s["heading"], "blocks": s["blocks"], "chars": s["chars"]}
+            {"id": s["id"], "heading": s["heading"], "blocks": s["blocks"], "words": s["words"]}
             for s in p["summary_sections"]]},
         "cover": {"src": p["cover_src"], "alt": f"{title} — cover" if title else "Document cover"},
         "hero": ({"src": hero["src"], "alt": hero.get("alt") or "Hero image"}

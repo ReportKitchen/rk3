@@ -44,14 +44,14 @@ const floatTopField = {
 // intro/summary sections (fed via LandingCtx, since they're per-document)
 function SectionPicker({ value, onChange }) {
   const { summarySections = [] } = useContext(LandingCtx);
-  if (!summarySections.length) return <p className="lp-hint-sm">No verbatim sections detected.</p>;
+  if (!summarySections.length) return null;
   return (
     <div className="lp-section-pick">
       {summarySections.map((s) => (
         <label key={s.id} className={value === s.id ? "active" : ""}>
           <input type="radio" name="lp-section" checked={value === s.id} onChange={() => onChange(s.id)} />
           <span className="lp-sec-h">{s.heading}</span>
-          <span className="lp-sec-len">{Math.round((s.chars || 0) / 100) / 10}k</span>
+          <span className="lp-sec-len">{Math.round((s.words || 0) / 25) * 25} words</span>
         </label>
       ))}
     </div>
