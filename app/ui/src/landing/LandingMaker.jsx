@@ -4,14 +4,14 @@ import "@measured/puck/puck.css";
 import "./landingPage.css"; // bundled so Puck copies it into the canvas iframe
 import "./landing.css";
 import {
-  assetBase, sourceUrl, getIr, getLanding, getLandingTheme,
+  assetBase, sourceUrl, getIr, getLanding, getLandingTheme, getAiMode,
   getLandingTemplate, getArchetypes, getBlockDefaults, postLanding, postLandingTheme,
 } from "../api.js";
 import { puckConfig, TYPE_TO_PUCK } from "./puckConfig.jsx";
 import { toPuck, fromPuck, propsToPuck } from "./puckAdapter.js";
 import { exportZip } from "./exportZip.js";
 import { LandingCtx } from "./landingCtx.js";
-import RightPanel, { SavedStatus } from "./RightPanel.jsx";
+import RightPanel, { SavedStatus, DrawerItem } from "./RightPanel.jsx";
 
 // the viewport picker means "simulated host-page width", complementary to the
 // content-width slider (our column inside that page)
@@ -38,6 +38,7 @@ const OVERRIDES = {
   outline: () => null,
   headerActions: () => <SavedStatus />,
   fields: ({ children }) => <RightPanel>{children}</RightPanel>,
+  drawerItem: DrawerItem,
 };
 
 // Landing Page Maker, on Puck. Our landing.json/theme are the source of truth:
@@ -49,6 +50,7 @@ export default function LandingMaker({ doc }) {
   const [images, setImages] = useState([]);
   const [blockDefaults, setBlockDefaults] = useState(null);
   const [archetypes, setArchetypes] = useState({});
+  const [aiMode, setAiMode] = useState("generate");
   const [arch, setArch] = useState("");
   const [saved, setSaved] = useState(true);
   const [dirty, setDirty] = useState(false);    // edited since the last seed
@@ -71,6 +73,7 @@ export default function LandingMaker({ doc }) {
     let alive = true;
     setInitial(null);
     getArchetypes().then((a) => alive && setArchetypes(a)).catch(() => {});
+    getAiMode().then((m) => alive && setAiMode(m)).catch(() => {});
     getBlockDefaults(slug).then((d) => alive && setBlockDefaults(d)).catch(() => {});
     Promise.all([getLanding(slug), getLandingTheme(slug)])
       .then(([config, theme]) => {
@@ -196,8 +199,9 @@ export default function LandingMaker({ doc }) {
 
   const ctx = useMemo(() => ({
     archetypes, arch, dirty, exporting, saved, open, setOpen, setDispatch, summarySections,
+    canGenerate: aiMode === "generate",
     onSwitch: switchTemplate, onReload: reloadTemplate, onExport,
-  }), [archetypes, arch, dirty, exporting, saved, open, setDispatch, summarySections, switchTemplate, reloadTemplate, onExport]);
+  }), [archetypes, arch, dirty, exporting, saved, open, setDispatch, summarySections, aiMode, switchTemplate, reloadTemplate, onExport]);
 
   if (!initial) return <div className="lp-loading hint">Loading editor…</div>;
 

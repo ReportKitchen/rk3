@@ -36,6 +36,14 @@ export function SavedStatus() {
   return <span className="lp-saved">{saved ? "Saved" : "Saving…"}</span>;
 }
 
+// hide the AI Summary from the Add catalog unless AI may generate content
+// (overrides.drawerItem)
+export function DrawerItem({ name, children }) {
+  const { canGenerate } = useContext(LandingCtx);
+  if (name === "Summary" && !canGenerate) return null;
+  return children;
+}
+
 // one accordion section; bodies stay mounted so open/close animates (grid
 // 0fr→1fr), and the open section can be collapsed again
 function Section({ id, label, open, onToggle, children }) {

@@ -11,7 +11,7 @@ pass generates the three styles at the default length in one call; other
 """
 
 from rk3.ai import complete_json
-from rk3.landing.extract import _walk
+from rk3.landing.extract import _flat, _walk
 
 # summary voice, composed into both the upfront and the lazy prompts
 STYLES = {
@@ -118,6 +118,50 @@ def generate_landing_ai(ir: dict) -> dict:
     sums = data.pop("summaries", {}) or {}
     data["summaries"] = {f"{k}:{DEFAULT_LENGTH}": v for k, v in sums.items() if v}
     return data
+
+
+# ---- analyze tier: locate content, write nothing ----
+ANALYZE_SYSTEM = (
+    "You analyze a document's structure. You do NOT write, summarize, or "
+    "paraphrase any content — you only identify which existing section best "
+    "serves as the document's introduction or executive summary."
+)
+_INTRO_SCHEMA = {
+    "type": "object",
+    "properties": {"heading_index": {"type": "integer"}},
+    "required": ["heading_index"],
+    "additionalProperties": False,
+}
+
+
+def find_intro_section(ir: dict):
+    """Analyze-tier: pick the heading that begins the document's intro / executive
+    summary / about section, so its verbatim text can be used as the Document
+    Summary. Returns the exact heading text (to slice deterministically) or None.
+    Generates no prose — it only points at an existing heading."""
+    heads = [n for n in _flat(ir.get("body", []))
+             if n.get("type") == "heading" and n.get("text", "").strip()]
+    if not heads:
+        return None
+    listing = "\n".join(
+        f"{j}. (level {n.get('level', '?')}) {n['text'].strip()[:90]}"
+        for j, n in enumerate(heads))
+    user = (
+        "Here are the document's section headings, numbered:\n\n"
+        f"{listing}\n\n"
+        "Which heading begins the section that best works as the document's "
+        "introduction or executive summary — a self-contained section a reader "
+        "could read to understand what the document is about and what it "
+        "concludes? Prefer an explicit summary / abstract / overview / "
+        "introduction / 'about this …' section near the front. If none of the "
+        "headings begins such a section, return -1.\n"
+        'Return JSON: {"heading_index": <number, or -1>}.'
+    )
+    res = complete_json(ANALYZE_SYSTEM, user, _INTRO_SCHEMA)
+    j = res.get("heading_index", -1)
+    if isinstance(j, int) and 0 <= j < len(heads):
+        return heads[j]["text"].strip()
+    return None
 
 
 def generate_summary_variant(ir: dict, style: str, length: str) -> str:

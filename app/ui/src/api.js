@@ -59,6 +59,7 @@ export const getArchetypes = () => fetch(`/api/landing-archetypes`).then(json);
 export const getAiSummary = (slug, style, length) =>
   fetch(`/api/landing/${slug}/ai-summary?style=${style}&length=${length}`)
     .then(json).then((d) => d.text);
+export const getAiMode = () => fetch(`/api/ai-mode`).then(json).then((d) => d.mode);
 
 export const postLanding = (slug, config) =>
   fetch(`/api/landing/${slug}`, {

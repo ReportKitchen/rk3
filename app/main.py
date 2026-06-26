@@ -19,9 +19,9 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from rk3.ai import ai_enabled
+from rk3.ai import ai_can_analyze, ai_can_generate, ai_mode
 from rk3.documents import OUTPUT, list_documents, output_dir, source_for_slug
-from rk3.landing.ai import generate_landing_ai, generate_summary_variant
+from rk3.landing.ai import find_intro_section, generate_landing_ai, generate_summary_variant
 from rk3.landing.extract import build_default_theme
 from rk3.landing.templates import ARCHETYPE_LABELS, block_defaults, build_config
 
@@ -256,17 +256,27 @@ def _doc_name(slug: str) -> str:
 
 
 def _landing_ai(slug: str, ir: dict) -> dict | None:
-    """The AI content pass, cached next to the source so it runs once per doc
-    (survives output regeneration). Returns None when AI is off or fails —
-    callers fall back to the deterministic heuristics."""
+    """The cached AI pass (next to the source, so it runs once per doc and
+    survives output regeneration). Runs by tier: analyze locates the intro
+    section (a pointer), generate also authors title/summaries/findings. Returns
+    None when AI is off or nothing succeeded — callers fall back to heuristics."""
     path = _landing_path(slug, ".landing-ai.json")
     if path.exists():
         return json.loads(path.read_text())
-    if not ai_enabled():
-        return None
-    try:
-        data = generate_landing_ai(ir)
-    except Exception:  # any provider/parse error -> heuristics
+    data: dict = {}
+    if ai_can_analyze():
+        try:
+            heading = find_intro_section(ir)
+            if heading:
+                data["intro_heading"] = heading
+        except Exception:
+            pass
+    if ai_can_generate():
+        try:
+            data.update(generate_landing_ai(ir))
+        except Exception:  # any provider/parse error -> heuristics
+            pass
+    if not data:
         return None
     path.write_text(json.dumps(data, indent=1, ensure_ascii=False))
     return data
@@ -316,7 +326,7 @@ def get_ai_summary(slug: str, style: str, length: str):
     cached = (data.get("summaries") or {}).get(key)
     if cached is not None:
         return {"text": cached}
-    if not ai_enabled():
+    if not ai_can_generate():
         return {"text": ""}
     try:
         text = generate_summary_variant(ir, style, length)
@@ -330,6 +340,12 @@ def get_ai_summary(slug: str, style: str, length: str):
 @app.get("/api/landing-archetypes")
 def landing_archetypes():
     return ARCHETYPE_LABELS
+
+
+@app.get("/api/ai-mode")
+def get_ai_mode():
+    """The AI tier (none | analyze | generate), so the editor can gate features."""
+    return {"mode": ai_mode()}
 
 
 @app.post("/api/landing/{slug}")

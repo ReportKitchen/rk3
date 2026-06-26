@@ -1,6 +1,6 @@
 {
   "ai": {
-    "enabled": true,
+    "mode": "generate",
     "provider": "anthropic",
     "model": null
   }

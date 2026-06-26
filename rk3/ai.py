@@ -37,6 +37,13 @@ def _load_env() -> None:
 _load_env()
 
 
+# AI usage tiers (a trust gradient), not just on/off:
+#   none     — no AI; heuristics only
+#   analyze  — AI may read/locate content (returns pointers) but writes nothing
+#   generate — AI may also author copy (summaries, title, findings)
+AI_MODES = ("none", "analyze", "generate")
+
+
 def get_ai_config() -> dict:
     cfg = {}
     path = ROOT / "config.json"
@@ -46,16 +53,35 @@ def get_ai_config() -> dict:
         except (json.JSONDecodeError, OSError):
             cfg = {}
 
-    enabled = cfg.get("enabled")
-    if enabled is None:
-        enabled = os.getenv("AI_ENABLED", "true").lower() not in ("0", "false", "no", "off")
+    # explicit mode wins; else derive from the legacy boolean `enabled`
+    mode = cfg.get("mode") or os.getenv("AI_MODE")
+    if not mode:
+        enabled = cfg.get("enabled")
+        if enabled is None:
+            enabled = os.getenv("AI_ENABLED", "true").lower() not in ("0", "false", "no", "off")
+        mode = "generate" if enabled else "none"
+    mode = mode if mode in AI_MODES else "generate"
     provider = cfg.get("provider") or os.getenv("AI_PROVIDER", "anthropic")
     model = cfg.get("model") or os.getenv("AI_MODEL") or DEFAULT_MODELS.get(provider)
-    return {"enabled": bool(enabled), "provider": provider, "model": model}
+    return {"mode": mode, "provider": provider, "model": model}
 
 
-def ai_enabled() -> bool:
-    return get_ai_config()["enabled"]
+def ai_mode() -> str:
+    return get_ai_config()["mode"]
+
+
+def ai_can_analyze() -> bool:
+    """AI may locate/identify existing content (no prose generated)."""
+    return ai_mode() in ("analyze", "generate")
+
+
+def ai_can_generate() -> bool:
+    """AI may author new copy (summaries, title, findings)."""
+    return ai_mode() == "generate"
+
+
+def ai_enabled() -> bool:  # back-compat: "enabled" meant content generation
+    return ai_can_generate()
 
 
 def _parse_json(text: str) -> dict:

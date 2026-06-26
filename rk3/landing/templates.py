@@ -7,7 +7,8 @@ the extracted pieces. The user can switch archetypes anytime.
 """
 
 from rk3.landing.ai import DEFAULT_LENGTH, DEFAULT_STYLE
-from rk3.landing.extract import _walk, extract_pieces
+from rk3.landing.extract import (
+    _walk, default_doc_summary, extract_pieces, summary_sections)
 
 ARCHETYPES = ("research", "campaign", "annual", "toolkit")
 ARCHETYPE_LABELS = {
@@ -125,6 +126,12 @@ def _pieces(ir: dict, ai: dict | None = None) -> dict:
             pieces["title_pieces"] = ai["title"]
         if ai.get("highlights"):
             pieces["highlights"] = ai["highlights"]
+        # analyze tier: an AI-identified intro heading lets us pull a verbatim
+        # section even when its heading didn't match the keyword patterns
+        if ai.get("intro_heading"):
+            secs = summary_sections(ir.get("body", []), hints=(ai["intro_heading"],))
+            pieces["summary_sections"] = secs
+            pieces["doc_summary"] = default_doc_summary(secs, pieces["summary"])
     pieces["summary_variants"] = variants
     default_key = f"{DEFAULT_STYLE}:{DEFAULT_LENGTH}"
     pieces["ai_default"] = {

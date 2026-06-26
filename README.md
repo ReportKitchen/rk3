@@ -39,8 +39,17 @@ cd app/ui && npm run dev
 
 ### AI (Landing Page Maker)
 
-The AI content pass (summary, key findings, title) is provider-configurable.
-Set the provider/model in `config.json` (the `ai` section) or via env vars
-(`AI_ENABLED`, `AI_PROVIDER`, `AI_MODEL`); the default provider is `anthropic`
+The AI pass is provider-configurable and has three usage tiers, set in
+`config.json` (the `ai` section) or via env vars (`AI_MODE`, `AI_PROVIDER`,
+`AI_MODEL`):
+
+| `ai.mode` | Behaviour |
+|---|---|
+| `none` | No AI — deterministic heuristics only. |
+| `analyze` | AI may **locate** content (e.g. identify the intro/executive-summary section for the verbatim Document Summary) but writes nothing. |
+| `generate` | AI may also **author** copy (AI Summary styles/lengths, title, key findings). |
+
+`mode` defaults to `generate`. The legacy `"enabled": true/false` still works
+(`true` → `generate`, `false` → `none`). The default provider is `anthropic`
 (`claude-opus-4-8`). API keys are read from `.env` (`ANTHROPIC_API_KEY`,
 `OPENAI_API_KEY`, `DEEPSEEK_API_KEY`) — `.env` is gitignored; never commit it.

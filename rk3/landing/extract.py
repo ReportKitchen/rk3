@@ -117,25 +117,40 @@ def _section_priority(text: str) -> int:
     return 0
 
 
-def extract_summary_sections(body, max_sections: int = 4, min_chars: int = 200) -> list[dict]:
+def _norm(s: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", (s or "").lower())
+
+
+def extract_summary_sections(body, max_sections: int = 4, min_chars: int = 200,
+                             hints: tuple = ()) -> list[dict]:
     """Whole verbatim intro/summary sections for the Document Summary element.
 
     Find headings that look like an intro (executive summary / abstract / about /
     introduction / overview…) and take the ENTIRE section — every node until the
     next heading of equal-or-higher rank — as semantic HTML. Rank candidates so a
-    real 'Executive Summary' beats a chapter's 'Overview' subsection."""
+    real 'Executive Summary' beats a chapter's 'Overview' subsection.
+
+    `hints` are heading texts the AI analyze pass identified as the intro section.
+    Their sections are included even when the heading doesn't match the keyword
+    patterns (the point of analyze: non-standard headings) and rank first."""
     seq = list(_flat(body))
     heads = [(i, n) for i, n in enumerate(seq) if n.get("type") == "heading"]
+    hint_set = {_norm(h) for h in hints}
     out = []
     for k, (i, h) in enumerate(heads):
         text = (h.get("text") or "").strip()
         if _SKIP_HEADING.match(text):
             continue
+        # substring match: an AI hint heading ("EXECUTIVE SUMMARY") should also
+        # match near-duplicates like "I. Executive Summary" (and pick whichever
+        # yields the most content, via the min_chars filter + ranking)
+        nt = _norm(text)
+        is_hint = any(hn and (hn in nt or nt in hn) for hn in hint_set)
         prio = _section_priority(text)
-        if not prio:
+        if not prio and not is_hint:
             continue
         level = h.get("level", 1)
-        if level >= 5:  # deep "headings" are usually running-header artifacts
+        if level >= 5 and not is_hint:  # deep "headings" are usually running-header artifacts
             continue
         # the section runs until the next heading of equal-or-higher rank
         end = len(seq)
@@ -150,12 +165,13 @@ def extract_summary_sections(body, max_sections: int = 4, min_chars: int = 200) 
         # weak keywords (overview/summary/background) only count near the front
         # and at a top level, where they're plausibly the document's intro
         front = i <= len(seq) * 0.5
-        if prio <= 2 and not (front and level <= 2):
+        if prio <= 2 and not is_hint and not (front and level <= 2):
             continue
         out.append({
             "heading": text, "anchor": h.get("id", ""), "level": level,
             "blocks": blocks, "chars": chars,
-            "_score": prio * 1000 + max(0, 1000 - i),  # strong keyword, then earlier
+            # an AI-identified section ranks above all keyword matches
+            "_score": (10000 if is_hint else prio * 1000) + max(0, 1000 - i),
         })
     out.sort(key=lambda s: s["_score"], reverse=True)
     # dedupe repeated headers (e.g. a running header misread as a heading)
@@ -168,6 +184,21 @@ def extract_summary_sections(body, max_sections: int = 4, min_chars: int = 200) 
         del s["_score"]
         deduped.append(s)
     return deduped[:max_sections]
+
+
+def summary_sections(body, hints: tuple = ()) -> list[dict]:
+    """The Document Summary's section candidates, each with a stable id."""
+    return [{"id": f"s{i}", **s} for i, s in enumerate(extract_summary_sections(body, hints=hints))]
+
+
+def default_doc_summary(sections: list[dict], snippet: str) -> dict:
+    """The Document Summary's default content: the top-ranked section, else the
+    short heuristic snippet wrapped as a paragraph (still verbatim)."""
+    if sections:
+        s0 = sections[0]
+        return {"heading": s0["heading"], "sectionId": s0["id"], "blocks": s0["blocks"]}
+    return {"heading": "Summary", "sectionId": "",
+            "blocks": [f"<p>{_esc(snippet)}</p>"] if snippet else []}
 
 
 def _toc(body, limit: int = 8) -> list[dict]:
@@ -223,22 +254,14 @@ def extract_pieces(ir: dict) -> dict:
     title = (ir.get("title") or "").strip()
     body = ir.get("body", [])
     snippet = _summary(body)
-    sections = [{"id": f"s{i}", **s} for i, s in enumerate(extract_summary_sections(body))]
-    # the Document Summary's default content: the top-ranked section, else the
-    # short heuristic snippet wrapped as a paragraph (still verbatim)
-    if sections:
-        s0 = sections[0]
-        doc_summary = {"heading": s0["heading"], "sectionId": s0["id"], "blocks": s0["blocks"]}
-    else:
-        doc_summary = {"heading": "Summary", "sectionId": "",
-                       "blocks": [f"<p>{_esc(snippet)}</p>"] if snippet else []}
+    sections = summary_sections(body)
     return {
         "title": title,
         "title_pieces": _title_pieces(title),
         "summary": snippet,
         "summary_source": "heuristic",
         "summary_sections": sections,  # whole verbatim intro sections, each id'd
-        "doc_summary": doc_summary,
+        "doc_summary": default_doc_summary(sections, snippet),
         "toc": _toc(body),
         "highlights": _highlights(body),
         "cover_src": "pages/page-0001.png",
