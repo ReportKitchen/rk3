@@ -4,7 +4,7 @@ import { themeProps } from "./css.js";
 import { LandingCtx } from "./landingCtx.js";
 import { getAiSummary } from "../api.js";
 import {
-  Title, Summary, DocSummary, Cover, Hero, Toc, Highlights, Share, Download, SecondaryCta,
+  Title, Summary, DocSummary, Cover, Hero, Toc, Highlights, Findings, Share, Download, SecondaryCta,
 } from "./LandingRenderer.jsx";
 
 // Document Summary render: reads the global drag state so the empty media slot
@@ -315,6 +315,24 @@ export const puckConfig = {
           items={(items || []).map((i) => (typeof i === "string" ? i : i.value))} />
       ),
     },
+    Findings: {
+      label: "Findings",
+      fields: {
+        heading: { type: "text", label: "Heading" },
+        items: {
+          type: "array",
+          label: "Findings — a figure + the fact it belongs to",
+          getItemSummary: (it) => [it.stat, it.text].filter(Boolean).join(" ").slice(0, 40) || "finding",
+          arrayFields: {
+            stat: { type: "text", label: "Stat (e.g. 47%, $2.3M)" },
+            text: { type: "textarea", label: "Finding" },
+          },
+        },
+      },
+      defaultProps: { heading: "Key findings", items: [] },
+      resolveData: insertDefaults("Findings"),
+      render: ({ heading, items }) => <Findings heading={heading} items={items} />,
+    },
     Share: {
       label: "Social share",
       fields: {},
@@ -354,7 +372,7 @@ export const puckConfig = {
 // component type <-> our block type (Puck keys are capitalized)
 export const TYPE_TO_PUCK = {
   title: "Title", summary: "Summary", docSummary: "DocSummary", cover: "Cover", hero: "Hero",
-  toc: "Toc", highlights: "Highlights", share: "Share", download: "Download",
+  toc: "Toc", highlights: "Highlights", findings: "Findings", share: "Share", download: "Download",
   secondaryCta: "SecondaryCta",
 };
 // props that hold slot content (nested blocks), by Puck type

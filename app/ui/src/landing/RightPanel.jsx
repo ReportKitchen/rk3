@@ -39,8 +39,9 @@ export function SavedStatus() {
 // hide the AI Summary from the Add catalog unless AI may generate content
 // (overrides.drawerItem)
 export function DrawerItem({ name, children }) {
-  const { canGenerate } = useContext(LandingCtx);
-  if (name === "Summary" && !canGenerate) return null;
+  const { canGenerate, canAnalyze } = useContext(LandingCtx);
+  if (name === "Summary" && !canGenerate) return null;   // AI Summary needs generate
+  if (name === "Findings" && !canAnalyze) return null;   // Findings is AI-only
   return children;
 }
 

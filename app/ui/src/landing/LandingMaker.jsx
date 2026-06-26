@@ -200,6 +200,7 @@ export default function LandingMaker({ doc }) {
   const ctx = useMemo(() => ({
     archetypes, arch, dirty, exporting, saved, open, setOpen, setDispatch, summarySections,
     canGenerate: aiMode === "generate",
+    canAnalyze: aiMode !== "none",
     onSwitch: switchTemplate, onReload: reloadTemplate, onExport,
   }), [archetypes, arch, dirty, exporting, saved, open, setDispatch, summarySections, aiMode, switchTemplate, reloadTemplate, onExport]);
 

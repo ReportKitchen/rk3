@@ -126,6 +126,8 @@ def _pieces(ir: dict, ai: dict | None = None) -> dict:
             pieces["title_pieces"] = ai["title"]
         if ai.get("highlights"):
             pieces["highlights"] = ai["highlights"]
+        if ai.get("findings"):
+            pieces["findings"] = ai["findings"]
         # analyze tier: an AI-identified intro heading lets us pull a verbatim
         # section even when its heading didn't match the keyword patterns
         if ai.get("intro_heading"):
@@ -186,6 +188,7 @@ def block_defaults(ir: dict, name: str = "", ai: dict | None = None) -> dict:
                  if hero else {"src": "", "alt": "Hero image"}),
         "toc": {"items": p["toc"]},
         "highlights": {"items": p["highlights"], "heading": "Highlights", "bgColor": "#eef3fa"},
+        "findings": {"items": p["findings"], "heading": "Key findings"},
         "share": {},
         "download": {"label": "Download the full report (PDF)", "bgColor": "#1b4965", "textColor": "#ffffff"},
         "secondaryCta": {"label": "Learn more", "url": "", "bgColor": "#ffffff", "textColor": "#1b4965"},

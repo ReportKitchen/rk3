@@ -266,6 +266,7 @@ def extract_pieces(ir: dict) -> dict:
         "doc_summary": default_doc_summary(sections, snippet),
         "toc": _toc(body),
         "highlights": _highlights(body),
+        "findings": [],  # AI-only (filled by the AI pass); heuristics can't do this
         "cover_src": "pages/page-0001.png",
         "hero": _largest_figure(body),
     }

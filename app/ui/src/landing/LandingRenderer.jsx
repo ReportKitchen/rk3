@@ -97,6 +97,26 @@ export function Highlights({ items, bgColor, heading }) {
   );
 }
 
+// Concrete findings: a headline figure (stat) + the fact it belongs to. The
+// stat is isolated so it can later drive infographics/charts.
+export function Findings({ heading, items }) {
+  const list = (items || []).filter((it) => it && (it.stat || it.text));
+  if (!list.length) return null;
+  return (
+    <section className="lp-block lp-findings">
+      {heading ? <h2>{heading}</h2> : null}
+      <ul>
+        {list.map((it, i) => (
+          <li key={i}>
+            {it.stat ? <span className="lp-finding-stat">{it.stat}</span> : null}
+            {it.text ? <span className="lp-finding-text">{it.text}</span> : null}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export function Share() {
   return (
     <div className="lp-block lp-share">
@@ -132,14 +152,14 @@ export function SecondaryCta({ label, url, bgColor, textColor }) {
 
 export const BLOCKS = {
   title: Title, summary: Summary, docSummary: DocSummary, cover: Cover, hero: Hero,
-  toc: Toc, highlights: Highlights, share: Share, download: Download,
+  toc: Toc, highlights: Highlights, findings: Findings, share: Share, download: Download,
   secondaryCta: SecondaryCta,
 };
 
 export const BLOCK_LABELS = {
   title: "Title", summary: "AI Summary", docSummary: "Document Summary",
   cover: "Report cover", hero: "Hero image", toc: "Table of contents",
-  highlights: "Highlights", share: "Social share",
+  highlights: "Highlights", findings: "Findings", share: "Social share",
   download: "Download CTA", secondaryCta: "Secondary CTA",
 };
 

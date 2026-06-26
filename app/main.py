@@ -21,7 +21,8 @@ from pydantic import BaseModel
 
 from rk3.ai import ai_can_analyze, ai_can_generate, ai_mode
 from rk3.documents import OUTPUT, list_documents, output_dir, source_for_slug
-from rk3.landing.ai import find_intro_section, generate_landing_ai, generate_summary_variant
+from rk3.landing.ai import (
+    find_findings, find_intro_section, generate_landing_ai, generate_summary_variant)
 from rk3.landing.extract import build_default_theme
 from rk3.landing.templates import ARCHETYPE_LABELS, block_defaults, build_config
 
@@ -269,6 +270,10 @@ def _landing_ai(slug: str, ir: dict) -> dict | None:
             heading = find_intro_section(ir)
             if heading:
                 data["intro_heading"] = heading
+        except Exception:
+            pass
+        try:  # verbatim at analyze, lightly-edited at generate
+            data["findings"] = find_findings(ir, verbatim=not ai_can_generate())
         except Exception:
             pass
     if ai_can_generate():

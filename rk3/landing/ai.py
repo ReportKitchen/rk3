@@ -164,6 +164,59 @@ def find_intro_section(ir: dict):
     return None
 
 
+FINDINGS_SYSTEM = (
+    "You extract the key quantified findings from a document for a landing page. "
+    "Work only from the provided document; never invent numbers, facts, or names."
+)
+_FINDINGS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "findings": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {"stat": {"type": "string"}, "text": {"type": "string"}},
+                "required": ["stat", "text"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    "required": ["findings"],
+    "additionalProperties": False,
+}
+
+
+def find_findings(ir: dict, verbatim: bool = False) -> list[dict]:
+    """The document's concrete findings — facts/figures/statistics — as up to 10
+    {stat, text} pairs. `verbatim` (analyze tier) quotes the document's exact
+    numbers and wording; otherwise (generate tier) wording may be tightened.
+    Never invents figures. AI-only: heuristics can't do this well."""
+    title = (ir.get("title") or "").strip()
+    mode_instr = (
+        "Quote the document's figures and statements VERBATIM — use its exact "
+        "numbers and wording; do not paraphrase, round, or reword."
+        if verbatim else
+        "Use the document's figures and statements; you may tighten the wording "
+        "for clarity, but never invent or alter numbers."
+    )
+    user = (
+        f"Document title: {title}\n\n"
+        f"Document content:\n{_doc_text(ir)}\n\n"
+        "Extract up to 10 of the document's most striking concrete FINDINGS — "
+        "facts, figures, statistics, and quantified outcomes a reader would "
+        "remember. Each finding is an object with:\n"
+        '  • stat — the headline figure (e.g. "47%", "$2.3M", "3x", "1 in 5"); '
+        "an empty string if the finding genuinely has no clean number.\n"
+        '  • text — the finding phrased as a fact ("of neighborhoods saw literacy '
+        'gains over five years"), NOT as "the report found…". It should read '
+        "naturally right after the stat; if there is no stat, make text a complete "
+        "sentence.\n"
+        f"{mode_instr}\n"
+        "Prefer findings that carry a number; order them by impact."
+    )
+    return complete_json(FINDINGS_SYSTEM, user, _FINDINGS_SCHEMA)["findings"][:10]
+
+
 def generate_summary_variant(ir: dict, style: str, length: str) -> str:
     """Lazy pass: one executive-summary variant for a given (style, length)."""
     style = style if style in STYLES else DEFAULT_STYLE
