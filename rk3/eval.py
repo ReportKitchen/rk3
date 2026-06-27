@@ -43,10 +43,33 @@ def _artifact(slug, stage):
     return json.loads(p.read_text()) if p.exists() else None
 
 
-def _reading_order(ir):
-    """Text-bearing nodes in document (reading) order."""
-    return [n for n in _walk(ir.get("body", []))
-            if n.get("type") in ("paragraph", "heading") and n.get("text")]
+STAGES = ("extract", "assemble", "analyze", "render")
+
+
+def _stage_seq(slug, stage):
+    """A stage's content as an ordered list of {text, type, level} — so a check
+    can assert against the layer where the property actually lives.
+
+      analyze  → IR text nodes (paragraphs/headings) with type + level
+      assemble → blocks in stored order (text = joined lines; no type/level yet)
+      extract  → one entry per page (concatenated chars)
+    """
+    if stage == "analyze":
+        ir = _artifact(slug, "analyze") or {}
+        return [{"text": n.get("text", ""), "type": n.get("type"), "level": n.get("level")}
+                for n in _walk(ir.get("body", []))
+                if n.get("type") in ("paragraph", "heading") and n.get("text")]
+    if stage == "assemble":
+        b = _artifact(slug, "assemble") or {}
+        return [{"text": " ".join(ln.get("text", "") for ln in blk.get("lines", [])),
+                 "type": None, "level": None, "page": blk.get("page")}
+                for blk in b.get("blocks", [])]
+    if stage == "extract":
+        e = _artifact(slug, "extract") or {}
+        return [{"text": "".join(c[0] for c in p.get("chars", [])),
+                 "type": None, "level": None, "page": p.get("n")}
+                for p in e.get("pages", [])]
+    return []
 
 
 def _find(seq, snippet):
@@ -74,25 +97,30 @@ def _localize(slug, snippet):
     return "missing by assemble → defect is upstream (extract/assemble lost the text)"
 
 
-# ---- check evaluators: (ok, detail) ----
-def _check_order(slug, seq, c):
+# ---- check evaluators: (ok, detail). Each reads the check's target stage. ----
+def _check_order(slug, c):
+    stage = c.get("stage", "analyze")
+    seq = _stage_seq(slug, stage)
     a, b = c["order"]
     ia, ib = _find(seq, a), _find(seq, b)
     if ia < 0:
-        return False, f"{a!r} not found in IR — {_localize(slug, a)}"
+        return False, f"{a!r} not found in {stage} — {_localize(slug, a)}"
     if ib < 0:
-        return False, f"{b!r} not found in IR — {_localize(slug, b)}"
+        return False, f"{b!r} not found in {stage} — {_localize(slug, b)}"
     if ia < ib:
         return True, f"{a!r} (#{ia}) before {b!r} (#{ib})"
-    return False, (f"{a!r} (#{ia}) reads AFTER {b!r} (#{ib}) — "
-                   "text present, so wrong order is an analyze bug")
+    return False, f"{a!r} (#{ia}) reads AFTER {b!r} (#{ib}) — {_localize(slug, a)}"
 
 
-def _check_role(slug, seq, c):
+def _check_role(slug, c):
+    stage = c.get("stage", "analyze")
+    if stage != "analyze":
+        return False, f"role checks need the analyze stage (got {stage!r})"
+    seq = _stage_seq(slug, "analyze")
     r = c["role"]
     i = _find(seq, r["text"])
     if i < 0:
-        return False, f"{r['text']!r} not found in IR — {_localize(slug, r['text'])}"
+        return False, f"{r['text']!r} not found in analyze — {_localize(slug, r['text'])}"
     n = seq[i]
     is_h = n.get("type") == "heading"
     want = r.get("is", "heading")
@@ -113,23 +141,22 @@ def _eval_doc(path):
     spec = yaml.safe_load(path.read_text())
     slug = spec["doc"]
     convert(slug)  # cached; re-runs only changed stages
-    ir = _artifact(slug, "analyze")
     print(f"\n{slug}")
-    if ir is None:
+    if _artifact(slug, "analyze") is None:
         print("  ! no ir.json (conversion failed?)")
         return 0, len(spec.get("checks", []))
-    seq = _reading_order(ir)
     npass = nfail = 0
     for c in spec.get("checks", []):
         kind = next((k for k in EVALUATORS if k in c), None)
+        stage = c.get("stage", "analyze")
         if not kind:
             print(f"  ????  {c.get('note', '(no note)')}: unknown check kind")
             nfail += 1
             continue
-        ok, detail = EVALUATORS[kind](slug, seq, c)
-        print(f"  {'PASS' if ok else 'FAIL'}  {c.get('note', '')}")
+        ok, detail = EVALUATORS[kind](slug, c)
+        print(f"  {'PASS' if ok else 'FAIL'}  [{stage:>8}]  {c.get('note', '')}")
         if not ok:
-            print(f"          ↳ {detail}")
+            print(f"             ↳ {detail}")
         npass += ok
         nfail += not ok
     return npass, nfail
