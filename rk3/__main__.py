@@ -2,6 +2,7 @@
   python -m rk3 list                         list documents and conversion status
   python -m rk3 convert <slug> [--force]     convert a document (--force reconverts)
   python -m rk3 remove <slug|file.pdf>       delete a document and all its artifacts
+  python -m rk3 eval [slug]                  run conversion spot-test assertions
 """
 
 import json
@@ -29,6 +30,9 @@ def main():
         print(f"Removed {slug}:")
         for p in removed:
             print(f"  {p}")
+    elif args[:1] == ["eval"]:
+        from .eval import run
+        sys.exit(run(args[1] if len(args) >= 2 else None))
     else:
         print(__doc__)
         sys.exit(2)

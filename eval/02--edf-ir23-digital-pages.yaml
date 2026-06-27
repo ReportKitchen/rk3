@@ -1,0 +1,23 @@
+doc: 02--edf-ir23-digital-pages
+
+# EDF IR23 is a clean magazine-style annual report. Page 3 is a two-column
+# "Thank you" letter; pages 5–6 are image+text rows with drop caps. Our column
+# DETECTION mis-fires (a centered "THANK YOU" kicker straddles the gutter and
+# defeats the empty-gutter test), so the whole left column should read before
+# the right but currently interleaves. These encode the correct answers; the
+# order checks fail today and should flip to PASS after the multi-column port.
+checks:
+  - note: "p3: whole left column reads before the right column"
+    order: ["In China, we continued", "You advanced our community work"]
+
+  - note: "p3: left-column body precedes the right-column continuation"
+    order: ["This year, your generosity", "Reduction Act are well-spent"]
+
+  - note: "p5 section title is a heading"
+    role: { text: "METHANE REDUCTION POLICIES WITH TEETH", is: heading }
+
+  - note: "p6 section title is a heading"
+    role: { text: "MAKING THE INVISIBLE MEASURABLE", is: heading }
+
+  - note: "running footer 'EDF IMPACT 2023' is not a heading"
+    role: { text: "EDF IMPACT 2023", is: not-heading }
