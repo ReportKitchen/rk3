@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 53
+VERSION = 56
 
 
 def _font_emphasis(name, weight, base_name):
@@ -1731,8 +1731,19 @@ def _item_rk(item, blocks):
 
 def _column_split(bboxes):
     """x of the gutter when the page is laid out in two columns, else None.
-    Requires two well-populated x-clusters of narrow blocks with a clear gap
-    that no narrow block straddles."""
+
+    Two detectors: the center-gap method handles ordinary (incl. ragged or
+    centered) columns; the left-edge fallback rescues pages where a lone centered
+    kicker/banner straddles the gutter and defeats center-gap (e.g. a "THANK YOU"
+    label above a two-column letter). The fallback only runs when center-gap
+    finds nothing, so it can add a detection but never remove one — it can't
+    regress a page the primary already handled."""
+    s = _split_center_gap(bboxes)
+    return s if s is not None else _split_left_edge(bboxes)
+
+
+def _split_center_gap(bboxes):
+    """Largest gap between narrow-block centers, with an empty gutter."""
     if len(bboxes) < 5:
         return None
     l0 = min(b[0] for b in bboxes)
@@ -1752,7 +1763,45 @@ def _column_split(bboxes):
     right = [b for b in narrow if (b[0] + b[2]) / 2 >= split0]
     if len(left) < 2 or len(right) < 2:
         return None
-    # real columns have an empty gutter between the groups' edges
+    gutter_l = max(b[2] for b in left)
+    gutter_r = min(b[0] for b in right)
+    if gutter_r - gutter_l < 6:
+        return None
+    return (gutter_l + gutter_r) / 2
+
+
+def _split_left_edge(bboxes):
+    """Cluster narrow blocks by LEFT edge (column text shares a left margin) and
+    take the two most-populated clusters. A lone centered kicker is its own tiny
+    cluster, so it's ignored rather than vetoing detection."""
+    if len(bboxes) < 5:
+        return None
+    l0 = min(b[0] for b in bboxes)
+    r0 = max(b[2] for b in bboxes)
+    width = max(r0 - l0, 1.0)
+    narrow = [b for b in bboxes if (b[2] - b[0]) <= 0.6 * width]
+    if len(narrow) < 4:
+        return None
+    tol = 0.04 * width
+    clusters = []
+    for x in sorted(b[0] for b in narrow):
+        if clusters and x - clusters[-1][-1] <= tol:
+            clusters[-1].append(x)
+        else:
+            clusters.append([x])
+    if len(clusters) < 2:
+        return None
+    clusters.sort(key=len, reverse=True)
+    c1, c2 = clusters[0], clusters[1]
+    if len(c1) < 2 or len(c2) < 2:
+        return None
+    lo, hi = sorted([sum(c1) / len(c1), sum(c2) / len(c2)])
+    if hi - lo < 0.18 * width:  # the two columns must be well separated
+        return None
+    left = [b for b in narrow if abs(b[0] - lo) <= tol]
+    right = [b for b in narrow if abs(b[0] - hi) <= tol]
+    if len(left) < 2 or len(right) < 2:
+        return None
     gutter_l = max(b[2] for b in left)
     gutter_r = min(b[0] for b in right)
     if gutter_r - gutter_l < 6:
