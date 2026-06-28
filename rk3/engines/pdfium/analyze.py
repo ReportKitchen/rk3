@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 61
+VERSION = 62
 
 
 def _font_emphasis(name, weight, base_name):
@@ -383,6 +383,7 @@ def run(ctx):
     audit = _audit(ctx, blocks, texts, nodes)
     ctx.write_artifact("analyze", {
         "title": title,
+        "warnings": ctx.artifact("extract").get("warnings", []),
         "pages": {str(p["n"]): [p["width"], p["height"]] for p in asm["pages"]},
         "questions": ctx.questions,
         "audit": audit,

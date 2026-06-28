@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 37
+VERSION = 38
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -64,6 +64,7 @@ def run(ctx):
 {links}
 </head>
 <body>
+{_render_warnings(ir.get("warnings", []))}
 {nav}
 <main>
 <article>
@@ -75,6 +76,24 @@ def run(ctx):
 """
     (ctx.outdir / "index.html").write_text(doc, encoding="utf-8")
     ctx.log.entry("rendered", nodes=len(ir["body"]), css=CSS_FILES)
+
+
+def _render_warnings(warnings):
+    """Doc-level advisory banner at the top of the page. Inline styles keep it
+    visible regardless of which CSS layers are toggled, and self-contained in
+    the exported HTML."""
+    if not warnings:
+        return ""
+    rows = "\n".join(
+        f'<p style="margin:.15em 0"><strong>{html.escape(w.get("title", ""))}</strong>'
+        f' — {html.escape(w.get("detail", ""))}</p>'
+        for w in warnings)
+    return (
+        '<aside class="rk-warnings" role="note" data-rk-warning="1" '
+        'style="margin:0;padding:.7em 1.1em;background:#fff8e1;'
+        'border-bottom:1px solid #e6c200;color:#5b4a00;font:14px/1.45 '
+        '-apple-system,Segoe UI,Helvetica,Arial,sans-serif">'
+        f'<span aria-hidden="true">⚠ </span>{rows}</aside>')
 
 
 def _apply_ops(ctx, ir):
