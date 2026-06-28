@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter
 
-VERSION = 25
+VERSION = 28
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -93,32 +93,31 @@ def _lines(chars, links, fills=()):
 
 
 def _finish_line(chars, links, fills=()):
-    chars = sorted(chars, key=lambda c: c[L])
-    # some PDFs place space chars at geometrically impossible positions
-    # ("i sjust"); a space whose neighbors nearly touch is a lie — drop it,
-    # gap-synthesis below re-derives spacing from actual geometry
-    cleaned = []
-    for idx, c in enumerate(chars):
+    # Some PDFs place space chars at geometrically impossible positions: a space
+    # whose x falls at or before the RIGHT edge of the char that PRECEDES it in
+    # the content stream can't be a real gap there. ("Healt","h"," ",".") renders
+    # "Health." but the trailing space, once x-sorted, would land between t and h
+    # and split the word. Detect this in CONTENT order (before sorting) and drop
+    # it; trust every other explicit space, so genuinely tight word gaps in dense
+    # fonts ("of Agriculture") survive. Gap-synthesis below fills real gaps that
+    # carry no space char at all.
+    drop = set()
+    prev_real = None
+    for i, c in enumerate(chars):
         if c[UC] == " " and c[R] - c[L] < 0.3:  # zero-width space glyph
-            prev = cleaned[-1] if cleaned else None
-            nxt = next((x for x in chars[idx + 1:] if x[UC] != " "), None)
-            gap = (nxt[L] - prev[R]) if prev is not None and nxt is not None \
-                else 0.0  # boundary zero-width spaces carry no evidence
-            # judge against the NEIGHBORS' size: these glyphs lie about
-            # their own (size 1, untransformed). 0.17em: above kerned letter
-            # gaps (~0.15 worst seen), below real word gaps (~0.20 floor)
-            ref = max((prev or c)[SIZE], (nxt or c)[SIZE], 1.0)
-            if gap < 0.17 * ref:
-                continue
-        cleaned.append(c)
-    chars = cleaned
+            if prev_real is not None and c[L] < prev_real[R] - 0.1:
+                drop.add(i)
+        elif c[UC] != " ":
+            prev_real = c
+    chars = sorted((c for i, c in enumerate(chars) if i not in drop),
+                   key=lambda c: c[L])
+    space_em = _space_threshold(chars)
     text = []
     src = []  # source char (or None for synthesized spaces), parallel to text
     prev_r = None
     sizes = Counter()
     fonts = Counter()
     colors = Counter()
-    space_em = _space_threshold(chars)
     for c in chars:
         # synthesize a space on a visible horizontal gap (pdfium often includes
         # real space chars, but not always); threshold is adaptive per line —
