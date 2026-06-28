@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 63
+VERSION = 70
 
 
 def _font_emphasis(name, weight, base_name):
@@ -248,25 +248,15 @@ def run(ctx):
         if grouped is not None:
             page_items[page_n] = grouped
 
-    def item_weight(item):
-        kind, ref = item
-        return len(texts[ref]) if kind == "block" else 0
-
     twocol_pages = set()
     for page_n, items in page_items.items():
         bboxes = [item_bbox(it) for it in items]
-        weights = [item_weight(it) for it in items]
-        split = _column_split(bboxes, weights)
-        if split is not None:
-            page_items[page_n] = _flow_order(items, bboxes, split)
+        order, ncols = _reading_order(bboxes)
+        page_items[page_n] = [items[k] for k in order]
+        if ncols >= 2:
             twocol_pages.add(page_n)
-            ctx.log.entry("two-column", page=page_n, split=round(split, 1))
-        else:
-            # designers draw display text last in the content stream (page
-            # titles, ledes), landing it after the body; visual order is
-            # top-down. Quantized so side-by-side items keep stream order.
-            page_items[page_n].sort(
-                key=lambda it: -int(item_bbox(it)[3] // 6))
+        ctx.log.entry("reading-order", page=page_n, columns=ncols,
+                      items=len(items))
 
     deepest = max([*tag_levels.values(), *levels.values(), 0])
     kicker_level = min(deepest + 1, 6) if deepest else 0
@@ -1941,34 +1931,93 @@ def _split_sparse_column(bboxes, weights):
     return best[1] if best else None
 
 
-def _flow_order(items, bboxes, split):
-    """Reading order for a two-column page: top-down, with full-width
-    elements acting as band separators; within a band, the left column reads
-    fully before the right."""
-    l0 = min(b[0] for b in bboxes)
-    r0 = max(b[2] for b in bboxes)
-    width = max(r0 - l0, 1.0)
-    order = sorted(range(len(items)), key=lambda k: -bboxes[k][3])
-    out = []
-    band = []
-
-    def flush():
-        if not band:
-            return
-        left = [k for k in band if (bboxes[k][0] + bboxes[k][2]) / 2 < split]
-        right = [k for k in band if k not in left]
-        out.extend(sorted(left, key=lambda k: -bboxes[k][3]))
-        out.extend(sorted(right, key=lambda k: -bboxes[k][3]))
-        band.clear()
-
-    for k in order:
-        if (bboxes[k][2] - bboxes[k][0]) > 0.6 * width:
-            flush()
-            out.append(k)
+def _interior_gaps(intervals):
+    """Empty spans BETWEEN the merged coverage of 1-D intervals — i.e. gaps with
+    content on both sides (page margins excluded). Returns [(lo, hi), …]."""
+    es = sorted(intervals)
+    merged = [list(es[0])]
+    for lo, hi in es[1:]:
+        if lo <= merged[-1][1]:
+            merged[-1][1] = max(merged[-1][1], hi)
         else:
-            band.append(k)
-    flush()
-    return [items[k] for k in out]
+            merged.append([lo, hi])
+    return [(merged[i][1], merged[i + 1][0]) for i in range(len(merged) - 1)]
+
+
+# A vertical valley narrower than this isn't a column gutter; a horizontal one
+# narrower than this isn't a band break (paragraph leading stays inside a block).
+MIN_GUTTER = 8.0
+MIN_BAND = 11.0
+
+
+def _reading_order(bboxes):
+    """Recursive XY-cut reading order over block bboxes — replaces bespoke
+    column detection + left-then-right flow. Recursively split the region at its
+    widest whitespace valley: a VERTICAL valley separates columns (left read
+    first), a HORIZONTAL valley separates bands (top read first). Crucially a
+    vertical valley only exists when NO block spans it, so a full-width header
+    forces a horizontal cut first (its own band), then the columns below split —
+    which is exactly correct reading order. Handles any column count, banded
+    headers, and nested layouts uniformly. Returns (index_order, max_columns)."""
+    max_cols = [1]
+
+    def recurse(idxs, cols_here):
+        if len(idxs) <= 1:
+            max_cols[0] = max(max_cols[0], cols_here)
+            return list(idxs)
+        bs = [bboxes[i] for i in idxs]
+        region_w = max(b[2] for b in bs) - min(b[0] for b in bs)
+        vgaps = _interior_gaps([(b[0], b[2]) for b in bs])  # x → column gutters
+        hgaps = _interior_gaps([(b[1], b[3]) for b in bs])  # y → band breaks
+        bv = max(vgaps, key=lambda g: g[1] - g[0], default=None)
+        bh = max(hgaps, key=lambda g: g[1] - g[0], default=None)
+        vw = (bv[1] - bv[0]) if bv else 0.0
+        hw = (bh[1] - bh[0]) if bh else 0.0
+        v_ok, h_ok = vw >= MIN_GUTTER, hw >= MIN_BAND
+        # COLUMNS FIRST: a valid gutter is cut before any horizontal band, so
+        # continuous columns (a per-column heading then its body) read down each
+        # column rather than across the heading row. A full-width banded header
+        # has no vertical gutter (it spans), so it still falls to the horizontal
+        # cut below — banded layouts are unaffected.
+        if v_ok:
+            x = (bv[0] + bv[1]) / 2
+            left = [i for i in idxs if (bboxes[i][0] + bboxes[i][2]) / 2 < x]
+            right = [i for i in idxs if i not in left]
+            # real columns COEXIST vertically; if the two sides barely overlap in
+            # y they're stacked blocks that merely happen to be x-disjoint, not a
+            # gutter — guards against over-segmentation (a short line's right
+            # margin reading as a column). Require the shorter side to overlap.
+            lb, rb = [bboxes[i] for i in left], [bboxes[i] for i in right]
+            yov = (min(max(b[3] for b in lb), max(b[3] for b in rb))
+                   - max(min(b[1] for b in lb), min(b[1] for b in rb)))
+            short_h = min(max(b[3] for b in lb) - min(b[1] for b in lb),
+                          max(b[3] for b in rb) - min(b[1] for b in rb))
+            if yov >= 0.5 * max(short_h, 1.0):
+                return (recurse(left, cols_here + 1)
+                        + recurse(right, cols_here + 1))
+        if h_ok:
+            y = (bh[0] + bh[1]) / 2
+            top = [i for i in idxs if (bboxes[i][1] + bboxes[i][3]) / 2 > y]
+            bot = [i for i in idxs if i not in top]
+            return recurse(top, cols_here) + recurse(bot, cols_here)
+        # whitespace-cover assist: when a full-width block straddles the gutter
+        # AND overlaps the columns (no clean band gap above it), pure XY-cut
+        # deadlocks. Treat the block as a band boundary on its own — split the
+        # region above/below it — so the columns on each side can then cut.
+        spanning = [i for i in idxs
+                    if (bboxes[i][2] - bboxes[i][0]) >= 0.7 * max(region_w, 1.0)]
+        if spanning and len(spanning) < len(idxs):
+            s = max(spanning, key=lambda i: (bboxes[i][1] + bboxes[i][3]) / 2)
+            sy = (bboxes[s][1] + bboxes[s][3]) / 2
+            above = [i for i in idxs
+                     if i != s and (bboxes[i][1] + bboxes[i][3]) / 2 > sy]
+            below = [i for i in idxs if i != s and i not in above]
+            return recurse(above, cols_here) + [s] + recurse(below, cols_here)
+        # no cut available: read top-to-bottom, then left-to-right
+        max_cols[0] = max(max_cols[0], cols_here)
+        return sorted(idxs, key=lambda i: (-bboxes[i][3], bboxes[i][0]))
+
+    return recurse(list(range(len(bboxes))), 1), max_cols[0]
 
 
 def _group_tag_lists(ctx, nodes):
