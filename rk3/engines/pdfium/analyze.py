@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 60
+VERSION = 61
 
 
 def _font_emphasis(name, weight, base_name):
@@ -124,6 +124,7 @@ def run(ctx):
     asm = ctx.artifact("assemble")
     blocks, fonts, colors = asm["blocks"], asm["fonts"], asm["colors"]
     pages = {p["n"]: p for p in asm["pages"]}
+    ctx.page_h = {p["n"]: p["height"] for p in asm["pages"]}
     ctx.colors = colors
     ctx.questions = []
     ctx.nids = set()
@@ -320,6 +321,7 @@ def run(ctx):
     nodes = _join_pagebreak_sentences(ctx, nodes)
     nodes = _join_column_wrap(ctx, nodes)
     nodes = _merge_crosspage_lists(ctx, nodes)
+    nodes = _merge_crosspage_bullet_lists(ctx, nodes)
     nodes = _marker_lists(ctx, nodes)
     nodes = _definition_lists(ctx, nodes)
     nodes = _floating_pullquotes(ctx, nodes, body_size)
@@ -1117,6 +1119,33 @@ def _merge_crosspage_lists(ctx, nodes):
                               into=prev["rk"], segments=added,
                               text=n["text"][:60])
                 ctx.audit_moved[n["page"]] += _alnum(n["text"])
+                continue
+        out.append(n)
+    return out
+
+
+def _merge_crosspage_bullet_lists(ctx, nodes):
+    """An unordered list whose items continue past a page break arrives as two
+    list nodes: the first ends at the FOOT of page N, the second opens at the
+    HEAD of page N+1, with nothing between them (an intervening heading/lead-in
+    would break the adjacency, so this can't fuse a genuinely new list).
+    Concatenate the continuation's items into the first."""
+    out = []
+    for n in nodes:
+        prev = out[-1] if out else None
+        if (prev is not None and prev["type"] == "list" and n["type"] == "list"
+                and not prev.get("ordered") and not n.get("ordered")
+                and n["page"] == prev["page"] + 1):
+            hp = ctx.page_h.get(prev["page"], 792)
+            hn = ctx.page_h.get(n["page"], 792)
+            if prev["bbox"][1] < 0.22 * hp and n["bbox"][3] > 0.78 * hn:
+                prev["items"] = list(prev.get("items", [])) + list(n.get("items", []))
+                prev["bbox"] = _union(prev["bbox"], n["bbox"])
+                ctx.audit_moved[n["page"]] += sum(
+                    _alnum(t) for t in _item_texts(n.get("items", [])))
+                ctx.log.entry("list-continued-bullet", page=n["page"],
+                              into=prev["rk"], added=len(n.get("items", [])),
+                              text=(n.get("items") or [""])[0][:50])
                 continue
         out.append(n)
     return out
