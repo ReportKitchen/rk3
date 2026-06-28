@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 59
+VERSION = 60
 
 
 def _font_emphasis(name, weight, base_name):
@@ -94,7 +94,7 @@ def _marker_value(raw):
         return int(raw)
     return ROMAN.get(raw.lower())
 
-BULLETS = "•◦▪‣–—-*·§◊♦►▸✦➤"
+BULLETS = "•◦▪‣–—-*·§◊♦►▸✦➤●○"
 OBJ_PATH, OBJ_IMAGE, OBJ_SHADING = 2, 3, 4
 # objects: [type, l, b, r, t, fillIdx, strokeIdx, filled, stroked]
 OT, OL, OB, OR_, OTOP = range(5)
