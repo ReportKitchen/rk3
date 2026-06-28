@@ -1,5 +1,9 @@
 export const ENGINE = "pdfium";
 
+// client-only "document" id for the Admin → All Feedback view (never hits the
+// server; the slug regex there rejects the colon anyway)
+export const ADMIN_FEEDBACK = "admin:all-feedback";
+
 async function json(res) {
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   return res.json();
@@ -11,6 +15,8 @@ export const startConvert = (slug, force = false) =>
   fetch(`/api/convert/${slug}${force ? "?force=true" : ""}`, { method: "POST" }).then(json);
 
 export const getFeedback = (slug) => fetch(`/api/feedback/${slug}`).then(json);
+
+export const getAllFeedback = () => fetch(`/api/feedback`).then(json);
 
 export const postFeedback = (slug, entry) =>
   fetch(`/api/feedback/${slug}`, {

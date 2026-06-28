@@ -109,6 +109,29 @@ def _feedback_path(slug: str) -> Path:
     return FEEDBACK / f"{slug}.jsonl"
 
 
+@app.get("/api/feedback")
+def get_all_feedback():
+    """Every feedback entry across all documents, tagged with its doc slug/name,
+    for the Admin → All Feedback table. Includes cleared entries (the client
+    toggles 'show closed')."""
+    names = {d["slug"]: d["name"] for d in list_documents()}
+    out = []
+    if FEEDBACK.is_dir():
+        for path in sorted(FEEDBACK.glob("*.jsonl")):
+            slug = path.stem
+            for line in path.read_text().splitlines():
+                if not line.strip():
+                    continue
+                try:
+                    rec = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                rec["slug"] = slug
+                rec["docName"] = names.get(slug, slug)
+                out.append(rec)
+    return out
+
+
 @app.get("/api/feedback/{slug}")
 def get_feedback(slug: str):
     path = _feedback_path(slug)

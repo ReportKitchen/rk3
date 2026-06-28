@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { clearFeedback, deleteFeedback, deleteOp, emptyTrash, getDocuments, getFeedback, getIr, getOps, startConvert, postFeedback, postOp } from "./api.js";
+import { ADMIN_FEEDBACK, clearFeedback, deleteFeedback, deleteOp, emptyTrash, getDocuments, getFeedback, getIr, getOps, startConvert, postFeedback, postOp } from "./api.js";
 import DocList from "./components/DocList.jsx";
 import DocumentView from "./components/DocumentView.jsx";
 import FeedbackPopover from "./components/FeedbackPopover.jsx";
+import FeedbackTable from "./components/FeedbackTable.jsx";
 import Toolbar from "./components/Toolbar.jsx";
 
 function findNode(ir, nid) {
@@ -127,7 +128,9 @@ export default function App() {
       <div id="right">
         {doc && <Toolbar doc={doc} />}
         <div id="content">
-          {doc ? (
+          {selected === ADMIN_FEEDBACK ? (
+            <FeedbackTable onOpen={setSelected} />
+          ) : doc ? (
             <DocumentView
               key={doc.slug}
               docVersion={docVersion}

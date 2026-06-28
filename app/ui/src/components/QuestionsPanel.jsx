@@ -9,28 +9,6 @@ export default function QuestionsPanel({
 
   return (
     <div className="qpanel">
-      <h2>Converter questions</h2>
-      {questions.length === 0 && <p className="hint">None for this document.</p>}
-      <ul>
-        {questions.map((q) => {
-          const answered = answers.has(q.qid);
-          return (
-            <li key={q.qid} className={answered ? "resolved" : "open"}>
-              <button className="jump" onClick={() => onJump(q.nid)} title="Show in document">
-                p{q.page}
-              </button>
-              <div className="q-body">
-                <p>{q.prompt}</p>
-                {answered ? (
-                  <p className="q-state">✓ answered: <strong>{answers.get(q.qid)}</strong></p>
-                ) : (
-                  <button className="q-answer" onClick={() => onAnswer(q)}>Answer…</button>
-                )}
-              </div>
-            </li>
-          );
-        })}
-      </ul>
       {comments.length > 0 && (
         <>
           <h2>Feedback notes</h2>
@@ -63,6 +41,28 @@ export default function QuestionsPanel({
           </ul>
         </>
       )}
+      <h2>Converter questions</h2>
+      {questions.length === 0 && <p className="hint">None for this document.</p>}
+      <ul>
+        {questions.map((q) => {
+          const answered = answers.has(q.qid);
+          return (
+            <li key={q.qid} className={answered ? "resolved" : "open"}>
+              <button className="jump" onClick={() => onJump(q.nid)} title="Show in document">
+                p{q.page}
+              </button>
+              <div className="q-body">
+                <p>{q.prompt}</p>
+                {answered ? (
+                  <p className="q-state">✓ answered: <strong>{answers.get(q.qid)}</strong></p>
+                ) : (
+                  <button className="q-answer" onClick={() => onAnswer(q)}>Answer…</button>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
       {ops.length > 0 && (
         <>
           <h2>Edits</h2>

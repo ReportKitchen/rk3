@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { ADMIN_FEEDBACK } from "../api.js";
 
 const LABELS = {
   unconverted: "unconverted",
@@ -36,6 +37,10 @@ export default function DocList({ docs, selected, onSelect, onRefresh }) {
     }
     groups[groups.length - 1].docs.push(d);
   }
+  // documents read alphabetically within each folder
+  for (const g of groups) {
+    g.docs.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+  }
 
   return (
     <div id="left">
@@ -48,6 +53,13 @@ export default function DocList({ docs, selected, onSelect, onRefresh }) {
         </span>
       </header>
       <ul id="doclist">
+        <li className="folder">Admin/</li>
+        <li
+          className={"doc" + (selected === ADMIN_FEEDBACK ? " selected" : "")}
+          onClick={() => onSelect(ADMIN_FEEDBACK)}
+        >
+          <span>All Feedback</span>
+        </li>
         {groups.map((g) => (
           <React.Fragment key={g.folder}>
             <li className="folder">{g.folder}/</li>
