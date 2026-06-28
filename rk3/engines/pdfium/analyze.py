@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 56
+VERSION = 57
 
 
 def _font_emphasis(name, weight, base_name):
@@ -313,6 +313,7 @@ def run(ctx):
     # sentences interrupted by page breaks happen in the main flow too,
     # not just inside callouts
     nodes = _join_pagebreak_sentences(ctx, nodes)
+    nodes = _join_column_wrap(ctx, nodes)
     nodes = _merge_crosspage_lists(ctx, nodes)
     nodes = _marker_lists(ctx, nodes)
     nodes = _definition_lists(ctx, nodes)
@@ -2205,6 +2206,51 @@ def _join_pagebreak_sentences(ctx, children):
                           joined=ch["text"][:60])
             continue
         out.append(ch)
+    return out
+
+
+def _join_column_wrap(ctx, nodes):
+    """A body paragraph that wraps from the foot of one column to the head of
+    the next (same page) is split in two by block grouping. Rejoin when the
+    previous ends mid-sentence and the next is the physically-higher, rightward
+    next column — the geometric signature of a column break. On a single column
+    the continuation sits BELOW the previous block, so this never fires."""
+    out = []
+    for ch in nodes:
+        prev = out[-1] if out else None
+        if not (prev is not None and prev["type"] == "paragraph"
+                and ch["type"] == "paragraph"
+                and ch["page"] == prev["page"]
+                and prev.get("text") and ch.get("text")
+                and not prev.get("breaks") and not ch.get("breaks")):
+            out.append(ch)
+            continue
+        last = prev["text"].rstrip()[-1:]
+        mid_sentence = last.isalnum() or last in ",-–­"
+        ps = (prev.get("data") or {}).get("size", 0)
+        cs = (ch.get("data") or {}).get("size", 0)
+        next_column = (ch["bbox"][3] > prev["bbox"][3] + 2 and
+                       (ch["bbox"][0] + ch["bbox"][2]) / 2
+                       > (prev["bbox"][0] + prev["bbox"][2]) / 2 + 2)
+        if not (mid_sentence and ch["text"][:1].isalpha() and next_column
+                and abs(ps - cs) < 0.6):
+            out.append(ch)
+            continue
+        ptext = prev["text"].rstrip()
+        if ptext[-1:] in "-­":  # mid-word hyphen break across the column
+            joiner = ""
+            prev["text"] = ptext[:-1]
+        else:
+            joiner = " "
+        off = len(prev["text"]) + len(joiner)
+        ctx.audit_moved[ch["page"]] += _alnum(ch["text"])
+        prev["text"] += joiner + ch["text"]
+        for key in ("refs", "links", "emph", "marks"):
+            if ch.get(key):
+                prev.setdefault(key, []).extend(
+                    [r[0] + off, r[1] + off, *r[2:]] for r in ch[key])
+        ctx.log.entry("join-column-wrap", page=ch["page"], into=prev["rk"],
+                      joined=ch["text"][:60])
     return out
 
 
