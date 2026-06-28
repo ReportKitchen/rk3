@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 57
+VERSION = 59
 
 
 def _font_emphasis(name, weight, base_name):
@@ -221,10 +221,15 @@ def run(ctx):
         if grouped is not None:
             page_items[page_n] = grouped
 
+    def item_weight(item):
+        kind, ref = item
+        return len(texts[ref]) if kind == "block" else 0
+
     twocol_pages = set()
     for page_n, items in page_items.items():
         bboxes = [item_bbox(it) for it in items]
-        split = _column_split(bboxes)
+        weights = [item_weight(it) for it in items]
+        split = _column_split(bboxes, weights)
         if split is not None:
             page_items[page_n] = _flow_order(items, bboxes, split)
             twocol_pages.add(page_n)
@@ -1730,17 +1735,22 @@ def _item_rk(item, blocks):
     return blocks[ref].get("rk") if kind == "block" else ref.get("rk")
 
 
-def _column_split(bboxes):
+def _column_split(bboxes, weights=None):
     """x of the gutter when the page is laid out in two columns, else None.
 
-    Two detectors: the center-gap method handles ordinary (incl. ragged or
-    centered) columns; the left-edge fallback rescues pages where a lone centered
-    kicker/banner straddles the gutter and defeats center-gap (e.g. a "THANK YOU"
-    label above a two-column letter). The fallback only runs when center-gap
-    finds nothing, so it can add a detection but never remove one — it can't
-    regress a page the primary already handled."""
+    Three detectors, each a fallback for the last (a later one can only ADD a
+    detection, never remove one the earlier handled): the center-gap method for
+    ordinary (incl. ragged or centered) columns; the left-edge fallback for
+    pages where a lone centered kicker/banner straddles the gutter and defeats
+    center-gap (e.g. a "THANK YOU" label above a two-column letter); and the
+    sparse-column detector for pages where one column carries a single short
+    block, which the ≥2-per-side methods miss."""
     s = _split_center_gap(bboxes)
-    return s if s is not None else _split_left_edge(bboxes)
+    if s is None:
+        s = _split_left_edge(bboxes)
+    if s is None and weights is not None:
+        s = _split_sparse_column(bboxes, weights)
+    return s
 
 
 def _split_center_gap(bboxes):
@@ -1808,6 +1818,71 @@ def _split_left_edge(bboxes):
     if gutter_r - gutter_l < 6:
         return None
     return (gutter_l + gutter_r) / 2
+
+
+def _split_sparse_column(bboxes, weights):
+    """Two columns where one side may carry a single (short) block — the case
+    the ≥2-per-side detectors miss (atlantic p15: a 3-block left column beside a
+    one-block right column).
+
+    Precision rests on a stack of guards. The strongest is the body filter:
+    `width` is the FULL horizontal text extent, so a true two-column block spans
+    ~0.45·width while a single-column block spans ~0.9·width — the 0.55 ceiling
+    excludes single-column pages almost entirely. Then: each column must carry a
+    real paragraph (≥`MIN_PARA` chars, via `weights`) so parallel LABEL columns
+    (a title page's author names) don't qualify; a clean gutter no body block
+    crosses; a left column at the page margin; a right column indented to its own
+    margin; a side-by-side overlap; and one column vertically BRACKETING the
+    other (so a page-edge folio or header can't pose as a column)."""
+    MIN_PARA = 120
+    n = len(bboxes)
+    if n < 3:
+        return None
+    l0 = min(b[0] for b in bboxes)
+    r0 = max(b[2] for b in bboxes)
+    width = max(r0 - l0, 1.0)
+
+    def B(i):
+        return bboxes[i]
+
+    body = [i for i in range(n)
+            if 0.12 * width <= (B(i)[2] - B(i)[0]) <= 0.55 * width]
+    if len(body) < 3:
+        return None
+    best = None
+    for x in sorted({B(i)[2] for i in body} | {B(i)[0] for i in body}):
+        if not (l0 + 0.28 * width <= x <= l0 + 0.72 * width):
+            continue
+        if any(B(i)[0] < x - 1 and B(i)[2] > x + 1 for i in body):
+            continue  # a body block straddles here — not a gutter
+        left = [i for i in body if B(i)[2] <= x]
+        right = [i for i in body if B(i)[0] >= x]
+        if not left or not right:
+            continue
+        if max((weights[i] for i in left), default=0) < MIN_PARA \
+                or max((weights[i] for i in right), default=0) < MIN_PARA:
+            continue  # a column with no real paragraph is parallel labels
+        if min(B(i)[0] for i in left) > l0 + 0.12 * width:
+            continue  # left column not anchored at the page margin
+        if min(B(i)[0] for i in right) < l0 + 0.40 * width:
+            continue  # right column not indented to a second margin
+        if min(B(i)[0] for i in right) - max(B(i)[2] for i in left) < 8:
+            continue  # gutter too thin
+        pairs = sum(1 for li in left for ri in right
+                    if min(B(li)[3], B(ri)[3]) - max(B(li)[1], B(ri)[1]) > 4)
+        if pairs < 1:
+            continue  # nothing actually sits side by side
+        lmin, lmax = min(B(i)[1] for i in left), max(B(i)[3] for i in left)
+        rmin, rmax = min(B(i)[1] for i in right), max(B(i)[3] for i in right)
+        if not ((lmin <= rmin + 4 and lmax >= rmax - 4) or
+                (rmin <= lmin + 4 and rmax >= lmax - 4)):
+            continue  # neither column brackets the other vertically
+        gut_x = (max(B(i)[2] for i in left) + min(B(i)[0] for i in right)) / 2
+        score = (pairs, min(B(i)[0] for i in right) - max(B(i)[2] for i in left),
+                 len(left) + len(right))
+        if best is None or score > best[0]:
+            best = (score, gut_x)
+    return best[1] if best else None
 
 
 def _flow_order(items, bboxes, split):
