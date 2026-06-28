@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter
 
-VERSION = 24
+VERSION = 25
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -360,6 +360,18 @@ def _merge_baseline_fragments(ctx, lines, page_n):
                 # twice effect, not a continuation
                 if not (-0.8 * size <= gap <= 1.5 * size):
                     continue
+                # don't bridge a column gutter: a same-baseline fragment set off
+                # to the right that begins its own column (several lines share its
+                # left edge below it) is the top of the next column, not a
+                # continuation of this line. Skip short left fragments — drop caps
+                # ("I"+"n the United States"), section numbers ("3.1"+title) and
+                # marker letters ("B"+heading) legitimately attach across a gap.
+                if (gap > 0.6 * size and len(left["text"].strip()) > 3
+                        and _starts_column(right, lines, i, j)):
+                    ctx.log.entry("merge-skip-gutter", page=page_n,
+                                  gap=round(gap, 2), left=left["text"][-40:],
+                                  right=right["text"][:40])
+                    continue
                 ctx.log.entry("merge-baseline", page=page_n, gap=round(gap, 2),
                               sup=(sup["text"][:12] if sup is not None else None),
                               left=left["text"][-40:], right=right["text"][:40])
@@ -409,6 +421,26 @@ def _merge_baseline_fragments(ctx, lines, page_n):
                 changed = True
         out.append(cur)
     return out
+
+
+def _starts_column(r, lines, i, j):
+    """True when line `r` is the top of a column: ≥2 other lines share its left
+    edge and sit below it. Such a left margin is a recurring column edge, so a
+    fragment bridging into `r` from the left is crossing the gutter, not
+    continuing a visual line."""
+    x0 = r["bbox"][0]
+    r_mid = (r["bbox"][1] + r["bbox"][3]) / 2
+    below = 0
+    for k, ln in enumerate(lines):
+        if k == i or k == j:
+            continue
+        if (ln["bbox"][1] + ln["bbox"][3]) / 2 >= r_mid:
+            continue  # not below r (PDF y increases upward)
+        if abs(ln["bbox"][0] - x0) <= 3.0:
+            below += 1
+            if below >= 2:
+                return True
+    return False
 
 
 def _is_caps(text):
