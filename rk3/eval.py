@@ -145,7 +145,9 @@ def _list_nodes(slug):
 def _check_list(slug, c):
     """All snippets must be items of a SINGLE list node, in order — pins missing
     list reconstruction (snippet lives in no list) and over-split lists (snippets
-    scatter across separate lists, e.g. a UL broken over a page break)."""
+    scatter across separate lists, e.g. a UL broken over a page break). Optional
+    `ordered:` asserts the host list's type (decimal/lower-alpha/…) — pins a
+    numbered list that should be an <ol> with the markers stripped."""
     snippets = c["list"]
     lists = _list_nodes(slug)
     s0 = _norm(snippets[0])
@@ -153,6 +155,10 @@ def _check_list(slug, c):
                  if any(s0 in _norm(it) for it in ln.get("items", []))), None)
     if host is None:
         return False, f"first item {snippets[0]!r} is in no list — {_localize(slug, snippets[0])}"
+    want_ord = c.get("ordered")
+    if want_ord is not None and host.get("ordered") != want_ord:
+        return False, (f"list is ordered={host.get('ordered')!r}, expected {want_ord!r}"
+                       " — numbered list not emitted as <ol> (markers still in text?)")
     items = [_norm(it) for it in host.get("items", [])]
     last = -1
     for sn in snippets:

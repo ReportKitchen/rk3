@@ -13,3 +13,22 @@ checks:
       - "understand how their behavior affects"
       - "set goals both personally and academically"
       - "make appropriate decisions that help them"
+
+  # p7 / p46: tagged numbered lists ("1. / 2. / 3." with an InDesign en-space)
+  # must be emitted as a real <ol> with the markers stripped — not a <ul> with
+  # the numbers fossilized into the item text.
+  - note: "p7: professional-responsibility items are an <ol> (numbers stripped)"
+    stage: analyze
+    ordered: decimal
+    list:
+      - "To act in the best interests of the client"
+      - "To identify, master, and continue to advance"
+      - "To develop shared standards of practice"
+
+  - note: "p46: learning-principles items are an <ol> (numbers stripped)"
+    stage: analyze
+    ordered: decimal
+    list:
+      - "Students come to the classroom with prior knowledge"
+      - "Students need to organize and use knowledge conceptually"
+      - "Students learn more effectively if they take a metacognitive"

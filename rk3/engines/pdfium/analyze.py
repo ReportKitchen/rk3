@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 62
+VERSION = 63
 
 
 def _font_emphasis(name, weight, base_name):
@@ -62,6 +62,32 @@ def _ol_marker(text):
         return "decimal", int(raw), m.end()
     style = "upper-alpha" if raw.isupper() else "lower-alpha"
     return style, ord(raw.lower()) - 96, m.end()
+
+
+def _ordinal_items(texts):
+    """Item texts carrying a consecutive ordinal sequence (1.2.3 / a.b.c) ->
+    (style, start, stripped_items) with the markers removed, else None. Lets a
+    list that's already grouped but still has its numbers baked into the item
+    text (tagged LBody/LI items) be emitted as a real <ol> at construction."""
+    if len(texts) < 2:
+        return None
+    first = _ol_marker(texts[0])
+    if first is None:
+        return None
+    style, start, off = first
+    stripped = [texts[0][off:].strip()]
+    expected, marked = start + 1, 1
+    for t in texts[1:]:
+        m = _ol_marker(t)
+        if m and m[0] == style and m[1] == expected:
+            stripped.append(t[m[2]:].strip())
+            expected += 1
+            marked += 1
+        else:
+            stripped.append(t.strip())  # wrapped / unmarked continuation item
+    if marked < 2 or marked < 0.6 * len(texts):
+        return None
+    return style, start, stripped
 
 
 def _alnum(text):
@@ -1961,8 +1987,17 @@ def _group_tag_lists(ctx, nodes):
             bbox = [min(n["bbox"][0] for n in run), min(n["bbox"][1] for n in run),
                     max(n["bbox"][2] for n in run), max(n["bbox"][3] for n in run)]
             page = run[0]["page"]
+            # numbered tagged lists arrive with "1. / 2. / 3." baked into the
+            # item text — act on that here and emit a real <ol> (markers stripped,
+            # rendered by the list), not a <ul> with the numbers fossilized in.
+            ol = _ordinal_items(items)
+            ordered = start = None
+            if ol:
+                ordered, start, items = ol
             rk = ctx.log.entry("list", page=page, bbox=bbox, items=len(items),
-                               reason="struct tags LBody/LI",
+                               ordered=ordered, start=start,
+                               reason="struct tags LBody/LI"
+                                      + (" (ordinal)" if ordered else ""),
                                merged=[n["rk"] for n in run])
             for n in run:
                 if n["page"] != page:  # grouped across pages: credit source
@@ -1970,10 +2005,13 @@ def _group_tag_lists(ctx, nodes):
             data = {"role": "L"}
             if last_lbl[0]:
                 data["marker"] = last_lbl[0]
-            out.append({"type": "list", "items": items, "page": page,
-                        "bbox": bbox, "rk": rk, "data": data,
-                        "nid": _stable_id("n", ctx.nids, "list", page, bbox,
-                                          " ".join(items))})
+            node = {"type": "list", "items": items, "page": page,
+                    "bbox": bbox, "rk": rk, "data": data,
+                    "nid": _stable_id("n", ctx.nids, "list", page, bbox,
+                                      " ".join(items))}
+            if ordered:
+                node["ordered"], node["start"] = ordered, start
+            out.append(node)
         else:
             out.extend(run)
         run = []
