@@ -83,7 +83,7 @@ export default function App() {
     setPopover({ target: { nid: question.nid, page: question.page }, pos, question });
   }, []);
 
-  const submitPopover = useCallback(async ({ text, choice }) => {
+  const submitPopover = useCallback(async ({ text, choice, category }) => {
     const p = popover;
     setPopover(null);
     const node = p.target?.nid ? findNode(ir, p.target.nid) : null;
@@ -92,7 +92,7 @@ export default function App() {
       ? { type: "answer", qid: p.question.qid, choice, text,
           qKind: p.question.kind, qPrompt: p.question.prompt.slice(0, 140),
           ...ctx, ...p.target }
-      : { type: "comment", text, ...ctx, ...p.target };
+      : { type: "comment", category, text, ...ctx, ...p.target };
     if (p.existing) entry.id = p.existing.id;
     await postFeedback(selected, entry);
     await refreshFeedback();

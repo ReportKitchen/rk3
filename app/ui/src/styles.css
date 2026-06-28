@@ -265,6 +265,11 @@ pre.error {
 }
 
 .popover .q-prompt { margin: 0 0 0.5rem; }
+.popover .fb-category {
+  display: flex; align-items: center; gap: 0.4rem;
+  font-size: 0.8rem; color: #555; margin: 0 0 0.5rem;
+}
+.popover .fb-category select { flex: 1; font: inherit; padding: 0.2rem; }
 
 .popover textarea {
   width: 100%;

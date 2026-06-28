@@ -5,6 +5,7 @@ export default function FeedbackPopover({ popover, onSubmit, onDelete, onClose,
   const { pos, target, question, existing } = popover;
   const [text, setText] = useState(existing?.text ?? "");
   const [choice, setChoice] = useState(question?.chosen ?? null);
+  const [category, setCategory] = useState(existing?.category ?? "structure");
   const [armed, setArmed] = useState(false); // delete asks for a second click
   const [editText, setEditText] = useState(null); // non-null => editing element text
   const [opArmed, setOpArmed] = useState(false);
@@ -54,6 +55,15 @@ export default function FeedbackPopover({ popover, onSubmit, onDelete, onClose,
         ) : (
           <>
             <p className="q-prompt">{existing ? `Edit your note on ${where}` : `Feedback on ${where}`}</p>
+            <label className="fb-category">
+              Type:
+              <select value={category} onChange={(e) => setCategory(e.target.value)}>
+                <option value="structure">Content / structure</option>
+                <option value="styling">Styling (color, font, size, placement)</option>
+                <option value="figure">Figure / feature (image vs text/table…)</option>
+                <option value="pattern">Info-design pattern note</option>
+              </select>
+            </label>
             {target.selText && (
               <blockquote className="sel-quote">“{target.selText.slice(0, 120)}”</blockquote>
             )}
@@ -113,7 +123,7 @@ export default function FeedbackPopover({ popover, onSubmit, onDelete, onClose,
               value={text}
               onChange={(e) => setText(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) onSubmit({ text, choice });
+                if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) onSubmit({ text, choice, category });
               }}
             />
             <div className="popover-actions">
@@ -129,7 +139,7 @@ export default function FeedbackPopover({ popover, onSubmit, onDelete, onClose,
               <button
                 className="primary"
                 disabled={question ? !choice : !text.trim()}
-                onClick={() => onSubmit({ text, choice })}
+                onClick={() => onSubmit({ text, choice, category })}
               >
                 {question ? "Answer" : existing ? "Update note" : "Submit"}
               </button>

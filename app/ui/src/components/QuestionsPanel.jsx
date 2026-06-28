@@ -47,18 +47,16 @@ export default function QuestionsPanel({
                 <div className="q-body">
                   {c.selText && <blockquote className="sel-quote">“{c.selText.slice(0, 80)}”</blockquote>}
                   <p>{c.text}</p>
-                  {c.status === "resolved" && (
-                    <>
-                      {c.resolution && <p className="resolution">{c.resolution}</p>}
-                      <button
-                        className="q-clear"
-                        title="Confirmed — move this note to trash"
-                        onClick={() => onClear(c.id)}
-                      >
-                        Clear
-                      </button>
-                    </>
+                  {c.status === "resolved" && c.resolution && (
+                    <p className="resolution">{c.resolution}</p>
                   )}
+                  <button
+                    className="q-clear"
+                    title="Mark corrected — hides the note (kept in trash, recoverable)"
+                    onClick={() => onClear(c.id)}
+                  >
+                    ✓ Mark corrected
+                  </button>
                 </div>
               </li>
             ))}

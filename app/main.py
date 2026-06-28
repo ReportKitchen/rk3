@@ -79,6 +79,9 @@ class FeedbackEntry(BaseModel):
     Answers carry qid + choice. This same stream later feeds the in-codebase
     config agent; during development Claude reads it directly."""
     type: str = "comment"
+    # reviewer-chosen category for a comment, so QA passes can be filtered:
+    # structure | styling | figure | pattern
+    category: str | None = None
     text: str = ""
     nid: str | None = None
     rk: str | None = None
