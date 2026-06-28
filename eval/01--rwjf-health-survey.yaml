@@ -1,0 +1,14 @@
+doc: 01--rwjf-health-survey
+
+# NEGATIVE CONTROL — single-column document (0 two-column pages today). These
+# order checks must STAY green: a whitespace-profile gutter detector must not
+# hallucinate columns here and scramble straight-down reading order.
+# (Lesson from the earlier threshold-relaxation regression: rwjf 0→15 columns.)
+checks:
+  - note: "p1: title-page credits read top-to-bottom (no phantom columns)"
+    stage: analyze
+    order: ["Director, Data Management and Analysis", "Research Associate Eagleton Center"]
+
+  - note: "p1: support line precedes the survey-method line"
+    stage: analyze
+    order: ["This survey was made possible with support", "Survey conducted December"]

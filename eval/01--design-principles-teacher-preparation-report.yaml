@@ -1,0 +1,15 @@
+doc: 01--design-principles-teacher-preparation-report
+
+# Design Principles report — long single-column body with many genuine lists.
+# Reviewer flagged a UL broken in two across a page break (p34→p35): the SEL
+# competencies are one bulleted list but split into two list nodes.
+checks:
+  - note: "p34→35: SEL competency bullets are ONE list (not split over the page break)"
+    stage: analyze
+    list:
+      - "become aware of their emotions"
+      - "learn how to manage their emotions"
+      - "interact well with others"
+      - "understand how their behavior affects"
+      - "set goals both personally and academically"
+      - "make appropriate decisions that help them"

@@ -1,0 +1,38 @@
+doc: 02--good-food-building-the-agricultural-bioeconomy
+
+# Good Food policy brief — bullet lists throughout are NOT reconstructed (the IR
+# has zero list nodes; every bullet is a standalone paragraph beginning "●"/"○").
+# These `list` checks pin the missing list-reconstruction feature. Plus a p3
+# paragraph split across a column break.
+checks:
+  # p3: a single recommendation paragraph is split — "The Department of Energy can
+  # advance agricultural innovations …" continues into "commercialization of
+  # innovative agricultural technologies".
+  - note: "p3: over-split DOE paragraph is one node"
+    stage: analyze
+    merge: ["The Department of Energy can advance agricultural innovations", "commercialization of innovative agricultural technologies"]
+
+  # p8: four "●" bullets under "the following actions" should be one UL.
+  - note: "p8: four bullets form one list"
+    stage: analyze
+    list:
+      - "To ensure that U.S. researchers remain the best in the world"
+      - "To reap the benefits of private innovation"
+      - "To create jobs and new economic opportunities"
+      - "To ensure America remains the home of Food Freedom"
+
+  # p9: header "Prioritize biomanufacturing-enabled food production" has 3 bullets.
+  - note: "p9: three bullets under 'Prioritize biomanufacturing' form one list"
+    stage: analyze
+    list:
+      - "To create new opportunities for America"
+      - "Leverage private investments by partnering"
+      - "Work with Congress to codify food biomanufacturing"
+
+  # p11: "Recognize American Centers of Excellence" recommendation has 3 bullets.
+  - note: "p11: three bullets under 'Recognize American Centers' form one list"
+    stage: analyze
+    list:
+      - "Prioritize the creation of research centers"
+      - "Support at least five of these Centers"
+      - "Work with Congress to codify these research centers"

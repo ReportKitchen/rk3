@@ -5,6 +5,9 @@ OUTCOME against the converted artifacts:
 
   - order: [A, B]              A's text must read before B's  (catches column shuffles)
   - role:  {text, is, level?}  a node's type / heading level  (catches missed/spurious headings)
+  - list:  [I1, I2, ...]       these snippets are items of ONE list, in order
+                               (catches un-reconstructed bullets and split lists)
+  - merge: [A, B]              A and B belong to ONE node (catches over-split paragraphs)
 
 Checks anchor to content by text snippet — the same thing a future "create
 assertion" right-click in the review UI would capture from a selection. On a
@@ -134,7 +137,53 @@ def _check_role(slug, c):
     return True, "heading" + (f" level {n.get('level')}" if "level" in r else "")
 
 
-EVALUATORS = {"order": _check_order, "role": _check_role}
+def _list_nodes(slug):
+    ir = _artifact(slug, "analyze") or {}
+    return [n for n in _walk(ir.get("body", [])) if n.get("type") == "list"]
+
+
+def _check_list(slug, c):
+    """All snippets must be items of a SINGLE list node, in order — pins missing
+    list reconstruction (snippet lives in no list) and over-split lists (snippets
+    scatter across separate lists, e.g. a UL broken over a page break)."""
+    snippets = c["list"]
+    lists = _list_nodes(slug)
+    s0 = _norm(snippets[0])
+    host = next((ln for ln in lists
+                 if any(s0 in _norm(it) for it in ln.get("items", []))), None)
+    if host is None:
+        return False, f"first item {snippets[0]!r} is in no list — {_localize(slug, snippets[0])}"
+    items = [_norm(it) for it in host.get("items", [])]
+    last = -1
+    for sn in snippets:
+        ns = _norm(sn)
+        pos = next((i for i in range(last + 1, len(items)) if ns in items[i]), -1)
+        if pos < 0:
+            split = any(ns in _norm(it) for o in lists
+                        if o is not host for it in o.get("items", []))
+            why = ("is in a different list (list split)" if split
+                   else f"is not a list item — {_localize(slug, sn)}")
+            return False, f"item {sn!r} {why}"
+        last = pos
+    return True, f"{len(snippets)} items in one list (#{lists.index(host)})"
+
+
+def _check_merge(slug, c):
+    """A and B should live in ONE text node — pins over-split paragraphs."""
+    a, b = c["merge"]
+    seq = _stage_seq(slug, "analyze")
+    ia, ib = _find(seq, a), _find(seq, b)
+    if ia < 0:
+        return False, f"{a!r} not found — {_localize(slug, a)}"
+    if ib < 0:
+        return False, f"{b!r} not found — {_localize(slug, b)}"
+    if ia == ib:
+        return True, f"both in node #{ia}"
+    return False, f"{a!r} (#{ia}) and {b!r} (#{ib}) are separate — should be one paragraph"
+
+
+EVALUATORS = {"order": _check_order, "role": _check_role,
+              "list": _check_list, "merge": _check_merge}
 
 
 def _eval_doc(path):

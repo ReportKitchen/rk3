@@ -1,0 +1,24 @@
+doc: 02--atlantic-council-report-060823
+
+# Atlantic Council report — dense two-column layout. Reviewer notes center on
+# column reading-order (the keystone) and over-split paragraphs from column
+# breaks.
+checks:
+  # p6 acknowledgements: the two signature blocks (Jason Marczak, Pepe Zhang)
+  # belong BELOW the "We are also grateful …" paragraph. Today Jason reads ahead
+  # of it (column scramble); Pepe already reads after (kept as a regression guard).
+  - note: "p6: 'Jason Marczak' signature reads after 'We are also grateful'"
+    stage: analyze
+    order: ["We are also grateful for the analytical", "Jason Marczak Senior Director"]
+
+  - note: "p6: 'Pepe Zhang' signature reads after 'We are also grateful' (guard)"
+    stage: analyze
+    order: ["We are also grateful for the analytical", "Pepe Zhang Senior Fellow"]
+
+  # p15: a single body paragraph was split across the column break — "In addition
+  # to the size of its individual markets …" and its continuation "aided by
+  # factors such as common languages" are one paragraph (reviewer confirms the
+  # ordering is right; only the split is wrong).
+  - note: "p15: over-split body paragraph is one node"
+    stage: analyze
+    merge: ["In addition to the size of its individual markets", "aided by factors such as common languages"]

@@ -1,0 +1,12 @@
+doc: 02--jhu-federal-register-comments-pharma-investigation
+
+# NEGATIVE CONTROL — single-column letter/comment (0 two-column pages today).
+# Reading order must stay straight-down; the gutter detector must not split it.
+checks:
+  - note: "p1: header block precedes the comment body"
+    stage: analyze
+    order: ["Notice of request for public", "We are Mariana Socal"]
+
+  - note: "p1: body paragraphs read in document order"
+    stage: analyze
+    order: ["We have been conducting research on the U.S. pharmaceutical", "Our research has shown that the US relies"]

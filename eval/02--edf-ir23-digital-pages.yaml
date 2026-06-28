@@ -34,3 +34,23 @@ checks:
   - note: "running footer 'EDF IMPACT 2023' is not a heading"
     stage: analyze
     role: { text: "EDF IMPACT 2023", is: not-heading }
+
+  # p3: the EDF letter splits a single paragraph across a column break — "And in
+  # the U.S., …" and its continuation "Reduction Act are well-spent" are one para.
+  - note: "p3: over-split letter paragraph is one node"
+    stage: analyze
+    merge: ["And in the U.S., we are working to ensure", "Reduction Act are well-spent"]
+
+  # p5: three drop-cap columns. The reviewer flagged "In the United States alone,
+  # some 18 million people" as the first paragraph, ahead of the "oil and gas well
+  # near Bill Suan" column. Today they read in the wrong order.
+  - note: "p5: 'United States alone' column reads before the 'oil and gas well' column"
+    stage: analyze
+    order: ["United States alone, some 18 million people", "oil and gas well near Bill Suan"]
+
+  # p6: the MethaneAIR sentence is scrambled — its tail "for these regions, so
+  # reductions can be tracked" reads ahead of its own opening "methane-measuring
+  # jet, flew over major U.S".
+  - note: "p6: MethaneAIR sentence body precedes its trailing clause"
+    stage: analyze
+    order: ["methane-measuring jet, flew over major", "for these regions, so reductions can be tracked"]

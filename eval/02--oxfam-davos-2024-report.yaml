@@ -1,0 +1,27 @@
+doc: 02--oxfam-davos-2024-report
+
+# Oxfam's Davos report is a heavily two-column policy report. Reviewer notes
+# cluster on column reading-order scrambles (the keystone defect) plus a header
+# that got fused with a second-column line, plus an un-reconstructed bullet list.
+checks:
+  # p5 (Sanders foreword): a two-column page the reviewer flagged as scrambled —
+  # "Each and every year, Oxfam does an extraordinary job" must read before "While
+  # millions of people … live in dire poverty". The committed multi-column port
+  # already fixed this; kept as a regression guard for the column engine.
+  - note: "p5: foreword columns in reading order ('Each and every year' first)"
+    stage: analyze
+    order: ["Each and every year, Oxfam does an extraordinary", "While millions of people throughout the world live in dire poverty"]
+
+  # p11 big scramble: the section header is "A new era of monopoly: the
+  # supercharging of corporate power", then body "We are living through an era of
+  # monopoly", and "consolidation within Africa" is the TOP of the second column —
+  # so it must read AFTER the body opener, not before it. Today a cross-column
+  # line-merge fuses "supercharging" with "consolidation within Africa" into the
+  # page's first node, dragging it ahead of everything.
+  - note: "p11: body opener precedes the second-column 'consolidation within Africa'"
+    stage: analyze
+    order: ["We are living through an era of monopoly", "consolidation within Africa"]
+
+  - note: "p11: 'A new era of monopoly' is a heading, not body text"
+    stage: analyze
+    role: { text: "A new era of monopoly", is: heading }

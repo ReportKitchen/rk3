@@ -1,0 +1,12 @@
+doc: 02--facilitator-guide-injury-prevention-draft-8-27-15
+
+# NEGATIVE CONTROL — single-column facilitator guide (0 two-column pages today).
+# Straight-down reading order must survive the gutter detector.
+checks:
+  - note: "p3: welcome paragraph precedes the collaboration note"
+    stage: analyze
+    order: ["Welcome to the Injury Prevention in Public Health", "These structured learning sessions were created"]
+
+  - note: "p4: module list reads in document order"
+    stage: analyze
+    order: ["Introduction to Public Health", "Principles of Health Education"]
