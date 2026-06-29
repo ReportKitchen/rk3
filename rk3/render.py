@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 38
+VERSION = 39
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -190,6 +190,13 @@ def _page_targets(ir):
     return targets
 
 
+# provenance keys that the HTML/CSS actually consume; everything else in a
+# node's `data` (font, weight, size, color, role, align…) is input to the
+# generated stylesheet, NOT needed in the markup — keeping it out is most of
+# what makes the HTML read as hand-authored rather than machine-dumped
+_HTML_DATA_KEYS = {"marker"}
+
+
 def _attrs(node, pages, extra=None):
     a = {"data-rk": node["rk"], "data-page": node["page"]}
     if node.get("nid"):
@@ -201,7 +208,8 @@ def _attrs(node, pages, extra=None):
         yf = (dims[1] - node["bbox"][3]) / dims[1]
         a["data-yf"] = round(min(max(yf, 0.0), 1.0), 4)
     for k, v in (node.get("data") or {}).items():
-        a[f"data-{k}"] = v
+        if k in _HTML_DATA_KEYS:
+            a[f"data-{k}"] = v
     if extra:
         a.update(extra)
     return " ".join(f'{k}="{html.escape(str(v), quote=True)}"' for k, v in a.items())
