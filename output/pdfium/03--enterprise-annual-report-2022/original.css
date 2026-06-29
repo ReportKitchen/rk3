@@ -84,14 +84,14 @@ a:hover { text-decoration: underline; }
   font-weight: 300;
 }
 
-.centered {
-  text-align: center;
-}
-
 .lg-medium-alt {
   font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
   font-weight: 500;
   font-size: 1.27em;
+}
+
+.centered {
+  text-align: center;
 }
 
 .lg-strong-alt-2 {

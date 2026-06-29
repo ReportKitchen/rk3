@@ -24,7 +24,7 @@ import pypdfium2.raw as pdfium_c
 from ...pipeline import ScannedPdfError
 from . import fontembed, fontid
 
-VERSION = 17
+VERSION = 18
 
 
 def _matrix_slant_italic(m):
@@ -508,46 +508,60 @@ def _path_segments(obj, max_segs=10):
 
 
 def _tagged_regions(page):
-    """For tagged PDFs: regions of the page with a structure-tree role,
-    [[l, b, r, t, role], ...]. Built by joining the struct tree (role per
-    marked-content id) with page-object content marks (MCID + bounds).
-    Decorations marked Artifact in the content stream get role "Artifact"
-    even though they have no struct element. Empty list for untagged pages."""
-    roles = _struct_roles(page)
+    """For tagged PDFs: regions of the page with a structure-tree role and the
+    declared reading-order index, [[l, b, r, t, role, order], ...]. Built by
+    joining the struct tree (role + DFS order per marked-content id) with
+    page-object content marks (MCID + bounds). Decorations marked Artifact in
+    the content stream get role "Artifact" and order -1 (excluded from reading
+    order). Empty list for untagged pages."""
+    roles, order = _struct_roles(page)
     regions = []
     for obj in page.get_objects(max_depth=2):
         mcid, artifact = _object_mark(obj)
         role = "Artifact" if artifact else roles.get(mcid)
-        if role is None:
+        if role is None and not artifact:
             continue
+        seq = -1 if artifact else order.get(mcid, -1)
         try:
             l, b, r, t = obj.get_bounds()
         except Exception:
             continue
         if r - l <= 0 or t - b <= 0:
             continue
-        regions.append([round(l, 2), round(b, 2), round(r, 2), round(t, 2), role])
+        regions.append([round(l, 2), round(b, 2), round(r, 2),
+                        round(t, 2), role, seq])
     return regions
 
 
 def _struct_roles(page):
-    """mcid -> nearest semantic ancestor role, from the page's struct tree."""
-    roles = {}
+    """For the page's struct tree, map each marked-content id to its nearest
+    semantic ancestor role AND its position in the DECLARED reading order.
+
+    The depth-first, K-array traversal of the structure tree is the document's
+    logical reading order (ISO 32000-2 §14.7) — authoritative and independent of
+    the content stream's paint order. We assign a per-page sequence number to
+    each MCID as we reach it in that walk; analyze orders tagged blocks by it.
+    MCIDs are per-page (restart at 0), so this counter is page-local.
+    Returns (roles {mcid: role}, order {mcid: seq})."""
+    roles, order = {}, {}
     st = pdfium_c.FPDF_StructTree_GetForPage(page)
     if not st:
-        return roles
+        return roles, order
 
     buf = ctypes.create_string_buffer(128)
+    seq = [0]
 
     def walk(elem, inherited):
         n = pdfium_c.FPDF_StructElement_GetType(elem, buf, len(buf))
         etype = buf.raw[:max(0, n - 2)].decode("utf-16-le", "replace") if n > 2 else ""
         role = etype if etype in SEMANTIC_ROLES else inherited
-        if role:
-            cnt = pdfium_c.FPDF_StructElement_GetMarkedContentIdCount(elem)
-            for i in range(max(0, cnt)):
-                mid = pdfium_c.FPDF_StructElement_GetMarkedContentIdAtIndex(elem, i)
-                if mid >= 0:
+        cnt = pdfium_c.FPDF_StructElement_GetMarkedContentIdCount(elem)
+        for i in range(max(0, cnt)):
+            mid = pdfium_c.FPDF_StructElement_GetMarkedContentIdAtIndex(elem, i)
+            if mid >= 0 and mid not in order:
+                order[mid] = seq[0]
+                seq[0] += 1
+                if role:
                     roles[mid] = role
         for i in range(pdfium_c.FPDF_StructElement_CountChildren(elem)):
             child = pdfium_c.FPDF_StructElement_GetChildAtIndex(elem, i)
@@ -559,7 +573,7 @@ def _struct_roles(page):
             walk(pdfium_c.FPDF_StructTree_GetChildAtIndex(st, i), None)
     finally:
         pdfium_c.FPDF_StructTree_Close(st)
-    return roles
+    return roles, order
 
 
 def _object_mark(obj):

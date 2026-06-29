@@ -32,8 +32,8 @@ a {
 }
 a:hover { text-decoration: underline; }
 
-[data-nid="ne6479f19cb"] a,
 [data-nid="nd3fecc6bb4"] a,
+[data-nid="ne6479f19cb"] a,
 [data-nid="n0d98b653db"] a,
 [data-nid="n0d98b653db-2"] a,
 [data-nid="n0d98b653db-3"] a,
@@ -193,18 +193,7 @@ a:hover { text-decoration: underline; }
 
 .sm-alt-3 {
   font-family: var(--rkf-franklingothicurwcon, "Franklin Gothic URWCon", sans-serif);
-  color: #6d6f71;
-  font-size: 0.82em;
-}
-
-.sm-alt-4 {
-  font-family: var(--rkf-franklingothicurwcon, "Franklin Gothic URWCon", sans-serif);
   color: #004e8e;
-  font-size: 0.82em;
-}
-
-.sm-alt-5 {
-  font-family: var(--rkf-franklingothicurwcon, "Franklin Gothic URWCon", sans-serif);
   font-size: 0.82em;
 }
 
@@ -238,10 +227,21 @@ a:hover { text-decoration: underline; }
   text-align: right;
 }
 
-.sm-alt-6 {
+.sm-alt-4 {
+  font-family: var(--rkf-franklingothicurwcon, "Franklin Gothic URWCon", sans-serif);
+  font-size: 0.82em;
+}
+
+.sm-alt-5 {
   font-family: var(--rkf-franklingothicurwcon, "Franklin Gothic URWCon", sans-serif);
   color: #1c75bc;
   font-size: 0.75em;
+}
+
+.sm-alt-6 {
+  font-family: var(--rkf-franklingothicurwcon, "Franklin Gothic URWCon", sans-serif);
+  color: #6d6f71;
+  font-size: 0.82em;
 }
 
 .sm-alt-7 {
@@ -254,15 +254,15 @@ a:hover { text-decoration: underline; }
   font-size: 0.86em;
 }
 
-.strong-alt {
-  font-family: var(--rkf-lato, "Lato", sans-serif);
-  font-weight: 800;
-}
-
 .sm-medium-alt {
   font-family: var(--rkf-lato, "Lato", sans-serif);
   font-weight: 500;
   font-size: 0.75em;
+}
+
+.strong-alt {
+  font-family: var(--rkf-lato, "Lato", sans-serif);
+  font-weight: 800;
 }
 
 .sm-strong-alt-3 {
@@ -383,6 +383,8 @@ a:hover { text-decoration: underline; }
   border: none;
 }
 
+[data-nid="n5ac8a35e00"] { color: #231f20; }
+
 [data-nid="n49cbe5e0c6"] {
   background: #d4effc;
   border: none;
@@ -390,8 +392,6 @@ a:hover { text-decoration: underline; }
   width: 47%;
   margin: 0 0 1rem 1.5rem;
 }
-
-[data-nid="n5ac8a35e00"] { color: #231f20; }
 
 [data-nid="n0023c350e6"] {
   background: transparent;

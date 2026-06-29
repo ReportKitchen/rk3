@@ -102,12 +102,12 @@ h6 {
 .italic-alt {
   font-family: var(--rkf-calibri, "Calibri", sans-serif);
   font-style: italic;
-  color: #15364f;
 }
 
 .italic-alt-2 {
   font-family: var(--rkf-calibri, "Calibri", sans-serif);
   font-style: italic;
+  color: #15364f;
 }
 
 .italic-alt-3 {
@@ -240,6 +240,8 @@ h6 {
   border: none;
 }
 
+[data-nid="n4f894bfd43"] { color: #667e94; }
+
 [data-nid="n2e33a12d70"] {
   background: #d5e5f1;
   border: none;
@@ -248,8 +250,6 @@ h6 {
   border-right: 9px solid #80afc6;
   border-top: 9px solid #d5e5f1;
 }
-
-[data-nid="n4f894bfd43"] { color: #667e94; }
 
 [data-nid="nb085467d49"] {
   background: #f5bc3b;

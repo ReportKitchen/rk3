@@ -206,6 +206,12 @@ a:hover { text-decoration: underline; }
   font-weight: 700;
 }
 
+.strong-center-alt {
+  font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
+  font-weight: 700;
+  text-align: center;
+}
+
 .strong-alt-2 {
   font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
   font-weight: 700;
@@ -216,12 +222,6 @@ a:hover { text-decoration: underline; }
   font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
   font-weight: 500;
   color: #21559a;
-  text-align: center;
-}
-
-.strong-center-alt {
-  font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
-  font-weight: 700;
   text-align: center;
 }
 

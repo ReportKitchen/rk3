@@ -73,7 +73,9 @@ def pdf_metadata():
                "mainFont": None, "fontCount": 0, "fonts": [],
                # embed verdict: True=fully reconstructable (default on),
                # False=some font drops glyphs (default off), None=no embeddable
-               "embedComplete": None, "embedTotal": 0, "embedPartial": 0}
+               "embedComplete": None, "embedTotal": 0, "embedPartial": 0,
+               # tagging verdict: full/partial/none usable struct-tree order
+               "tagged": None, "taggedPages": 0, "taggedTotal": 0}
         src = source_for_slug(slug)
         if src is not None:
             try:
@@ -113,6 +115,10 @@ def pdf_metadata():
                 row["embedPartial"] = sum(
                     1 for e in fe.values() if not e.get("complete", True))
                 row["embedComplete"] = bool(ir.get("fonts_complete")) if fe else None
+                tg = ir.get("tagged") or {}
+                row["tagged"] = tg.get("verdict")
+                row["taggedPages"] = tg.get("structPages", 0)
+                row["taggedTotal"] = tg.get("totalPages", 0)
             except Exception:
                 pass
         rows.append(row)

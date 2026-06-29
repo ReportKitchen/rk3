@@ -63,13 +63,13 @@ a:hover { text-decoration: underline; }
   font-weight: 700;
 }
 
+.fine {
+  font-size: 0.81em;
+}
+
 .medium-alt {
   font-family: var(--rkf-gotham, "Gotham", sans-serif);
   font-weight: 500;
-}
-
-.fine {
-  font-size: 0.81em;
 }
 
 .lg-medium-italic-alt {
@@ -100,12 +100,6 @@ a:hover { text-decoration: underline; }
   font-weight: 700;
   color: #8bbd3f;
   font-size: 0.81em;
-}
-
-.medium-alt-2 {
-  font-family: var(--rkf-gotham, "Gotham", sans-serif);
-  font-weight: 500;
-  color: #8bbd3f;
 }
 
 .strong-center-alt {

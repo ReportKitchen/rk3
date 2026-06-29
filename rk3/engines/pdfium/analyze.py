@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 95
+VERSION = 97
 
 
 # PDF font-descriptor flag bits
@@ -252,20 +252,45 @@ def run(ctx):
         kind, ref = item
         return blocks[ref]["bbox"] if kind == "block" else ref["bbox"]
 
-    for page_n, items in page_items.items():
-        grouped = _side_rows(ctx, items, blocks, body_size, page_n)
-        if grouped is not None:
-            page_items[page_n] = grouped
-
+    # Reading order, per page. For a reliably-tagged page the DECLARED order (the
+    # struct tree's depth-first sequence — authoritative per ISO 32000-2 §14.7)
+    # wins; items the tags don't cover are slotted in by geometry. Otherwise we
+    # infer it geometrically (_side_rows + XY-cut). See docs/research/reading-order.md
     twocol_pages = set()
+    ro_src = Counter()  # per-page reading-order source -> doc tagging verdict
     for page_n, items in page_items.items():
-        bboxes = [item_bbox(it) for it in items]
-        order, ncols = _reading_order(bboxes)
+        tagged = pages[page_n].get("tagged", [])
+        struct = [_struct_order(tagged, item_bbox(it)) for it in items]
+        tagged_frac = (sum(1 for o in struct if o >= 0) / len(items)) if items else 0.0
+        # ncols is still read geometrically (drives aside/pull-quote layout)
+        geom_order, ncols = _reading_order([item_bbox(it) for it in items])
+        if tagged_frac >= 0.6:
+            # declared order; untagged items interpolate right after the tagged
+            # item that geometrically precedes them (stable sub-order via `frac`)
+            keys, last, frac = {}, -1, 0
+            for gi in geom_order:
+                if struct[gi] >= 0:
+                    keys[gi], last, frac = (struct[gi], 0), struct[gi], 0
+                else:
+                    frac += 1
+                    keys[gi] = (last, frac)
+            order = sorted(range(len(items)), key=lambda k: keys[k])
+            src = "struct-tree"
+        else:
+            grouped = _side_rows(ctx, items, blocks, body_size, page_n)
+            if grouped is not None:
+                items = grouped
+                geom_order, ncols = _reading_order([item_bbox(it) for it in items])
+            order = geom_order
+            src = "geometry"
         page_items[page_n] = [items[k] for k in order]
         if ncols >= 2:
             twocol_pages.add(page_n)
+        if items:
+            ro_src[src] += 1
         ctx.log.entry("reading-order", page=page_n, columns=ncols,
-                      items=len(items))
+                      items=len(items), source=src,
+                      tagged=round(tagged_frac, 2))
 
     deepest = max([*tag_levels.values(), *levels.values(), 0])
     kicker_level = min(deepest + 1, 6) if deepest else 0
@@ -422,6 +447,7 @@ def run(ctx):
         "audit": audit,
         "fonts_embed": asm.get("embeddedFonts", {}),
         "fonts_complete": asm.get("fontsComplete", True),
+        "tagged": _tag_verdict(ro_src),
         "body": nodes,
     })
 
@@ -1827,6 +1853,37 @@ MIN_GUTTER = 8.0
 MIN_BAND = 11.0
 
 
+def _tag_verdict(ro_src):
+    """Document tagging verdict from the per-page reading-order source counts:
+    'full' (most multi-item pages use the declared struct-tree order), 'partial'
+    (some), or 'none' (no usable object-level tags — geometry everywhere)."""
+    struct, geom = ro_src.get("struct-tree", 0), ro_src.get("geometry", 0)
+    total = struct + geom
+    if not struct:
+        return {"verdict": "none", "structPages": 0, "totalPages": total}
+    verdict = "full" if struct >= 0.8 * total else "partial"
+    return {"verdict": verdict, "structPages": struct, "totalPages": total}
+
+
+def _struct_order(tagged, bbox):
+    """The declared reading-order index for `bbox`: the struct-tree sequence of
+    the tagged region it overlaps most (artifacts/untagged regions carry -1 and
+    are ignored). -1 when nothing tagged covers it. See _struct_roles."""
+    bl, bb, br, bt = bbox
+    best, best_area = -1, 0.0
+    for reg in tagged:
+        if len(reg) < 6:
+            continue
+        l, b, r, t, _role, seq = reg[:6]
+        if seq is None or seq < 0:
+            continue
+        ix = min(br, r) - max(bl, l)
+        iy = min(bt, t) - max(bb, b)
+        if ix > 0 and iy > 0 and ix * iy > best_area:
+            best_area, best = ix * iy, seq
+    return best
+
+
 def _reading_order(bboxes):
     """Recursive XY-cut reading order over block bboxes — replaces bespoke
     column detection + left-then-right flow. Recursively split the region at its
@@ -2848,7 +2905,7 @@ def _block_roles(pages, blocks):
         bl, bb, br, bt = blk["bbox"]
         barea = max((br - bl) * (bt - bb), 1.0)
         votes = Counter()
-        for l, b, r, t, role in regs:
+        for l, b, r, t, role, *_seq in regs:  # tolerate the new order field
             ix = min(br, r) - max(bl, l)
             iy = min(bt, t) - max(bb, b)
             if ix > 0 and iy > 0:

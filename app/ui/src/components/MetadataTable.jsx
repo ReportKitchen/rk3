@@ -14,8 +14,21 @@ const COLUMNS = [
   { key: "producer", label: "PDF Producer", width: "12rem" },
   { key: "mainFont", label: "Main font", width: "12rem" },
   { key: "fontCount", label: "Fonts", num: true, width: "4rem" },
+  { key: "tagged", label: "Tagged", width: "8rem" },
   { key: "embedComplete", label: "Embed", width: "9rem" },
 ];
+
+// tagging verdict: does the PDF declare a usable struct-tree reading order?
+function taggedCell(r) {
+  if (!r.tagged || r.tagged === "none") {
+    return <span className="meta-embed" title="no usable object-level tags — reading order is inferred geometrically">none</span>;
+  }
+  const cls = r.tagged === "full" ? "ok" : "partial";
+  const label = r.tagged === "full" ? "full" : "partial";
+  return <span className={"meta-embed " + cls}
+    title={`${r.taggedPages}/${r.taggedTotal} pages use the PDF's declared (struct-tree) reading order`}>
+    {label} · {r.taggedPages}/{r.taggedTotal}</span>;
+}
 
 // the embed verdict cell: did font extraction fully reconstruct every font
 // (so embedding is on by default), or does some font drop glyphs (default off)?
@@ -132,6 +145,7 @@ export default function MetadataTable({ onOpen }) {
                         </button>
                       ) : (r.fontCount || "")}
                     </td>
+                    <td>{taggedCell(r)}</td>
                     <td>{embedCell(r)}</td>
                   </tr>
                   {isOpen && (

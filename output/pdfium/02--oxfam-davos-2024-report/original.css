@@ -63,12 +63,12 @@ a:hover { text-decoration: underline; }
 [data-nid="n58083b00e7"] a,
 [data-nid="nd082e0e457"] a,
 [data-nid="n7a4d0e7efa"] a,
-[data-nid="ne6de061e78"] a,
 [data-nid="na48b292534"] a,
 [data-nid="n702733582f"] a,
+[data-nid="ne6de061e78"] a,
 [data-nid="n9bafe7d97c"] a,
-[data-nid="ncf2b87d749"] a,
 [data-nid="nf4e9bc1654"] a,
+[data-nid="ncf2b87d749"] a,
 [data-nid="n380d24d49f"] a,
 [data-nid="n01d96fca0d"] a,
 [data-nid="nfb8df8911c"] a,
@@ -288,17 +288,9 @@ a:hover { text-decoration: underline; }
   margin: 0 0 1rem 1.5rem;
 }
 
-[data-nid="nd91db45d94"] { color: #323ea8; }
-
 [data-nid="n6a83cbb30f"] { color: #505050; }
 
-[data-nid="n816c1d07ee"] { color: #505050; }
-
-[data-nid="na8bc96774f"] { color: #323ea8; }
-
-[data-nid="n3ddc4c3a79"] { color: #505050; }
-
-[data-nid="n33db587571"] { color: #505050; }
+[data-nid="nd91db45d94"] { color: #323ea8; }
 
 [data-nid="n818d77432a"] {
   background: #323ea8;
@@ -308,6 +300,14 @@ a:hover { text-decoration: underline; }
   width: 49%;
   margin: 0 0 1rem 1.5rem;
 }
+
+[data-nid="n816c1d07ee"] { color: #505050; }
+
+[data-nid="na8bc96774f"] { color: #323ea8; }
+
+[data-nid="n3ddc4c3a79"] { color: #505050; }
+
+[data-nid="n33db587571"] { color: #505050; }
 
 [data-nid="nc4e9ab1474"] {
   background: #323ea8;

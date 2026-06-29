@@ -110,6 +110,7 @@ a:hover { text-decoration: underline; }
 [data-nid="n8776231944"] a,
 [data-nid="n528b0a4587"] a,
 [data-nid="n0b88ee4f81"] a,
+[data-nid="nf526a5aa63"] a,
 [data-nid="nf8ffc87f15"] a,
 [data-nid="n86c6bf5927"] a,
 [data-nid="n8a04bda559"] a,
@@ -1231,8 +1232,6 @@ a:hover { text-decoration: underline; }
   margin: 0 0 1rem 1.5rem;
 }
 
-[data-nid="n89769a2764"] { color: #4b4c4d; }
-
 [data-nid="n3bcf864a19"] {
   background: #841532;
   border: none;
@@ -1240,6 +1239,8 @@ a:hover { text-decoration: underline; }
   width: 48%;
   margin: 0 0 1rem 1.5rem;
 }
+
+[data-nid="n89769a2764"] { color: #4b4c4d; }
 
 [data-nid="n02a6520217"] {
   background: #e6e7e9;
