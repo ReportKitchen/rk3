@@ -212,25 +212,40 @@ def _merge_links(links):
 
 
 def _weave(text, emph, links):
-    """Text with <a>/<em>/<strong> woven in at their IR offsets (links outer,
-    emphasis inner) — a stable, readable, CSS-free rendering of the marks."""
-    opens, closes = {}, {}
-    def add(s, e, prio, open_tag, close_tag):
-        opens.setdefault(s, []).append((prio, open_tag))
-        closes.setdefault(e, []).append((prio, close_tag))
+    """Text with <a>/<strong>/<em> woven in at their IR offsets (link outer,
+    emphasis inner) — a stable, readable, CSS-free rendering of the marks.
+
+    Spans that cross are split at the boundary and reopened so the output is
+    always well-formed (link[10,20]+em[15,25] -> <a>…<em>…</em></a><em>…</em>),
+    mirroring render._inline so freeze snapshots match what we actually emit."""
+    rank = {"link": 0, "strong": 1, "em": 2}
+    wraps = []  # (s, e, rank, open, close)
     for s, e, uri in _merge_links(links):
-        add(s, e, 0, f'<a href="{uri or ""}">', "</a>")
+        wraps.append((s, e, rank["link"], f'<a href="{uri or ""}">', "</a>"))
     for sp in emph or []:
         s, e, kind = sp[0], sp[1], sp[2]
-        add(s, e, 1, f"<{kind}>", f"</{kind}>")
-    out = []
-    for i in range(len(text) + 1):
-        for _, tag in sorted(closes.get(i, []), key=lambda x: -x[0]):  # inner closes first
-            out.append(tag)
-        for _, tag in sorted(opens.get(i, []), key=lambda x: x[0]):    # outer opens first
-            out.append(tag)
-        if i < len(text):
-            out.append(text[i])
+        if kind in rank:
+            wraps.append((s, e, rank[kind], f"<{kind}>", f"</{kind}>"))
+    n = len(text)
+    pts = sorted({0, n} | {p for s, e, *_ in wraps for p in (s, e)
+                           if 0 <= p <= n})
+    out, stack = [], []
+    for a, b in zip(pts, pts[1:]):
+        if a >= b:
+            continue
+        active = sorted((w for w in wraps if w[0] <= a and b <= w[1]),
+                        key=lambda w: (w[2], w[0], -w[1]))
+        cp = 0
+        while cp < len(stack) and cp < len(active) and stack[cp] is active[cp]:
+            cp += 1
+        while len(stack) > cp:
+            out.append(stack.pop()[4])
+        for w in active[cp:]:
+            out.append(w[3])
+            stack.append(w)
+        out.append(text[a:b])
+    while stack:
+        out.append(stack.pop()[4])
     return re.sub(r"\s+", " ", "".join(out)).strip()
 
 

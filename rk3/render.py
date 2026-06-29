@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 43
+VERSION = 44
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -388,13 +388,28 @@ def _render_node(ctx, node, pages, state):
     return f"<!-- unrendered node type {html.escape(t)} ({node.get('rk')}) -->"
 
 
+# nesting order for overlapping wrap spans: lower rank = outer wrapper, so a
+# bold+italic+linked title renders <a><strong><em>…. Fixed ranks make the
+# segment sweep's nesting deterministic regardless of where spans start/end.
+_WRAP_RANK = {"lead": 0, "link": 1, "mark": 2, "strong": 3, "em": 4}
+
+
 def _inline(text, links, refs, state, breaks=None, emph=None, marks=None,
             lead=None):
-    """Escape text while wrapping link ranges in <a>, footnote-reference
-    ranges in <sup><a>, emphasis runs in <strong>/<em>, and text highlights
-    in <mark>. Overlapping ranges: first (by start) wins — links and refs
-    outrank emphasis. `breaks` are offsets of join-spaces that render as
-    <br>."""
+    """Escape text and apply inline markup with NO silent drops on overlap.
+
+    Two kinds of inline markup:
+      - WRAP spans (link / strong / em / mark / lead) surround a range and may
+        overlap arbitrarily. A segment sweep splits them at every boundary and
+        nests them by `_WRAP_RANK`; spans that cross are closed and reopened so
+        the output is always well-formed (e.g. link[10,20]+em[15,25] becomes
+        <a>…<em>…</em></a><em>…</em>) — nothing is ever dropped.
+      - REPLACEMENT events (br / footnote-sup / a url-as-text link) carve a
+        fixed region whose markup is emitted verbatim; surrounding wrap spans
+        stay open around them. Overlapping replacements are resolved by priority
+        (a footnote ref outranks a link, which outranks a plain sup).
+    `breaks` are offsets of join-spaces that render as <br>."""
+    n = len(text)
     merged_links = []
     for s, e, target in sorted(links or []):
         if merged_links and s - merged_links[-1][1] <= 1 \
@@ -402,127 +417,157 @@ def _inline(text, links, refs, state, breaks=None, emph=None, marks=None,
             merged_links[-1][1] = e  # one link wrapped across a line split
         else:
             merged_links.append([s, e, target])
-    events = [(s, e, "link", target) for s, e, target in merged_links]
-    events += [(s, e, "ref", n) for s, e, n in (refs or [])]
-    events += [(s, s + 1, "br", None) for s in (breaks or [])]
-    events += [(s, e, kind, None) for s, e, kind in (emph or [])
-               if kind in ("strong", "em")]
-    events += [(s, e, "mark", color) for s, e, color in (marks or [])]
+
+    # --- wrap spans ------------------------------------------------------
+    wraps = []  # (s, e, rank, open, close)
     if lead:
-        events += [(0, lead, "lead", None)]
-    if state.get("autolink"):
-        events += _autolink_events(text, events)
-    # superscript numbers often carry their own link annotation pointing at the
-    # notes page; the footnote anchor is more useful, so a resolvable ref wins
-    # ties. A link must precede a co-located emphasis run so the link becomes the
-    # OUTER wrapper and the emphasis nests inside it (<a><em>…</em></a>) — see
-    # _emph_inner — rather than one clobbering the other.
-    def _prio(ev):
-        if ev[2] == "ref" and ev[3] in state["fn_nums"]:
-            return 0
-        if ev[2] == "link":
-            return 1
-        return 2
-    events.sort(key=lambda ev: (ev[0], _prio(ev), -ev[1]))
-    out = []
-    pos = 0
-    for s, e, kind, payload in events:
-        if s < pos or e > len(text):
-            continue
-        out.append(html.escape(text[pos:s]))
-        seg = html.escape(text[s:e])
-        if kind == "br":
-            out.append("<br>\n")
-            pos = e
-            continue
+        wraps.append((0, lead, _WRAP_RANK["lead"],
+                      '<b class="soft-header">', "</b>"))
+    for s, e, color in (marks or []):
+        # browsers default <mark> to yellow; non-yellow highlights carry their
+        # color (provenance, not decoration - layer 2 keeps it)
+        style = f' style="background: {color}"' \
+            if color not in ("#ffff00", "#ffff66") else ""
+        wraps.append((s, e, _WRAP_RANK["mark"], f"<mark{style}>", "</mark>"))
+    for s, e, kind in (emph or []):
         if kind in ("strong", "em"):
-            out.append(f"<{kind}>{seg}</{kind}>")
-            pos = e
-            continue
-        if kind == "mark":
-            # browsers default <mark> to yellow; non-yellow highlights carry
-            # their color (provenance, not decoration - layer 2 keeps it)
-            style = f' style="background: {payload}"' \
-                if payload not in ("#ffff00", "#ffff66") else ""
-            out.append(f"<mark{style}>{seg}</mark>")
-            pos = e
-            continue
-        if kind == "lead":
-            # run-in soft header: a keyword lead-in, not a document heading
-            out.append(f'<b class="soft-header">{seg}</b>')
-            pos = e
-            continue
-        if kind == "link":
-            uri = payload.get("uri")
-            inner = _emph_inner(text, s, e, emph)  # keep emphasis nested in the link
-            if payload.get("styled"):
-                # print-styled cross-reference with no PDF target: if the text
-                # names a heading/box in THIS document, link it for real;
-                # otherwise keep it as a marked span (a dead <a> misleads)
-                target = _resolve_anchor(text[s:e], state["anchors"])
-                if target:
-                    tid, tpage = target
-                    out.append(f'<a href="#{tid}" data-link-styled="true" '
-                               f'data-target-page="{tpage}">{inner}</a>')
-                else:
-                    out.append(f'<span data-link-styled="true">{inner}</span>')
-            elif uri:
-                href = uri if "://" in uri or uri.startswith(("mailto:", "#")) \
-                    else "https://" + uri
-                cls = ' class="autolink"' if payload.get("auto") else ""
-                # when the anchor text IS the url, print wraps corrupt it
-                # (underscores become spaces at line breaks): show the href
-                raw = text[s:e]
-                if raw.lstrip().lower().startswith(("http", "www.")) and \
-                        _alnum_only(raw) == _alnum_only(href):
-                    inner = html.escape(href)
-                out.append(f'<a{cls} href="{html.escape(href, quote=True)}">{inner}</a>')
-            else:
-                dest = payload.get("destPage")
-                tid = state["pageTargets"].get(dest) \
-                    or next((state["pageTargets"][p]
-                             for p in sorted(state["pageTargets"])
-                             if p >= (dest or 0)), None)
-                href = f' href="#{tid}"' if tid else ""
-                out.append(f'<a{href} data-dest-page="{dest}" '
-                           f'data-target-page="{dest}">{inner}</a>')
-        elif payload in state["fn_nums"]:
-            k = state["ref_seq"].get(payload, 0) + 1
-            state["ref_seq"][payload] = k
-            # spaces inside a marker are run-split artifacts ("i i" is ii)
-            marker = seg.replace(" ", "")
-            out.append(f'<sup class="fnref" id="fnref-{payload}-{k}">'
-                       f'<a href="#fn-{payload}">{marker}</a></sup>')
-            if e < len(text) and text[e].isalpha():
-                out.append(" ")  # run splits often swallow the space after
+            wraps.append((s, e, _WRAP_RANK[kind], f"<{kind}>", f"</{kind}>"))
+
+    # --- replacement events ---------------------------------------------
+    # collected as (s, e, prio, kind, data); markup is built AFTER overlap
+    # resolution so footnote sequence numbers are only spent on survivors.
+    raw_repls = [(s, s + 1, 3, "br", None) for s in (breaks or [])]
+    for s, e, num in sorted(refs or []):
+        prio = 0 if num in state["fn_nums"] else 2
+        raw_repls.append((s, e, prio, "ref", num))
+
+    link_events = [(s, e, t) for s, e, t in merged_links]
+    if state.get("autolink"):
+        occupied = ([(s, e) for s, e, _t in merged_links]
+                    + [(s, e) for s, e, _n in (refs or [])]
+                    + [(s, s + 1) for s in (breaks or [])]
+                    + [(s, e) for s, e, _k in (emph or [])]
+                    + [(s, e) for s, e, _c in (marks or [])])
+        for s, e, _kind, payload in _autolink_events(text, occupied):
+            link_events.append((s, e, payload))
+    for s, e, payload in link_events:
+        m = _link_markup(text, s, e, payload, state)
+        if m[0] == "replace":
+            raw_repls.append((s, e, 1, "linkrepl", m[1]))
         else:
-            out.append(f"<sup>{seg.replace(' ', '')}</sup>")
-            if e < len(text) and text[e].isalpha():
-                out.append(" ")
-        pos = e
-    out.append(html.escape(text[pos:]))
-    return "".join(out)
+            wraps.append((s, e, _WRAP_RANK["link"], m[1], m[2]))
 
+    # resolve replacement overlaps: lowest prio number wins, earlier first
+    raw_repls.sort(key=lambda r: (r[0], r[2]))
+    chosen = []
+    for r in raw_repls:
+        if any(not (r[1] <= c[0] or r[0] >= c[1]) for c in chosen):
+            continue
+        chosen.append(r)
+    repls = []  # (s, e, markup) built in text order
+    for s, e, _prio, kind, data in sorted(chosen, key=lambda r: r[0]):
+        if kind == "br":
+            mk = "<br>\n"
+        elif kind == "linkrepl":
+            mk = data
+        else:  # footnote / plain superscript reference
+            seg = html.escape(text[s:e])
+            if data in state["fn_nums"]:
+                k = state["ref_seq"].get(data, 0) + 1
+                state["ref_seq"][data] = k
+                # spaces inside a marker are run-split artifacts ("i i" is ii)
+                marker = seg.replace(" ", "")
+                mk = (f'<sup class="fnref" id="fnref-{data}-{k}">'
+                      f'<a href="#fn-{data}">{marker}</a></sup>')
+            else:
+                mk = f"<sup>{seg.replace(' ', '')}</sup>"
+            if e < n and text[e].isalpha():
+                mk += " "  # run splits often swallow the space after
+        repls.append((s, e, mk))
 
-def _emph_inner(text, s, e, emph):
-    """Escape text[s:e], wrapping any emphasis runs that fall inside [s,e] in
-    <strong>/<em>. Lets a link (the outer span) carry inner emphasis, so a title
-    that is BOTH a hyperlink and italic renders <a>…<em>…</em>…</a> instead of
-    the emphasis being dropped on the overlap."""
-    runs = sorted((r for r in (emph or [])
-                   if r[2] in ("strong", "em") and r[1] > s and r[0] < e),
-                  key=lambda r: r[0])
+    def _repl_cover(a, b):
+        for rs, re_, mk in repls:
+            if rs <= a and b <= re_:
+                return rs, re_, mk
+        return None
+
+    # --- segment sweep ---------------------------------------------------
+    pts = {0, n}
+    for s, e, *_ in wraps:
+        pts.add(s)
+        pts.add(e)
+    for s, e, _m in repls:
+        pts.add(s)
+        pts.add(e)
+    pts = sorted(p for p in pts if 0 <= p <= n)
+
     out = []
-    pos = s
-    for es, ee, kind in runs:
-        a, b = max(es, s, pos), min(ee, e)
+    stack = []  # wrap tuples currently open, outer-first
+    for a, b in zip(pts, pts[1:]):
         if a >= b:
             continue
-        out.append(html.escape(text[pos:a]))
-        out.append(f"<{kind}>{html.escape(text[a:b])}</{kind}>")
-        pos = b
-    out.append(html.escape(text[pos:e]))
+        cover = _repl_cover(a, b)
+        if cover:
+            # inside a replacement: only wraps that surround the WHOLE region
+            # stay open around it (a wrap poking partway in is ignored here)
+            rs, re_, _mk = cover
+            active = [w for w in wraps if w[0] <= rs and re_ <= w[1]]
+        else:
+            active = [w for w in wraps if w[0] <= a and b <= w[1]]
+        active.sort(key=lambda w: (w[2], w[0], -w[1]))
+        # close the stack down to its common prefix with `active`, then open
+        # whatever `active` still needs (this is what splits crossing spans)
+        cp = 0
+        while cp < len(stack) and cp < len(active) and stack[cp] is active[cp]:
+            cp += 1
+        while len(stack) > cp:
+            out.append(stack.pop()[4])
+        for w in active[cp:]:
+            out.append(w[3])
+            stack.append(w)
+        if cover:
+            if a == cover[0]:
+                out.append(cover[2])  # emit replacement markup once, at its start
+        else:
+            out.append(html.escape(text[a:b]))
+    while stack:
+        out.append(stack.pop()[4])
     return "".join(out)
+
+
+def _link_markup(text, s, e, payload, state):
+    """Markup for a link span: ('wrap', open, close) normally, or
+    ('replace', markup) when the anchor text IS the url (print line-wraps
+    corrupt it, so we emit the clean href as both text and target)."""
+    uri = payload.get("uri")
+    if payload.get("styled"):
+        # print-styled cross-reference with no PDF target: if the text names a
+        # heading/box in THIS document, link it; else a dead <a> would mislead
+        target = _resolve_anchor(text[s:e], state["anchors"])
+        if target:
+            tid, tpage = target
+            return ("wrap", f'<a href="#{tid}" data-link-styled="true" '
+                    f'data-target-page="{tpage}">', "</a>")
+        return ("wrap", '<span data-link-styled="true">', "</span>")
+    if uri:
+        href = uri if "://" in uri or uri.startswith(("mailto:", "#")) \
+            else "https://" + uri
+        cls = ' class="autolink"' if payload.get("auto") else ""
+        raw = text[s:e]
+        if raw.lstrip().lower().startswith(("http", "www.")) and \
+                _alnum_only(raw) == _alnum_only(href):
+            return ("replace", f'<a{cls} href="{html.escape(href, quote=True)}">'
+                    f'{html.escape(href)}</a>')
+        return ("wrap", f'<a{cls} href="{html.escape(href, quote=True)}">',
+                "</a>")
+    dest = payload.get("destPage")
+    tid = state["pageTargets"].get(dest) \
+        or next((state["pageTargets"][p]
+                 for p in sorted(state["pageTargets"])
+                 if p >= (dest or 0)), None)
+    href = f' href="#{tid}"' if tid else ""
+    return ("wrap", f'<a{href} data-dest-page="{dest}" '
+            f'data-target-page="{dest}">', "</a>")
 
 
 def _alnum_only(t):
