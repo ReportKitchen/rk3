@@ -40,8 +40,8 @@ h4 {
 }
 
 h5 {
-  font-family: "Founders Grotesk", sans-serif;
-  font-weight: 600;
+  font-family: "Reader Pro", sans-serif;
+  font-weight: 700;
   color: #002e52;
   font-size: 3.23rem;
 }
@@ -63,9 +63,8 @@ a:hover { text-decoration: underline; }
 [data-nid="nb5b3af75a8"] a,
 [data-nid="nbc75b83baf"] a { color: #215e9e; }
 
-.xl-strong-serif {
-  font-family: "Founders Grotesk", sans-serif;
-  font-weight: 600;
+.lead {
+  font-weight: 700;
   font-size: 4.04em;
 }
 
@@ -79,13 +78,13 @@ a:hover { text-decoration: underline; }
   font-weight: 700;
 }
 
-.xl-strong-serif-2 {
+.xl-strong-serif {
   font-family: "Founders Grotesk", sans-serif;
   font-weight: 600;
   font-size: 2.0em;
 }
 
-.lead {
+.lead-2 {
   font-weight: 700;
   font-size: 1.17em;
 }
@@ -94,7 +93,7 @@ a:hover { text-decoration: underline; }
   font-style: italic;
 }
 
-.xl-strong-serif-3 {
+.xl-strong-serif-2 {
   font-family: "Founders Grotesk", sans-serif;
   font-weight: 700;
   font-size: 2.0em;
@@ -116,13 +115,13 @@ a:hover { text-decoration: underline; }
   font-size: 0.75em;
 }
 
-.xl-strong-serif-4 {
+.xl-strong-serif-3 {
   font-family: "Founders Grotesk", sans-serif;
   font-weight: 700;
   font-size: 4.0em;
 }
 
-.xl-strong-serif-5 {
+.xl-strong-serif-4 {
   font-family: "Founders Grotesk", sans-serif;
   font-weight: 600;
   font-size: 5.0em;
@@ -134,7 +133,7 @@ a:hover { text-decoration: underline; }
   font-size: 0.67em;
 }
 
-.xl-strong-serif-6 {
+.xl-strong-serif-5 {
   font-family: "Founders Grotesk", sans-serif;
   font-weight: 700;
   font-size: 3.5em;

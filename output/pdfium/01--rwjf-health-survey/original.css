@@ -103,8 +103,7 @@ a:hover { text-decoration: underline; }
   font-size: 0.83em;
 }
 
-.strong-right {
-  font-weight: 700;
+.right {
   text-align: right;
 }
 

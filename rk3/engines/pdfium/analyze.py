@@ -29,52 +29,24 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 91
+VERSION = 92
 
 
 # PDF font-descriptor flag bits
-ITALIC_FLAG = 0x40
-FORCEBOLD_FLAG = 0x40000
-_BOLD_KW = ("bold", "black", "heavy", "semibold", "demibold", "extrabold", "ultra")
-_ITAL_KW = ("italic", "oblique", "kursiv")
+# emphasis is judged on the TRUE weight/slant that extract read from each
+# embedded font program (rk3.engines.pdfium.fontid) — the deterministic identity
+# the renderer itself uses, not a guess from the flattened /BaseFont name or
+# glyph widths. A run is bold when it's at least EMPH_GAP heavier than the block
+# baseline (a real weight step is ~80+; a same-cut subset difference is ~0).
+EMPH_GAP = 50
 
 
 def _font_is_italic(f):
-    # descriptor ITALIC bit (reliable, set even when a subset name abbreviates
-    # 'Italic' to 'Ita') OR an italic name token
-    if f.get("flags", 0) & ITALIC_FLAG:
-        return True
-    low = (f["name"] or "").lower()
-    return any(k in low for k in _ITAL_KW) or low.endswith(("ita", "ital", "obl"))
-
-
-# standard OpenType/CSS named-weight scale; most specific tokens first so
-# 'semibold'/'extrabold' resolve before the 'bold' substring inside them
-_WEIGHT_TOKENS = [
-    ("extrablack", 950), ("ultrablack", 950), ("extrabold", 800),
-    ("ultrabold", 800), ("semibold", 600), ("demibold", 600),
-    ("extralight", 200), ("ultralight", 200),
-    ("black", 900), ("heavy", 900), ("bold", 700), ("medium", 500),
-    ("demi", 600), ("semi", 600), ("light", 300), ("thin", 100),
-    ("hairline", 100), ("book", 400), ("regular", 400), ("normal", 400),
-    ("roman", 400), ("blk", 900), ("bd", 700), ("sb", 600), ("dem", 600),
-    ("med", 500), ("lt", 300),
-]
+    return bool(f.get("italic"))
 
 
 def _font_weight_rank(f):
-    """Numeric weight (100-900) from the font name token, with the ForceBold bit
-    as a floor. Used to compare a run's weight to the document body weight —
-    heavier-than-body = bold emphasis (catches 'Medium' set against 'Regular')."""
-    if f.get("synthetic_bold"):
-        # the assemble width-bold splitter already proved these glyphs are the
-        # heavy weight of an otherwise same-named font; rank well above body
-        return 700
-    low = (f["name"] or "").lower()
-    for tok, w in _WEIGHT_TOKENS:
-        if tok in low:
-            return max(w, 700) if f.get("flags", 0) & FORCEBOLD_FLAG else w
-    return 700 if f.get("flags", 0) & FORCEBOLD_FLAG else 400
+    return f.get("weight", 400)
 
 OL_RE = re.compile(r"^(\d{1,2}|[A-Za-z])\s?[.)]\s+")
 
@@ -2743,7 +2715,7 @@ def _build_runs(ctx, blk, lines, blk_font, link_colors=()):
     blk_italic = _font_is_italic(blk_font)
 
     def _strong(f):
-        return _font_weight_rank(f) > blk_rank
+        return _font_weight_rank(f) >= blk_rank + EMPH_GAP
 
     def _em(f):
         return _font_is_italic(f) and not blk_italic

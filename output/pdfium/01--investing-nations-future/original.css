@@ -86,39 +86,39 @@ a:hover { text-decoration: underline; }
   font-size: 0.83em;
 }
 
-.sm-serif {
-  font-family: "Calibri", sans-serif;
+.sm-strong {
+  font-weight: 700;
   font-size: 0.87em;
 }
 
-.sm-serif-2 {
-  font-family: "Arial MT", sans-serif;
+.sm-strong-2 {
+  font-weight: 700;
   color: #1e2d53;
   font-size: 0.8em;
 }
 
-.sm-serif-3 {
-  font-family: "Arial MT", sans-serif;
+.sm-strong-3 {
+  font-weight: 700;
   font-size: 0.65em;
 }
 
-.sm-serif-4 {
-  font-family: "Arial MT", sans-serif;
+.sm-strong-4 {
+  font-weight: 700;
   font-size: 0.58em;
 }
 
-.sm-serif-5 {
-  font-family: "Arial MT", sans-serif;
+.sm-strong-5 {
+  font-weight: 700;
   font-size: 0.72em;
 }
 
-.sm-serif-6 {
-  font-family: "Arial MT", sans-serif;
+.sm-strong-6 {
+  font-weight: 700;
   font-size: 0.51em;
 }
 
-.sm-center-serif {
-  font-family: "Arial MT", sans-serif;
+.sm-strong-center {
+  font-weight: 700;
   font-size: 0.58em;
   text-align: center;
 }
@@ -136,12 +136,12 @@ a:hover { text-decoration: underline; }
   font-size: 1.17em;
 }
 
-.sm-serif-7 {
+.sm-serif {
   font-family: "Cambria", sans-serif;
   font-size: 0.75em;
 }
 
-.sm-serif-8 {
+.sm-serif-2 {
   font-family: "Cambria", sans-serif;
   font-size: 0.59em;
 }
@@ -158,7 +158,7 @@ a:hover { text-decoration: underline; }
   font-size: 0.59em;
 }
 
-.sm-serif-9 {
+.sm-serif-3 {
   font-family: "Cambria", sans-serif;
   font-size: 0.67em;
 }

@@ -5,20 +5,98 @@ crop figure regions later without re-opening it. Gates on scanned/image PDFs.
 Artifact: extract.json
   { "pages": [ { "n": 1-based, "width", "height",
                  "chars": [[unicode_str, l, b, r, t, fontIdx, size, colorIdx], ...] } ],
-    "fonts":  [ { "name", "weight", "flags" } ],
+    "fonts":  [ { "name", "weight", "italic" } ],  # weight/italic = TRUE values
+                                                    # (fontid: embedded program + ink rank)
     "colors": [ [r, g, b, a] ] }
 Coordinates are PDF points, origin bottom-left.
 """
 
 import ctypes
+import hashlib
 import statistics
 
 import pypdfium2 as pdfium
 import pypdfium2.raw as pdfium_c
 
 from ...pipeline import ScannedPdfError
+from . import fontid
 
-VERSION = 10
+VERSION = 11
+
+
+def _register_program(font_handle, programs, handle_cache):
+    """Identify a text run's font by its EMBEDDED PROGRAM (not pdfium's flattened
+    /BaseFont name) so distinct cuts sharing a name are kept apart. Returns the
+    program's index in `programs`, or None. Cached by font-handle pointer so the
+    program data is hashed once, not per text object."""
+    addr = ctypes.cast(font_handle, ctypes.c_void_p).value
+    if addr in handle_cache:
+        return handle_cache[addr]
+    nm = ctypes.create_string_buffer(256)
+    pdfium_c.FPDFFont_GetBaseFontName(font_handle, nm, 256)
+    name = nm.value.decode("utf-8", "replace")
+    weight = pdfium_c.FPDFFont_GetWeight(font_handle)
+    out_len = ctypes.c_size_t()
+    pdfium_c.FPDFFont_GetFontData(font_handle, None, 0, ctypes.byref(out_len))
+    size = out_len.value
+    if size:
+        buf = (ctypes.c_uint8 * size)()
+        pdfium_c.FPDFFont_GetFontData(font_handle, buf, size, ctypes.byref(out_len))
+        key = hashlib.sha1(bytes(buf)).hexdigest()  # exact program identity
+        data = bytes(buf)
+    else:                                            # non-embedded (base-14): name is honest
+        key = f"noembed:{name}:{weight}"
+        data = None
+    if key not in programs:
+        programs[key] = {"idx": len(programs), "data": data,
+                         "name": name, "weight": weight}
+    idx = programs[key]["idx"]
+    handle_cache[addr] = idx
+    return idx
+
+
+def _text_runs(page_raw, tp_raw, programs, handle_cache):
+    """Every text run on the page as (l, b, r, t, program_idx) — the spatial map
+    from a char's position to the exact font program that drew it. Bucketed by
+    y for fast per-char lookup."""
+    runs = []
+    for i in range(pdfium_c.FPDFPage_CountObjects(page_raw)):
+        o = pdfium_c.FPDFPage_GetObject(page_raw, i)
+        if pdfium_c.FPDFPageObj_GetType(o) != pdfium_c.FPDF_PAGEOBJ_TEXT:
+            continue
+        l, b, r, t = (ctypes.c_float() for _ in range(4))
+        if not pdfium_c.FPDFPageObj_GetBounds(
+                o, *(ctypes.byref(x) for x in (l, b, r, t))):
+            continue
+        font_handle = pdfium_c.FPDFTextObj_GetFont(o)
+        if not font_handle:
+            continue
+        idx = _register_program(font_handle, programs, handle_cache)
+        runs.append((l.value, b.value, r.value, t.value, idx))
+    return runs
+
+
+def _run_matcher(runs):
+    """A lookup: char center (cx, cy) -> program_idx of the smallest text run
+    containing it (the run that drew it). Falls back to the nearest run center."""
+    BAND = 24.0
+    bands = {}
+    for run in runs:
+        l, b, r, t, _ = run
+        for yb in range(int(b // BAND), int(t // BAND) + 1):
+            bands.setdefault(yb, []).append(run)
+
+    def match(cx, cy):
+        best, best_area = None, None
+        for run in bands.get(int(cy // BAND), ()):
+            l, b, r, t, idx = run
+            if l - 0.5 <= cx <= r + 0.5 and b - 0.5 <= cy <= t + 0.5:
+                area = (r - l) * (t - b)
+                if best_area is None or area < best_area:
+                    best, best_area = idx, area
+        return best
+
+    return match
 
 OBJ_PATH, OBJ_IMAGE, OBJ_SHADING = 2, 3, 4
 
@@ -69,7 +147,7 @@ def run(ctx):
         page_range = cfg_in.get("pageRange") or [1, n_pages]
         first, last = max(1, page_range[0]), min(n_pages, page_range[1])
 
-        fonts, font_index = [], {}
+        programs, handle_cache = {}, {}   # font-program identity (see _register_program)
         colors, color_index = [], {}
         pages_out = []
         char_counts = []
@@ -90,8 +168,11 @@ def run(ctx):
             n_chars = tp.count_chars()
             char_counts.append(n_chars)
 
+            # map char position -> the font program that drew it (deterministic)
+            match_font = _run_matcher(_text_runs(page.raw, tp.raw, programs, handle_cache))
+            last_fidx = 0
+
             chars = []
-            buf = ctypes.create_string_buffer(512)
             matrix = pdfium_c.FS_MATRIX()
             pending = None  # high surrogate awaiting its low half
             for i in range(n_chars):
@@ -106,15 +187,12 @@ def run(ctx):
                     size *= (matrix.b ** 2 + matrix.d ** 2) ** 0.5
                 size = round(size, 2)
 
-                flags = ctypes.c_int(0)
-                nlen = pdfium_c.FPDFText_GetFontInfo(
-                    tp, i, buf, len(buf), ctypes.byref(flags))
-                name = buf.raw[: max(0, nlen - 1)].decode("utf-8", "replace") if nlen > 1 else ""
-                weight = pdfium_c.FPDFText_GetFontWeight(tp, i)
-                fkey = (name, weight, flags.value)
-                if fkey not in font_index:
-                    font_index[fkey] = len(fonts)
-                    fonts.append({"name": name, "weight": weight, "flags": flags.value})
+                # font = the exact embedded program at this char's position;
+                # a synthetic char (pdfium-inserted space) inherits its neighbour
+                fidx = match_font((l + r) / 2, (b + t) / 2)
+                if fidx is None:
+                    fidx = last_fidx
+                last_fidx = fidx
 
                 cr, cg, cb, ca = (ctypes.c_uint() for _ in range(4))
                 ok = pdfium_c.FPDFText_GetFillColor(
@@ -126,7 +204,7 @@ def run(ctx):
                 # arrive as a surrogate pair across two indices - recombine
                 # (union the charboxes), drop unpaired halves
                 ch = [chr(uc), round(l, 2), round(b, 2), round(r, 2),
-                      round(t, 2), font_index[fkey], size, color_id(ckey)]
+                      round(t, 2), fidx, size, color_id(ckey)]
                 if 0xD800 <= uc <= 0xDBFF:
                     pending = ch
                     continue
@@ -169,6 +247,19 @@ def run(ctx):
             raise ScannedPdfError(
                 f"Scanned/image PDF (median {median_chars:.0f} extractable chars/page, "
                 f"threshold {threshold}) — OCR is out of scope.")
+
+        # resolve every distinct font program to its TRUE weight/slant: read the
+        # embedded program with fontTools, then rank same-family cuts the PDF
+        # mislabelled by glyph ink (see fontid). This weight/italic is what
+        # analyze's emphasis logic reads — no name-token or width guessing.
+        props = [None] * len(programs)
+        for p in programs.values():
+            props[p["idx"]] = fontid.program_props(p["data"], p["name"], p["weight"])
+        fontid.resolve_weights(props)
+        fonts = [{"name": pr["name"], "weight": pr["weight"],
+                  "italic": bool(pr["italic"])} for pr in props]
+        ctx.log.entry("fonts", count=len(fonts),
+                      fonts=[(f["name"][:24], f["weight"], f["italic"]) for f in fonts][:24])
 
         ctx.write_artifact("extract", {
             "pages": pages_out, "fonts": fonts, "colors": colors,

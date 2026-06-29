@@ -6,17 +6,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Franklin+Gothic+URWCon&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Franklin+Gothic+URWCond&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Franklin+Gothic+URWCond:wght@400;500&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Gotham&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Gotham:wght@400;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Lato&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;500;800&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Minion+Pro&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Signika+Negative&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Signika+Negative:wght@300;400;600&display=swap");
 
 body {
   font-family: "Franklin Gothic URW", sans-serif;
@@ -195,69 +190,56 @@ a:hover { text-decoration: underline; }
 }
 
 .sm-serif {
-  font-family: "Signika Negative", sans-serif;
-  font-weight: 300;
+  font-family: "Franklin Gothic URWCon", sans-serif;
   color: #6d6f71;
   font-size: 0.82em;
 }
 
 .sm-serif-2 {
-  font-family: "Signika Negative", sans-serif;
+  font-family: "Franklin Gothic URWCon", sans-serif;
   color: #004e8e;
   font-size: 0.82em;
 }
 
 .sm-serif-3 {
-  font-family: "Minion Pro", serif;
+  font-family: "Franklin Gothic URWCon", sans-serif;
   font-size: 0.82em;
 }
 
-.xl-strong-serif {
-  font-family: "Signika Negative", sans-serif;
-  font-weight: 600;
+.xl-serif {
+  font-family: "Franklin Gothic URWCon", sans-serif;
   color: #0072a5;
   font-size: 2.13em;
 }
 
 .center-serif {
-  font-family: "Signika Negative", sans-serif;
+  font-family: "Franklin Gothic URWCon", sans-serif;
   color: #0072a5;
   text-align: center;
 }
 
 .lg-serif-2 {
-  font-family: "Signika Negative", sans-serif;
+  font-family: "Franklin Gothic URWCon", sans-serif;
   color: #be1e2d;
   font-size: 1.2em;
 }
 
 .lg-serif-3 {
-  font-family: "Signika Negative", sans-serif;
+  font-family: "Franklin Gothic URWCon", sans-serif;
   color: #006838;
   font-size: 1.2em;
 }
 
 .sm-right-serif {
-  font-family: "Signika Negative", sans-serif;
+  font-family: "Franklin Gothic URWCon", sans-serif;
   font-size: 0.82em;
   text-align: right;
 }
 
 .sm-serif-4 {
-  font-family: "Signika Negative", sans-serif;
-  font-size: 0.82em;
-}
-
-.sm-serif-5 {
-  font-family: "Signika Negative", sans-serif;
+  font-family: "Franklin Gothic URWCon", sans-serif;
   color: #1c75bc;
   font-size: 0.75em;
-}
-
-.sm-strong-serif-3 {
-  font-family: "Gotham", sans-serif;
-  font-weight: 700;
-  font-size: 0.82em;
 }
 
 .sm-accent-4 {
@@ -276,18 +258,18 @@ a:hover { text-decoration: underline; }
   font-size: 0.75em;
 }
 
-.sm-strong-serif-4 {
+.sm-strong-serif-3 {
   font-family: "Lato", sans-serif;
   font-weight: 800;
   font-size: 0.71em;
 }
 
-.sm-serif-6 {
+.sm-serif-5 {
   font-family: "Lato", sans-serif;
   font-size: 0.55em;
 }
 
-.sm-strong-serif-5 {
+.sm-strong-serif-4 {
   font-family: "Lato", sans-serif;
   font-weight: 800;
   font-size: 0.63em;
@@ -299,12 +281,12 @@ a:hover { text-decoration: underline; }
   font-size: 0.47em;
 }
 
-.sm-serif-7 {
+.sm-serif-6 {
   font-family: "Lato", sans-serif;
   font-size: 0.02em;
 }
 
-.sm-serif-8 {
+.sm-serif-7 {
   font-family: "Lato", sans-serif;
   color: #000000;
   font-size: 0.41em;
