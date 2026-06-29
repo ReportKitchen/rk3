@@ -207,9 +207,10 @@ def _attrs(node, pages, extra=None):
     if dims and node.get("bbox"):
         yf = (dims[1] - node["bbox"][3]) / dims[1]
         a["data-yf"] = round(min(max(yf, 0.0), 1.0), 4)
+    # provenance stays in the review HTML (a future "output" view strips it);
+    # it's useful when inspecting, and invisible to layout
     for k, v in (node.get("data") or {}).items():
-        if k in _HTML_DATA_KEYS:
-            a[f"data-{k}"] = v
+        a[f"data-{k}"] = v
     if node.get("_cls"):
         a["class"] = node["_cls"]
     if extra:
