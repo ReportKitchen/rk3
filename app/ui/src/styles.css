@@ -388,6 +388,18 @@ pre.error {
 .fbtable tbody tr:hover { background: #f6f9fd; }
 .fbtable tbody tr.closed { color: #999; }
 .fbtable td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.fbtable-page {
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  min-width: 1.9rem;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid #b8cae3;
+  border-radius: 5px;
+  background: #eef3fa;
+  color: #2c4a75;
+  cursor: pointer;
+}
+.fbtable-page:hover { background: #dde8f6; border-color: #5b7fb5; }
 .fbtable-note { white-space: pre-wrap; overflow-wrap: anywhere; }
 .fbtable-doc {
   border: none; background: none; padding: 0; cursor: pointer;

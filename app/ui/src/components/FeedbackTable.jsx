@@ -115,7 +115,20 @@ export default function FeedbackTable({ onOpen }) {
                     {r.docName}
                   </button>
                 </td>
-                <td className="num">{r.page ?? ""}</td>
+                <td className="num">
+                  {r.page != null && (
+                    <button
+                      className="fbtable-page"
+                      title="Open in a new window, scrolled to this item"
+                      onClick={() => window.open(
+                        `/?doc=${encodeURIComponent(r.slug)}`
+                        + (r.nid ? `&nid=${encodeURIComponent(r.nid)}` : ""),
+                        "_blank", "noopener")}
+                    >
+                      {r.page}
+                    </button>
+                  )}
+                </td>
                 <td>{r.category || ""}</td>
                 <td>{r.type || ""}</td>
                 <td>{r.statusLabel}</td>

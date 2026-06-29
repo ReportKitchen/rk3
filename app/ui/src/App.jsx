@@ -14,11 +14,18 @@ function findNode(ir, nid) {
   return null;
 }
 
+// deep link from the All Feedback table: /?doc=<slug>&nid=<nid> opens the doc
+// with the feedback panel open, scrolled to that element
+const _params = new URLSearchParams(window.location.search);
+const DEEPLINK = { doc: _params.get("doc"), nid: _params.get("nid") };
+
 export default function App() {
   const [docs, setDocs] = useState([]);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState(DEEPLINK.doc || null);
+  const [deepLinkNid, setDeepLinkNid] = useState(DEEPLINK.nid || null);
   const [toggles, setToggles] = useState({
-    showPdf: true, sync: true, layer3: true, feedbackMode: false, panelOpen: false,
+    showPdf: true, sync: true, layer3: true, feedbackMode: false,
+    panelOpen: !!DEEPLINK.doc,
   });
   const [ir, setIr] = useState(null);
   const [feedback, setFeedback] = useState([]);
@@ -150,6 +157,8 @@ export default function App() {
               onEmptyTrash={emptyNoteTrash}
               onRemoveOp={(o) => applyOp({ ...o, remove: true })}
               highlightNid={popover?.target?.nid ?? null}
+              deepLinkNid={selected === DEEPLINK.doc ? deepLinkNid : null}
+              onConsumeDeepLink={() => setDeepLinkNid(null)}
             />
           ) : (
             <p className="hint">Select a document on the left.</p>

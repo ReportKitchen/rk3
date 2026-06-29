@@ -44,7 +44,7 @@ const MARKER_CSS = `
 export default function DocumentView({
   doc, toggles, setToggles, questions, answers, feedback, ops, pageDims, onConvert, onAnnotate,
   onQuestion, onClearNote, onEmptyTrash, onRemoveOp, highlightNid,
-  docVersion = 0, flashNid = null,
+  docVersion = 0, flashNid = null, deepLinkNid = null, onConsumeDeepLink,
 }) {
   const iframeRef = useRef(null);
   const pdfPaneRef = useRef(null);
@@ -241,6 +241,15 @@ export default function DocumentView({
     el.classList.add("rk-active");
     return () => el.classList.remove("rk-active");
   }, [frameLoaded, highlightNid]);
+
+  // deep link (new window from the All Feedback table): once the frame is up,
+  // scroll to the linked element — reusing the questions-panel jump path
+  useEffect(() => {
+    if (frameLoaded && deepLinkNid) {
+      setScrollToNid(deepLinkNid);
+      onConsumeDeepLink?.();
+    }
+  }, [frameLoaded, deepLinkNid]);
 
   // jump-to-node requests from the questions panel
   useEffect(() => {
