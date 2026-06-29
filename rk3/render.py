@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 39
+VERSION = 41
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -210,6 +210,8 @@ def _attrs(node, pages, extra=None):
     for k, v in (node.get("data") or {}).items():
         if k in _HTML_DATA_KEYS:
             a[f"data-{k}"] = v
+    if node.get("_cls"):
+        a["class"] = node["_cls"]
     if extra:
         a.update(extra)
     return " ".join(f'{k}="{html.escape(str(v), quote=True)}"' for k, v in a.items())
@@ -611,6 +613,48 @@ def _style_profile(ir):
     return body, heads
 
 
+# nicer names for the common single-trait paragraph styles; multi-trait or
+# unrecognised combinations fall back to a joined descriptive name
+_STYLE_NICE = {
+    ("lg",): "large", ("xl",): "display", ("sm",): "fine",
+    ("lg", "strong"): "lead", ("xl", "strong"): "lead",
+    ("sm", "italic"): "caption", ("italic",): "note",
+    ("strong",): "strong-text", ("accent",): "accent",
+    ("center",): "centered",
+}
+
+
+def _style_class_name(rules):
+    """A readable, role-derived class for a paragraph style departure — replaces
+    a pile of [data-nid="…"] selectors with one named class (e.g. .lead, .fine,
+    .caption). Derived from the visual traits, never from coordinates/ids."""
+    txt = " ".join(rules)
+    traits = []
+    m = re.search(r"font-size:\s*([\d.]+)em", txt)
+    if m:
+        sz = float(m.group(1))
+        traits.append("xl" if sz >= 1.6 else "lg" if sz >= 1.12
+                       else "sm" if sz <= 0.88 else "")
+    if re.search(r"font-weight:\s*[6789]", txt):
+        traits.append("strong")
+    elif re.search(r"font-weight:\s*5", txt):
+        traits.append("medium")
+    if "font-style: italic" in txt:
+        traits.append("italic")
+    if "text-align: center" in txt:
+        traits.append("center")
+    elif "text-align: right" in txt:
+        traits.append("right")
+    if re.search(r"^\s*color:", txt, re.M):
+        traits.append("accent")
+    if re.search(r"font-family:[^;]*serif", txt):
+        traits.append("serif")
+    elif "font-family" in txt:
+        traits.append("alt")
+    traits = tuple(t for t in traits if t)
+    return _STYLE_NICE.get(traits) or ("-".join(traits) if traits else "styled")
+
+
 def _original_css(ctx, ir):
     """Layer 3: best-effort recreation of the source document's look, built
     entirely from IR provenance. Regenerated on every render."""
@@ -730,7 +774,7 @@ def _original_css(ctx, ir):
             key = tuple(rules)
             if key not in groups:
                 group_order.append(key)
-            groups.setdefault(key, []).append(n["nid"])
+            groups.setdefault(key, []).append(n)
         if d.get("leadFont") or d.get("leadColor"):
             lrules = []
             if d.get("leadFont"):
@@ -769,9 +813,19 @@ def _original_css(ctx, ir):
                              for nid in link_exceptions[c])
             out += [f"{sel} {{ color: {c}; }}", ""]
 
+    # paragraph style departures become ONE named class each (.lead/.fine/…),
+    # tagged onto the nodes, instead of a list of [data-nid] selectors
+    used_names = {}
     for key in group_order:
-        sel = ",\n".join(f'[data-nid="{nid}"]' for nid in groups[key])
-        out += [f"{sel} {{", *key, "}", ""]
+        name = base = _style_class_name(key)
+        i = 2
+        while name in used_names and used_names[name] != key:
+            name = f"{base}-{i}"
+            i += 1
+        used_names[name] = key
+        for n in groups[key]:
+            n["_cls"] = (n.get("_cls", "") + " " + name).strip()
+        out += [f".{name} {{", *key, "}", ""]
 
     for key in sorted(lead_groups):
         sel = ",\n".join(f'[data-nid="{nid}"] .soft-header'
