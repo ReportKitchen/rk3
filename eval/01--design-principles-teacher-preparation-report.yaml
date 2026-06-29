@@ -32,3 +32,21 @@ checks:
       - "Students come to the classroom with prior knowledge"
       - "Students need to organize and use knowledge conceptually"
       - "Students learn more effectively if they take a metacognitive"
+
+  - note: italics and links in basic paragraph
+    freeze:
+      anchor: 'This report follows on the heels of a companion effort by a '
+      html: 'This report follows on the heels of a companion effort by a body of researchers and practitioners
+        to define design principles for schools that seek to enact insights from the science of learning
+        and development. That report is titled <a href="https://k12.designprinciples.org/"><em>Design Principles
+        for Schools: Putting the Science of Learning and Development Into Action</em></a> and begins with
+        the following preface:'
+
+  - note: 3 step OL
+    freeze:
+      anchor: Students come to the classroom with prior knowledge and expe
+      html: <ol type="decimal"><li>Students come to the classroom with prior knowledge and experiences that
+        must be addressed if teaching is to be effective.</li><li>Students need to organize and use knowledge
+        conceptually if they are to apply it beyond the classroom.</li><li>Students learn more effectively
+        if they take a metacognitive approach that allows them to consciously assess and manage their own
+        learning.</li></ol>

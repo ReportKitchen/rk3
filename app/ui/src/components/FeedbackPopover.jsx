@@ -1,7 +1,68 @@
 import React, { useEffect, useRef, useState } from "react";
+import { getSnapshot, saveAssertion } from "../api.js";
+import { reportError } from "../errorBus.js";
 
-export default function FeedbackPopover({ popover, onSubmit, onDelete, onClose,
-                                           onApplyOp, nodeInfo }) {
+// The general "this bit is correct — don't let it change" tool: freeze an
+// element's semantic content (text + em/strong/a + list/heading structure),
+// derived from the IR so data-*, generated classes and CSS are ignored.
+function AssertionForm({ slug, target }) {
+  const [snap, setSnap] = useState(null);   // {anchor, html}
+  const [loadErr, setLoadErr] = useState(null);
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    let alive = true;
+    setSnap(null); setLoadErr(null); setResult(null);
+    getSnapshot(slug, target.nid)
+      .then((s) => alive && setSnap(s))
+      .catch((e) => { reportError("read element to freeze", e); if (alive) setLoadErr(e.message); });
+    return () => { alive = false; };
+  }, [slug, target.nid]);
+
+  const freeze = async () => {
+    if (!snap) return;
+    setBusy(true); setResult(null);
+    try {
+      const check = { freeze: { anchor: snap.anchor, html: snap.html } };
+      if (note.trim()) check.note = note.trim();
+      setResult(await saveAssertion(slug, check, false));
+    } catch (e) {
+      reportError("freeze element", e);
+      setResult({ ok: false, saved: false, detail: e.message || "request failed" });
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <div className="assert-form">
+      <p className="assert-intro">
+        Freeze this element’s content — its text, <b>bold</b>/<i>italic</i>, links and
+        list/heading structure must stay exactly as shown. Styling, ids and
+        <code>data-</code> attributes are ignored.
+      </p>
+      {loadErr && <div className="assert-result bad">couldn’t read element: {loadErr}</div>}
+      {!snap && !loadErr && <div className="assert-spin">⏳ reading element…</div>}
+      {snap && <pre className="assert-snapshot">{snap.html}</pre>}
+      <input className="assert-note" value={note} placeholder="note (optional, shown in eval output)"
+             onChange={(e) => setNote(e.target.value)} />
+      {result && (
+        <div className={"assert-result " + (result.ok ? "ok" : "bad")}>
+          {result.saved ? "✓ frozen — saved" : "✗ not saved"}
+          {result.total != null ? ` (${result.total} checks)` : ""}
+          {!result.ok && <div className="assert-detail">{result.detail}</div>}
+        </div>
+      )}
+      <div className="popover-actions">
+        {busy && <span className="assert-spin">⏳…</span>}
+        <button className="primary" disabled={!snap || busy} onClick={freeze}>Freeze it</button>
+      </div>
+    </div>
+  );
+}
+
+export default function FeedbackPopover({ popover, slug, onSubmit, onDelete, onClose,
+                                          onApplyOp, nodeInfo }) {
   const { pos, target, question, existing } = popover;
   const [text, setText] = useState(existing?.text ?? "");
   const [choice, setChoice] = useState(question?.chosen ?? null);
@@ -9,6 +70,7 @@ export default function FeedbackPopover({ popover, onSubmit, onDelete, onClose,
   const [armed, setArmed] = useState(false); // delete asks for a second click
   const [editText, setEditText] = useState(null); // non-null => editing element text
   const [opArmed, setOpArmed] = useState(false);
+  const [tab, setTab] = useState("feedback");
   const boxRef = useRef(null);
 
   useEffect(() => {
@@ -17,8 +79,8 @@ export default function FeedbackPopover({ popover, onSubmit, onDelete, onClose,
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  const x = Math.min(pos.x, window.innerWidth - 340);
-  const y = Math.min(pos.y, window.innerHeight - 260);
+  const x = Math.min(pos.x, window.innerWidth - 360);
+  const y = Math.min(pos.y, window.innerHeight - 280);
 
   const where = target.nid
     ? `element ${target.nid}`
@@ -26,17 +88,34 @@ export default function FeedbackPopover({ popover, onSubmit, onDelete, onClose,
       ? `page ${target.page} @ (${Math.round(target.xf * 100)}%, ${Math.round(target.yf * 100)}%)`
       : "document";
 
+  // assertions are element-anchored — only offered on a real node, not a page spot / question
+  const canAssert = !question && !!target.nid;
+
   return (
     <>
       <div className="popover-backdrop" onClick={onClose} />
       <div
-        className="popover"
+        className={"popover" + (canAssert && tab === "assert" ? " wide" : "")}
         ref={boxRef}
         style={{ left: x, top: y }}
         onMouseDown={(e) => {
           if (armed && !e.target.closest(".fb-delete")) setArmed(false);
         }}
       >
+        {!question && (
+          <div className="popover-title">{where}</div>
+        )}
+        {canAssert && (
+          <div className="popover-tabs">
+            <button className={tab === "feedback" ? "active" : ""} onClick={() => setTab("feedback")}>Feedback</button>
+            <button className={tab === "assert" ? "active" : ""} onClick={() => setTab("assert")}>Assertion</button>
+          </div>
+        )}
+
+        {canAssert && tab === "assert" ? (
+          <AssertionForm slug={slug} target={target} />
+        ) : (
+        <>
         {question ? (
           <>
             <p className="q-prompt">{question.prompt}</p>
@@ -54,7 +133,7 @@ export default function FeedbackPopover({ popover, onSubmit, onDelete, onClose,
           </>
         ) : (
           <>
-            <p className="q-prompt">{existing ? `Edit your note on ${where}` : `Feedback on ${where}`}</p>
+            <p className="q-prompt">{existing ? "Edit your note" : "What should change here?"}</p>
             <label className="fb-category">
               Type:
               <select value={category} onChange={(e) => setCategory(e.target.value)}>
@@ -145,6 +224,8 @@ export default function FeedbackPopover({ popover, onSubmit, onDelete, onClose,
               </button>
             </div>
           </>
+        )}
+        </>
         )}
       </div>
     </>

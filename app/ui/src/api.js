@@ -28,6 +28,22 @@ export const startConvert = (slug, force = false) =>
 export const getBuildStatus = (slug) =>
   fetch(`/api/build-status/${slug}`, { cache: "no-store" }).then(json);
 
+export const getSnapshot = (slug, nid) =>
+  fetch(`/api/assertions/${slug}/snapshot?nid=${encodeURIComponent(nid)}`,
+        { cache: "no-store" }).then(json);
+
+export const validateAssertion = (slug, check) =>
+  fetch(`/api/assertions/${slug}/validate`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(check),
+  }).then(json);
+
+export const saveAssertion = (slug, check, force = false) =>
+  fetch(`/api/assertions/${slug}${force ? "?force=true" : ""}`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(check),
+  }).then(json);
+
 export const getFeedback = (slug) => fetch(`/api/feedback/${slug}`).then(json);
 
 export const getAllFeedback = () => fetch(`/api/feedback`).then(json);

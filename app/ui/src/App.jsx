@@ -189,6 +189,7 @@ export default function App() {
       {popover && (
         <FeedbackPopover
           popover={popover}
+          slug={selected}
           onSubmit={submitPopover}
           onDelete={deletePopover}
           onClose={() => setPopover(null)}

@@ -17,10 +17,13 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from typing import Dict, List, Optional
+
+from pydantic import BaseModel, Field
 
 from rk3.ai import ai_can_analyze, ai_can_generate, ai_mode
 from rk3.documents import OUTPUT, list_documents, output_dir, source_for_slug
+from rk3.eval import append_check, canonical_for_nid, evaluate_check
 from rk3.pipeline import build_status
 from rk3.landing.ai import (
     find_findings, find_intro_section, generate_landing_ai, generate_summary_variant)
@@ -44,6 +47,72 @@ def documents():
             if d["slug"] in _active:
                 d["status"] = "in_progress"
     return docs
+
+
+class Assertion(BaseModel):
+    """One eval check authored from the review UI — exactly the shape eval/<slug>
+    .yaml stores. Exactly one of order/role/list/merge is set. `items` carries
+    the JSON key `list` (which collides with the builtin as a field name)."""
+    model_config = {"populate_by_name": True}
+    note: Optional[str] = None
+    stage: Optional[str] = None
+    order: Optional[List[str]] = None
+    role: Optional[Dict] = None
+    items: Optional[List[str]] = Field(default=None, alias="list")
+    merge: Optional[List[str]] = None
+    ordered: Optional[str] = None
+    freeze: Optional[Dict] = None
+
+
+def _assertion_check(a: Assertion) -> dict:
+    # drop empties so the stored check is the minimal {kind: ...,(stage),(note)},
+    # restoring the wire key `list` for the items field
+    return {k: v for k, v in a.model_dump(by_alias=True).items()
+            if v not in (None, [], "")}
+
+
+@app.get("/api/assertions/{slug}/snapshot")
+def assertion_snapshot(slug: str, nid: str, response: Response):
+    """The semantic content to freeze for one element — text + em/strong/a +
+    list/heading structure, with data-*/CSS stripped. Backs the 'freeze this'
+    preview in the review UI."""
+    response.headers["Cache-Control"] = "no-store"
+    res = canonical_for_nid(slug, nid)
+    if res is None:
+        raise HTTPException(404, f"no element {nid!r} in {slug!r}")
+    anchor, html = res
+    return {"anchor": anchor, "html": html}
+
+
+@app.post("/api/assertions/{slug}/validate")
+def validate_assertion(slug: str, a: Assertion):
+    if source_for_slug(slug) is None:
+        raise HTTPException(404, f"unknown document {slug!r}")
+    try:
+        ok, detail = evaluate_check(slug, _assertion_check(a))
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+    return {"ok": ok, "detail": detail}
+
+
+@app.post("/api/assertions/{slug}")
+def save_assertion(slug: str, a: Assertion, force: bool = False):
+    """Validate, then save to eval/<slug>.yaml. A passing assertion always
+    saves; a failing one saves only with force=true (intentional regression
+    target)."""
+    if source_for_slug(slug) is None:
+        raise HTTPException(404, f"unknown document {slug!r}")
+    check = _assertion_check(a)
+    try:
+        ok, detail = evaluate_check(slug, check)
+    except ValueError as e:
+        raise HTTPException(422, str(e))
+    saved = False
+    total = None
+    if ok or force:
+        total = append_check(slug, check)
+        saved = True
+    return {"ok": ok, "detail": detail, "saved": saved, "total": total}
 
 
 @app.get("/api/build-status/{slug}")

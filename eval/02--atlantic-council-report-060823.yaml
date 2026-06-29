@@ -22,3 +22,19 @@ checks:
   - note: "p15: over-split body paragraph is one node"
     stage: analyze
     merge: ["In addition to the size of its individual markets", "aided by factors such as common languages"]
+
+  - freeze:
+      anchor: Enhancing market size, scalability, and regional integration
+      html: <ol type="decimal"><li><strong>Enhancing market size, scalability, and regional integration:</strong>
+        strengthening the hard and soft infrastructure supporting the region’s economies, while drawing
+        them closer together through trade, regulatory, and other integration.</li><li><strong>Accelerating
+        digitalization and innovation:</strong> improving infrastructure, fostering skills, and promoting
+        adoption to help the region transform its digital potential into development gains.</li><li><strong>Improving
+        state governance, institutional capacity, and transparency:</strong> enhancing institutional capacity,
+        integrity, government-service delivery, and regulatory quality in LAC through technological, governance,
+        and other cooperation with the public sector.</li><li><strong>Addressing multidimensional inequality:</strong>
+        reducing gender inequality, leveling the playing field between SMEs and large firms, narrowing the
+        urban-rural divide, and preparing for global shocks to enable a more prosperous, inclusive economy
+        for LAC.</li><li><strong>Meaningfully advancing the green agenda:</strong> helping advance the green
+        agenda by working to create green jobs, taking measures to promote a transition to a circular-economy
+        model, and partaking in green finance.</li></ol>

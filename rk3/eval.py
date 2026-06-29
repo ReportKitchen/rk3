@@ -8,6 +8,10 @@ OUTCOME against the converted artifacts:
   - list:  [I1, I2, ...]       these snippets are items of ONE list, in order
                                (catches un-reconstructed bullets and split lists)
   - merge: [A, B]              A and B belong to ONE node (catches over-split paragraphs)
+  - freeze: {anchor, html}     the element's SEMANTIC content (text + em/strong/a +
+                               list/heading structure) must stay exactly as captured.
+                               The general "this bit is correct, don't let it change"
+                               primitive — derived from the IR, so data-*/CSS are ignored.
 
 Checks anchor to content by text snippet — the same thing a future "create
 assertion" right-click in the review UI would capture from a selection. On a
@@ -190,8 +194,141 @@ def _check_merge(slug, c):
     return False, f"{a!r} (#{ia}) and {b!r} (#{ib}) are separate — should be one paragraph"
 
 
-EVALUATORS = {"order": _check_order, "role": _check_role,
-              "list": _check_list, "merge": _check_merge}
+# ---- freeze: the general "this bit is correct, keep it" primitive ----
+# A reviewer selects a rendered element and freezes its SEMANTIC content — the
+# text plus the <em>/<strong>/<a> and list/heading structure, woven from the IR.
+# Derived from the IR (not the HTML string), so data-*, generated class names and
+# CSS are ignored by construction; it breaks iff the content/marks actually change.
+
+def _merge_links(links):
+    out = []
+    for s, e, tgt in sorted(links or []):
+        uri = (tgt or {}).get("uri") if isinstance(tgt, dict) else tgt
+        if out and s - out[-1][1] <= 1 and out[-1][2] == uri:
+            out[-1][1] = e
+        else:
+            out.append([s, e, uri])
+    return out
+
+
+def _weave(text, emph, links):
+    """Text with <a>/<em>/<strong> woven in at their IR offsets (links outer,
+    emphasis inner) — a stable, readable, CSS-free rendering of the marks."""
+    opens, closes = {}, {}
+    def add(s, e, prio, open_tag, close_tag):
+        opens.setdefault(s, []).append((prio, open_tag))
+        closes.setdefault(e, []).append((prio, close_tag))
+    for s, e, uri in _merge_links(links):
+        add(s, e, 0, f'<a href="{uri or ""}">', "</a>")
+    for sp in emph or []:
+        s, e, kind = sp[0], sp[1], sp[2]
+        add(s, e, 1, f"<{kind}>", f"</{kind}>")
+    out = []
+    for i in range(len(text) + 1):
+        for _, tag in sorted(closes.get(i, []), key=lambda x: -x[0]):  # inner closes first
+            out.append(tag)
+        for _, tag in sorted(opens.get(i, []), key=lambda x: x[0]):    # outer opens first
+            out.append(tag)
+        if i < len(text):
+            out.append(text[i])
+    return re.sub(r"\s+", " ", "".join(out)).strip()
+
+
+def _canonical(node):
+    """The frozen semantic form of a node."""
+    t = node.get("type")
+    if t == "heading":
+        lvl = node.get("level", "")
+        return f"<h{lvl}>{_weave(node.get('text', ''), node.get('emph'), node.get('links'))}</h{lvl}>"
+    if t == "paragraph":
+        return _weave(node.get("text", ""), node.get("emph"), node.get("links"))
+    if t == "list":
+        tag = "ol" if node.get("ordered") else "ul"
+        otype = f' type="{node["ordered"]}"' if node.get("ordered") else ""
+        lis = []
+        for it in node.get("items", []):
+            if isinstance(it, dict):
+                lis.append(f"<li>{_weave(it.get('text', ''), it.get('emph'), it.get('links'))}</li>")
+            else:
+                lis.append(f"<li>{re.sub(r'\\s+', ' ', it).strip()}</li>")
+        return f"<{tag}{otype}>" + "".join(lis) + f"</{tag}>"
+    return _norm(node.get("text", ""))
+
+
+def _anchor_of(node):
+    """A text snippet that relocates a node across reconverts (nids change)."""
+    if node.get("text"):
+        return node["text"][:60]
+    for it in node.get("items", []):
+        txt = it.get("text") if isinstance(it, dict) else it
+        if txt:
+            return txt[:60]
+    return ""
+
+
+def canonical_for_nid(slug, nid):
+    """(anchor, canonical) for the node with this nid — backs the UI's freeze
+    capture/preview. Returns None if not found."""
+    ir = _artifact(slug, "analyze") or {}
+    for n in _walk(ir.get("body", [])):
+        if n.get("nid") == nid:
+            return _anchor_of(n), _canonical(n)
+    return None
+
+
+def _check_freeze(slug, c):
+    """The element located by `anchor` still renders the exact frozen content."""
+    spec = c["freeze"]
+    anchor, want = spec.get("anchor", ""), spec.get("html", "")
+    ir = _artifact(slug, "analyze") or {}
+    for n in _walk(ir.get("body", [])):
+        if n.get("type") not in ("paragraph", "heading", "list"):
+            continue
+        if _norm(anchor) and _norm(anchor) in _norm(_canonical(n)):
+            got = _canonical(n)
+            if got == want:
+                return True, "content unchanged"
+            return False, f"changed:\n      was: {want}\n      now: {got}"
+    return False, f"element {anchor[:40]!r} not found — {_localize(slug, anchor)}"
+
+
+EVALUATORS = {"order": _check_order, "role": _check_role, "list": _check_list,
+              "merge": _check_merge, "freeze": _check_freeze}
+
+
+def evaluate_check(slug, check):
+    """Run ONE check against the doc's current artifacts (no reconvert) and
+    return (ok, detail) — the engine behind the review UI's 'create assertion'
+    QA step. Raises ValueError on an unknown/empty check."""
+    if _artifact(slug, "analyze") is None:
+        return False, "no ir.json — convert the document first"
+    kind = next((k for k in EVALUATORS if k in check), None)
+    if not kind:
+        raise ValueError(f"check has no known kind (one of {sorted(EVALUATORS)})")
+    return EVALUATORS[kind](slug, check)
+
+
+def append_check(slug, check):
+    """Append a validated check to eval/<slug>.yaml (creating the spec if new).
+    A TEXTUAL append — the existing file (incl. its rationale comments) is left
+    byte-for-byte intact; only the new check block is added under `checks:`.
+    Returns the total number of checks now on the doc."""
+    EVAL_DIR.mkdir(parents=True, exist_ok=True)
+    path = EVAL_DIR / f"{slug}.yaml"
+    dumped = yaml.safe_dump([check], sort_keys=False, allow_unicode=True, width=100)
+    block = "".join(("  " + ln) if ln.strip() else ln
+                    for ln in dumped.splitlines(keepends=True))  # nest under checks:
+    if not path.exists():
+        path.write_text(f"doc: {slug}\nchecks:\n{block}")
+        return 1
+    text = path.read_text()
+    if "\nchecks:" not in text and not text.startswith("checks:"):
+        text = text.rstrip() + "\nchecks:\n"
+    if not text.endswith("\n"):
+        text += "\n"
+    path.write_text(text + "\n" + block)
+    spec = yaml.safe_load(path.read_text()) or {}
+    return len(spec.get("checks", []))
 
 
 def _eval_doc(path):
