@@ -1,6 +1,13 @@
 /* Embedded fonts from the source PDF. If a font is licensed, it is
    your responsibility to have the right to web-serve it. */
 
+:root {
+  --rkf-calibri: "PDFEmbed Calibri", "Calibri", sans-serif;
+  --rkf-couriernewpsmt: "PDFEmbed Courier New PSMT", "Courier New PSMT", sans-serif;
+  --rkf-gtpressura: "PDFEmbed GTPressura", "GTPressura", sans-serif;
+  --rkf-segoeui: "PDFEmbed Segoe UI", "Segoe UI", sans-serif;
+  --rkf-symbolmt: "PDFEmbed Symbol MT", "Symbol MT", sans-serif;
+}
 @font-face {
   font-family: "PDFEmbed Calibri";
   src: url("fonts/Calibri-Italic.otf") format("opentype");
@@ -10,6 +17,12 @@
 @font-face {
   font-family: "PDFEmbed Courier New PSMT";
   src: url("fonts/CourierNewPSMT.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed GTPressura";
+  src: url("fonts/GTPressura.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
 }
@@ -28,6 +41,12 @@
 @font-face {
   font-family: "PDFEmbed Segoe UI";
   src: url("fonts/SegoeUI.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Symbol MT";
+  src: url("fonts/SymbolMT.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
 }

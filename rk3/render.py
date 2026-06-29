@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 48
+VERSION = 49
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -759,12 +759,20 @@ def _style_class_name(rules):
     return _STYLE_NICE.get(traits) or ("-".join(traits) if traits else "styled")
 
 
+def _famkey(fam):
+    """A CSS-identifier-safe key for a family name (used in the --rkf-* vars)."""
+    return re.sub(r"[^a-z0-9]+", "", (fam or "").lower()) or "x"
+
+
 def _embed_css(ir):
-    """The @font-face layer (embed.css): serves each embedded font program.
-    Kept in its OWN stylesheet so the viewer can toggle "Use embedded fonts"
-    independently of the original-look layer — when the stylesheet is disabled
-    the "PDFEmbed X" family names go unresolved and every rule falls back to the
-    next font in its stack. All cuts of a family share one family name at their
+    """The @font-face layer (embed.css). Each element's font-family in
+    original.css reads `var(--rkf-<family>, <fallback>)`; this layer is the ONLY
+    place those vars are defined (pointing the family at its embedded face) and
+    is where the @font-face rules live. So when the viewer disables this layer,
+    the vars vanish and every rule's var() fallback drops cleanly to the guessed
+    font — the element stops NAMING the embedded face entirely, which is robust
+    against browsers that keep an already-loaded @font-face registered after its
+    stylesheet is disabled. All cuts of a family share one family name at their
     true weight/style, so <strong>->Bold / <em>->Italic resolve naturally.
     Serving a licensed font is the user's responsibility (disclaimer below)."""
     embed = ir.get("fonts_embed") or {}
@@ -772,14 +780,22 @@ def _embed_css(ir):
         return ""
     out = ["/* Embedded fonts from the source PDF. If a font is licensed, it is",
            "   your responsibility to have the right to web-serve it. */", ""]
+    fams, faces = {}, []
     for name in sorted(embed):
-        fam, _generic, weight, style = _font_css(name)
-        out += ['@font-face {',
-                f'  font-family: "PDFEmbed {fam}";',
-                f'  src: url("{embed[name]["file"]}") format("opentype");',
-                f'  font-weight: {weight or 400};',
-                f'  font-style: {style or "normal"};',
-                '}']
+        fam, generic, weight, style = _font_css(name)
+        fams[_famkey(fam)] = (fam, generic)
+        faces += ['@font-face {',
+                  f'  font-family: "PDFEmbed {fam}";',
+                  f'  src: url("{embed[name]["file"]}") format("opentype");',
+                  f'  font-weight: {weight or 400};',
+                  f'  font-style: {style or "normal"};',
+                  '}']
+    # the toggle hinges on these var definitions, not on @font-face unloading
+    out.append(":root {")
+    for key, (fam, generic) in sorted(fams.items()):
+        out.append(f'  --rkf-{key}: "PDFEmbed {fam}", "{fam}", {generic};')
+    out.append("}")
+    out += faces
     return "\n".join(out) + "\n"
 
 
@@ -806,11 +822,14 @@ def _original_css(ctx, ir):
     embed = ir.get("fonts_embed") or {}
 
     def fam_value(name, fam, generic):
-        """font-family value; prepend the served embedded FAMILY when we have it.
-        All cuts of one family share the name "PDFEmbed <family>" so the browser
-        picks bold/italic by weight/style — emphasis works like a real font."""
+        """font-family value. For an embedded font, route through a CSS var that
+        ONLY embed.css defines (as "PDFEmbed <family>", "<family>", generic) — so
+        with the embed layer off the var() fallback here drops cleanly to the
+        guessed font and the element never names the embedded face. All cuts of a
+        family share one "PDFEmbed <family>" name so <strong>/<em> pick the
+        bold/italic face by weight/style — emphasis works like a real font."""
         if name in embed:
-            return f'"PDFEmbed {fam}", "{fam}", {generic}'
+            return f'var(--rkf-{_famkey(fam)}, "{fam}", {generic})'
         return f'"{fam}", {generic}'
 
     def note_family(name, fam, weight, style):

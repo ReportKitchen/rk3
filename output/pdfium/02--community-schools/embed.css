@@ -1,6 +1,14 @@
 /* Embedded fonts from the source PDF. If a font is licensed, it is
    your responsibility to have the right to web-serve it. */
 
+:root {
+  --rkf-acuminprocond: "PDFEmbed Acumin Pro Cond", "Acumin Pro Cond", sans-serif;
+  --rkf-acuminprowide: "PDFEmbed Acumin Pro Wide", "Acumin Pro Wide", sans-serif;
+  --rkf-acuminvariableconcept: "PDFEmbed Acumin Variable Concept", "Acumin Variable Concept", sans-serif;
+  --rkf-manus: "PDFEmbed Manus", "Manus", sans-serif;
+  --rkf-opensans: "PDFEmbed Open Sans", "Open Sans", sans-serif;
+  --rkf-zillaslab: "PDFEmbed Zilla Slab", "Zilla Slab", sans-serif;
+}
 @font-face {
   font-family: "PDFEmbed Acumin Pro Cond";
   src: url("fonts/AcuminProCond-Bold.otf") format("opentype");
@@ -10,6 +18,18 @@
 @font-face {
   font-family: "PDFEmbed Acumin Pro Wide";
   src: url("fonts/AcuminProWide-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Acumin Variable Concept";
+  src: url("fonts/AcuminVariableConcept.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Manus";
+  src: url("fonts/Manus.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
 }

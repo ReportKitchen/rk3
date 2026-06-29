@@ -1,6 +1,19 @@
 /* Embedded fonts from the source PDF. If a font is licensed, it is
    your responsibility to have the right to web-serve it. */
 
+:root {
+  --rkf-calibri: "PDFEmbed Calibri", "Calibri", sans-serif;
+  --rkf-cambria: "PDFEmbed Cambria", "Cambria", sans-serif;
+  --rkf-gotham: "PDFEmbed Gotham", "Gotham", sans-serif;
+  --rkf-proximanova: "PDFEmbed Proxima Nova", "Proxima Nova", sans-serif;
+  --rkf-proximanovacond: "PDFEmbed Proxima Nova Cond", "Proxima Nova Cond", sans-serif;
+}
+@font-face {
+  font-family: "PDFEmbed Calibri";
+  src: url("fonts/Calibri.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
 @font-face {
   font-family: "PDFEmbed Calibri";
   src: url("fonts/Calibri-Bold.otf") format("opentype");
@@ -101,11 +114,5 @@
   font-family: "PDFEmbed Proxima Nova Cond";
   src: url("fonts/ProximaNovaCond-Bold.otf") format("opentype");
   font-weight: 700;
-  font-style: normal;
-}
-@font-face {
-  font-family: "PDFEmbed Times New Roman PSMT";
-  src: url("fonts/TimesNewRomanPSMT.otf") format("opentype");
-  font-weight: 400;
   font-style: normal;
 }

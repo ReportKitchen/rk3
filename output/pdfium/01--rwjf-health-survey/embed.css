@@ -1,17 +1,14 @@
 /* Embedded fonts from the source PDF. If a font is licensed, it is
    your responsibility to have the right to web-serve it. */
 
-@font-face {
-  font-family: "PDFEmbed Aptos";
-  src: url("fonts/Aptos.otf") format("opentype");
-  font-weight: 400;
-  font-style: normal;
-}
-@font-face {
-  font-family: "PDFEmbed Aptos";
-  src: url("fonts/Aptos-Bold.otf") format("opentype");
-  font-weight: 700;
-  font-style: normal;
+:root {
+  --rkf-arialmt: "PDFEmbed Arial MT", "Arial MT", sans-serif;
+  --rkf-calibri: "PDFEmbed Calibri", "Calibri", sans-serif;
+  --rkf-cambriamath: "PDFEmbed Cambria Math", "Cambria Math", sans-serif;
+  --rkf-segoeui: "PDFEmbed Segoe UI", "Segoe UI", sans-serif;
+  --rkf-symbolmt: "PDFEmbed Symbol MT", "Symbol MT", sans-serif;
+  --rkf-timesnewromanps: "PDFEmbed Times New Roman PS", "Times New Roman PS", serif;
+  --rkf-timesnewromanpsmt: "PDFEmbed Times New Roman PSMT", "Times New Roman PSMT", serif;
 }
 @font-face {
   font-family: "PDFEmbed Arial MT";
@@ -44,12 +41,6 @@
   font-style: italic;
 }
 @font-face {
-  font-family: "PDFEmbed Cambria";
-  src: url("fonts/Cambria-Bold.otf") format("opentype");
-  font-weight: 700;
-  font-style: normal;
-}
-@font-face {
   font-family: "PDFEmbed Cambria Math";
   src: url("fonts/CambriaMath.otf") format("opentype");
   font-weight: 400;
@@ -58,6 +49,12 @@
 @font-face {
   font-family: "PDFEmbed Segoe UI";
   src: url("fonts/SegoeUI.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Symbol MT";
+  src: url("fonts/SymbolMT.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
 }

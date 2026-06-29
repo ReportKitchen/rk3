@@ -1,6 +1,11 @@
 /* Embedded fonts from the source PDF. If a font is licensed, it is
    your responsibility to have the right to web-serve it. */
 
+:root {
+  --rkf-helvetica: "PDFEmbed Helvetica", "Helvetica", sans-serif;
+  --rkf-oswald: "PDFEmbed Oswald", "Oswald", sans-serif;
+  --rkf-wingdings: "PDFEmbed Wingdings", "Wingdings", sans-serif;
+}
 @font-face {
   font-family: "PDFEmbed Helvetica";
   src: url("fonts/Helvetica-Bold.otf") format("opentype");
@@ -28,6 +33,12 @@
 @font-face {
   font-family: "PDFEmbed Oswald";
   src: url("fonts/Oswald-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Wingdings";
+  src: url("fonts/Wingdings-Regular.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
 }

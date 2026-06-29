@@ -1,6 +1,12 @@
 /* Embedded fonts from the source PDF. If a font is licensed, it is
    your responsibility to have the right to web-serve it. */
 
+:root {
+  --rkf-gtpressura: "PDFEmbed GTPressura", "GTPressura", sans-serif;
+  --rkf-lato: "PDFEmbed Lato", "Lato", sans-serif;
+  --rkf-minionpro: "PDFEmbed Minion Pro", "Minion Pro", serif;
+  --rkf-timmonsny: "PDFEmbed TIMMONSNY", "TIMMONSNY", sans-serif;
+}
 @font-face {
   font-family: "PDFEmbed GTPressura";
   src: url("fonts/GTPressura-Bold.otf") format("opentype");

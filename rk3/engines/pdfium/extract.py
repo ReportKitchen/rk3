@@ -24,7 +24,7 @@ import pypdfium2.raw as pdfium_c
 from ...pipeline import ScannedPdfError
 from . import fontembed, fontid
 
-VERSION = 15
+VERSION = 16
 
 
 def _matrix_slant_italic(m):
@@ -38,6 +38,78 @@ def _matrix_slant_italic(m):
     baseline_tilt = abs(math.degrees(math.atan2(m.b, m.a)))
     slant = abs(math.degrees(math.atan2(m.c, m.d)))
     return baseline_tilt < 4 and 6 < slant < 35
+
+
+# pdfium path-segment kinds
+_SEG_LINETO, _SEG_BEZIERTO, _SEG_MOVETO = 0, 1, 2
+_GLYPH_UPM = 1000  # outlines come back as em-fractions; scale to this em
+
+# CP1252/WinAnsi high range (0x80-0x9F): the only codes where the PDF char code
+# differs from the Unicode the text layer reports. We ask pdfium for a glyph by
+# CHAR CODE, so map those Unicodes back to their code; everything <= 0xFF already
+# has code == Unicode. Out-of-table high Unicodes (rare) are skipped, not faked.
+_WINANSI_REV = {
+    0x20AC: 0x80, 0x201A: 0x82, 0x0192: 0x83, 0x201E: 0x84, 0x2026: 0x85,
+    0x2020: 0x86, 0x2021: 0x87, 0x02C6: 0x88, 0x2030: 0x89, 0x0160: 0x8A,
+    0x2039: 0x8B, 0x0152: 0x8C, 0x017D: 0x8E, 0x2018: 0x91, 0x2019: 0x92,
+    0x201C: 0x93, 0x201D: 0x94, 0x2022: 0x95, 0x2013: 0x96, 0x2014: 0x97,
+    0x02DC: 0x98, 0x2122: 0x99, 0x0161: 0x9A, 0x203A: 0x9B, 0x0153: 0x9C,
+    0x017E: 0x9E, 0x0178: 0x9F,
+}
+
+
+def _glyph_code(uc):
+    """The font CHAR CODE for a Unicode codepoint (what FPDFFont_GetGlyphPath
+    wants), or None when we can't be sure of it (skip rather than draw garbage)."""
+    if uc <= 0xFF:
+        return uc
+    return _WINANSI_REV.get(uc)
+
+
+def _glyph_contours(font_handle, code):
+    """The glyph's outline as a list of contours via pdfium (the REAL font's
+    resolution of `code`), each a list of ("m"/"l"/"c", coords...) in UPM units.
+    Returns [] for a blank glyph with no path (e.g. space), None if no glyph."""
+    gp = pdfium_c.FPDFFont_GetGlyphPath(font_handle, code, float(_GLYPH_UPM))
+    if not gp:
+        return None
+    n = pdfium_c.FPDFGlyphPath_CountGlyphSegments(gp)
+    if n <= 0:
+        return None
+    s = _GLYPH_UPM
+    contours, cur, bez = [], [], []
+    x, y = ctypes.c_float(), ctypes.c_float()
+    for i in range(n):
+        seg = pdfium_c.FPDFGlyphPath_GetGlyphPathSegment(gp, i)
+        pdfium_c.FPDFPathSegment_GetPoint(seg, ctypes.byref(x), ctypes.byref(y))
+        px, py = round(x.value * s), round(y.value * s)
+        stype = pdfium_c.FPDFPathSegment_GetType(seg)
+        if stype == _SEG_MOVETO:
+            if cur:
+                contours.append(cur)
+            cur, bez = [("m", px, py)], []
+        elif stype == _SEG_LINETO:
+            cur.append(("l", px, py))
+        elif stype == _SEG_BEZIERTO:
+            bez.append((px, py))
+            if len(bez) == 3:                 # a cubic = 3 consecutive points
+                cur.append(("c", *bez[0], *bez[1], *bez[2]))
+                bez = []
+        if pdfium_c.FPDFPathSegment_GetClose(seg) and cur:
+            contours.append(cur)
+            cur, bez = [], []
+    if cur:
+        contours.append(cur)
+    return contours
+
+
+def _glyph_advance(font_handle, code):
+    """The glyph's advance width in UPM units, or a sane default."""
+    w = ctypes.c_float()
+    if pdfium_c.FPDFFont_GetGlyphWidth(font_handle, code, float(_GLYPH_UPM),
+                                       ctypes.byref(w)):
+        return round(w.value)
+    return _GLYPH_UPM // 2
 
 
 def _register_program(font_handle, programs, handle_cache):
@@ -73,9 +145,11 @@ def _register_program(font_handle, programs, handle_cache):
 
 def _text_runs(page_raw, tp_raw, programs, handle_cache):
     """Every text run on the page as (l, b, r, t, program_idx) — the spatial map
-    from a char's position to the exact font program that drew it. Bucketed by
-    y for fast per-char lookup."""
+    from a char's position to the exact font program that drew it — plus
+    {program_idx: live font handle} for THIS page (used to pull glyph outlines
+    while the page is open). Runs are bucketed by y for fast per-char lookup."""
     runs = []
+    page_handles = {}
     for i in range(pdfium_c.FPDFPage_CountObjects(page_raw)):
         o = pdfium_c.FPDFPage_GetObject(page_raw, i)
         if pdfium_c.FPDFPageObj_GetType(o) != pdfium_c.FPDF_PAGEOBJ_TEXT:
@@ -89,7 +163,8 @@ def _text_runs(page_raw, tp_raw, programs, handle_cache):
             continue
         idx = _register_program(font_handle, programs, handle_cache)
         runs.append((l.value, b.value, r.value, t.value, idx))
-    return runs
+        page_handles.setdefault(idx, font_handle)
+    return runs, page_handles
 
 
 def _run_matcher(runs):
@@ -164,6 +239,7 @@ def run(ctx):
         first, last = max(1, page_range[0]), min(n_pages, page_range[1])
 
         programs, handle_cache = {}, {}   # font-program identity (see _register_program)
+        outlines = {}                     # program_idx -> {unicode: (advance, contours)}
         slant_chars = []                  # chars faux-italicised by a matrix shear
         colors, color_index = [], {}
         pages_out = []
@@ -185,8 +261,10 @@ def run(ctx):
             n_chars = tp.count_chars()
             char_counts.append(n_chars)
 
-            # map char position -> the font program that drew it (deterministic)
-            match_font = _run_matcher(_text_runs(page.raw, tp.raw, programs, handle_cache))
+            # map char position -> the font program that drew it (deterministic),
+            # plus this page's live font handles for pulling glyph outlines
+            runs, page_handles = _text_runs(page.raw, tp.raw, programs, handle_cache)
+            match_font = _run_matcher(runs)
             last_fidx = 0
 
             chars = []
@@ -212,6 +290,22 @@ def run(ctx):
                 if fidx is None:
                     fidx = last_fidx
                 last_fidx = fidx
+
+                # capture this glyph's TRUE outline from the program that drew it
+                # (pdfium resolves through the real font, so the subset's possibly
+                # wrong glyph names never enter). Keyed by the extracted Unicode;
+                # done once per (program, char) while the page handle is live.
+                seen = outlines.setdefault(fidx, {})
+                fh = page_handles.get(fidx)
+                if fh is not None and uc not in seen:
+                    code = _glyph_code(uc)
+                    conts = _glyph_contours(fh, code) if code is not None else None
+                    if conts:
+                        seen[uc] = (_glyph_advance(fh, code), conts)
+                    elif code is not None and uc in (0x20, 0xA0):
+                        seen[uc] = (_glyph_advance(fh, code), [])  # space
+                    else:
+                        seen[uc] = None  # attempted; no usable glyph
 
                 cr, cg, cb, ca = (ctypes.c_uint() for _ in range(4))
                 ok = pdfium_c.FPDFText_GetFillColor(
@@ -294,27 +388,30 @@ def run(ctx):
                       fonts=[(f["name"][:24], f["weight"], f["italic"]) for f in fonts][:24])
 
         # embedded font assets for the optional "use the PDF's fonts" mode:
-        # union every per-page subset that shares a name into one browser OTF
-        # (render emits @font-face when output.embedFonts is on). Always built
-        # (cheap) so toggling the flag is a render-only reconvert; a program we
-        # can't wrap is simply omitted and falls back to the guessed family.
-        groups = defaultdict(lambda: {"datas": [], "weight": 400, "italic": False})
+        # build one browser OTF per font from the glyph outlines pdfium read
+        # straight off the program (subsets sharing a name union their glyphs).
+        # Always built (cheap) so toggling the flag is a render-only reconvert;
+        # base-14 (non-embedded) fonts and any we can't build fall back to the
+        # guessed family. render groups cuts into one CSS family so <strong>/<em>
+        # pick the bold/italic FACE by weight/style.
+        groups = defaultdict(lambda: {"glyphs": {}, "weight": 400, "italic": False})
         for p in programs.values():
+            if p["data"] is None:            # base-14: a real system/web font
+                continue
             pr = props[p["idx"]]
             g = groups[pr["name"]]
-            g["datas"].append(p["data"])
+            for u, v in outlines.get(p["idx"], {}).items():
+                if v is not None:
+                    g["glyphs"][u] = v       # union this subset's glyphs
             g["weight"], g["italic"] = pr["weight"], bool(pr["italic"])
         embedded = {}
         for nm, g in groups.items():
-            otf = fontembed.wrap_programs(g["datas"], nm)
+            otf = fontembed.build_from_outlines(g["glyphs"], nm)
             if not otf:
                 continue
             safe = re.sub(r"[^A-Za-z0-9_-]", "_", nm) or "font"
             (ctx.outdir / "fonts").mkdir(exist_ok=True)
             (ctx.outdir / "fonts" / f"{safe}.otf").write_bytes(otf)
-            # render groups cuts into one CSS family (e.g. all Gotham cuts ->
-            # "PDFEmbed Gotham") so <strong>/<em> pick the bold/italic FACE by
-            # weight/style — so the manifest just needs the file + true cut
             embedded[nm] = {"file": f"fonts/{safe}.otf",
                             "weight": g["weight"], "italic": g["italic"]}
         ctx.log.entry("embed-fonts", served=len(embedded), of=len(groups))
