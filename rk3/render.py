@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 44
+VERSION = 45
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -253,8 +253,8 @@ def _render_node(ctx, node, pages, state):
                             re.sub(r"(?i)^chapter\s+\d+:\s*", "", it),
                             state["anchors"]))
 
-            resolved = [(it, jump_target(it))
-                        for it in node["items"] if isinstance(it, str)]
+            resolved = [(_item_text(it), jump_target(_item_text(it)))
+                        for it in node["items"]]
             hits = sum(1 for _it, tgt in resolved if tgt)
             if resolved and hits >= 0.6 * len(resolved):
                 lis = "\n".join(
@@ -270,13 +270,9 @@ def _render_node(ctx, node, pages, state):
             extra["start"] = node["start"]
         parts = []
         for it in node["items"]:
-            if isinstance(it, str):
-                parts.append(f"  <li>{html.escape(it)}</li>")
-                continue
-            # dict item: carries emphasis/link runs and/or a nested sub-list
-            body = _inline(it["text"], it.get("links"), None, state,
-                           emph=it.get("emph"))
-            sub = it.get("sub") or {}
+            # items are rich dicts carrying style runs and/or a nested sub-list
+            body = _item_inline(it, state)
+            sub = it.get("sub") or {} if isinstance(it, dict) else {}
             if not sub:
                 parts.append(f"  <li>{body}</li>")
                 continue
@@ -284,7 +280,7 @@ def _render_node(ctx, node, pages, state):
                 if sub.get("ordered") in OL_TYPE else ""
             sstart = f' start="{sub["start"]}"' \
                 if sub.get("start", 1) > 1 else ""
-            subhtml = "\n".join(f"    <li>{html.escape(s)}</li>"
+            subhtml = "\n".join(f"    <li>{_item_inline(s, state)}</li>"
                                 for s in sub.get("items", []))
             parts.append(f"  <li>{body}\n"
                          f"  <ol{stype}{sstart}>\n{subhtml}\n  </ol></li>")
@@ -386,6 +382,21 @@ def _render_node(ctx, node, pages, state):
                 f'{ol}\n' + "\n".join(items) + '\n</ol>\n</section>')
     ctx.log.entry("unknown-node", type=t, rk=node.get("rk"))
     return f"<!-- unrendered node type {html.escape(t)} ({node.get('rk')}) -->"
+
+
+def _item_text(it):
+    """The plain text of a list item (rich dict, or a stray legacy string)."""
+    return it if isinstance(it, str) else it.get("text", "")
+
+
+def _item_inline(it, state):
+    """Render a list item / sub-item, applying its style runs. Items are rich
+    dicts (analyze guarantees it via _assert_rich_items); a bare string is
+    tolerated defensively but carries no style by definition."""
+    if isinstance(it, str):
+        return html.escape(it)
+    return _inline(it.get("text", ""), it.get("links"), None, state,
+                   emph=it.get("emph"), marks=it.get("marks"))
 
 
 # nesting order for overlapping wrap spans: lower rank = outer wrapper, so a

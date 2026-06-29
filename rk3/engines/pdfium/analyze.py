@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 92
+VERSION = 93
 
 
 # PDF font-descriptor flag bits
@@ -61,32 +61,6 @@ def _ol_marker(text):
         return "decimal", int(raw), m.end()
     style = "upper-alpha" if raw.isupper() else "lower-alpha"
     return style, ord(raw.lower()) - 96, m.end()
-
-
-def _ordinal_items(texts):
-    """Item texts carrying a consecutive ordinal sequence (1.2.3 / a.b.c) ->
-    (style, start, stripped_items) with the markers removed, else None. Lets a
-    list that's already grouped but still has its numbers baked into the item
-    text (tagged LBody/LI items) be emitted as a real <ol> at construction."""
-    if len(texts) < 2:
-        return None
-    first = _ol_marker(texts[0])
-    if first is None:
-        return None
-    style, start, off = first
-    stripped = [texts[0][off:].strip()]
-    expected, marked = start + 1, 1
-    for t in texts[1:]:
-        m = _ol_marker(t)
-        if m and m[0] == style and m[1] == expected:
-            stripped.append(t[m[2]:].strip())
-            expected += 1
-            marked += 1
-        else:
-            stripped.append(t.strip())  # wrapped / unmarked continuation item
-    if marked < 2 or marked < 0.6 * len(texts):
-        return None
-    return style, start, stripped
 
 
 def _alnum(text):
@@ -147,6 +121,38 @@ def _stable_id(prefix, used, kind, page, bbox, text=None):
         sid = f"{base}-{i}"
     used.add(sid)
     return sid
+
+
+class InfoLossError(Exception):
+    """A list item lost its style runs (it's a bare string). Raised loudly
+    rather than shipping a silent emphasis/link drop - see [[surface-failures]]
+    and the information-monotonicity doctrine in [[foundation-legs]]."""
+
+
+def _assert_rich_items(nodes):
+    """No-loss guard (information monotonicity): every list item and sub-item
+    must be a rich dict built by slicing a source node's runs. A bare string
+    means some construction path re-derived text from scratch and DROPPED its
+    emphasis/links/marks - a class of silent loss we make impossible by failing
+    here instead. Recurses into child-bearing nodes (deflists, regions)."""
+    def walk(ns):
+        for n in ns:
+            if n.get("type") == "list":
+                for it in n.get("items", []):
+                    if not isinstance(it, dict):
+                        yield n, it
+                        continue
+                    for s in (it.get("sub") or {}).get("items", []):
+                        if not isinstance(s, dict):
+                            yield n, s
+            if n.get("children"):
+                yield from walk(n["children"])
+    bad = list(walk(nodes))
+    if bad:
+        where = "; ".join(f"{n.get('rk')}:{str(it)[:40]!r}" for n, it in bad[:5])
+        raise InfoLossError(
+            f"{len(bad)} list item(s) reduced to bare strings (style dropped): "
+            f"{where}")
 
 
 def run(ctx):
@@ -351,6 +357,9 @@ def run(ctx):
     # now adjacent (the intruder has been extracted) — rejoin the split sentence
     nodes = _join_broken_paragraphs(ctx, nodes)
     _indents(ctx, nodes)
+    # information-monotonicity guard: list construction is complete; every item
+    # must now be a rich dict (a bare string would be a silent style drop)
+    _assert_rich_items(nodes)
 
     # flood guard: questionnaire-style documents raise the same per-block
     # question hundreds of times (the survey: 174 figure-or-callout, 131
@@ -1096,7 +1105,12 @@ def _marker_lists(ctx, nodes):
     def flush():
         nonlocal run
         if len(run) >= 3:
-            items = [re.sub(r"^»\s*", "", r["text"]).strip() for r in run]
+            # strip the leading '» ' marker but keep each line's style runs
+            # (a jump entry can be italic/linked) instead of flattening to text
+            def _cut_jump(node):
+                m = re.match(r"^»\s*", node.get("text", ""))
+                return _node_item(node, m.end() if m else 0)
+            items = [_cut_jump(r) for r in run]
             page = run[0]["page"]
             bbox = [min(r["bbox"][0] for r in run),
                     min(r["bbox"][1] for r in run),
@@ -1138,7 +1152,7 @@ def _merge_crosspage_lists(ctx, nodes):
                 and prev.get("ordered") == "decimal"
                 and n["type"] == "paragraph"
                 and n["page"] == prev["page"] + 1):
-            added = _parse_list_continuation(prev, n["text"])
+            added = _parse_list_continuation(prev, n)
             if added:
                 ctx.log.entry("list-continued", page=n["page"],
                               into=prev["rk"], segments=added,
@@ -1176,10 +1190,11 @@ def _merge_crosspage_bullet_lists(ctx, nodes):
     return out
 
 
-def _parse_list_continuation(lst, text):
+def _parse_list_continuation(lst, node):
     items = lst["items"]
     if not items or not isinstance(items[-1], dict):
         return 0
+    text = node.get("text", "")
     sub = items[-1].get("sub") or {}
     sub_style = sub.get("ordered", "lower-alpha")
     expect_num = lst.get("start", 1) + len(items)
@@ -1203,9 +1218,11 @@ def _parse_list_continuation(lst, text):
         return 0
     for (kind, m), nxt in zip(accepted, accepted[1:] + [None]):
         end = nxt[1].start() if nxt else len(text)
-        content = text[m.end():end].strip()
+        # slice the continuation paragraph's own style runs into the item so a
+        # bold/linked fragment that wrapped past the page break survives
+        content = _cut_item(_slice_runs(node, m.end(), end), 0)
         if kind == "item":
-            items.append({"text": content})
+            items.append(content)
         else:
             s = items[-1].setdefault(
                 "sub", {"ordered": sub_style, "start": 1, "items": []})
@@ -1891,10 +1908,7 @@ def _group_tag_lists(ctx, nodes):
         if len(run) >= 2:
             # each LBody/LI paragraph carries its own emphasis/link runs; keep
             # them so a bold lead-in sentence or inline link survives the merge
-            items = [_strip_marker_item(
-                        {"text": n["text"], "emph": n.get("emph"),
-                         "links": n.get("links")}, BULLETS)
-                     for n in run]
+            items = [_strip_marker_item(_node_runs(n), BULLETS) for n in run]
             bbox = [min(n["bbox"][0] for n in run), min(n["bbox"][1] for n in run),
                     max(n["bbox"][2] for n in run), max(n["bbox"][3] for n in run)]
             page = run[0]["page"]
@@ -2002,12 +2016,9 @@ def _group_bullet_paragraphs(ctx, nodes):
         nonlocal run
         if not run:
             return
-        # each bullet paragraph already carries its own emphasis/link runs over
-        # its text; preserve them as the item's spans (bullet stripped, rebased)
-        items = [_strip_marker_item(
-                    {"text": n["text"], "emph": n.get("emph"),
-                     "links": n.get("links")}, BULLETS)
-                 for n in run]
+        # each bullet paragraph already carries its own style runs over its text;
+        # preserve them as the item's spans (bullet stripped, rebased)
+        items = [_strip_marker_item(_node_runs(n), BULLETS) for n in run]
         bbox = [min(n["bbox"][0] for n in run), min(n["bbox"][1] for n in run),
                 max(n["bbox"][2] for n in run), max(n["bbox"][3] for n in run)]
         page = run[0]["page"]
@@ -2087,7 +2098,7 @@ def _group_ordinal_paragraphs(ctx, nodes):
                             and (sub_expected is None or sm[1] == sub_expected):
                         sub = run[-1].setdefault(
                             "sub", {"ordered": sm[0], "start": sm[1], "items": []})
-                        sub["items"].append(s["text"][sm[2]:].strip())
+                        sub["items"].append(_node_item(s, sm[2]))
                         sub_expected = sm[1] + 1
                         j += 1
                     else:
@@ -2106,10 +2117,8 @@ def _group_ordinal_paragraphs(ctx, nodes):
                     ctx.audit_moved[x["page"]] += _alnum(x["text"])
             items = []
             for r in run:
-                it = r["item"]
+                it = r["item"]  # always a rich dict (from _node_item)
                 if r.get("sub"):
-                    if isinstance(it, str):
-                        it = {"text": it}
                     it["sub"] = r["sub"]
                 items.append(it)
             rk = ctx.log.entry("list", page=page, bbox=bbox, items=len(items),
@@ -2495,13 +2504,14 @@ def _is_bullet_list(blk):
 
 def _item_texts(items):
     for it in items:
-        if isinstance(it, str):
+        if isinstance(it, str):       # tolerate any not-yet-migrated path
             yield it
-        else:
-            yield it.get("text", "")
-            sub = it.get("sub")
-            if sub:
-                yield from sub.get("items", [])
+            continue
+        yield it.get("text", "")
+        sub = it.get("sub")
+        if sub:
+            for s in sub.get("items", []):
+                yield s if isinstance(s, str) else s.get("text", "")
 
 
 def _ordinal_block(ctx, blk):
@@ -2515,7 +2525,9 @@ def _ordinal_block(ctx, blk):
         return None
     style0, start, off0 = first
     base_x = lines[0]["bbox"][0]
-    # group lines per item, tracking each item's marker offset and any sub-list
+    # group lines per item, tracking each item's marker offset and any sub-list.
+    # A sub-list collects its own line-GROUPS (not raw strings) so each sub-item
+    # is built through _build_runs and keeps its emphasis/links/marks too.
     groups = [{"lines": [lines[0]], "off": off0, "sub": None}]
     expected, marked = start + 1, 1
     for l in lines[1:]:
@@ -2527,11 +2539,12 @@ def _ordinal_block(ctx, blk):
         elif m and m[0] != style0 and l["bbox"][0] > base_x + 6:
             sub = groups[-1]["sub"]
             if sub is None:
-                sub = groups[-1]["sub"] = {"ordered": m[0], "start": m[1], "items": []}
-            sub["items"].append(l["text"][m[2]:].strip())
+                sub = groups[-1]["sub"] = {"ordered": m[0], "start": m[1],
+                                           "groups": []}
+            sub["groups"].append({"lines": [l], "off": m[2]})
             marked += 1
-        elif groups[-1]["sub"]:
-            groups[-1]["sub"]["items"][-1] += " " + l["text"]
+        elif groups[-1]["sub"] and groups[-1]["sub"]["groups"]:
+            groups[-1]["sub"]["groups"][-1]["lines"].append(l)
         else:
             groups[-1]["lines"].append(l)
     if marked < 2:
@@ -2541,17 +2554,35 @@ def _ordinal_block(ctx, blk):
     for g in groups:
         item = _cut_item(_build_runs(ctx, blk, g["lines"], blk_font), g["off"])
         if g["sub"]:
-            if isinstance(item, str):
-                item = {"text": item}
-            item["sub"] = g["sub"]
+            sg = g["sub"]
+            item["sub"] = {"ordered": sg["ordered"], "start": sg["start"],
+                           "items": [_cut_item(_build_runs(ctx, blk, s["lines"],
+                                                            blk_font), s["off"])
+                                     for s in sg["groups"]]}
         items.append(item)
     return style0, start, items
 
 
+# the style runs a list item carries: each is a [start, end, payload] span list
+# over the item's own text. Underline will join here once detected (a graphics
+# object - sibling of mark detection), and then it can't drop either.
+_RUN_KEYS = ("emph", "links", "marks")
+
+
+def _node_runs(node):
+    """A node's text plus its full rich payload (emphasis/links/marks) as a
+    runs-dict — the single shape every list-item builder slices from, so no
+    construction path has to re-derive (and thus drop) style from raw text."""
+    return {"text": node.get("text", ""),
+            **{k: node.get(k) for k in _RUN_KEYS}}
+
+
 def _cut_item(runs, cut):
     """Drop the first `cut` chars (a leading marker) plus any following spaces
-    from a runs-dict and rebase its emphasis/link offsets. Returns a plain
-    string when nothing styled survives, else {"text", "emph"?, "links"?}."""
+    from a runs-dict and rebase its style offsets. ALWAYS returns a rich item
+    dict {"text", "emph"?, "links"?, "marks"?} — never a bare string — so every
+    list item can carry style and a dropped run becomes structurally impossible
+    (see _assert_rich_items)."""
     full = runs.get("text", "")
     while cut < len(full) and full[cut] == " ":
         cut += 1
@@ -2566,37 +2597,30 @@ def _cut_item(runs, cut):
                 out.append([s, e, *sp[2:]])
         return out
 
-    emph = rebase(runs.get("emph"))
-    links = rebase(runs.get("links"))
-    if not emph and not links:
-        return text
     item = {"text": text}
-    if emph:
-        item["emph"] = emph
-    if links:
-        item["links"] = links
+    for key in _RUN_KEYS:
+        reb = rebase(runs.get(key))
+        if reb:
+            item[key] = reb
     return item
 
 
 def _strip_marker_item(runs, markers):
     """Drop a leading marker glyph (bullet) from a runs-dict, preserving the
-    emphasis/link runs (rebased)."""
+    style runs (rebased)."""
     m = re.match(f"^[{re.escape(markers)}]\\s*", runs.get("text", ""))
     return _cut_item(runs, m.end() if m else 0)
 
 
 def _node_item(node, cut):
-    """Build a list item from a paragraph node, keeping its emphasis/links."""
-    return _cut_item({"text": node.get("text", ""), "emph": node.get("emph"),
-                      "links": node.get("links")}, cut)
+    """Build a list item from a paragraph node, keeping its style runs."""
+    return _cut_item(_node_runs(node), cut)
 
 
 def _as_runs(item):
-    """A str-or-dict list item as a runs dict."""
-    if isinstance(item, dict):
-        return {"text": item.get("text", ""), "emph": item.get("emph"),
-                "links": item.get("links")}
-    return {"text": item}
+    """A rich list item as a runs dict."""
+    return {"text": item.get("text", ""),
+            **{k: item.get(k) for k in _RUN_KEYS}}
 
 
 def _ordinal_items_rich(items):
@@ -2627,8 +2651,8 @@ def _ordinal_items_rich(items):
 
 
 def _slice_runs(node, a, b):
-    """A runs-dict for the sub-range [a,b) of a node's text, with emphasis/link
-    offsets clipped and rebased to 0."""
+    """A runs-dict for the sub-range [a,b) of a node's text, with all style
+    offsets (emphasis/links/marks) clipped and rebased to 0."""
     def reb(spans):
         out = []
         for sp in spans or []:
@@ -2637,7 +2661,7 @@ def _slice_runs(node, a, b):
                 out.append([s - a, e - a, *sp[2:]])
         return out
     return {"text": node.get("text", "")[a:b],
-            "emph": reb(node.get("emph")), "links": reb(node.get("links"))}
+            **{k: reb(node.get(k)) for k in _RUN_KEYS}}
 
 
 def _bullet_items(ctx, blk):
