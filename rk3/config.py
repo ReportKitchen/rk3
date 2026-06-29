@@ -47,8 +47,11 @@ DEFAULTS = {
         "imageScale": 2,
         "cssLayers": ["layout", "default", "original"],
         "autolinkUrls": True,  # plain-text URLs/DOIs become <a class="autolink">
-        "embedFonts": False,   # serve the PDF's own font programs via @font-face
-                               # (pixel-faithful, but licensing is the user's call)
+        # serve the PDF's own font programs via @font-face (pixel-faithful, but
+        # licensing is the user's call). "auto" = embed only when every font is
+        # fully reconstructable (no dropped glyphs); a per-document config can
+        # force true/false (the viewer writes the user's choice there).
+        "embedFonts": "auto",
     },
 }
 

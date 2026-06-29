@@ -70,7 +70,10 @@ def pdf_metadata():
         slug = d["slug"]
         row = {"slug": slug, "docName": d["name"], "folder": d.get("folder"),
                "creator": None, "producer": None,
-               "mainFont": None, "fontCount": 0, "fonts": []}
+               "mainFont": None, "fontCount": 0, "fonts": [],
+               # embed verdict: True=fully reconstructable (default on),
+               # False=some font drops glyphs (default off), None=no embeddable
+               "embedComplete": None, "embedTotal": 0, "embedPartial": 0}
         src = source_for_slug(slug)
         if src is not None:
             try:
@@ -105,6 +108,11 @@ def pdf_metadata():
                     row["fonts"] = [{"name": nm, "chars": c,
                                      "embedded": nm in embedded}
                                     for nm, c in ranked]
+                fe = ir.get("fonts_embed") or {}
+                row["embedTotal"] = len(fe)
+                row["embedPartial"] = sum(
+                    1 for e in fe.values() if not e.get("complete", True))
+                row["embedComplete"] = bool(ir.get("fonts_complete")) if fe else None
             except Exception:
                 pass
         rows.append(row)
@@ -191,6 +199,38 @@ def start_convert(slug: str, force: bool = False):
         raise HTTPException(404, f"unknown document {slug!r}")
     _spawn_convert(slug, force)
     return {"slug": slug, "status": "in_progress"}
+
+
+class DocConfig(BaseModel):
+    # null clears the override -> revert to "auto" (embed iff fully covered)
+    embedFonts: Optional[bool] = None
+
+
+@app.post("/api/doc-config/{slug}")
+def set_doc_config(slug: str, cfg: DocConfig):
+    """Persist a per-document setting to <name>.config.json (next to the PDF) so
+    the user's embed choice survives reconversions. Then re-render so the output
+    reflects it. embedFonts=null removes the override (back to auto-detect)."""
+    src = source_for_slug(slug)
+    if src is None:
+        raise HTTPException(404, f"unknown document {slug!r}")
+    cfg_path = src.with_suffix("").with_name(src.stem + ".config.json")
+    data = {}
+    if cfg_path.exists():
+        try:
+            data = json.loads(cfg_path.read_text())
+        except json.JSONDecodeError:
+            data = {}
+    out = data.setdefault("output", {})
+    if cfg.embedFonts is None:
+        out.pop("embedFonts", None)
+        if not out:
+            data.pop("output", None)
+    else:
+        out["embedFonts"] = cfg.embedFonts
+    cfg_path.write_text(json.dumps(data, indent=2) + "\n")
+    _spawn_convert(slug, force=False)  # render-only: embedFonts is a render dep
+    return {"ok": True, "embedFonts": cfg.embedFonts}
 
 
 def _spawn_convert(slug: str, force: bool = False):

@@ -545,6 +545,12 @@ pre.error {
 .meta-chip.main { border-color: #5b7fb5; background: #eef3fa; }
 .meta-chip.embedded { border-color: #7fae7f; }
 .meta-chip em { color: #999; font-style: normal; font-variant-numeric: tabular-nums; }
+.meta-embed { font-size: 0.74rem; padding: 0.1rem 0.45rem; border-radius: 5px; white-space: nowrap; }
+.meta-embed.ok { background: #e7f4e7; color: #2f6b2f; border: 1px solid #9fce9f; }
+.meta-embed.partial { background: #fdeede; color: #8a5316; border: 1px solid #e3b277; }
+.embed-auto { margin-left: 0.3rem; font-size: 0.72em; padding: 0.02rem 0.3rem; border-radius: 4px; }
+.embed-auto.ok { background: #e7f4e7; color: #2f6b2f; }
+.embed-auto.warn { background: #fdeede; color: #8a5316; }
 
 /* -------------------------------------------------------- questions panel */
 

@@ -51,6 +51,13 @@ export const getAllFeedback = () => fetch(`/api/feedback`).then(json);
 
 export const getPdfMetadata = () => fetch(`/api/pdf-metadata`).then(json);
 
+// persist a per-document embedded-fonts choice (true/false, or null = auto)
+export const setDocEmbedFonts = (slug, embedFonts) =>
+  fetch(`/api/doc-config/${slug}`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ embedFonts }),
+  }).then(json);
+
 export const postFeedback = (slug, entry) =>
   fetch(`/api/feedback/${slug}`, {
     method: "POST",

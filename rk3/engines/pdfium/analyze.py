@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 94
+VERSION = 95
 
 
 # PDF font-descriptor flag bits
@@ -421,6 +421,7 @@ def run(ctx):
         "questions": ctx.questions,
         "audit": audit,
         "fonts_embed": asm.get("embeddedFonts", {}),
+        "fonts_complete": asm.get("fontsComplete", True),
         "body": nodes,
     })
 

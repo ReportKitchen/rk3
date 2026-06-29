@@ -24,7 +24,7 @@ import pypdfium2.raw as pdfium_c
 from ...pipeline import ScannedPdfError
 from . import fontembed, fontid
 
-VERSION = 16
+VERSION = 17
 
 
 def _matrix_slant_italic(m):
@@ -394,31 +394,50 @@ def run(ctx):
         # base-14 (non-embedded) fonts and any we can't build fall back to the
         # guessed family. render groups cuts into one CSS family so <strong>/<em>
         # pick the bold/italic FACE by weight/style.
-        groups = defaultdict(lambda: {"glyphs": {}, "weight": 400, "italic": False})
+        groups = defaultdict(lambda: {"glyphs": {}, "drawn": set(), "have": set(),
+                                      "weight": 400, "italic": False})
         for p in programs.values():
             if p["data"] is None:            # base-14: a real system/web font
                 continue
             pr = props[p["idx"]]
             g = groups[pr["name"]]
             for u, v in outlines.get(p["idx"], {}).items():
+                g["drawn"].add(u)
                 if v is not None:
                     g["glyphs"][u] = v       # union this subset's glyphs
+                    g["have"].add(u)
             g["weight"], g["italic"] = pr["weight"], bool(pr["italic"])
+        # coverage = glyphs we reconstructed / glyphs the font drew. A font that
+        # drops glyphs (custom char-encoding we can't follow) renders a mix of
+        # real + fallback letters, so we record it; the document is "complete"
+        # only when every embeddable font is fully covered (drives the per-doc
+        # embed default - see render/the viewer).
         embedded = {}
+        fonts_complete = True
         for nm, g in groups.items():
+            cov = len(g["have"]) / len(g["drawn"]) if g["drawn"] else 1.0
+            complete = cov >= 0.98
             otf = fontembed.build_from_outlines(g["glyphs"], nm)
             if not otf:
+                fonts_complete = False       # couldn't even build it
                 continue
             safe = re.sub(r"[^A-Za-z0-9_-]", "_", nm) or "font"
             (ctx.outdir / "fonts").mkdir(exist_ok=True)
             (ctx.outdir / "fonts" / f"{safe}.otf").write_bytes(otf)
             embedded[nm] = {"file": f"fonts/{safe}.otf",
-                            "weight": g["weight"], "italic": g["italic"]}
-        ctx.log.entry("embed-fonts", served=len(embedded), of=len(groups))
+                            "weight": g["weight"], "italic": g["italic"],
+                            "coverage": round(cov, 3), "complete": complete}
+            if not complete:
+                fonts_complete = False
+        ctx.log.entry("embed-fonts", served=len(embedded), of=len(groups),
+                      complete=fonts_complete,
+                      partial=[nm for nm, e in embedded.items()
+                               if not e["complete"]][:8])
 
         ctx.write_artifact("extract", {
             "pages": pages_out, "fonts": fonts, "colors": colors,
             "warnings": warnings, "embeddedFonts": embedded,
+            "fontsComplete": fonts_complete,
         })
     finally:
         pdf.close()

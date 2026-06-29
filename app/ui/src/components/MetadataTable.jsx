@@ -10,11 +10,24 @@ import { guard } from "../errorBus.js";
 
 const COLUMNS = [
   { key: "docName", label: "Document" },
-  { key: "creator", label: "Created with", width: "15rem" },
-  { key: "producer", label: "PDF Producer", width: "13rem" },
-  { key: "mainFont", label: "Main font", width: "13rem" },
-  { key: "fontCount", label: "Fonts", num: true, width: "4.5rem" },
+  { key: "creator", label: "Created with", width: "14rem" },
+  { key: "producer", label: "PDF Producer", width: "12rem" },
+  { key: "mainFont", label: "Main font", width: "12rem" },
+  { key: "fontCount", label: "Fonts", num: true, width: "4rem" },
+  { key: "embedComplete", label: "Embed", width: "9rem" },
 ];
+
+// the embed verdict cell: did font extraction fully reconstruct every font
+// (so embedding is on by default), or does some font drop glyphs (default off)?
+function embedCell(r) {
+  if (!r.embedTotal) return <span className="meta-dim">—</span>;
+  if (r.embedComplete) {
+    return <span className="meta-embed ok" title="all fonts fully reconstructed — embedded by default">on · {r.embedTotal}</span>;
+  }
+  return <span className="meta-embed partial"
+    title={`${r.embedPartial} of ${r.embedTotal} fonts drop glyphs — embedding off by default`}>
+    off · {r.embedPartial}/{r.embedTotal} partial</span>;
+}
 
 export default function MetadataTable({ onOpen }) {
   const [rows, setRows] = useState(null);
@@ -119,6 +132,7 @@ export default function MetadataTable({ onOpen }) {
                         </button>
                       ) : (r.fontCount || "")}
                     </td>
+                    <td>{embedCell(r)}</td>
                   </tr>
                   {isOpen && (
                     <tr className="meta-fontrow">

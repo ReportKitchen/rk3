@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ADMIN_FEEDBACK, ADMIN_METADATA, clearFeedback, deleteFeedback, deleteOp, emptyTrash, getBuildStatus, getDocuments, getFeedback, getIr, getOps, startConvert, postFeedback, postOp } from "./api.js";
+import { ADMIN_FEEDBACK, ADMIN_METADATA, clearFeedback, deleteFeedback, deleteOp, emptyTrash, getBuildStatus, getDocuments, getFeedback, getIr, getOps, setDocEmbedFonts, startConvert, postFeedback, postOp } from "./api.js";
 import DocList from "./components/DocList.jsx";
 import DocumentView from "./components/DocumentView.jsx";
 import ErrorBanner from "./components/ErrorBanner.jsx";
@@ -27,7 +27,7 @@ export default function App() {
   const [selected, setSelected] = useState(DEEPLINK.doc || null);
   const [deepLinkNid, setDeepLinkNid] = useState(DEEPLINK.nid || null);
   const [toggles, setToggles] = useState({
-    showPdf: true, sync: true, layer3: true, embedFonts: true,
+    showPdf: true, sync: true, layer3: true,
     feedbackMode: false, panelOpen: !!DEEPLINK.doc,
   });
   const [ir, setIr] = useState(null);
@@ -179,6 +179,9 @@ export default function App() {
               feedback={feedback}
               ops={ops}
               pageDims={ir?.pages}
+              fontsComplete={ir?.fonts_complete}
+              onPersistEmbed={(val) =>
+                setDocEmbedFonts(selected, val).catch(guard("save embed setting"))}
               onConvert={convert}
               onAnnotate={annotate}
               onQuestion={openQuestion}

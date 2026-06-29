@@ -5,6 +5,6 @@
     "model": null
   },
   "output": {
-    "embedFonts": true
+    "embedFonts": "auto"
   }
 }

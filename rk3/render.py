@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 49
+VERSION = 50
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -62,9 +62,13 @@ def run(ctx):
         f'<link rel="stylesheet" href="{layer}.css" id="css-{layer}">'
         for layer in ("layout", "default", "original") if layer in layers)
     if embed_css:
-        # starts enabled per config.output.embedFonts; the viewer flips
-        # link.disabled live ("Use embedded fonts")
-        off = "" if ctx.cfg["output"].get("embedFonts") else " disabled"
+        # default state: "auto" embeds only when every font is fully covered
+        # (ir.fonts_complete); a per-doc config can force true/false. The viewer
+        # flips link.disabled live and persists the user's choice to the config.
+        mode = ctx.cfg["output"].get("embedFonts", "auto")
+        embed_on = bool(ir.get("fonts_complete", True)) if mode == "auto" \
+            else bool(mode)
+        off = "" if embed_on else " disabled"
         links += (f'\n<link rel="stylesheet" href="embed.css" '
                   f'id="css-embed"{off}>')
     doc = f"""<!DOCTYPE html>

@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useRef, useState } from "react";
+import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
 import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panels";
 import { docUrl, pageUrl } from "../api.js";
 import { setupSync } from "../syncScroll.js";
@@ -45,10 +45,15 @@ export default function DocumentView({
   doc, buildId = null, toggles, setToggles, questions, answers, feedback, ops, pageDims, onConvert, onAnnotate,
   onQuestion, onClearNote, onEmptyTrash, onRemoveOp, highlightNid,
   docVersion = 0, flashNid = null, deepLinkNid = null, onConsumeDeepLink,
+  fontsComplete = null, onPersistEmbed,
 }) {
   const iframeRef = useRef(null);
   const pdfPaneRef = useRef(null);
   const [frameLoaded, setFrameLoaded] = useState(false);
+  // embedded-fonts state is driven by the iframe's css-embed link (render bakes
+  // in the per-doc default: auto-verdict or saved override), so it survives
+  // reconversions; the checkbox reads it on load and writes it on toggle.
+  const [embed, setEmbed] = useState({ has: false, on: false });
   const [tab, setTab] = useState("convert");
   // jump-to-node requests from the questions panel (now rendered inside this view)
   const [scrollToNid, setScrollToNid] = useState(null);
@@ -101,12 +106,21 @@ export default function DocumentView({
     if (link) link.disabled = !toggles.layer3;
   }, [toggles.layer3, frameLoaded]);
 
-  // embedded-fonts toggle (the @font-face layer); when off, "PDFEmbed X" family
-  // names go unresolved and rules fall back to the guessed/system font
+  // read the embed default the render baked into the css-embed link (present
+  // only when the doc has embeddable fonts); sync the checkbox to it on load
   useEffect(() => {
     const link = iframeRef.current?.contentDocument?.getElementById("css-embed");
-    if (link) link.disabled = !toggles.embedFonts;
-  }, [toggles.embedFonts, frameLoaded]);
+    setEmbed({ has: !!link, on: link ? !link.disabled : false });
+  }, [frameLoaded]);
+
+  // toggling flips the layer live (off => "PDFEmbed X" vars vanish, rules fall
+  // back to the guessed font) and persists the choice to the doc's config
+  const toggleEmbed = useCallback((on) => {
+    const link = iframeRef.current?.contentDocument?.getElementById("css-embed");
+    if (link) link.disabled = !on;
+    setEmbed((e) => ({ ...e, on }));
+    onPersistEmbed?.(on);
+  }, [onPersistEmbed]);
 
   // sync scroll
   useEffect(() => {
@@ -353,6 +367,9 @@ export default function DocumentView({
             doc={doc}
             toggles={toggles}
             setToggles={setToggles}
+            embed={embed}
+            fontsComplete={fontsComplete}
+            onToggleEmbed={toggleEmbed}
             questionCount={questions.length}
             answeredCount={questions.filter((q) => answers.has(q.qid)).length}
           />
