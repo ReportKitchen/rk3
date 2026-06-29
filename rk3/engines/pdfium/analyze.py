@@ -29,23 +29,64 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 70
+VERSION = 72
 
 
-def _font_emphasis(name, weight, base_name):
-    """'strong'/'em' when this font is a bold/italic variant the base isn't."""
+# PDF font-descriptor flag bits
+ITALIC_FLAG = 0x40
+FORCEBOLD_FLAG = 0x40000
+_BOLD_KW = ("bold", "black", "heavy", "semibold", "demibold", "extrabold", "ultra")
+_ITAL_KW = ("italic", "oblique", "kursiv")
+
+
+_STYLE_WORDS = re.compile(
+    r"(?:regular|roman|book|text|medium|semibold|demibold|demi|bold|black|heavy"
+    r"|light|thin|ultra|extra|italic|oblique|kursiv|cond(?:ensed)?|narrow|disp(?:lay)?"
+    r"|md|bd|blk|sb|lt|rg)+$")
+
+
+def _font_family(name):
+    """Family root — subset prefix AND style suffix stripped, whether the style
+    is hyphenated ('Lato-Bold') or concatenated ('FoundersGroteskMedium'), so
+    both reduce to the same family as their Regular. A weight jump WITHIN a
+    family is bold; a weight difference ACROSS families is a different typeface."""
+    n = re.sub(r"^[A-Z]{3,7}\+", "", name or "")
+    n = re.split(r"[-,]", n)[0]
+    n = re.sub(r"[^a-z0-9]", "", n.lower())
+    return _STYLE_WORDS.sub("", n) or n
+
+
+def _is_italic(name, flags):
+    # the descriptor ITALIC bit is the reliable signal (set even when the
+    # subset name abbreviates 'Italic' to 'Ita'); name is a backup
+    if flags & ITALIC_FLAG:
+        return True
     low = (name or "").lower()
-    base = (base_name or "").lower()
+    return any(k in low for k in _ITAL_KW) or low.endswith(("ita", "ital", "obl"))
 
-    def bold(s):
-        return any(k in s for k in ("bold", "black", "semibold", "heavy"))
 
-    def italic(s):
-        return "italic" in s or "oblique" in s
+def _is_bold(name, flags, weight, base_name, base_weight):
+    low = (name or "").lower()
+    if any(k in low for k in _BOLD_KW) \
+            or re.search(r"(?:^|[^a-z])(bd|blk|sb|dem)(?![a-z])", low):
+        return True
+    if flags & FORCEBOLD_FLAG:
+        return True
+    # a marked weight jump within the SAME family is bold; pdfium's absolute
+    # weights are unreliable across families (a 'Regular' can report 600-768)
+    return bool(weight and base_weight and weight - base_weight >= 120
+                and _font_family(name) == _font_family(base_name))
 
-    if italic(low) and not italic(base):
+
+def _font_emphasis(name, weight, flags, base_name, base_weight, base_flags):
+    """'strong'/'em' when this font is a bold/italic variant the base isn't.
+    Italic comes from the descriptor ITALIC flag or the name; bold from the
+    name, the ForceBold flag, or a same-family weight jump — never a raw
+    absolute weight (pdfium reports those inconsistently)."""
+    if _is_italic(name, flags) and not _is_italic(base_name, base_flags):
         return "em"
-    if (bold(low) or weight >= 600) and not bold(base):
+    if _is_bold(name, flags, weight, base_name, base_weight) \
+            and not _is_bold(base_name, base_flags, base_weight, base_name, base_weight):
         return "strong"
     return None
 
@@ -2450,17 +2491,18 @@ def _join_block(ctx, blk, link_colors=()):
         line_font = ctx.fonts[l["fontIdx"]]
         for s, e, fi in l.get("fontRuns", []):
             f = ctx.fonts[fi]
-            kind = _font_emphasis(f["name"], f.get("weight", 0),
-                                  line_font["name"])
+            kind = _font_emphasis(f["name"], f.get("weight", 0), f.get("flags", 0),
+                                  line_font["name"], line_font.get("weight", 0),
+                                  line_font.get("flags", 0))
             if kind and (e - s) < 0.9 * max(len(t), 1):  # sub-line runs only
                 emph.append([s + base, e + base, kind])
         if l["fontIdx"] != blk_dom_idx:
             # a whole line in a bold/italic variant of the BLOCK's font:
             # name lines in contact lists, emphasis wrapping across lines
             # ('imported APIs can | generally be understood...')
-            kind = _font_emphasis(line_font["name"],
-                                  line_font.get("weight", 0),
-                                  blk_font["name"])
+            kind = _font_emphasis(line_font["name"], line_font.get("weight", 0),
+                                  line_font.get("flags", 0), blk_font["name"],
+                                  blk_font.get("weight", 0), blk_font.get("flags", 0))
             if kind:
                 emph.append([base, base + len(t), kind])
 
