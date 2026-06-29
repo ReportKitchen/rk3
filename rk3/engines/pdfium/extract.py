@@ -13,6 +13,7 @@ Coordinates are PDF points, origin bottom-left.
 
 import ctypes
 import hashlib
+import math
 import statistics
 
 import pypdfium2 as pdfium
@@ -21,7 +22,20 @@ import pypdfium2.raw as pdfium_c
 from ...pipeline import ScannedPdfError
 from . import fontid
 
-VERSION = 11
+VERSION = 12
+
+
+def _matrix_slant_italic(m):
+    """Faux italic: a regular font slanted by a SHEAR in the text matrix (the
+    renderer leans the upright glyphs). The italic is in the render state, not
+    the font — the second deterministic source of slant after the font program.
+    True when the baseline stays ~horizontal (so it's a shear, not a rotation)
+    and the vertical axis is sheared by a moderate angle."""
+    if not m.a or not m.d:
+        return False
+    baseline_tilt = abs(math.degrees(math.atan2(m.b, m.a)))
+    slant = abs(math.degrees(math.atan2(m.c, m.d)))
+    return baseline_tilt < 4 and 6 < slant < 35
 
 
 def _register_program(font_handle, programs, handle_cache):
@@ -148,6 +162,7 @@ def run(ctx):
         first, last = max(1, page_range[0]), min(n_pages, page_range[1])
 
         programs, handle_cache = {}, {}   # font-program identity (see _register_program)
+        slant_chars = []                  # chars faux-italicised by a matrix shear
         colors, color_index = [], {}
         pages_out = []
         char_counts = []
@@ -183,8 +198,10 @@ def run(ctx):
                 # nominal font size is often 1.0 with the real size in the text
                 # matrix (InDesign/Quartz), so fold the matrix scale in
                 size = pdfium_c.FPDFText_GetFontSize(tp, i)
+                slant_italic = False
                 if pdfium_c.FPDFText_GetMatrix(tp, i, ctypes.byref(matrix)):
                     size *= (matrix.b ** 2 + matrix.d ** 2) ** 0.5
+                    slant_italic = _matrix_slant_italic(matrix)
                 size = round(size, 2)
 
                 # font = the exact embedded program at this char's position;
@@ -221,6 +238,8 @@ def run(ctx):
                     continue
                 pending = None
                 chars.append(ch)
+                if slant_italic:
+                    slant_chars.append(ch)
 
             pages_out.append({
                 "n": pno + 1,
@@ -258,7 +277,18 @@ def run(ctx):
         fontid.resolve_weights(props)
         fonts = [{"name": pr["name"], "weight": pr["weight"],
                   "italic": bool(pr["italic"])} for pr in props]
-        ctx.log.entry("fonts", count=len(fonts),
+        # faux italic (matrix shear on an upright program): give each such run a
+        # synthetic italic variant of its program, so per-char fontIdx -> italic
+        # keeps working — the second deterministic source of slant, read not guessed
+        slant_of = {}
+        for ch in slant_chars:
+            base = ch[5]
+            if base not in slant_of:
+                b = fonts[base]
+                slant_of[base] = len(fonts)
+                fonts.append({"name": b["name"], "weight": b["weight"], "italic": True})
+            ch[5] = slant_of[base]
+        ctx.log.entry("fonts", count=len(fonts), faux_italic=len(slant_of),
                       fonts=[(f["name"][:24], f["weight"], f["italic"]) for f in fonts][:24])
 
         ctx.write_artifact("extract", {
