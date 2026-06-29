@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 87
+VERSION = 90
 
 
 # PDF font-descriptor flag bits
@@ -966,7 +966,7 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
                                  node["bbox"], " ".join(_item_texts(items)))
         return node
 
-    ol = _ordinal_block(blk)
+    ol = _ordinal_block(ctx, blk)
     if ol is not None:
         style, start, items = ol
         rk = ctx.log.entry("list", page=blk["page"], bbox=blk["bbox"],
@@ -1929,7 +1929,7 @@ def _group_tag_lists(ctx, nodes):
             # numbered tagged lists arrive with "1. / 2. / 3." baked into the
             # item text — act on that here and emit a real <ol> (markers stripped,
             # rendered by the list), not a <ul> with the numbers fossilized in.
-            ol = _ordinal_items(list(_item_texts(items)))
+            ol = _ordinal_items_rich(items)
             ordered = start = None
             if ol:
                 ordered, start, items = ol
@@ -2532,38 +2532,47 @@ def _item_texts(items):
                 yield from sub.get("items", [])
 
 
-def _ordinal_block(blk):
+def _ordinal_block(ctx, blk):
     """A block whose lines carry sequential ordinal markers (any start, for
-    resumed numbering: <ol start>). Deeper-indented alpha lines under a
-    numeric item nest one level. Returns (style, start, items) or None."""
+    resumed numbering: <ol start>). Deeper-indented alpha lines under a numeric
+    item nest one level. Items keep their emphasis/links (a bold lead-in
+    survives). Returns (style, start, items) or None."""
     lines = blk["lines"]
     first = _ol_marker(lines[0]["text"])
     if first is None or len(lines) < 2:
         return None
     style0, start, off0 = first
     base_x = lines[0]["bbox"][0]
-    items = [{"text": lines[0]["text"][off0:].strip()}]
-    expected = start + 1
-    marked = 1
+    # group lines per item, tracking each item's marker offset and any sub-list
+    groups = [{"lines": [lines[0]], "off": off0, "sub": None}]
+    expected, marked = start + 1, 1
     for l in lines[1:]:
         m = _ol_marker(l["text"])
         if m and m[0] == style0 and m[1] == expected:
-            items.append({"text": l["text"][m[2]:].strip()})
+            groups.append({"lines": [l], "off": m[2], "sub": None})
             expected += 1
             marked += 1
         elif m and m[0] != style0 and l["bbox"][0] > base_x + 6:
-            sub = items[-1].setdefault(
-                "sub", {"ordered": m[0], "start": m[1], "items": []})
+            sub = groups[-1]["sub"]
+            if sub is None:
+                sub = groups[-1]["sub"] = {"ordered": m[0], "start": m[1], "items": []}
             sub["items"].append(l["text"][m[2]:].strip())
             marked += 1
-        elif items[-1].get("sub"):
-            items[-1]["sub"]["items"][-1] += " " + l["text"]
+        elif groups[-1]["sub"]:
+            groups[-1]["sub"]["items"][-1] += " " + l["text"]
         else:
-            items[-1]["text"] += " " + l["text"]
+            groups[-1]["lines"].append(l)
     if marked < 2:
         return None
-    if not any(it.get("sub") for it in items):
-        items = [it["text"] for it in items]
+    blk_font = _block_font(ctx, lines)
+    items = []
+    for g in groups:
+        item = _cut_item(_build_runs(ctx, blk, g["lines"], blk_font), g["off"])
+        if g["sub"]:
+            if isinstance(item, str):
+                item = {"text": item}
+            item["sub"] = g["sub"]
+        items.append(item)
     return style0, start, items
 
 
@@ -2610,6 +2619,41 @@ def _node_item(node, cut):
                       "links": node.get("links")}, cut)
 
 
+def _as_runs(item):
+    """A str-or-dict list item as a runs dict."""
+    if isinstance(item, dict):
+        return {"text": item.get("text", ""), "emph": item.get("emph"),
+                "links": item.get("links")}
+    return {"text": item}
+
+
+def _ordinal_items_rich(items):
+    """Like _ordinal_items but PRESERVES each item's emphasis/links: detect a
+    consecutive ordinal sequence (1.2.3 / a.b.c) from the item texts, strip the
+    markers, and rebase the runs. Returns (style, start, stripped_items) or None.
+    Used so a numbered tagged list keeps its bold lead-ins."""
+    texts = list(_item_texts(items))
+    if len(texts) < 2:
+        return None
+    first = _ol_marker(texts[0])
+    if first is None:
+        return None
+    style, start, off = first
+    stripped = [_cut_item(_as_runs(items[0]), off)]
+    expected, marked = start + 1, 1
+    for it, t in zip(items[1:], texts[1:]):
+        m = _ol_marker(t)
+        if m and m[0] == style and m[1] == expected:
+            stripped.append(_cut_item(_as_runs(it), m[2]))
+            expected += 1
+            marked += 1
+        else:
+            stripped.append(_cut_item(_as_runs(it), 0))  # wrapped / unmarked
+    if marked < 2 or marked < 0.6 * len(texts):
+        return None
+    return style, start, stripped
+
+
 def _slice_runs(node, a, b):
     """A runs-dict for the sub-range [a,b) of a node's text, with emphasis/link
     offsets clipped and rebased to 0."""
@@ -2648,6 +2692,28 @@ def _block_font(ctx, lines):
     return ctx.fonts[dom_counts.most_common(1)[0][0]]
 
 
+def _block_base_rank(ctx, lines):
+    """The LIGHTEST weight that covers a meaningful share (>=15%) of the block —
+    the baseline emphasis is judged against. Lightest-significant (not dominant)
+    means a bold lead-in stays <strong> even when it's the MAJORITY of the block
+    (a long bold lede + short regular tail, as in numbered-action lists), while a
+    block set uniformly in one heavier weight (a Medium callout) has no lighter
+    weight present and so still yields no false emphasis."""
+    counts = Counter()
+    for l in lines:
+        fc = [l["fontIdx"]] * len(l["text"])
+        for s, e, fi in l.get("fontRuns", []):
+            for i in range(s, min(e, len(fc))):
+                fc[i] = fi
+        for fi in fc:
+            counts[fi] += 1
+    total = sum(counts.values())
+    if not total:
+        return 400
+    sig = [fi for fi, c in counts.items() if c >= 0.15 * total] or list(counts)
+    return min(_font_weight_rank(ctx.fonts[fi]) for fi in sig)
+
+
 def _join_block(ctx, blk, link_colors=()):
     """Join a block's lines into flowing text, dehyphenating soft wraps and
     carrying per-line superscript/link char ranges into the joined offsets.
@@ -2671,7 +2737,9 @@ def _build_runs(ctx, blk, lines, blk_font, link_colors=()):
     out = ""
     sups, links, emph, marks = [], [], [], []
     line_joins = []  # offsets of the spaces where source lines were joined
-    blk_rank = _font_weight_rank(blk_font)
+    # baseline = the lighter of the dominant weight and the lightest-significant
+    # weight, so a bold lede is caught even when it dominates the block
+    blk_rank = min(_font_weight_rank(blk_font), _block_base_rank(ctx, lines))
     blk_italic = _font_is_italic(blk_font)
 
     def _strong(f):
