@@ -7,6 +7,7 @@
 
 body {
   font-family: "Arial MT", sans-serif;
+  font-weight: 400;
   color: #4b4c4d;
 }
 
@@ -397,7 +398,7 @@ a:hover { text-decoration: underline; }
 [data-nid="n3bfad534c9"] a,
 [data-nid="nd9cb809d61"] a { color: #231f20; }
 
-.lg-serif {
+.lg-alt {
   font-family: "Arial Narrow", sans-serif;
   font-size: 1.5em;
 }
@@ -406,7 +407,7 @@ a:hover { text-decoration: underline; }
   font-size: 0.8em;
 }
 
-.strong-serif {
+.strong-alt {
   font-family: "Arial", sans-serif;
   font-weight: 700;
 }
@@ -415,72 +416,72 @@ a:hover { text-decoration: underline; }
   text-align: center;
 }
 
-.strong-center-serif {
+.strong-center-alt {
   font-family: "Arial", sans-serif;
   font-weight: 700;
   text-align: center;
 }
 
-.strong-serif-2 {
+.strong-alt-2 {
   font-family: "Arial", sans-serif;
   font-weight: 700;
   color: #00547e;
 }
 
-.sm-serif {
+.sm-alt {
   font-family: "Arial Narrow", sans-serif;
   font-size: 0.8em;
 }
 
-.serif {
+.alt {
   font-family: "Arial Narrow", sans-serif;
 }
 
-.lg-strong-serif {
+.lg-strong-alt {
   font-family: "Arial Narrow", sans-serif;
   font-weight: 700;
   font-size: 1.35em;
 }
 
-.lg-serif-2 {
+.lg-alt-2 {
   font-family: "Arial Narrow", sans-serif;
   font-size: 1.35em;
 }
 
-.xl-serif {
+.xl-alt {
   font-family: "Arial Narrow", sans-serif;
   font-size: 2.55em;
 }
 
-.xl-strong-serif {
+.xl-strong-alt {
   font-family: "Arial Narrow", sans-serif;
   font-weight: 700;
   font-size: 1.8em;
 }
 
-.lg-serif-3 {
+.lg-alt-3 {
   font-family: "Arial Narrow", sans-serif;
   font-size: 1.2em;
 }
 
-.lg-strong-serif-2 {
+.lg-strong-alt-2 {
   font-family: "Arial", sans-serif;
   font-weight: 700;
   font-size: 1.2em;
 }
 
-.lg-strong-serif-3 {
+.lg-strong-alt-3 {
   font-family: "Arial Narrow", sans-serif;
   font-weight: 700;
   font-size: 1.2em;
 }
 
-.strong-serif-3 {
+.strong-alt-3 {
   font-family: "Arial Narrow", sans-serif;
   font-weight: 700;
 }
 
-.strong-serif-4 {
+.strong-alt-4 {
   font-family: "Arial Narrow", sans-serif;
   font-weight: 700;
   color: #3e3e3f;
@@ -492,7 +493,7 @@ a:hover { text-decoration: underline; }
   font-size: 1.2em;
 }
 
-.serif-2 {
+.serif {
   font-family: "Times New Roman PSMT", serif;
 }
 
@@ -501,18 +502,18 @@ a:hover { text-decoration: underline; }
   text-align: right;
 }
 
-.serif-3 {
+.alt-2 {
   font-family: "Arial Narrow", sans-serif;
   color: #3e3e3f;
 }
 
-.strong-center-serif-2 {
+.strong-center-alt-2 {
   font-family: "Arial Narrow", sans-serif;
   font-weight: 700;
   text-align: center;
 }
 
-.serif-4 {
+.alt-3 {
   font-family: "Arial Narrow", sans-serif;
   color: #00496e;
 }
@@ -521,7 +522,7 @@ a:hover { text-decoration: underline; }
   font-size: 0.85em;
 }
 
-.sm-strong-serif {
+.sm-strong-alt {
   font-family: "Arial", sans-serif;
   font-weight: 700;
   font-size: 0.85em;
@@ -532,7 +533,7 @@ a:hover { text-decoration: underline; }
   font-size: 0.85em;
 }
 
-.sm-italic-serif {
+.sm-italic-alt {
   font-family: "Arial", sans-serif;
   font-style: italic;
   font-size: 0.85em;
@@ -543,7 +544,7 @@ a:hover { text-decoration: underline; }
   text-align: center;
 }
 
-.strong-serif-5 {
+.strong-serif {
   font-family: "AGaramond Pro", serif;
   font-weight: 600;
 }

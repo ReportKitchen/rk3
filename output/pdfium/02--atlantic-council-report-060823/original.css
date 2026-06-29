@@ -11,6 +11,7 @@
 
 body {
   font-family: "Proxima Nova", sans-serif;
+  font-weight: 400;
   color: #000000;
 }
 
@@ -77,19 +78,19 @@ h6 {
   font-size: 0.87em;
 }
 
-.lg-strong-serif {
+.lg-strong-alt {
   font-family: "Proxima Nova Cond", sans-serif;
   font-weight: 700;
   font-size: 1.47em;
 }
 
-.lg-strong-serif-2 {
+.lg-strong-alt-2 {
   font-family: "Proxima Nova Cond", sans-serif;
   font-weight: 700;
   font-size: 1.26em;
 }
 
-.sm-serif {
+.sm-alt {
   font-family: "Calibri", sans-serif;
   color: #808285;
   font-size: 0.84em;
@@ -110,7 +111,7 @@ h6 {
   font-size: 0.87em;
 }
 
-.lg-strong-serif-3 {
+.lg-strong-alt-3 {
   font-family: "Gotham", sans-serif;
   font-weight: 700;
   font-size: 1.23em;
@@ -120,18 +121,18 @@ h6 {
   font-weight: 700;
 }
 
-.strong-serif {
+.strong-alt {
   font-family: "Cambria", sans-serif;
   font-weight: 700;
   color: #005495;
 }
 
-.serif {
+.alt {
   font-family: "Cambria", sans-serif;
   color: #626262;
 }
 
-.italic-serif {
+.italic-alt {
   font-family: "Cambria", sans-serif;
   font-style: italic;
   color: #626262;

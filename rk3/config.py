@@ -47,6 +47,8 @@ DEFAULTS = {
         "imageScale": 2,
         "cssLayers": ["layout", "default", "original"],
         "autolinkUrls": True,  # plain-text URLs/DOIs become <a class="autolink">
+        "embedFonts": False,   # serve the PDF's own font programs via @font-face
+                               # (pixel-faithful, but licensing is the user's call)
     },
 }
 

@@ -14,15 +14,17 @@ Coordinates are PDF points, origin bottom-left.
 import ctypes
 import hashlib
 import math
+import re
 import statistics
+from collections import defaultdict
 
 import pypdfium2 as pdfium
 import pypdfium2.raw as pdfium_c
 
 from ...pipeline import ScannedPdfError
-from . import fontid
+from . import fontembed, fontid
 
-VERSION = 12
+VERSION = 15
 
 
 def _matrix_slant_italic(m):
@@ -291,9 +293,35 @@ def run(ctx):
         ctx.log.entry("fonts", count=len(fonts), faux_italic=len(slant_of),
                       fonts=[(f["name"][:24], f["weight"], f["italic"]) for f in fonts][:24])
 
+        # embedded font assets for the optional "use the PDF's fonts" mode:
+        # union every per-page subset that shares a name into one browser OTF
+        # (render emits @font-face when output.embedFonts is on). Always built
+        # (cheap) so toggling the flag is a render-only reconvert; a program we
+        # can't wrap is simply omitted and falls back to the guessed family.
+        groups = defaultdict(lambda: {"datas": [], "weight": 400, "italic": False})
+        for p in programs.values():
+            pr = props[p["idx"]]
+            g = groups[pr["name"]]
+            g["datas"].append(p["data"])
+            g["weight"], g["italic"] = pr["weight"], bool(pr["italic"])
+        embedded = {}
+        for nm, g in groups.items():
+            otf = fontembed.wrap_programs(g["datas"], nm)
+            if not otf:
+                continue
+            safe = re.sub(r"[^A-Za-z0-9_-]", "_", nm) or "font"
+            (ctx.outdir / "fonts").mkdir(exist_ok=True)
+            (ctx.outdir / "fonts" / f"{safe}.otf").write_bytes(otf)
+            # render groups cuts into one CSS family (e.g. all Gotham cuts ->
+            # "PDFEmbed Gotham") so <strong>/<em> pick the bold/italic FACE by
+            # weight/style — so the manifest just needs the file + true cut
+            embedded[nm] = {"file": f"fonts/{safe}.otf",
+                            "weight": g["weight"], "italic": g["italic"]}
+        ctx.log.entry("embed-fonts", served=len(embedded), of=len(groups))
+
         ctx.write_artifact("extract", {
             "pages": pages_out, "fonts": fonts, "colors": colors,
-            "warnings": warnings,
+            "warnings": warnings, "embeddedFonts": embedded,
         })
     finally:
         pdf.close()

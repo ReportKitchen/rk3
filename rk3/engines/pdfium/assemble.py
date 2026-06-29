@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter
 
-VERSION = 36
+VERSION = 37
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -52,6 +52,7 @@ def run(ctx):
         "blocks": kept,
         "fonts": ex["fonts"],
         "colors": ex["colors"],
+        "embeddedFonts": ex.get("embeddedFonts", {}),
     })
 
 

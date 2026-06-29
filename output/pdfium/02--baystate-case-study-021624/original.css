@@ -7,6 +7,7 @@
 
 body {
   font-family: "Helvetica", sans-serif;
+  font-weight: 300;
   color: #231f20;
 }
 
@@ -41,14 +42,14 @@ a {
 }
 a:hover { text-decoration: underline; }
 
-.xl-medium-serif {
+.xl-medium-alt {
   font-family: "Oswald", sans-serif;
   font-weight: 500;
   color: #339999;
   font-size: 1.9em;
 }
 
-.xl-serif {
+.xl-alt {
   font-family: "Oswald", sans-serif;
   color: #339999;
   font-size: 1.7em;

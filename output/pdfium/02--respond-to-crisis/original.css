@@ -7,6 +7,7 @@
 
 body {
   font-family: "Calibri", sans-serif;
+  font-weight: 400;
   color: #231f20;
 }
 
@@ -81,7 +82,7 @@ h6 {
   font-size: 0.83em;
 }
 
-.serif {
+.alt {
   font-family: "Merriweather", sans-serif;
   color: #667e94;
 }
@@ -104,7 +105,7 @@ h6 {
   font-style: italic;
 }
 
-.italic-serif {
+.italic-alt {
   font-family: "Merriweather", sans-serif;
   font-style: italic;
   color: #15364f;
@@ -143,7 +144,7 @@ h6 {
   font-size: 0.83em;
 }
 
-.italic-serif-2 {
+.italic-alt-2 {
   font-family: "Merriweather", sans-serif;
   font-style: italic;
   color: #d5e5f1;

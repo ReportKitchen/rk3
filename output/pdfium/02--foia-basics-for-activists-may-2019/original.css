@@ -10,6 +10,7 @@
 
 body {
   font-family: "Lato", sans-serif;
+  font-weight: 300;
   color: #2b2824;
 }
 
@@ -84,7 +85,7 @@ h6 {
   color: #231f20;
 }
 
-.xl-serif {
+.xl-alt {
   font-family: "TIMMONSNY", sans-serif;
   color: #e22725;
   font-size: 3.0em;

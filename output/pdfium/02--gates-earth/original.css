@@ -11,6 +11,7 @@
 
 body {
   font-family: "Overused Grotesk", sans-serif;
+  font-weight: 300;
   color: #404040;
 }
 
@@ -204,109 +205,109 @@ h6 {
   color: #db578a;
 }
 
-.lg-strong-serif {
+.lg-strong-alt {
   font-family: "Titillium Web", sans-serif;
   font-weight: 700;
   color: #ff00e9;
   font-size: 1.57em;
 }
 
-.sm-strong-serif {
+.sm-strong-alt {
   font-family: "Open Sans", sans-serif;
   font-weight: 700;
   color: #00053a;
   font-size: 0.73em;
 }
 
-.sm-serif {
+.sm-alt {
   font-family: "Open Sans", sans-serif;
   color: #00053a;
   font-size: 0.63em;
 }
 
-.sm-strong-serif-2 {
+.sm-strong-alt-2 {
   font-family: "Open Sans", sans-serif;
   font-weight: 600;
   color: #00053a;
   font-size: 0.73em;
 }
 
-.lg-strong-serif-2 {
+.lg-strong-alt-2 {
   font-family: "Titillium Web", sans-serif;
   font-weight: 700;
   font-size: 1.15em;
 }
 
-.sm-strong-center-serif {
+.sm-strong-center-alt {
   font-family: "Open Sans", sans-serif;
   font-weight: 600;
   font-size: 0.73em;
   text-align: center;
 }
 
-.sm-strong-serif-3 {
+.sm-strong-alt-3 {
   font-family: "Open Sans", sans-serif;
   font-weight: 600;
   color: #00053a;
   font-size: 0.84em;
 }
 
-.sm-center-serif {
+.sm-center-alt {
   font-family: "Open Sans", sans-serif;
   font-size: 0.73em;
   text-align: center;
 }
 
-.sm-serif-2 {
+.sm-alt-2 {
   font-family: "Open Sans", sans-serif;
   font-size: 0.73em;
 }
 
-.lg-strong-serif-3 {
+.lg-strong-alt-3 {
   font-family: "Titillium Web", sans-serif;
   font-weight: 700;
   color: #ff00e9;
   font-size: 1.26em;
 }
 
-.lg-strong-serif-4 {
+.lg-strong-alt-4 {
   font-family: "Titillium Web", sans-serif;
   font-weight: 700;
   color: #ff0000;
   font-size: 1.26em;
 }
 
-.sm-strong-serif-4 {
+.sm-strong-alt-4 {
   font-family: "Open Sans", sans-serif;
   font-weight: 700;
   color: #00053a;
   font-size: 0.84em;
 }
 
-.strong-serif {
+.strong-alt {
   font-family: "Open Sans", sans-serif;
   font-weight: 700;
   color: #00053a;
 }
 
-.sm-serif-3 {
+.sm-alt-3 {
   font-family: "Open Sans", sans-serif;
   color: #00053a;
   font-size: 0.73em;
 }
 
-.sm-serif-4 {
+.sm-alt-4 {
   font-family: "Open Sans", sans-serif;
   font-size: 0.63em;
 }
 
-.sm-strong-serif-5 {
+.sm-strong-alt-5 {
   font-family: "Open Sans", sans-serif;
   font-weight: 700;
   font-size: 0.73em;
 }
 
-.sm-strong-serif-6 {
+.sm-strong-alt-6 {
   font-family: "Open Sans", sans-serif;
   font-weight: 700;
   color: #ff00e9;

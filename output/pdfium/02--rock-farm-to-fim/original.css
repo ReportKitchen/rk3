@@ -9,6 +9,7 @@
 
 body {
   font-family: "Graphik", sans-serif;
+  font-weight: 400;
   color: #345f5d;
 }
 
@@ -66,7 +67,7 @@ a:hover { text-decoration: underline; }
   font-size: 1.89em;
 }
 
-.sm-medium-serif {
+.sm-medium-alt {
   font-family: "Moderat", sans-serif;
   font-weight: 500;
   font-size: 0.79em;
@@ -78,7 +79,7 @@ a:hover { text-decoration: underline; }
   text-align: center;
 }
 
-.sm-serif {
+.sm-alt {
   font-family: "Moderat", sans-serif;
   font-size: 0.63em;
 }
@@ -108,13 +109,13 @@ a:hover { text-decoration: underline; }
   font-weight: 800;
 }
 
-.sm-strong-serif {
+.sm-strong-alt {
   font-family: "Moderat", sans-serif;
   font-weight: 700;
   font-size: 0.84em;
 }
 
-.sm-medium-serif-2 {
+.sm-medium-alt-2 {
   font-family: "Moderat", sans-serif;
   font-weight: 500;
   font-size: 0.84em;
@@ -143,13 +144,13 @@ a:hover { text-decoration: underline; }
   font-size: 1.26em;
 }
 
-.sm-medium-serif-3 {
+.sm-medium-alt-3 {
   font-family: "Moderat", sans-serif;
   font-weight: 500;
   font-size: 0.63em;
 }
 
-.sm-serif-2 {
+.sm-alt-2 {
   font-family: "Moderat", sans-serif;
   font-size: 0.84em;
 }
@@ -158,7 +159,7 @@ a:hover { text-decoration: underline; }
   font-size: 1.68em;
 }
 
-.lg-medium-serif {
+.lg-medium-alt {
   font-family: "Moderat", sans-serif;
   font-weight: 500;
   font-size: 1.26em;

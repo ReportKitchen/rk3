@@ -4,6 +4,7 @@
 
 body {
   font-family: "Calibri", sans-serif;
+  font-weight: 400;
   color: #000000;
 }
 
@@ -83,22 +84,22 @@ a:hover { text-decoration: underline; }
   text-align: center;
 }
 
-.sm-center-serif {
+.sm-center-alt {
   font-family: "Cambria Math", sans-serif;
   font-size: 0.71em;
   text-align: center;
 }
 
-.center-serif {
+.center-alt {
   font-family: "Cambria Math", sans-serif;
   text-align: center;
 }
 
-.serif {
+.alt {
   font-family: "Cambria Math", sans-serif;
 }
 
-.sm-serif {
+.sm-alt {
   font-family: "Cambria Math", sans-serif;
   font-size: 0.83em;
 }

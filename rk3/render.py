@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 45
+VERSION = 47
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -739,8 +739,8 @@ def _style_class_name(rules):
         traits.append("right")
     if re.search(r"^\s*color:", txt, re.M):
         traits.append("accent")
-    if re.search(r"font-family:[^;]*serif", txt):
-        traits.append("serif")
+    if re.search(r"font-family:[^;]*(?<!sans-)serif", txt):
+        traits.append("serif")  # true serif only — 'sans-serif' must not match
     elif "font-family" in txt:
         traits.append("alt")
     traits = tuple(t for t in traits if t)
@@ -758,11 +758,28 @@ def _original_css(ctx, ir):
 
     families = {}  # family -> {"weights", "italic"}: fetched from Google Fonts
 
-    def note_family(fam, weight, style):
+    # "use the PDF's fonts": when output.embedFonts is on, the actual embedded
+    # font programs were wrapped into OTFs by extract (manifest in ir). We serve
+    # them via @font-face and name them as the PRIMARY family, so the rendering
+    # is faithful and immune to a guessed/locally-installed same-named font (the
+    # points-of-light failure). A program that couldn't be wrapped just isn't in
+    # the manifest and falls back to the guessed family below.
+    embed = (ir.get("fonts_embed") or {}) \
+        if (ctx.cfg.get("output") or {}).get("embedFonts") else {}
+
+    def fam_value(name, fam, generic):
+        """font-family value; prepend the served embedded FAMILY when we have it.
+        All cuts of one family share the name "PDFEmbed <family>" so the browser
+        picks bold/italic by weight/style — emphasis works like a real font."""
+        if name in embed:
+            return f'"PDFEmbed {fam}", "{fam}", {generic}'
+        return f'"{fam}", {generic}'
+
+    def note_family(name, fam, weight, style):
         low = (fam or "").lower()
-        if not fam or low in SYSTEM_FAMILIES \
+        if not fam or name in embed or low in SYSTEM_FAMILIES \
                 or low.split()[0] in SYSTEM_FAMILIES:
-            return
+            return  # embedded families are served locally, never fetched
         f = families.setdefault(fam, {"weights": set(), "italic": False})
         f["weights"].add(weight or 400)
         if style == "italic":
@@ -774,8 +791,17 @@ def _original_css(ctx, ir):
         body_fam = fam or None
         rules = []
         if fam:
-            rules.append(f'  font-family: "{fam}", {generic};')
-            note_family(fam, weight, style)
+            rules.append(f'  font-family: {fam_value(body["font"], fam, generic)};')
+            # ALWAYS pin the body weight. Without it the body inherits the
+            # browser default (or, worse, whatever cut a stray local install of
+            # a same-named font ships) — that's how points-of-light rendered
+            # near-bold: bare "Gotham" matched a heavy local face. An explicit
+            # weight asks for the right cut (and embedFonts removes the ambiguity
+            # entirely by serving the actual program).
+            rules.append(f"  font-weight: {weight or 400};")
+            if style:
+                rules.append(f"  font-style: {style};")
+            note_family(body["font"], fam, weight, style)
         body_color = _usable_color(body["color"])
         if body_color:
             rules.append(f"  color: {body_color};")
@@ -787,8 +813,8 @@ def _original_css(ctx, ir):
         rules = []
         if h["font"]:
             fam, generic, weight, style = _font_css(h["font"])
-            rules.append(f'  font-family: "{fam}", {generic};')
-            note_family(fam, weight, style)
+            rules.append(f'  font-family: {fam_value(h["font"], fam, generic)};')
+            note_family(h["font"], fam, weight, style)
             if weight:
                 rules.append(f"  font-weight: {weight};")
             if style:
@@ -838,9 +864,9 @@ def _original_css(ctx, ir):
             fam, generic, weight, style = _font_css(d["font"])
             _, _, b_weight, b_style = _font_css(body["font"] or "")
             if fam:
-                note_family(fam, weight, style)
-                if fam != body_fam:
-                    rules.append(f'  font-family: "{fam}", {generic};')
+                note_family(d["font"], fam, weight, style)
+                if fam != body_fam or d["font"] in embed:
+                    rules.append(f'  font-family: {fam_value(d["font"], fam, generic)};')
                 if weight and weight != b_weight:
                     rules.append(f"  font-weight: {weight};")
                 if style and style != b_style:
@@ -871,9 +897,9 @@ def _original_css(ctx, ir):
             lrules = []
             if d.get("leadFont"):
                 fam, generic, weight, style = _font_css(d["leadFont"])
-                if fam and fam != body_fam:
-                    lrules.append(f"  font-family: \"{fam}\", {generic};")
-                    note_family(fam, weight, style)
+                if fam and (fam != body_fam or d["leadFont"] in embed):
+                    lrules.append(f'  font-family: {fam_value(d["leadFont"], fam, generic)};')
+                    note_family(d["leadFont"], fam, weight, style)
                 if weight:
                     lrules.append(f"  font-weight: {weight};")
                 if style:
@@ -1011,6 +1037,24 @@ def _original_css(ctx, ir):
             imports.append(f'@import url("{base}{axis}&display=swap");')
     if imports:
         out[4:4] = imports + [""]
+
+    # @font-face for the embedded programs (output.embedFonts). All cuts of a
+    # family are declared under ONE family name at their true weight/style, so
+    # the existing weight rules (body 400, <strong> 700, ...) select the right
+    # face — bold/italic emphasis just works, no synthesis. NOTE: serving a
+    # licensed font is the user's responsibility to clear.
+    if embed:
+        faces = ["/* Embedded fonts from the source PDF. If a font is licensed,",
+                 "   it is your responsibility to have the right to web-serve it. */"]
+        for name in sorted(embed):
+            fam, _generic, weight, style = _font_css(name)
+            faces += [f'@font-face {{',
+                      f'  font-family: "PDFEmbed {fam}";',
+                      f'  src: url("{embed[name]["file"]}") format("opentype");',
+                      f'  font-weight: {weight or 400};',
+                      f'  font-style: {style or "normal"};',
+                      f'}}']
+        out[4:4] = faces + [""]
 
     # original list markers (symbol-font glyphs approximate to square)
     markers = {(n.get("data") or {}).get("marker")

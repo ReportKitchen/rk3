@@ -9,6 +9,7 @@
 
 body {
   font-family: "Futura PT", sans-serif;
+  font-weight: 400;
   color: #000000;
 }
 
@@ -168,7 +169,7 @@ a:hover { text-decoration: underline; }
   font-size: 1.2em;
 }
 
-.lg-medium-serif {
+.lg-medium-alt {
   font-family: "Futura", sans-serif;
   font-weight: 500;
   font-size: 1.2em;

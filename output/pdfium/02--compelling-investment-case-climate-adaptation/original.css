@@ -10,6 +10,7 @@
 
 body {
   font-family: "ACaslon Pro", serif;
+  font-weight: 400;
   color: #2a2828;
 }
 
@@ -48,72 +49,72 @@ h5 {
   font-size: 0.8rem;
 }
 
-.sm-serif {
+.sm-alt {
   font-family: "Acumin Pro Semi Cond", sans-serif;
   font-weight: 300;
   font-size: 0.8em;
 }
 
-.serif {
+.alt {
   font-family: "Acumin Pro Semi Cond", sans-serif;
   font-weight: 300;
   color: #5d5959;
 }
 
-.sm-serif-2 {
+.sm-alt-2 {
   font-family: "Acumin Pro Semi Cond", sans-serif;
   font-size: 0.85em;
 }
 
-.serif-2 {
+.alt-2 {
   font-family: "Acumin Pro Semi Cond", sans-serif;
   color: #808285;
 }
 
-.sm-serif-3 {
+.sm-alt-3 {
   font-family: "Acumin Pro Semi Cond", sans-serif;
   color: #808285;
   font-size: 0.7em;
 }
 
-.sm-serif-4 {
+.sm-alt-4 {
   font-family: "Acumin Pro Semi Cond", sans-serif;
   color: #191818;
   font-size: 0.7em;
 }
 
-.sm-right-serif {
+.sm-right-alt {
   font-family: "Acumin Pro Semi Cond", sans-serif;
   color: #808285;
   font-size: 0.7em;
   text-align: right;
 }
 
-.serif-3 {
+.alt-3 {
   font-family: "Acumin Pro Semi Cond", sans-serif;
   color: #191818;
 }
 
-.sm-serif-5 {
+.sm-alt-5 {
   font-family: "Acumin Pro Semi Cond", sans-serif;
   font-weight: 300;
   color: #58595b;
   font-size: 0.7em;
 }
 
-.serif-4 {
+.alt-4 {
   font-family: "Acumin Pro Semi Cond", sans-serif;
   font-weight: 300;
   color: #191818;
 }
 
-.sm-serif-6 {
+.sm-alt-6 {
   font-family: "Acumin Pro Semi Cond", sans-serif;
   color: #808285;
   font-size: 0.8em;
 }
 
-.sm-medium-serif {
+.sm-medium-alt {
   font-family: "Acumin Pro Semi Cond", sans-serif;
   font-weight: 500;
   color: #191818;

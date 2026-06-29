@@ -9,6 +9,7 @@
 
 body {
   font-family: "Reader Pro", sans-serif;
+  font-weight: 400;
   color: #000000;
 }
 
@@ -68,7 +69,7 @@ a:hover { text-decoration: underline; }
   font-size: 4.04em;
 }
 
-.xl-medium-serif {
+.xl-medium-alt {
   font-family: "Founders Grotesk", sans-serif;
   font-weight: 500;
   font-size: 3.33em;
@@ -78,7 +79,7 @@ a:hover { text-decoration: underline; }
   font-weight: 700;
 }
 
-.xl-strong-serif {
+.xl-strong-alt {
   font-family: "Founders Grotesk", sans-serif;
   font-weight: 600;
   font-size: 2.0em;
@@ -93,13 +94,13 @@ a:hover { text-decoration: underline; }
   font-style: italic;
 }
 
-.xl-strong-serif-2 {
+.xl-strong-alt-2 {
   font-family: "Founders Grotesk", sans-serif;
   font-weight: 700;
   font-size: 2.0em;
 }
 
-.lg-strong-serif {
+.lg-strong-alt {
   font-family: "Founders Grotesk", sans-serif;
   font-weight: 700;
   font-size: 1.5em;
@@ -115,13 +116,13 @@ a:hover { text-decoration: underline; }
   font-size: 0.75em;
 }
 
-.xl-strong-serif-3 {
+.xl-strong-alt-3 {
   font-family: "Founders Grotesk", sans-serif;
   font-weight: 700;
   font-size: 4.0em;
 }
 
-.xl-strong-serif-4 {
+.xl-strong-alt-4 {
   font-family: "Founders Grotesk", sans-serif;
   font-weight: 600;
   font-size: 5.0em;
@@ -133,7 +134,7 @@ a:hover { text-decoration: underline; }
   font-size: 0.67em;
 }
 
-.xl-strong-serif-5 {
+.xl-strong-alt-5 {
   font-family: "Founders Grotesk", sans-serif;
   font-weight: 700;
   font-size: 3.5em;
@@ -157,7 +158,7 @@ a:hover { text-decoration: underline; }
   font-size: 0.83em;
 }
 
-.sm-strong-serif {
+.sm-strong-alt {
   font-family: "Founders Grotesk", sans-serif;
   font-weight: 700;
   font-size: 0.83em;

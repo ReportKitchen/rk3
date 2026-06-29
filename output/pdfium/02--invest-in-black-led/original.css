@@ -10,6 +10,7 @@
 
 body {
   font-family: "Algebra", sans-serif;
+  font-weight: 400;
   color: #000000;
 }
 
@@ -42,27 +43,27 @@ h4 {
   font-size: 4.3em;
 }
 
-.lg-serif {
+.lg-alt {
   font-family: "Akkurat Std", sans-serif;
   font-size: 1.15em;
 }
 
-.sm-strong-serif {
+.sm-strong-alt {
   font-family: "Akkurat Std", sans-serif;
   font-weight: 700;
   font-size: 0.8em;
 }
 
-.serif {
+.alt {
   font-family: "Akkurat Std", sans-serif;
 }
 
-.italic-serif {
+.italic-alt {
   font-family: "Akkurat Std", sans-serif;
   font-style: italic;
 }
 
-.sm-serif {
+.sm-alt {
   font-family: "Akkurat Std", sans-serif;
   font-size: 0.8em;
 }
@@ -80,21 +81,21 @@ h4 {
   font-size: 1.4em;
 }
 
-.strong-serif {
+.strong-alt {
   font-family: "Akkurat Std", sans-serif;
   font-weight: 700;
 }
 
-.serif-2 {
+.alt-2 {
   font-family: "Akkurat", sans-serif;
 }
 
-.sm-serif-2 {
+.sm-alt-2 {
   font-family: "Akkurat Std", sans-serif;
   font-size: 0.7em;
 }
 
-.lg-serif-2 {
+.lg-alt-2 {
   font-family: "Akkurat Std", sans-serif;
   font-size: 1.27em;
 }
@@ -103,14 +104,14 @@ h4 {
   font-size: 2.76em;
 }
 
-.sm-strong-center-serif {
+.sm-strong-center-alt {
   font-family: "Akkurat Std", sans-serif;
   font-weight: 700;
   font-size: 0.8em;
   text-align: center;
 }
 
-.sm-center-serif {
+.sm-center-alt {
   font-family: "Akkurat Std", sans-serif;
   font-size: 0.8em;
   text-align: center;
@@ -120,7 +121,7 @@ h4 {
   font-size: 2.2em;
 }
 
-.strong-right-serif {
+.strong-right-alt {
   font-family: "Akkurat Std", sans-serif;
   font-weight: 700;
   text-align: right;

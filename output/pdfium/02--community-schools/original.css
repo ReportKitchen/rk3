@@ -13,6 +13,7 @@
 
 body {
   font-family: "Open Sans", sans-serif;
+  font-weight: 400;
   color: #1f3d59;
 }
 
@@ -56,17 +57,17 @@ h6 {
   text-align: center;
 }
 
-.strong-serif {
+.strong-alt {
   font-family: "Zilla Slab", sans-serif;
   font-weight: 600;
 }
 
-.sm-serif {
+.sm-alt {
   font-family: "Acumin Variable Concept", sans-serif;
   font-size: 0.82em;
 }
 
-.strong-center-serif {
+.strong-center-alt {
   font-family: "Zilla Slab", sans-serif;
   font-weight: 600;
   text-align: center;
@@ -84,19 +85,19 @@ h6 {
   font-style: italic;
 }
 
-.xl-serif {
+.xl-alt {
   font-family: "Manus", sans-serif;
   color: #21a4b0;
   font-size: 3.82em;
 }
 
-.xl-center-serif {
+.xl-center-alt {
   font-family: "Acumin Variable Concept", sans-serif;
   font-size: 5.45em;
   text-align: center;
 }
 
-.xl-serif-2 {
+.xl-alt-2 {
   font-family: "Manus", sans-serif;
   color: #ffe378;
   font-size: 3.82em;

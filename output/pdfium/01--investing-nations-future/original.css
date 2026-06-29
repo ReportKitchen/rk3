@@ -7,6 +7,7 @@
 
 body {
   font-family: "Garamond", serif;
+  font-weight: 400;
   color: #000000;
 }
 
@@ -131,34 +132,34 @@ a:hover { text-decoration: underline; }
   color: #222222;
 }
 
-.lg-serif {
+.lg-alt {
   font-family: "Cambria", sans-serif;
   font-size: 1.17em;
 }
 
-.sm-serif {
+.sm-alt {
   font-family: "Cambria", sans-serif;
   font-size: 0.75em;
 }
 
-.sm-serif-2 {
+.sm-alt-2 {
   font-family: "Cambria", sans-serif;
   font-size: 0.59em;
 }
 
-.sm-strong-serif {
+.sm-strong-alt {
   font-family: "Cambria", sans-serif;
   font-weight: 700;
   font-size: 0.58em;
 }
 
-.sm-strong-serif-2 {
+.sm-strong-alt-2 {
   font-family: "Cambria", sans-serif;
   font-weight: 700;
   font-size: 0.59em;
 }
 
-.sm-serif-3 {
+.sm-alt-3 {
   font-family: "Cambria", sans-serif;
   font-size: 0.67em;
 }
