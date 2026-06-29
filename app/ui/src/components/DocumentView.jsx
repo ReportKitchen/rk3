@@ -3,6 +3,7 @@ import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panel
 import { docUrl, pageUrl } from "../api.js";
 import { setupSync } from "../syncScroll.js";
 import DocToolbar from "./DocToolbar.jsx";
+import ReadingOrderPanel from "./ReadingOrderPanel.jsx";
 import QuestionsPanel from "./QuestionsPanel.jsx";
 
 // Puck is heavy (~90kB gzip); load the Landing Page Maker only when its tab opens
@@ -12,6 +13,7 @@ const LandingMaker = lazy(() => import("../landing/LandingMaker.jsx"));
 // rest are alternate representations of the same content
 const TABS = [
   { id: "convert", label: "Convert Document" },
+  { id: "reading-order", label: "Reading Order" },
   { id: "landing", label: "Landing Page" },
 ];
 
@@ -45,7 +47,7 @@ export default function DocumentView({
   doc, buildId = null, toggles, setToggles, questions, answers, feedback, ops, pageDims, onConvert, onAnnotate,
   onQuestion, onClearNote, onEmptyTrash, onRemoveOp, highlightNid,
   docVersion = 0, flashNid = null, deepLinkNid = null, onConsumeDeepLink,
-  fontsComplete = null, onPersistEmbed,
+  fontsComplete = null, onPersistEmbed, ir = null,
 }) {
   const iframeRef = useRef(null);
   const pdfPaneRef = useRef(null);
@@ -411,6 +413,12 @@ export default function DocumentView({
             )}
           </div>
         </div>
+
+        {tab === "reading-order" && (
+          <div className="rorder-tab">
+            <ReadingOrderPanel slug={doc.slug} ir={ir} onConvert={onConvert} />
+          </div>
+        )}
 
         {tab === "landing" && (
           <Suspense fallback={<div className="hint" style={{ padding: "2rem" }}>Loading editor…</div>}>

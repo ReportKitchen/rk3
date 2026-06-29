@@ -438,10 +438,14 @@ def delete_feedback(slug: str, entry_id: str):
 
 class EditOp(BaseModel):
     """Durable per-element edit: survives every re-render, applied at the
-    render stage. One op per (nid, op) pair — posting again replaces."""
+    render stage. One op per (nid, op) pair — posting again replaces.
+    `reorder` is page-scoped (nid = "reorder-p<page>"): `order` lists the page's
+    nids in the corrected reading order."""
     nid: str
-    op: str  # set-text | delete | set-level
+    op: str  # set-text | delete | set-level | reorder
     value: str | int | None = None
+    page: int | None = None
+    order: list[str] | None = None
 
 
 def _ops_path(slug: str) -> Path:

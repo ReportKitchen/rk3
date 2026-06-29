@@ -179,6 +179,7 @@ export default function App() {
               feedback={feedback}
               ops={ops}
               pageDims={ir?.pages}
+              ir={ir}
               fontsComplete={ir?.fonts_complete}
               onPersistEmbed={(val) =>
                 setDocEmbedFonts(selected, val).catch(guard("save embed setting"))}

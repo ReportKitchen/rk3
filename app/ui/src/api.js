@@ -83,6 +83,16 @@ export const postOp = (slug, op) =>
     body: JSON.stringify(op),
   }).then(json);
 
+// Reading-order tool. Save the corrected order two ways:
+//  - gold set: an `order` eval assertion (text prefixes, forced so a still-wrong
+//    page records as a regression target);
+//  - reorder op: a page-scoped <name>.ops.json entry that fixes the output.
+export const saveOrderAssertion = (slug, order, note) =>
+  saveAssertion(slug, { order, note, stage: "analyze" }, true);
+
+export const saveReorderOp = (slug, page, order) =>
+  postOp(slug, { nid: `reorder-p${page}`, op: "reorder", page, order });
+
 export const deleteOp = (slug, opKind, nid) =>
   fetch(`/api/ops/${slug}/${opKind}/${nid}`, { method: "DELETE" }).then(json);
 

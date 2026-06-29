@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 97
+VERSION = 99
 
 
 # PDF font-descriptor flag bits
@@ -1882,6 +1882,78 @@ def _struct_order(tagged, bbox):
         if ix > 0 and iy > 0 and ix * iy > best_area:
             best_area, best = ix * iy, seq
     return best
+
+
+def _reading_order_topo(bboxes):
+    """Breuel/OCRopus reading order by topological sort over before-after
+    constraints (docs/research/reading-order.md). For each ordered pair:
+      - x-overlap (same column) and A higher → A before B (read down a column);
+      - no x-overlap and A fully left of B, with NO third block between them →
+        A before B (read left column before right). The "between" guard stops a
+        wrong cross-column edge when an intervening block mediates the order.
+    A full-width header x-overlaps both columns, so the higher-element rule puts
+    it first with no special-casing. Topological-sort the DAG, breaking ties (and
+    any cycle from a genuinely ambiguous layout) by reading position. No
+    recursive cut and no global whitespace threshold — the XY-cut failure modes
+    (spanning headers, split sentences, column order) don't apply."""
+    n = len(bboxes)
+    if n <= 1:
+        return list(range(n))
+
+    def xov(u, v):
+        return bboxes[u][0] < bboxes[v][2] and bboxes[u][2] > bboxes[v][0]
+
+    def higher(u, v):           # u's top above v's top (PDF y grows upward)
+        return bboxes[u][3] > bboxes[v][3]
+
+    def left_of(u, v):          # u entirely left of v
+        return bboxes[u][2] <= bboxes[v][0]
+
+    def between(w, u, v):       # w in the horizontal gap u|v, sharing their band
+        ww = bboxes[w]
+        ytop = max(bboxes[u][3], bboxes[v][3])
+        ybot = min(bboxes[u][1], bboxes[v][1])
+        if ww[1] >= ytop or ww[3] <= ybot:   # w outside their vertical span
+            return False
+        return ww[0] < bboxes[u][2] and ww[2] > bboxes[v][0]
+
+    succ = [[] for _ in range(n)]
+    indeg = [0] * n
+
+    def add(i, j):
+        succ[i].append(j)
+        indeg[j] += 1
+
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                continue
+            if xov(i, j):
+                if higher(i, j):
+                    add(i, j)
+            elif left_of(i, j) and not any(
+                    between(w, i, j) for w in range(n) if w != i and w != j):
+                add(i, j)
+
+    pos = lambda k: (-bboxes[k][3], bboxes[k][0])  # higher first, then leftmost
+    seen = [False] * n
+    ready = [k for k in range(n) if indeg[k] == 0]
+    out = []
+    while len(out) < n:
+        if ready:
+            ready.sort(key=pos)
+            k = ready.pop(0)
+        else:                    # cycle (ambiguous layout): best remaining
+            k = min((x for x in range(n) if not seen[x]), key=pos)
+        if seen[k]:
+            continue
+        seen[k] = True
+        out.append(k)
+        for j in succ[k]:
+            indeg[j] -= 1
+            if indeg[j] == 0 and not seen[j]:
+                ready.append(j)
+    return out
 
 
 def _reading_order(bboxes):
