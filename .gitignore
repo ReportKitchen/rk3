@@ -10,8 +10,23 @@ sources/0*/*
 !sources/0*/*.landing.json
 !sources/0*/*.landing-theme.json
 
-# generated conversion artifacts (rebuildable from sources + code)
-output/
+# generated conversion artifacts: ignore the heavy, binary, regenerable bulk
+# (page & figure PNGs, the raw per-char extract, intermediate blocks, debug
+# logs — ~930M for 30 docs), but DO track the small, diffable, SEMANTIC outputs
+# so an output change can be reviewed against the code change that caused it and
+# improvement measured. ir.json = legs 1&2 (emphasis/link spans); index.html =
+# leg 3 (render nesting, invisible in the IR). ~11M for 30 docs.
+# NOTE: at ~30k docs this won't fit git — move to a golden-file/object store then.
+output/*
+!output/pdfium/
+output/pdfium/*
+!output/pdfium/*/
+output/pdfium/*/*
+!output/pdfium/*/ir.json
+!output/pdfium/*/index.html
+!output/pdfium/*/default.css
+!output/pdfium/*/original.css
+!output/pdfium/*/layout.css
 
 # viewer annotations (scratch working data, per user decision)
 feedback/

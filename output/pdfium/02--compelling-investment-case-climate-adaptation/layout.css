@@ -1,0 +1,56 @@
+/* Layer 1 — pure layout. Single reading column; nav above content; figures
+   and asides sized to the column. No colors, no decoration. */
+
+main {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 0 1.25rem 4rem;
+}
+
+nav {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 1rem 1.25rem;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav .nav-l2 { padding-left: 1.25rem; }
+nav .nav-l3 { padding-left: 2.5rem; }
+
+figure {
+  margin: 1.5rem 0;
+  max-width: 100%;
+}
+
+figure img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+aside {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+}
+
+.columns {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+@media (max-width: 40rem) {
+  .columns { grid-auto-flow: row; }
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
