@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 90
+VERSION = 91
 
 
 # PDF font-descriptor flag bits
@@ -2927,7 +2927,12 @@ def _indents(ctx, nodes):
             size = (n.get("data") or {}).get("size") or 10.0
             ind = n["bbox"][0] - base
             rm = right - n["bbox"][2]
-            if ind > 2 * size and abs(ind - rm) < 0.1 * max(right - base, 1):
+            # centered = pulled in from BOTH sides by similar amounts. Require a
+            # real right margin too (a left-indented block that still runs to the
+            # full right edge — rm≈0 — is indented body, not centered), and a
+            # tight absolute balance (the old 10%-of-width tolerance was ~46pt,
+            # so it mislabeled left-indented continuations as centered).
+            if ind > 2 * size and rm > 2 * size and abs(ind - rm) < 1.5 * size:
                 n["data"]["align"] = "center"
                 ctx.log.entry("centered", page=page_n, nid=n["nid"],
                               text=(n.get("text") or "")[:50])
