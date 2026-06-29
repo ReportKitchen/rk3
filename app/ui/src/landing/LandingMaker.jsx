@@ -11,6 +11,7 @@ import { puckConfig, TYPE_TO_PUCK } from "./puckConfig.jsx";
 import { toPuck, fromPuck, propsToPuck } from "./puckAdapter.js";
 import { exportZip } from "./exportZip.js";
 import { LandingCtx } from "./landingCtx.js";
+import { guard } from "../errorBus.js";
 import RightPanel, { SavedStatus, DrawerItem } from "./RightPanel.jsx";
 
 // the viewport picker means "simulated host-page width", complementary to the
@@ -72,9 +73,9 @@ export default function LandingMaker({ doc }) {
   useEffect(() => {
     let alive = true;
     setInitial(null);
-    getArchetypes().then((a) => alive && setArchetypes(a)).catch(() => {});
-    getAiMode().then((m) => alive && setAiMode(m)).catch(() => {});
-    getBlockDefaults(slug).then((d) => alive && setBlockDefaults(d)).catch(() => {});
+    getArchetypes().then((a) => alive && setArchetypes(a)).catch(guard("landing: archetypes", null));
+    getAiMode().then((m) => alive && setAiMode(m)).catch(guard("landing: ai mode", null));
+    getBlockDefaults(slug).then((d) => alive && setBlockDefaults(d)).catch(guard("landing: block defaults", null));
     Promise.all([getLanding(slug), getLandingTheme(slug)])
       .then(([config, theme]) => {
         if (!alive) return;
@@ -84,7 +85,7 @@ export default function LandingMaker({ doc }) {
         markSeeded();
         setDirty(false);
         setInitial(d);
-      }).catch(() => {});
+      }).catch(guard("landing: load config/theme", null));
     getIr(slug).then((ir) => {
       if (!alive) return;
       const figs = (ir.body || []).filter((n) => n.type === "figure" && n.src);
@@ -92,7 +93,7 @@ export default function LandingMaker({ doc }) {
         { src: "pages/page-0001.png", label: "Page 1 (cover)" },
         ...figs.map((f, i) => ({ src: f.src, label: `Figure ${i + 1} (${f.width}×${f.height})` })),
       ]);
-    }).catch(() => {});
+    }).catch(guard("landing: load IR", null));
     return () => { alive = false; };
   }, [slug]);
 
@@ -100,7 +101,7 @@ export default function LandingMaker({ doc }) {
   const save = useCallback((config, theme) => {
     setSaved(false);
     Promise.all([postLanding(slug, config), postLandingTheme(slug, theme)])
-      .then(() => setSaved(true)).catch(() => {});
+      .then(() => setSaved(true)).catch(guard("landing: save", null));
   }, [slug]);
 
   const onChange = useCallback((data) => {

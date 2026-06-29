@@ -10,16 +10,213 @@ Artifact: blocks.json
 """
 
 import re
-from collections import Counter
+from collections import Counter, defaultdict
 
-VERSION = 28
+VERSION = 35
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
 
+# Width-bold fallback: some PDFs render bold as a HEAVIER WEIGHT OF THE SAME
+# NAMED FONT — pdfium (and pdfminer/PyMuPDF) report identical name/weight/flags
+# for bold and regular, so name-based emphasis is blind. The only signal left is
+# glyph width: bold glyphs of the same letter are consistently wider. We detect
+# fonts that are used in two weights (per-letter widths are bimodal) and split
+# the wide glyphs into a synthetic bold font index, which the existing
+# fontRuns + name/weight emphasis machinery then treats as <strong>.
+_WIDTH_GAP = 0.045        # ≥4.5% gap between a letter's two width clusters
+_VALLEY_RATIO = 4.0       # inter-cluster gap must dwarf the typical intra gap
+_MIN_SAMPLES = 8          # per-letter samples needed to trust a cluster split
+_MIN_BIMODAL_LETTERS = 5  # a font must be bimodal across this many letters
+
+
+def _median(xs):
+    s = sorted(xs)
+    n = len(s)
+    return s[n // 2] if n % 2 else (s[n // 2 - 1] + s[n // 2]) / 2
+
+
+def _cluster_centers(ws):
+    """Split a letter's widths into two weight clusters — but ONLY if they are
+    genuinely bimodal: the gap between them must be a real VALLEY, i.e. much
+    larger than the typical gap within a cluster. A single-weight font with
+    naturally spread widths (old-style serifs) has evenly-sized gaps and is
+    rejected here; a true second weight leaves one gap that dwarfs the rest.
+    Returns (regular, bold, ratio) or None."""
+    s = sorted(ws)
+    if len(s) < _MIN_SAMPLES:
+        return None
+    lo_i, hi_i = len(s) // 6, len(s) * 5 // 6          # ignore extreme outliers
+    gaps = sorted((s[i + 1] - s[i]) for i in range(len(s) - 1))
+    typical = gaps[len(gaps) // 2] or 1e-6             # median consecutive gap
+    best, idx = 0.0, None
+    for i in range(lo_i, hi_i):
+        g = s[i + 1] - s[i]
+        if s[i] > 0 and g / s[i] > best:
+            best, idx = g / s[i], i
+    if idx is None or best < _WIDTH_GAP:
+        return None
+    if (s[idx + 1] - s[idx]) < _VALLEY_RATIO * typical:  # not a real valley
+        return None
+    lo, hi = s[:idx + 1], s[idx + 1:]
+    if len(lo) < 3 or len(hi) < 3:
+        return None
+    reg, bold = _median(lo), _median(hi)
+    return reg, bold, bold / reg
+
+
+_WORD_BOLD_RATIO = 1.045   # a word whose mean glyph-width ratio clears this is bold
+
+# name weight tokens (longest/compound first so 'semibold' beats 'bold')
+_NAME_WEIGHTS = [
+    ("extrablack", 950), ("ultrablack", 950), ("extrabold", 800), ("ultrabold", 800),
+    ("semibold", 600), ("demibold", 600), ("extralight", 200), ("ultralight", 200),
+    ("black", 900), ("heavy", 900), ("bold", 700), ("medium", 500), ("demi", 600),
+    ("semi", 600), ("light", 300), ("thin", 100), ("book", 400), ("regular", 400),
+    ("normal", 400), ("roman", 400), ("hea", 900), ("blk", 900), ("bd", 700),
+    ("sb", 600), ("dem", 600), ("med", 500), ("boo", 400), ("reg", 400), ("lt", 300),
+]
+
+
+def _name_weight(name):
+    low = (name or "").lower()
+    for tok, w in _NAME_WEIGHTS:
+        if tok in low:
+            return w
+    return 400
+
+
+def _family_key(name):
+    """Family name with subset prefix, weight/style tokens, and non-letters
+    stripped — so 'ABCDEF+ProximaNova-Bold' and 'ProximaNova-Light' group."""
+    low = re.sub(r"^[a-z0-9]+\+", "", (name or "").lower())
+    low = re.sub(r"[^a-z]", "", low)
+    for tok, _ in _NAME_WEIGHTS:
+        low = low.replace(tok, "")
+    for tok in ("italic", "ital", "oblique", "obl", "condensed", "cond", "sc"):
+        low = low.replace(tok, "")
+    return low
+
+
+def _split_width_bold_fonts(ctx, ex):
+    """Detect fonts used in two weights under one name (per-letter widths are
+    bimodal) and reassign the heavier glyphs to a synthetic bold font index.
+    Decision is per WORD (mean of each glyph's width / its letter's regular
+    baseline) — averaging cancels the per-glyph noise that fragments round
+    letters — then punctuation gaps between bold words are filled so a phrase
+    stays one contiguous run. Mutates ex (chars + fonts) in place."""
+    fonts = ex["fonts"]
+    # Only fonts whose FAMILY embeds a single weight are candidates: if a family
+    # ships a real -Bold/-Semibold, the bold text lives in THAT named font and
+    # name-based detection already catches it — width-splitting would double up.
+    # gates' OverusedGrotesk ships only -Light yet renders bold → exactly this.
+    fam_weights = defaultdict(set)
+    for f in fonts:
+        fam_weights[_family_key(f.get("name", ""))].add(_name_weight(f.get("name", "")))
+
+    # width PER POINT (width / font size): the same font at 8pt vs 10pt has very
+    # different absolute widths but identical width-per-point — normalizing by
+    # size is what isolates a true weight difference from a mere size difference.
+    def _wp(c):
+        return (c[R] - c[L]) / c[SIZE] if c[SIZE] else 0
+
+    widths = defaultdict(lambda: defaultdict(list))
+    for page in ex["pages"]:
+        for c in page["chars"]:
+            if c[UC].isalpha() and c[SIZE]:
+                widths[c[FONT]][c[UC]].append(_wp(c))
+    total_glyphs = sum(len(ws) for f in widths.values() for ws in f.values())
+
+    for fi in list(widths):
+        fname = fonts[fi].get("name", "")
+        fcount = sum(len(ws) for ws in widths[fi].values())
+        # candidate only if (a) it's a primary BODY font (where a missing bold is
+        # both common and glaring — display/accent fonts used for a few words are
+        # excluded), and (b) its family ships ONE light/regular/medium weight, so
+        # the bold can't already be a named sibling.
+        if not total_glyphs or fcount / total_glyphs < 0.25:
+            continue
+        if len(fam_weights[_family_key(fname)]) != 1 or _name_weight(fname) > 500:
+            continue
+        centers = {ch: c for ch, ws in widths[fi].items()
+                   if (c := _cluster_centers(ws)) is not None}
+        if len(centers) < _MIN_BIMODAL_LETTERS:        # not a two-weight font
+            continue
+        baseline = {}                                  # per-letter regular width
+        for ch, ws in widths[fi].items():
+            if len(ws) >= 4:
+                s = sorted(ws)
+                baseline[ch] = s[int(len(s) * 0.3)]
+
+        # mark bold glyphs page by page, by word, then gap-fill punctuation
+        marks = {}        # id(page) -> set of char indices that are bold
+        words = bold_words = 0
+        bold_scores = []
+        for page in ex["pages"]:
+            chars = page["chars"]
+            mask = [False] * len(chars)
+            i, n = 0, len(chars)
+            while i < n:
+                if not (chars[i][FONT] == fi and chars[i][UC].isalpha()):
+                    i += 1
+                    continue
+                j = i
+                ratios = []
+                while j < n and chars[j][FONT] == fi and chars[j][UC].isalpha():
+                    b = baseline.get(chars[j][UC])
+                    if b and chars[j][SIZE]:
+                        ratios.append(_wp(chars[j]) / b)
+                    j += 1
+                words += 1
+                score = sum(ratios) / len(ratios) if ratios else 0
+                if ratios and score >= _WORD_BOLD_RATIO:
+                    bold_words += 1
+                    bold_scores.append(score)
+                    for k in range(i, j):
+                        mask[k] = True
+                i = j
+            # gap-fill: same-font punctuation/space between two bold glyphs (e.g.
+            # the comma+space in "Second, losses") joins the run
+            for a in range(len(chars)):
+                if mask[a] or chars[a][FONT] != fi:
+                    continue
+                nxt = next((b for b in range(a + 1, min(a + 4, len(chars)))
+                            if mask[b]), None)
+                if nxt and any(mask[b] for b in range(max(0, a - 3), a)):
+                    mask[a] = True
+            marks[id(page)] = {k for k, m in enumerate(mask) if m}
+
+        # Reject natural variance (single-weight serifs like ACaslonPro whose
+        # widths spread enough to clip the threshold): a REAL second weight forms
+        # a cluster clearly above the regular body, so its bold words score high
+        # on average. A tail of barely-over words (median ~1.05) is just noise.
+        if not words or not (0.01 <= bold_words / words <= 0.6):
+            continue
+        if not bold_scores or _median(bold_scores) < 1.075:
+            ctx.log.entry("width-bold-skip", font=fname,
+                          reason="bold cluster not separated from body",
+                          bold_median=round(_median(bold_scores), 3) if bold_scores else 0)
+            continue
+        base = fonts[fi]
+        syn = {"name": base.get("name", ""), "weight": max(base.get("weight", 400), 700),
+               "flags": base.get("flags", 0), "synthetic_bold": True}
+        fonts.append(syn)
+        bidx = len(fonts) - 1
+        moved = 0
+        for page in ex["pages"]:
+            sel = marks.get(id(page)) or set()
+            for k in sel:
+                page["chars"][k][FONT] = bidx
+                moved += 1
+        ctx.log.entry("width-bold-split", font=base.get("name", ""), font_idx=fi,
+                      synthetic_idx=bidx, ratio=round(_median([r for _, _, r in centers.values()]), 3),
+                      letters=len(centers), bold_words=bold_words, words=words,
+                      glyphs_moved=moved)
+
 
 def run(ctx):
     ex = ctx.artifact("extract")
+    _split_width_bold_fonts(ctx, ex)
     all_blocks = []
     for page in ex["pages"]:
         # candidate text-highlight rects: small filled paths (height-checked

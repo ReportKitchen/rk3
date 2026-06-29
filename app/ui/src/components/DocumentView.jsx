@@ -42,7 +42,7 @@ const MARKER_CSS = `
 `;
 
 export default function DocumentView({
-  doc, toggles, setToggles, questions, answers, feedback, ops, pageDims, onConvert, onAnnotate,
+  doc, buildId = null, toggles, setToggles, questions, answers, feedback, ops, pageDims, onConvert, onAnnotate,
   onQuestion, onClearNote, onEmptyTrash, onRemoveOp, highlightNid,
   docVersion = 0, flashNid = null, deepLinkNid = null, onConsumeDeepLink,
 }) {
@@ -55,12 +55,14 @@ export default function DocumentView({
   // persists the content|pdf divider position to localStorage
   const splitLayout = useDefaultLayout({ id: "rk3-content-split", panelIds: ["content", "pdf"] });
   const savedScroll = useRef(null);
-  const prevVersion = useRef(docVersion);
+  // cache-bust key: in-app edits bump docVersion; a CLI/agent rebuild changes
+  // buildId (the on-disk render fingerprint). Either reloads the iframe.
+  const bust = `${docVersion}-${buildId || ""}`;
+  const prevBust = useRef(bust);
 
-  // an applied edit reloads only the iframe (?v= cache-buster); capture the
-  // reading position first so the user stays exactly where they were
-  if (docVersion !== prevVersion.current) {
-    prevVersion.current = docVersion;
+  // capture the reading position first so the user stays exactly where they were
+  if (bust !== prevBust.current) {
+    prevBust.current = bust;
     const win = iframeRef.current?.contentWindow;
     savedScroll.current = { y: win ? win.scrollY : 0 };
     setFrameLoaded(false);  // render-phase reset: effects rebind on new load
@@ -359,7 +361,7 @@ export default function DocumentView({
                 <iframe
                   title={doc.name}
                   ref={iframeRef}
-                  src={docUrl(doc.slug) + (docVersion ? `?v=${docVersion}` : "")}
+                  src={docUrl(doc.slug) + `?v=${encodeURIComponent(bust)}`}
                   onLoad={() => setFrameLoaded(true)}
                 />
               </Panel>

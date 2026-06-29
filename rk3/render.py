@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 41
+VERSION = 43
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -273,14 +273,20 @@ def _render_node(ctx, node, pages, state):
             if isinstance(it, str):
                 parts.append(f"  <li>{html.escape(it)}</li>")
                 continue
+            # dict item: carries emphasis/link runs and/or a nested sub-list
+            body = _inline(it["text"], it.get("links"), None, state,
+                           emph=it.get("emph"))
             sub = it.get("sub") or {}
+            if not sub:
+                parts.append(f"  <li>{body}</li>")
+                continue
             stype = f' type="{OL_TYPE[sub["ordered"]]}"' \
                 if sub.get("ordered") in OL_TYPE else ""
             sstart = f' start="{sub["start"]}"' \
                 if sub.get("start", 1) > 1 else ""
             subhtml = "\n".join(f"    <li>{html.escape(s)}</li>"
                                 for s in sub.get("items", []))
-            parts.append(f"  <li>{html.escape(it['text'])}\n"
+            parts.append(f"  <li>{body}\n"
                          f"  <ol{stype}{sstart}>\n{subhtml}\n  </ol></li>")
         items = "\n".join(parts)
         return f'<{tag} {_attrs(node, pages, extra or None)}>\n{items}\n</{tag}>'
@@ -408,9 +414,16 @@ def _inline(text, links, refs, state, breaks=None, emph=None, marks=None,
         events += _autolink_events(text, events)
     # superscript numbers often carry their own link annotation pointing at the
     # notes page; the footnote anchor is more useful, so a resolvable ref wins
-    # ties, otherwise the link does
-    events.sort(key=lambda ev: (
-        ev[0], ev[1], 0 if ev[2] == "ref" and ev[3] in state["fn_nums"] else 1))
+    # ties. A link must precede a co-located emphasis run so the link becomes the
+    # OUTER wrapper and the emphasis nests inside it (<a><em>…</em></a>) — see
+    # _emph_inner — rather than one clobbering the other.
+    def _prio(ev):
+        if ev[2] == "ref" and ev[3] in state["fn_nums"]:
+            return 0
+        if ev[2] == "link":
+            return 1
+        return 2
+    events.sort(key=lambda ev: (ev[0], _prio(ev), -ev[1]))
     out = []
     pos = 0
     for s, e, kind, payload in events:
@@ -441,6 +454,7 @@ def _inline(text, links, refs, state, breaks=None, emph=None, marks=None,
             continue
         if kind == "link":
             uri = payload.get("uri")
+            inner = _emph_inner(text, s, e, emph)  # keep emphasis nested in the link
             if payload.get("styled"):
                 # print-styled cross-reference with no PDF target: if the text
                 # names a heading/box in THIS document, link it for real;
@@ -449,9 +463,9 @@ def _inline(text, links, refs, state, breaks=None, emph=None, marks=None,
                 if target:
                     tid, tpage = target
                     out.append(f'<a href="#{tid}" data-link-styled="true" '
-                               f'data-target-page="{tpage}">{seg}</a>')
+                               f'data-target-page="{tpage}">{inner}</a>')
                 else:
-                    out.append(f'<span data-link-styled="true">{seg}</span>')
+                    out.append(f'<span data-link-styled="true">{inner}</span>')
             elif uri:
                 href = uri if "://" in uri or uri.startswith(("mailto:", "#")) \
                     else "https://" + uri
@@ -461,8 +475,8 @@ def _inline(text, links, refs, state, breaks=None, emph=None, marks=None,
                 raw = text[s:e]
                 if raw.lstrip().lower().startswith(("http", "www.")) and \
                         _alnum_only(raw) == _alnum_only(href):
-                    seg = html.escape(href)
-                out.append(f'<a{cls} href="{html.escape(href, quote=True)}">{seg}</a>')
+                    inner = html.escape(href)
+                out.append(f'<a{cls} href="{html.escape(href, quote=True)}">{inner}</a>')
             else:
                 dest = payload.get("destPage")
                 tid = state["pageTargets"].get(dest) \
@@ -471,7 +485,7 @@ def _inline(text, links, refs, state, breaks=None, emph=None, marks=None,
                              if p >= (dest or 0)), None)
                 href = f' href="#{tid}"' if tid else ""
                 out.append(f'<a{href} data-dest-page="{dest}" '
-                           f'data-target-page="{dest}">{seg}</a>')
+                           f'data-target-page="{dest}">{inner}</a>')
         elif payload in state["fn_nums"]:
             k = state["ref_seq"].get(payload, 0) + 1
             state["ref_seq"][payload] = k
@@ -487,6 +501,27 @@ def _inline(text, links, refs, state, breaks=None, emph=None, marks=None,
                 out.append(" ")
         pos = e
     out.append(html.escape(text[pos:]))
+    return "".join(out)
+
+
+def _emph_inner(text, s, e, emph):
+    """Escape text[s:e], wrapping any emphasis runs that fall inside [s,e] in
+    <strong>/<em>. Lets a link (the outer span) carry inner emphasis, so a title
+    that is BOTH a hyperlink and italic renders <a>…<em>…</em>…</a> instead of
+    the emphasis being dropped on the overlap."""
+    runs = sorted((r for r in (emph or [])
+                   if r[2] in ("strong", "em") and r[1] > s and r[0] < e),
+                  key=lambda r: r[0])
+    out = []
+    pos = s
+    for es, ee, kind in runs:
+        a, b = max(es, s, pos), min(ee, e)
+        if a >= b:
+            continue
+        out.append(html.escape(text[pos:a]))
+        out.append(f"<{kind}>{html.escape(text[a:b])}</{kind}>")
+        pos = b
+    out.append(html.escape(text[pos:e]))
     return "".join(out)
 
 

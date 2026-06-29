@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { getAllFeedback } from "../api.js";
+import { guard } from "../errorBus.js";
 
 // Admin → All Feedback: a client-side sortable/searchable table of every
 // feedback entry across all documents. The list is kept short enough to handle
@@ -39,7 +40,8 @@ export default function FeedbackTable({ onOpen }) {
   const [showClosed, setShowClosed] = useState(false);
   const [sort, setSort] = useState({ key: "modified", dir: "desc" });
 
-  const load = () => getAllFeedback().then((r) => setRows(r.map(derive))).catch(() => setRows([]));
+  const load = () => getAllFeedback().then((r) => setRows(r.map(derive)))
+    .catch((e) => { guard("load all feedback", null)(e); setRows([]); });
   useEffect(() => { load(); }, []);
 
   const clickSort = (key) =>

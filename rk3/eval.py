@@ -32,6 +32,8 @@ EVAL_DIR = ROOT / "eval"
 
 
 def _norm(s):
+    if isinstance(s, dict):  # list items may carry emphasis/link runs
+        s = s.get("text", "")
     return re.sub(r"\s+", " ", (s or "")).strip().lower()
 
 

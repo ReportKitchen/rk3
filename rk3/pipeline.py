@@ -87,6 +87,60 @@ def _write_meta(outdir: Path, meta: dict):
     (outdir / "meta.json").write_text(json.dumps(meta, indent=2))
 
 
+_SRC_SHA_CACHE: dict = {}
+
+
+def _file_sha_cached(path: Path) -> str:
+    """_file_sha keyed on (path, mtime, size) so repeated build-status polls
+    don't re-hash a large PDF every time."""
+    st = path.stat()
+    key = (str(path), st.st_mtime_ns, st.st_size)
+    if _SRC_SHA_CACHE.get("key") != key:
+        _SRC_SHA_CACHE["key"] = key
+        _SRC_SHA_CACHE["val"] = _file_sha(path)
+    return _SRC_SHA_CACHE["val"]
+
+
+def build_status(slug: str) -> dict:
+    """Recompute the expected fingerprint chain from the CURRENT code + config +
+    source WITHOUT running any stage, and compare it to what the doc was built
+    with (meta.json). A per-stage match means the artifact on disk is exactly
+    what today's code would produce — the authoritative "is this the latest"
+    signal, since the chain folds in code VERSION, config, and the source PDF
+    (a bare version number would miss the latter two). `build_id` is the stored
+    render fingerprint: a cache-bust key that changes the instant a new render
+    lands on disk, even from a CLI rebuild."""
+    outdir = output_dir(slug)
+    meta = _read_meta(outdir)
+    source = source_for_slug(slug)
+    stored_render = (meta.get("stages", {}).get("render") or {}).get("fingerprint")
+    out = {
+        "slug": slug,
+        "status": meta.get("status", "unconverted"),
+        "finished": meta.get("finished"),
+        "error": meta.get("error"),
+        "stages": [],
+        "stale": [],
+        "up_to_date": False,
+        "build_id": stored_render,
+    }
+    if source is None or not meta.get("stages"):
+        return out
+    cfg = load_config(source)
+    fp = _file_sha_cached(source)
+    for stage, module_name, cfg_keys in STAGES:
+        mod = importlib.import_module(module_name)
+        version = getattr(mod, "VERSION", 0)
+        fp = _fingerprint(fp, config_slice(cfg, cfg_keys), version)
+        stored = (meta["stages"].get(stage) or {}).get("fingerprint")
+        ok = stored == fp
+        out["stages"].append({"stage": stage, "version": version, "current": ok})
+        if not ok:
+            out["stale"].append(stage)
+    out["up_to_date"] = not out["stale"] and meta.get("status") == "done"
+    return out
+
+
 def convert(slug: str, force: bool = False) -> dict:
     source = source_for_slug(slug)
     if source is None:

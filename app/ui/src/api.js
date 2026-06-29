@@ -5,7 +5,18 @@ export const ENGINE = "pdfium";
 export const ADMIN_FEEDBACK = "admin:all-feedback";
 
 async function json(res) {
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (!res.ok) {
+    // pull the server's body (FastAPI {detail}, or a raw traceback) into the
+    // error so the UI can show *why*, not just the status code
+    let body = "";
+    try { body = await res.text(); } catch { /* ignore */ }
+    let detail = body;
+    try { detail = JSON.parse(body)?.detail ?? body; } catch { /* not json */ }
+    const err = new Error(`${res.status} ${res.statusText} — ${res.url}`);
+    err.detail = typeof detail === "string" ? detail : JSON.stringify(detail, null, 2);
+    err.status = res.status;
+    throw err;
+  }
   return res.json();
 }
 
@@ -13,6 +24,9 @@ export const getDocuments = () => fetch("/api/documents").then(json);
 
 export const startConvert = (slug, force = false) =>
   fetch(`/api/convert/${slug}${force ? "?force=true" : ""}`, { method: "POST" }).then(json);
+
+export const getBuildStatus = (slug) =>
+  fetch(`/api/build-status/${slug}`, { cache: "no-store" }).then(json);
 
 export const getFeedback = (slug) => fetch(`/api/feedback/${slug}`).then(json);
 

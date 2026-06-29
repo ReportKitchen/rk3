@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ADMIN_FEEDBACK, clearFeedback, deleteFeedback, deleteOp, emptyTrash, getDocuments, getFeedback, getIr, getOps, startConvert, postFeedback, postOp } from "./api.js";
+import { ADMIN_FEEDBACK, clearFeedback, deleteFeedback, deleteOp, emptyTrash, getBuildStatus, getDocuments, getFeedback, getIr, getOps, startConvert, postFeedback, postOp } from "./api.js";
 import DocList from "./components/DocList.jsx";
 import DocumentView from "./components/DocumentView.jsx";
+import ErrorBanner from "./components/ErrorBanner.jsx";
 import FeedbackPopover from "./components/FeedbackPopover.jsx";
 import FeedbackTable from "./components/FeedbackTable.jsx";
 import Toolbar from "./components/Toolbar.jsx";
+import { guard, reportError } from "./errorBus.js";
 
 function findNode(ir, nid) {
   for (const n of ir?.body ?? []) {
@@ -31,6 +33,7 @@ export default function App() {
   const [feedback, setFeedback] = useState([]);
   const [ops, setOps] = useState([]);
   const [docVersion, setDocVersion] = useState(0);
+  const [buildStatus, setBuildStatus] = useState(null);
   const [flashNid, setFlashNid] = useState(null);
   // popover: { pos: {x, y}, target: {...}, question? }
   const [popover, setPopover] = useState(null);
@@ -42,7 +45,7 @@ export default function App() {
   }, []);
 
   const refreshFeedback = useCallback(async () => {
-    if (selected) setFeedback(await getFeedback(selected).catch(() => []));
+    if (selected) setFeedback(await getFeedback(selected).catch(guard("load feedback", [])));
   }, [selected]);
 
   useEffect(() => { refresh(); }, [refresh]);
@@ -55,10 +58,27 @@ export default function App() {
 
   useEffect(() => {
     if (doc?.status === "done") {
-      getIr(doc.slug).then(setIr).catch(() => setIr(null));
-      getOps(doc.slug).then(setOps).catch(() => setOps([]));
+      getIr(doc.slug).then(setIr).catch((e) => { reportError("load IR", e); setIr(null); });
+      getOps(doc.slug).then(setOps).catch((e) => { reportError("load ops", e); setOps([]); });
     }
   }, [doc?.slug, doc?.status, docVersion]);
+
+  // build freshness: poll so a CLI/agent rebuild is detected even without an
+  // in-app action; build_id (render fingerprint) busts the content iframe
+  useEffect(() => {
+    if (!selected || selected === ADMIN_FEEDBACK) { setBuildStatus(null); return; }
+    let alive = true;
+    const tick = () =>
+      getBuildStatus(selected)
+        .then((s) => alive && setBuildStatus(s))
+        .catch((e) => {
+          reportError("build status", e);
+          if (alive) setBuildStatus({ fetchError: e.message || "unreachable" });
+        });
+    tick();
+    const id = setInterval(tick, 20000);
+    return () => { alive = false; clearInterval(id); };
+  }, [selected, doc?.finished, docVersion]);
 
   // apply an edit op: server reconverts (render-only); poll, then reload the
   // iframe in place (scroll preserved, edited element flashed)
@@ -133,7 +153,7 @@ export default function App() {
     <div id="layout">
       <DocList docs={docs} selected={selected} onSelect={setSelected} onRefresh={refresh} />
       <div id="right">
-        {doc && <Toolbar doc={doc} />}
+        {doc && <Toolbar doc={doc} build={buildStatus} />}
         <div id="content">
           {selected === ADMIN_FEEDBACK ? (
             <FeedbackTable onOpen={setSelected} />
@@ -143,6 +163,7 @@ export default function App() {
               docVersion={docVersion}
               flashNid={flashNid}
               doc={doc}
+              buildId={buildStatus?.build_id}
               toggles={toggles}
               setToggles={setToggles}
               questions={questions}
@@ -175,6 +196,7 @@ export default function App() {
           nodeInfo={popover.target?.nid ? findNode(ir, popover.target.nid) : null}
         />
       )}
+      <ErrorBanner />
     </div>
   );
 }

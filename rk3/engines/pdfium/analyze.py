@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 76
+VERSION = 83
 
 
 # PDF font-descriptor flag bits
@@ -66,6 +66,10 @@ def _font_weight_rank(f):
     """Numeric weight (100-900) from the font name token, with the ForceBold bit
     as a floor. Used to compare a run's weight to the document body weight —
     heavier-than-body = bold emphasis (catches 'Medium' set against 'Regular')."""
+    if f.get("synthetic_bold"):
+        # the assemble width-bold splitter already proved these glyphs are the
+        # heavy weight of an otherwise same-named font; rank well above body
+        return 700
     low = (f["name"] or "").lower()
     for tok, w in _WEIGHT_TOKENS:
         if tok in low:
@@ -144,6 +148,10 @@ def _marker_value(raw):
     return ROMAN.get(raw.lower())
 
 BULLETS = "•◦▪‣–—-*·§◊♦►▸✦➤●○"
+# bullets that count as list markers when sitting INSIDE a line of text — the
+# narrow set, excluding -–—*·§ which are overwhelmingly hyphens/wrap-dashes
+# mid-sentence, not list markers (an interior '-' must never split a paragraph)
+INLINE_BULLETS = "•◦▪‣●○■□▸►◆◇♦❖➤"
 OBJ_PATH, OBJ_IMAGE, OBJ_SHADING = 2, 3, 4
 # objects: [type, l, b, r, t, fillIdx, strokeIdx, filled, stroked]
 OT, OL, OB, OR_, OTOP = range(5)
@@ -353,6 +361,7 @@ def run(ctx):
             for bi in reg["blockIdx"]:
                 ctx.audit_claimed[blocks[bi]["page"]] += _alnum(texts[bi])
 
+    nodes = _split_inline_bullets(ctx, nodes)
     nodes = _group_tag_lists(ctx, nodes)
     nodes = _group_bullet_paragraphs(ctx, nodes)
     # sentences interrupted by page breaks happen in the main flow too,
@@ -941,7 +950,7 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
                              "notes-section label", prov, used_ids)
 
     if _is_bullet_list(blk):
-        items = _bullet_items(blk)
+        items = _bullet_items(ctx, blk)
         rk = ctx.log.entry("list", page=blk["page"], bbox=blk["bbox"],
                            items=len(items),
                            reason="opens with a bullet; unbulleted lines are wraps",
@@ -950,7 +959,7 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         node = {"type": "list", "items": items, "page": blk["page"],
                 "bbox": blk["bbox"], "rk": rk, "data": prov}
         node["nid"] = _stable_id("n", ctx.nids, "list", node["page"],
-                                 node["bbox"], " ".join(items))
+                                 node["bbox"], " ".join(_item_texts(items)))
         return node
 
     ol = _ordinal_block(blk)
@@ -1123,7 +1132,7 @@ def _marker_lists(ctx, nodes):
             out.append({"type": "list", "items": items, "page": page,
                         "bbox": bbox, "rk": rk, "data": {"marker": "»"},
                         "nid": _stable_id("n", ctx.nids, "list", page, bbox,
-                                          " ".join(items))})
+                                          " ".join(_item_texts(items)))})
         else:
             out.extend(run)
         run = []
@@ -1185,7 +1194,7 @@ def _merge_crosspage_bullet_lists(ctx, nodes):
                     _alnum(t) for t in _item_texts(n.get("items", [])))
                 ctx.log.entry("list-continued-bullet", page=n["page"],
                               into=prev["rk"], added=len(n.get("items", [])),
-                              text=(n.get("items") or [""])[0][:50])
+                              text=next(_item_texts(n.get("items", [])), "")[:50])
                 continue
         out.append(n)
     return out
@@ -1904,7 +1913,11 @@ def _group_tag_lists(ctx, nodes):
     def flush():
         nonlocal run
         if len(run) >= 2:
-            items = [re.sub(f"^[{re.escape(BULLETS)}]\\s*", "", n["text"]).strip()
+            # each LBody/LI paragraph carries its own emphasis/link runs; keep
+            # them so a bold lead-in sentence or inline link survives the merge
+            items = [_strip_marker_item(
+                        {"text": n["text"], "emph": n.get("emph"),
+                         "links": n.get("links")}, BULLETS)
                      for n in run]
             bbox = [min(n["bbox"][0] for n in run), min(n["bbox"][1] for n in run),
                     max(n["bbox"][2] for n in run), max(n["bbox"][3] for n in run)]
@@ -1912,7 +1925,7 @@ def _group_tag_lists(ctx, nodes):
             # numbered tagged lists arrive with "1. / 2. / 3." baked into the
             # item text — act on that here and emit a real <ol> (markers stripped,
             # rendered by the list), not a <ul> with the numbers fossilized in.
-            ol = _ordinal_items(items)
+            ol = _ordinal_items(list(_item_texts(items)))
             ordered = start = None
             if ol:
                 ordered, start, items = ol
@@ -1930,7 +1943,7 @@ def _group_tag_lists(ctx, nodes):
             node = {"type": "list", "items": items, "page": page,
                     "bbox": bbox, "rk": rk, "data": data,
                     "nid": _stable_id("n", ctx.nids, "list", page, bbox,
-                                      " ".join(items))}
+                                      " ".join(_item_texts(items)))}
             if ordered:
                 node["ordered"], node["start"] = ordered, start
             out.append(node)
@@ -1955,6 +1968,51 @@ def _group_tag_lists(ctx, nodes):
     return out
 
 
+def _split_inline_bullets(ctx, nodes):
+    """A list that got mashed into one paragraph — 'lead-in: • item • item • item'
+    — where the bullet glyphs survive INSIDE the text. There's almost never a
+    real bullet sitting mid-sentence, so interior bullets mark list items.
+    Split into the lead-in paragraph (kept) + an unordered list, preserving each
+    piece's emphasis/links. Skips bullet-as-separator rows (short labels, no
+    sentence punctuation: datelines, contact lines)."""
+    out = []
+    for n in nodes:
+        t = n.get("text", "") if n.get("type") == "paragraph" else ""
+        # interior bullets: a TRUE bullet glyph (not a hyphen/dash) with real
+        # text before it
+        pts = [i for i, c in enumerate(t) if c in INLINE_BULLETS and t[:i].strip()]
+        if len(pts) < 2:               # need >=2 to read as a list, not a stray glyph
+            out.append(n)
+            continue
+        bounds = pts + [len(t)]
+        raw = [re.sub(f"^[{re.escape(INLINE_BULLETS)}]\\s*", "", t[bounds[k]:bounds[k + 1]]).strip()
+               for k in range(len(pts))]
+        # separator guard: a row of short labels joined by bullets isn't a list
+        if all(len(s.split()) <= 5 for s in raw) and not any(s[-1:] in ".!?" for s in raw):
+            out.append(n)
+            continue
+        items = [_strip_marker_item(_slice_runs(n, bounds[k], bounds[k + 1]), INLINE_BULLETS)
+                 for k in range(len(pts))]
+        lead = t[:pts[0]].strip()
+        if lead:
+            lr = _slice_runs(n, 0, pts[0])
+            n["text"] = lr["text"].rstrip()
+            for key in ("emph", "links"):
+                if lr.get(key):
+                    n[key] = lr[key]
+                elif key in n:
+                    del n[key]
+            out.append(n)
+        ctx.log.entry("list-from-inline-bullets", page=n["page"], block=n.get("rk"),
+                      items=len(items), lead=lead[:50])
+        out.append({"type": "list", "items": items, "page": n["page"],
+                    "bbox": n["bbox"], "rk": n.get("rk"),
+                    "data": {**(n.get("data") or {}), "marker": t[pts[0]]},
+                    "nid": _stable_id("n", ctx.nids, "list", n["page"], n["bbox"],
+                                      " ".join(_item_texts(items)))})
+    return out
+
+
 def _group_bullet_paragraphs(ctx, nodes):
     """List items that arrived as separate blocks group into one list:
     bullet-led paragraphs, or sequential ordinal-led paragraphs (numbered /
@@ -1966,12 +2024,31 @@ def _group_bullet_paragraphs(ctx, nodes):
 
     def flush():
         nonlocal run
+        if not run:
+            return
+        # each bullet paragraph already carries its own emphasis/link runs over
+        # its text; preserve them as the item's spans (bullet stripped, rebased)
+        items = [_strip_marker_item(
+                    {"text": n["text"], "emph": n.get("emph"),
+                     "links": n.get("links")}, BULLETS)
+                 for n in run]
+        bbox = [min(n["bbox"][0] for n in run), min(n["bbox"][1] for n in run),
+                max(n["bbox"][2] for n in run), max(n["bbox"][3] for n in run)]
+        page = run[0]["page"]
+        # A bullet run (even a single item) sitting right after an unordered
+        # list at the same indent is that list's tail items that split into
+        # their own block — rejoin them rather than orphaning a one-bullet <p>.
+        prev = out[-1] if out else None
+        if (prev is not None and prev["type"] == "list" and not prev.get("ordered")
+                and prev["page"] == page and abs(prev["bbox"][0] - bbox[0]) <= 6):
+            prev["items"] = list(prev.get("items", [])) + items
+            prev["bbox"] = _union(prev["bbox"], bbox)
+            ctx.log.entry("list-item-rejoined", page=page, into=prev["rk"],
+                          added=len(items),
+                          text=next(_item_texts(items), "")[:50])
+            run = []
+            return
         if len(run) >= 2:
-            items = [re.sub(f"^[{re.escape(BULLETS)}]\\s*", "", n["text"]).strip()
-                     for n in run]
-            bbox = [min(n["bbox"][0] for n in run), min(n["bbox"][1] for n in run),
-                    max(n["bbox"][2] for n in run), max(n["bbox"][3] for n in run)]
-            page = run[0]["page"]
             rk = ctx.log.entry("list", page=page, bbox=bbox, items=len(items),
                                reason="consecutive bullet-led paragraphs",
                                merged=[n["rk"] for n in run])
@@ -1983,7 +2060,7 @@ def _group_bullet_paragraphs(ctx, nodes):
             out.append({"type": "list", "items": items, "page": page,
                         "bbox": bbox, "rk": rk, "data": data,
                         "nid": _stable_id("n", ctx.nids, "list", page, bbox,
-                                          " ".join(items))})
+                                          " ".join(_item_texts(items)))})
         else:
             out.extend(run)
         run = []
@@ -2021,8 +2098,7 @@ def _group_ordinal_paragraphs(ctx, nodes):
             cm = _ol_marker(cand.get("text", "")) \
                 if cand["type"] == "paragraph" else None
             if cm and cm[0] == style0 and cm[1] == expected:
-                run.append({"text": cand["text"][cm[2]:].strip(),
-                            "node": cand})
+                run.append({"item": _node_item(cand, cm[2]), "node": cand})
                 expected += 1
                 j += 1
                 # absorb an immediately following deeper-indent alpha run
@@ -2052,8 +2128,14 @@ def _group_ordinal_paragraphs(ctx, nodes):
             for x in members:
                 if x["page"] != page:
                     ctx.audit_moved[x["page"]] += _alnum(x["text"])
-            items = [({"text": r["text"], "sub": r["sub"]} if r.get("sub")
-                      else r["text"]) for r in run]
+            items = []
+            for r in run:
+                it = r["item"]
+                if r.get("sub"):
+                    if isinstance(it, str):
+                        it = {"text": it}
+                    it["sub"] = r["sub"]
+                items.append(it)
             rk = ctx.log.entry("list", page=page, bbox=bbox, items=len(items),
                                ordered=style0, start=start,
                                reason="sequential ordinal paragraphs",
@@ -2426,14 +2508,85 @@ def _ordinal_block(blk):
     return style0, start, items
 
 
-def _bullet_items(blk):
-    items = []
+def _cut_item(runs, cut):
+    """Drop the first `cut` chars (a leading marker) plus any following spaces
+    from a runs-dict and rebase its emphasis/link offsets. Returns a plain
+    string when nothing styled survives, else {"text", "emph"?, "links"?}."""
+    full = runs.get("text", "")
+    while cut < len(full) and full[cut] == " ":
+        cut += 1
+    text = full[cut:].rstrip()
+    n = len(text)
+
+    def rebase(spans):
+        out = []
+        for sp in spans or []:
+            s, e = max(sp[0] - cut, 0), min(sp[1] - cut, n)
+            if e > s:
+                out.append([s, e, *sp[2:]])
+        return out
+
+    emph = rebase(runs.get("emph"))
+    links = rebase(runs.get("links"))
+    if not emph and not links:
+        return text
+    item = {"text": text}
+    if emph:
+        item["emph"] = emph
+    if links:
+        item["links"] = links
+    return item
+
+
+def _strip_marker_item(runs, markers):
+    """Drop a leading marker glyph (bullet) from a runs-dict, preserving the
+    emphasis/link runs (rebased)."""
+    m = re.match(f"^[{re.escape(markers)}]\\s*", runs.get("text", ""))
+    return _cut_item(runs, m.end() if m else 0)
+
+
+def _node_item(node, cut):
+    """Build a list item from a paragraph node, keeping its emphasis/links."""
+    return _cut_item({"text": node.get("text", ""), "emph": node.get("emph"),
+                      "links": node.get("links")}, cut)
+
+
+def _slice_runs(node, a, b):
+    """A runs-dict for the sub-range [a,b) of a node's text, with emphasis/link
+    offsets clipped and rebased to 0."""
+    def reb(spans):
+        out = []
+        for sp in spans or []:
+            s, e = max(sp[0], a), min(sp[1], b)
+            if e > s:
+                out.append([s - a, e - a, *sp[2:]])
+        return out
+    return {"text": node.get("text", "")[a:b],
+            "emph": reb(node.get("emph")), "links": reb(node.get("links"))}
+
+
+def _bullet_items(ctx, blk):
+    """Split a bullet block into items, each carrying its own emphasis/link runs
+    (a bold lead-in sentence or an inline link survives) judged against the
+    whole block's dominant font. Unstyled items collapse to plain strings."""
+    blk_font = _block_font(ctx, blk["lines"])
+    groups = []
     for l in blk["lines"]:
         if l["text"][:1] in BULLETS:
-            items.append(re.sub(f"^[{re.escape(BULLETS)}]\\s*", "", l["text"]).strip())
-        elif items:
-            items[-1] += " " + l["text"]
-    return items
+            groups.append([l])
+        elif groups:
+            groups[-1].append(l)
+    return [_strip_marker_item(_build_runs(ctx, blk, g, blk_font), BULLETS)
+            for g in groups]
+
+
+def _block_font(ctx, lines):
+    """Char-weighted dominant font over `lines` — the reference weight/slant
+    that emphasis is judged against."""
+    dom_counts = Counter()
+    for l in lines:
+        dom_counts[l["fontIdx"]] += len(l["text"])
+    return ctx.fonts[dom_counts.most_common(1)[0][0]]
 
 
 def _join_block(ctx, blk, link_colors=()):
@@ -2443,18 +2596,22 @@ def _join_block(ctx, blk, link_colors=()):
     becomes a styled-link range (print PDFs often style cross-references as
     links without targets).
     Returns {"text", "sups": [[s,e]], "links": [[s,e,target]]}."""
+    return _build_runs(ctx, blk, blk["lines"], _block_font(ctx, blk["lines"]),
+                       link_colors)
+
+
+def _build_runs(ctx, blk, lines, blk_font, link_colors=()):
+    """Join `lines` (a whole block, or one list item's lines) into flowing text
+    with per-char emphasis/link/sup/mark ranges. Emphasis is judged against
+    `blk_font` — a run heavier than it is <strong>, an italic run is <em>. So a
+    whole paragraph set in a heavier/italic weight is NOT emphasis (that's its
+    role/style), while a bold word or an italic title inside regular prose is.
+    Passing the WHOLE block's font as the reference while building one item at a
+    time is what surfaces a bold lead-in sentence inside an otherwise-regular
+    list item."""
     out = ""
     sups, links, emph, marks = [], [], [], []
     line_joins = []  # offsets of the spaces where source lines were joined
-    dom_counts = Counter()
-    for l in blk["lines"]:
-        dom_counts[l["fontIdx"]] += len(l["text"])
-    blk_dom_idx = dom_counts.most_common(1)[0][0]
-    blk_font = ctx.fonts[blk_dom_idx]
-    # emphasis is judged against THIS paragraph's own dominant font: a run
-    # heavier than it is <strong>, an italic run is <em>. So a whole paragraph
-    # set in a heavier/italic weight is NOT emphasis (that's its role/style),
-    # while a bold word or an italic title inside regular prose is.
     blk_rank = _font_weight_rank(blk_font)
     blk_italic = _font_is_italic(blk_font)
 
@@ -2464,7 +2621,7 @@ def _join_block(ctx, blk, link_colors=()):
     def _em(f):
         return _font_is_italic(f) and not blk_italic
 
-    for l in blk["lines"]:
+    for l in lines:
         t = l["text"]
         if out.endswith("-") and t[:1].islower():
             ctx.log.entry("dehyphenate", page=blk["page"],

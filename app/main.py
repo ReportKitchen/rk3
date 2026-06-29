@@ -14,13 +14,14 @@ import threading
 import uuid
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from rk3.ai import ai_can_analyze, ai_can_generate, ai_mode
 from rk3.documents import OUTPUT, list_documents, output_dir, source_for_slug
+from rk3.pipeline import build_status
 from rk3.landing.ai import (
     find_findings, find_intro_section, generate_landing_ai, generate_summary_variant)
 from rk3.landing.extract import build_default_theme
@@ -45,6 +46,14 @@ def documents():
     return docs
 
 
+@app.get("/api/build-status/{slug}")
+def get_build_status(slug: str, response: Response):
+    # never cache: this is the signal the UI uses to know whether the doc (and
+    # the iframe it's about to bust) is the latest
+    response.headers["Cache-Control"] = "no-store"
+    return build_status(slug)
+
+
 @app.post("/api/convert/{slug}")
 def start_convert(slug: str, force: bool = False):
     if source_for_slug(slug) is None:
@@ -60,17 +69,57 @@ def _spawn_convert(slug: str, force: bool = False):
         _active.add(slug)
 
     def work():
+        # capture stdout+stderr to a per-doc log instead of /dev/null — a crash,
+        # OOM-kill (exit 137/-9), or import error must be inspectable, not silent
+        log_path = output_dir(slug) / "convert.log"
         try:
             cmd = [sys.executable, "-m", "rk3", "convert", slug]
             if force:
                 cmd.append("--force")
-            subprocess.run(cmd, cwd=ROOT, timeout=3600,
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            r = subprocess.run(cmd, cwd=ROOT, timeout=3600,
+                               stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                               text=True)
+            log_path.write_text(
+                f"$ {' '.join(cmd)}\nexit={r.returncode}\n\n{r.stdout or ''}")
+            if r.returncode != 0:
+                _record_convert_crash(slug, r.returncode, r.stdout or "")
+        except Exception as e:  # the subprocess itself couldn't be launched/timed out
+            log_path.write_text(f"convert spawn failed: {e!r}")
+            _record_convert_crash(slug, -1, repr(e))
         finally:
             with _active_lock:
                 _active.discard(slug)
 
     threading.Thread(target=work, daemon=True, name=f"convert-{slug}").start()
+
+
+def _record_convert_crash(slug: str, returncode: int, output: str):
+    """A non-zero subprocess exit (OOM-kill, import error, hard crash) may never
+    reach the pipeline's own try/except — stamp meta.json so build-status shows
+    'build failed' instead of a stale 'current'."""
+    meta_path = output_dir(slug) / "meta.json"
+    try:
+        meta = json.loads(meta_path.read_text()) if meta_path.exists() else {}
+    except json.JSONDecodeError:
+        meta = {}
+    # don't clobber a richer traceback the pipeline already recorded
+    if meta.get("status") != "failed":
+        tail = "\n".join((output or "").strip().splitlines()[-25:])
+        meta["status"] = "failed"
+        meta["error"] = f"convert exited {returncode}\n{tail}" if tail \
+            else f"convert exited {returncode} (no output; likely OOM-killed)"
+        meta_path.parent.mkdir(parents=True, exist_ok=True)
+        meta_path.write_text(json.dumps(meta, indent=2))
+
+
+@app.get("/api/convert-log/{slug}")
+def get_convert_log(slug: str, response: Response):
+    response.headers["Cache-Control"] = "no-store"
+    log_path = output_dir(slug) / "convert.log"
+    if not log_path.exists():
+        return {"slug": slug, "log": None}
+    return {"slug": slug, "log": log_path.read_text()}
 
 
 class FeedbackEntry(BaseModel):
