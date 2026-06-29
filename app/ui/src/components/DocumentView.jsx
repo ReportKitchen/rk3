@@ -101,6 +101,13 @@ export default function DocumentView({
     if (link) link.disabled = !toggles.layer3;
   }, [toggles.layer3, frameLoaded]);
 
+  // embedded-fonts toggle (the @font-face layer); when off, "PDFEmbed X" family
+  // names go unresolved and rules fall back to the guessed/system font
+  useEffect(() => {
+    const link = iframeRef.current?.contentDocument?.getElementById("css-embed");
+    if (link) link.disabled = !toggles.embedFonts;
+  }, [toggles.embedFonts, frameLoaded]);
+
   // sync scroll
   useEffect(() => {
     if (!frameLoaded || !pdfPaneRef.current) return;

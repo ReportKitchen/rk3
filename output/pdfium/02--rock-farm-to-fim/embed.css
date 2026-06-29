@@ -1,0 +1,63 @@
+/* Embedded fonts from the source PDF. If a font is licensed, it is
+   your responsibility to have the right to web-serve it. */
+
+@font-face {
+  font-family: "PDFEmbed Graphik";
+  src: url("fonts/Graphik-Black.otf") format("opentype");
+  font-weight: 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Graphik";
+  src: url("fonts/Graphik-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Graphik";
+  src: url("fonts/Graphik-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Graphik";
+  src: url("fonts/Graphik-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Graphik";
+  src: url("fonts/Graphik-RegularItalic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: "PDFEmbed Graphik";
+  src: url("fonts/Graphik-Semibold.otf") format("opentype");
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Graphik";
+  src: url("fonts/Graphik-Super.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Moderat";
+  src: url("fonts/Moderat-Mono-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Moderat";
+  src: url("fonts/Moderat-Mono-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Moderat";
+  src: url("fonts/Moderat-Mono-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}

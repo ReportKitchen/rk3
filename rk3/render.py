@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 47
+VERSION = 48
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -35,6 +35,12 @@ def run(ctx):
     shutil.copy(ASSETS / "default.css", ctx.outdir / "default.css")
     (ctx.outdir / "original.css").write_text(_original_css(ctx, ir),
                                              encoding="utf-8")
+    # embed.css: the @font-face layer, written only when the doc has embeddable
+    # fonts. Toggled independently in the viewer; output.embedFonts sets whether
+    # it starts enabled in the standalone HTML.
+    embed_css = _embed_css(ir)
+    if embed_css:
+        (ctx.outdir / "embed.css").write_text(embed_css, encoding="utf-8")
 
     pages = ir.get("pages", {})
     # footnote numbers that actually have note text; in-text refs only become
@@ -55,6 +61,12 @@ def run(ctx):
     links = "\n".join(
         f'<link rel="stylesheet" href="{layer}.css" id="css-{layer}">'
         for layer in ("layout", "default", "original") if layer in layers)
+    if embed_css:
+        # starts enabled per config.output.embedFonts; the viewer flips
+        # link.disabled live ("Use embedded fonts")
+        off = "" if ctx.cfg["output"].get("embedFonts") else " disabled"
+        links += (f'\n<link rel="stylesheet" href="embed.css" '
+                  f'id="css-embed"{off}>')
     doc = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -747,6 +759,30 @@ def _style_class_name(rules):
     return _STYLE_NICE.get(traits) or ("-".join(traits) if traits else "styled")
 
 
+def _embed_css(ir):
+    """The @font-face layer (embed.css): serves each embedded font program.
+    Kept in its OWN stylesheet so the viewer can toggle "Use embedded fonts"
+    independently of the original-look layer — when the stylesheet is disabled
+    the "PDFEmbed X" family names go unresolved and every rule falls back to the
+    next font in its stack. All cuts of a family share one family name at their
+    true weight/style, so <strong>->Bold / <em>->Italic resolve naturally.
+    Serving a licensed font is the user's responsibility (disclaimer below)."""
+    embed = ir.get("fonts_embed") or {}
+    if not embed:
+        return ""
+    out = ["/* Embedded fonts from the source PDF. If a font is licensed, it is",
+           "   your responsibility to have the right to web-serve it. */", ""]
+    for name in sorted(embed):
+        fam, _generic, weight, style = _font_css(name)
+        out += ['@font-face {',
+                f'  font-family: "PDFEmbed {fam}";',
+                f'  src: url("{embed[name]["file"]}") format("opentype");',
+                f'  font-weight: {weight or 400};',
+                f'  font-style: {style or "normal"};',
+                '}']
+    return "\n".join(out) + "\n"
+
+
 def _original_css(ctx, ir):
     """Layer 3: best-effort recreation of the source document's look, built
     entirely from IR provenance. Regenerated on every render."""
@@ -764,8 +800,10 @@ def _original_css(ctx, ir):
     # is faithful and immune to a guessed/locally-installed same-named font (the
     # points-of-light failure). A program that couldn't be wrapped just isn't in
     # the manifest and falls back to the guessed family below.
-    embed = (ir.get("fonts_embed") or {}) \
-        if (ctx.cfg.get("output") or {}).get("embedFonts") else {}
+    # always reference the embedded families (with fallback) when the doc has
+    # them; the @font-face rules live in a separate embed.css layer the viewer
+    # can toggle, so turning embedded fonts off just drops to the fallback.
+    embed = ir.get("fonts_embed") or {}
 
     def fam_value(name, fam, generic):
         """font-family value; prepend the served embedded FAMILY when we have it.
@@ -1037,24 +1075,6 @@ def _original_css(ctx, ir):
             imports.append(f'@import url("{base}{axis}&display=swap");')
     if imports:
         out[4:4] = imports + [""]
-
-    # @font-face for the embedded programs (output.embedFonts). All cuts of a
-    # family are declared under ONE family name at their true weight/style, so
-    # the existing weight rules (body 400, <strong> 700, ...) select the right
-    # face — bold/italic emphasis just works, no synthesis. NOTE: serving a
-    # licensed font is the user's responsibility to clear.
-    if embed:
-        faces = ["/* Embedded fonts from the source PDF. If a font is licensed,",
-                 "   it is your responsibility to have the right to web-serve it. */"]
-        for name in sorted(embed):
-            fam, _generic, weight, style = _font_css(name)
-            faces += [f'@font-face {{',
-                      f'  font-family: "PDFEmbed {fam}";',
-                      f'  src: url("{embed[name]["file"]}") format("opentype");',
-                      f'  font-weight: {weight or 400};',
-                      f'  font-style: {style or "normal"};',
-                      f'}}']
-        out[4:4] = faces + [""]
 
     # original list markers (symbol-font glyphs approximate to square)
     markers = {(n.get("data") or {}).get("marker")

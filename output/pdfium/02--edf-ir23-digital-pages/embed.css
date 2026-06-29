@@ -1,0 +1,69 @@
+/* Embedded fonts from the source PDF. If a font is licensed, it is
+   your responsibility to have the right to web-serve it. */
+
+@font-face {
+  font-family: "PDFEmbed Anton";
+  src: url("fonts/Anton-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Anton";
+  src: url("fonts/Anton-Regular-SC700.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Franklin Gothic URW";
+  src: url("fonts/FranklinGothicURW-Boo.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Franklin Gothic URW";
+  src: url("fonts/FranklinGothicURW-BooIta.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Franklin Gothic URW";
+  src: url("fonts/FranklinGothicURW-Dem.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Franklin Gothic URW";
+  src: url("fonts/FranklinGothicURW-Hea.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Franklin Gothic URW";
+  src: url("fonts/FranklinGothicURW-Hea-SC700.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Franklin Gothic URW";
+  src: url("fonts/FranklinGothicURW-HeaIta.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Franklin Gothic URW";
+  src: url("fonts/FranklinGothicURW-Lig.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Franklin Gothic URW";
+  src: url("fonts/FranklinGothicURW-Med.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "PDFEmbed Franklin Gothic URW";
+  src: url("fonts/FranklinGothicURW-MedIta.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}

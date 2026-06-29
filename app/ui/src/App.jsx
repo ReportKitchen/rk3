@@ -27,8 +27,8 @@ export default function App() {
   const [selected, setSelected] = useState(DEEPLINK.doc || null);
   const [deepLinkNid, setDeepLinkNid] = useState(DEEPLINK.nid || null);
   const [toggles, setToggles] = useState({
-    showPdf: true, sync: true, layer3: true, feedbackMode: false,
-    panelOpen: !!DEEPLINK.doc,
+    showPdf: true, sync: true, layer3: true, embedFonts: true,
+    feedbackMode: false, panelOpen: !!DEEPLINK.doc,
   });
   const [ir, setIr] = useState(null);
   const [feedback, setFeedback] = useState([]);

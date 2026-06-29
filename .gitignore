@@ -27,6 +27,7 @@ output/pdfium/*/*
 !output/pdfium/*/default.css
 !output/pdfium/*/original.css
 !output/pdfium/*/layout.css
+!output/pdfium/*/embed.css
 
 # viewer annotations (scratch working data, per user decision)
 feedback/

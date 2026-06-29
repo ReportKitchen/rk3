@@ -34,6 +34,9 @@ export default function DocToolbar({ doc, toggles, setToggles, questionCount, an
       {done && (
         <label><input type="checkbox" checked={toggles.layer3} onChange={set("layer3")} /> Original-look CSS</label>
       )}
+      {done && toggles.layer3 && (
+        <label><input type="checkbox" checked={toggles.embedFonts} onChange={set("embedFonts")} /> Use embedded fonts</label>
+      )}
     </div>
   );
 }
