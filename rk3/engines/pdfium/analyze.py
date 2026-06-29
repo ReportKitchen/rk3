@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 73
+VERSION = 76
 
 
 # PDF font-descriptor flag bits
@@ -39,90 +39,38 @@ _BOLD_KW = ("bold", "black", "heavy", "semibold", "demibold", "extrabold", "ultr
 _ITAL_KW = ("italic", "oblique", "kursiv")
 
 
-_STYLE_WORDS = re.compile(
-    r"(?:regular|roman|book|text|medium|semibold|demibold|demi|bold|black|heavy"
-    r"|light|thin|ultra|extra|italic|oblique|kursiv|cond(?:ensed)?|narrow|disp(?:lay)?"
-    r"|md|bd|blk|sb|lt|rg)+$")
-
-
-def _font_family(name):
-    """Family root — subset prefix AND style suffix stripped, whether the style
-    is hyphenated ('Lato-Bold') or concatenated ('FoundersGroteskMedium'), so
-    both reduce to the same family as their Regular. A weight jump WITHIN a
-    family is bold; a weight difference ACROSS families is a different typeface."""
-    n = re.sub(r"^[A-Z]{3,7}\+", "", name or "")
-    n = re.split(r"[-,]", n)[0]
-    n = re.sub(r"[^a-z0-9]", "", n.lower())
-    return _STYLE_WORDS.sub("", n) or n
-
-
-def _is_italic(name, flags):
-    # the descriptor ITALIC bit is the reliable signal (set even when the
-    # subset name abbreviates 'Italic' to 'Ita'); name is a backup
-    if flags & ITALIC_FLAG:
+def _font_is_italic(f):
+    # descriptor ITALIC bit (reliable, set even when a subset name abbreviates
+    # 'Italic' to 'Ita') OR an italic name token
+    if f.get("flags", 0) & ITALIC_FLAG:
         return True
-    low = (name or "").lower()
+    low = (f["name"] or "").lower()
     return any(k in low for k in _ITAL_KW) or low.endswith(("ita", "ital", "obl"))
 
 
-def _font_width_profile(ext):
-    """Per-font mean glyph INK width (box width / point size) per letter, from
-    the raw extracted chars. Lets weight be MEASURED from the geometry instead
-    of read from pdfium's unreliable font-weight field. Char tuple:
-    [uc, l, b, r, t, fontIdx, size, colorIdx]."""
-    acc = {}
-    for p in (ext or {}).get("pages", []):
-        for c in p.get("chars", []):
-            uc, size, fi = c[0], c[6], c[5]
-            if size <= 0 or len(uc) != 1 or not uc.isalpha():
-                continue
-            d = acc.setdefault(fi, {}).setdefault(uc, [0.0, 0])
-            d[0] += (c[3] - c[1]) / size
-            d[1] += 1
-    return {fi: {ch: s / n for ch, (s, n) in m.items() if n >= 3}
-            for fi, m in acc.items()}
+# standard OpenType/CSS named-weight scale; most specific tokens first so
+# 'semibold'/'extrabold' resolve before the 'bold' substring inside them
+_WEIGHT_TOKENS = [
+    ("extrablack", 950), ("ultrablack", 950), ("extrabold", 800),
+    ("ultrabold", 800), ("semibold", 600), ("demibold", 600),
+    ("extralight", 200), ("ultralight", 200),
+    ("black", 900), ("heavy", 900), ("bold", 700), ("medium", 500),
+    ("demi", 600), ("semi", 600), ("light", 300), ("thin", 100),
+    ("hairline", 100), ("book", 400), ("regular", 400), ("normal", 400),
+    ("roman", 400), ("blk", 900), ("bd", 700), ("sb", 600), ("dem", 600),
+    ("med", 500), ("lt", 300),
+]
 
 
-def _is_bold_name(f):
+def _font_weight_rank(f):
+    """Numeric weight (100-900) from the font name token, with the ForceBold bit
+    as a floor. Used to compare a run's weight to the document body weight —
+    heavier-than-body = bold emphasis (catches 'Medium' set against 'Regular')."""
     low = (f["name"] or "").lower()
-    return bool(any(k in low for k in _BOLD_KW)
-                or re.search(r"(?:^|[^a-z])(bd|blk|sb|dem)(?![a-z])", low)
-                or f.get("flags", 0) & FORCEBOLD_FLAG)
-
-
-# within-family ink-width ratio above which a run reads as a heavier weight; the
-# measured signal (calibrated: Medium/Regular ~1.05, SemiBold ~1.08, Bold higher)
-BOLD_INK_RATIO = 1.04
-
-
-def _glyph_ratio(fi, base_fi, widths):
-    """Median ink-width ratio of font `fi` to `base_fi` over their shared
-    letters — a measured, name-independent weight comparison. None if too few
-    shared letters to judge."""
-    a, b = widths.get(fi), widths.get(base_fi)
-    if not a or not b:
-        return None
-    ratios = sorted(a[ch] / b[ch] for ch in a if ch in b and b[ch] > 0)
-    return ratios[len(ratios) // 2] if len(ratios) >= 4 else None
-
-
-def _font_emphasis(fi, base_fi, fonts, widths):
-    """'strong'/'em' when font `fi` is a bold/italic variant the base `base_fi`
-    isn't. Italic: descriptor ITALIC flag or name (reliable). Bold: a glyph
-    ink-width measurement WITHIN the same family (replaces pdfium's unreliable
-    weight numbers), or — across families, where width is a typeface trait not a
-    weight — the name/ForceBold flag."""
-    rf, bf = fonts[fi], fonts[base_fi]
-    if _is_italic(rf["name"], rf.get("flags", 0)) \
-            and not _is_italic(bf["name"], bf.get("flags", 0)):
-        return "em"
-    if _font_family(rf["name"]) == _font_family(bf["name"]):
-        r = _glyph_ratio(fi, base_fi, widths)
-        if r is not None:
-            return "strong" if r >= BOLD_INK_RATIO else None
-    if _is_bold_name(rf) and not _is_bold_name(bf):
-        return "strong"
-    return None
+    for tok, w in _WEIGHT_TOKENS:
+        if tok in low:
+            return max(w, 700) if f.get("flags", 0) & FORCEBOLD_FLAG else w
+    return 700 if f.get("flags", 0) & FORCEBOLD_FLAG else 400
 
 OL_RE = re.compile(r"^(\d{1,2}|[A-Za-z])\s?[.)]\s+")
 
@@ -226,7 +174,6 @@ def run(ctx):
     blocks, fonts, colors = asm["blocks"], asm["fonts"], asm["colors"]
     pages = {p["n"]: p for p in asm["pages"]}
     ctx.page_h = {p["n"]: p["height"] for p in asm["pages"]}
-    ctx.font_width = _font_width_profile(ctx.artifact("extract"))
     ctx.colors = colors
     ctx.questions = []
     ctx.nids = set()
@@ -2504,6 +2451,19 @@ def _join_block(ctx, blk, link_colors=()):
         dom_counts[l["fontIdx"]] += len(l["text"])
     blk_dom_idx = dom_counts.most_common(1)[0][0]
     blk_font = ctx.fonts[blk_dom_idx]
+    # emphasis is judged against THIS paragraph's own dominant font: a run
+    # heavier than it is <strong>, an italic run is <em>. So a whole paragraph
+    # set in a heavier/italic weight is NOT emphasis (that's its role/style),
+    # while a bold word or an italic title inside regular prose is.
+    blk_rank = _font_weight_rank(blk_font)
+    blk_italic = _font_is_italic(blk_font)
+
+    def _strong(f):
+        return _font_weight_rank(f) > blk_rank
+
+    def _em(f):
+        return _font_is_italic(f) and not blk_italic
+
     for l in blk["lines"]:
         t = l["text"]
         if out.endswith("-") and t[:1].islower():
@@ -2523,18 +2483,32 @@ def _join_block(ctx, blk, link_colors=()):
         links.extend(real)
         sups.extend([s + base, e + base] for s, e in l.get("sups", []))
 
-        line_font = ctx.fonts[l["fontIdx"]]
+        # emphasis the standard way: a char is bold/italic iff its OWN font is
+        # (from the font name + descriptor flags) — absolute, not relative to the
+        # line/block dominant. Reconstruct the per-char font (line dominant,
+        # overridden by the sub-line fontRuns), then emit maximal bold/italic
+        # runs. This is what mature extractors (pdfminer/pdfplumber/PyMuPDF) do.
+        fc = [l["fontIdx"]] * len(t)
         for s, e, fi in l.get("fontRuns", []):
-            kind = _font_emphasis(fi, l["fontIdx"], ctx.fonts, ctx.font_width)
-            if kind and (e - s) < 0.9 * max(len(t), 1):  # sub-line runs only
-                emph.append([s + base, e + base, kind])
-        if l["fontIdx"] != blk_dom_idx:
-            # a whole line in a bold/italic variant of the BLOCK's font:
-            # name lines in contact lists, emphasis wrapping across lines
-            # ('imported APIs can | generally be understood...')
-            kind = _font_emphasis(l["fontIdx"], blk_dom_idx, ctx.fonts, ctx.font_width)
-            if kind:
-                emph.append([base, base + len(t), kind])
+            for i in range(s, min(e, len(t))):
+                fc[i] = fi
+        for kind, pred in (("strong", _strong), ("em", _em)):
+            i = 0
+            while i < len(t):
+                # start a run only on a non-space emphasized char (so `i` always
+                # advances past it — a leading bold space would never terminate)
+                if t[i] == " " or not pred(ctx.fonts[fc[i]]):
+                    i += 1
+                    continue
+                # extend over the same emphasis; interior spaces continue the run
+                # so 'bold word' stays one span, then trim trailing spaces
+                j = i + 1
+                while j < len(t) and (pred(ctx.fonts[fc[j]]) or t[j] == " "):
+                    j += 1
+                while j > i + 1 and t[j - 1] == " ":
+                    j -= 1
+                emph.append([base + i, base + j, kind])
+                i = j
 
         marks.extend([s + base, e + base, _hex(ctx.colors[ci])]
                      for s, e, ci in l.get("marks", []))
