@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 83
+VERSION = 87
 
 
 # PDF font-descriptor flag bits
@@ -368,12 +368,16 @@ def run(ctx):
     # not just inside callouts
     nodes = _join_pagebreak_sentences(ctx, nodes)
     nodes = _join_column_wrap(ctx, nodes)
+    nodes = _join_broken_paragraphs(ctx, nodes)
     nodes = _merge_crosspage_lists(ctx, nodes)
     nodes = _merge_crosspage_bullet_lists(ctx, nodes)
     nodes = _marker_lists(ctx, nodes)
     nodes = _definition_lists(ctx, nodes)
     nodes = _floating_pullquotes(ctx, nodes, body_size)
     nodes = _aside_layout_and_pullquotes(ctx, nodes, twocol_pages)
+    # a second pass: paragraphs that a floating pullquote/aside sat between are
+    # now adjacent (the intruder has been extracted) — rejoin the split sentence
+    nodes = _join_broken_paragraphs(ctx, nodes)
     _indents(ctx, nodes)
 
     # flood guard: questionnaire-style documents raise the same per-block
@@ -2345,7 +2349,7 @@ def _join_pagebreak_sentences(ctx, children):
             # joined text renders under prev's page; credit the source page
             ctx.audit_moved[ch["page"]] += _alnum(ch["text"])
             prev["text"] += " " + ch["text"]
-            for key in ("refs", "links"):
+            for key in ("refs", "links", "emph", "marks"):
                 if ch.get(key):
                     prev.setdefault(key, []).extend(
                         [r[0] + off, r[1] + off, *r[2:]] for r in ch[key])
@@ -2397,6 +2401,61 @@ def _join_column_wrap(ctx, nodes):
                 prev.setdefault(key, []).extend(
                     [r[0] + off, r[1] + off, *r[2:]] for r in ch[key])
         ctx.log.entry("join-column-wrap", page=ch["page"], into=prev["rk"],
+                      joined=ch["text"][:60])
+    return out
+
+
+def _join_broken_paragraphs(ctx, nodes):
+    """The broken-paragraph signature — the first block ends mid-sentence and the
+    next starts lowercase — split by block grouping within a page. Rejoins both
+    a same-column vertical split (second directly below the first) AND a side-by-
+    side column wrap the geometry-strict _join_column_wrap misses (columns level
+    at the top, so the continuation isn't 'higher'). Page breaks: see
+    _join_pagebreak_sentences. The lowercase start is the high-precision guard."""
+    out = []
+    for ch in nodes:
+        prev = out[-1] if out else None
+        # ch must not be a structured (hard-return) block; prev may carry breaks
+        # only when they're a run-in soft-header (lead) at its start, which says
+        # nothing about joining its END to a continuation
+        if not (prev is not None and prev["type"] == "paragraph"
+                and ch["type"] == "paragraph" and ch["page"] == prev["page"]
+                and prev.get("text") and ch.get("text")
+                and (prev.get("lead") or not prev.get("breaks"))
+                and not ch.get("breaks")):
+            out.append(ch)
+            continue
+        last = prev["text"].rstrip()[-1:]
+        mid_sentence = last.isalnum() or last in ",-–­"
+        ps = (prev.get("data") or {}).get("size", 0)
+        cs = (ch.get("data") or {}).get("size", 0)
+        pcx, ccx = (prev["bbox"][0] + prev["bbox"][2]) / 2, (ch["bbox"][0] + ch["bbox"][2]) / 2
+        # (a) same column, ch directly below prev within ~2 lines
+        same_col = (abs(ch["bbox"][0] - prev["bbox"][0]) < 8
+                    and ch["bbox"][3] <= prev["bbox"][1] + 2
+                    and prev["bbox"][1] - ch["bbox"][3] < max(ps, cs, 1) * 2.5)
+        # (b) next column: ch is rightward and vertically overlaps prev (not
+        # entirely below it) — the column-boundary wrap
+        next_col = ccx > pcx + 2 and ch["bbox"][3] > prev["bbox"][1]
+        if not (mid_sentence and ch["text"][:1].islower() and (same_col or next_col)
+                and abs(ps - cs) < 0.6):
+            out.append(ch)
+            continue
+        ptext = prev["text"].rstrip()
+        if ptext[-1:] in "-­":            # mid-word hyphen break
+            joiner = ""
+            prev["text"] = ptext[:-1]
+        else:
+            joiner = " "
+        off = len(prev["text"]) + len(joiner)
+        ctx.audit_moved[ch["page"]] += _alnum(ch["text"])
+        prev["text"] += joiner + ch["text"]
+        for key in ("refs", "links", "emph", "marks"):
+            if ch.get(key):
+                prev.setdefault(key, []).extend(
+                    [r[0] + off, r[1] + off, *r[2:]] for r in ch[key])
+        prev["bbox"] = _union(prev["bbox"], ch["bbox"])
+        ctx.log.entry("join-broken-para", page=ch["page"], into=prev["rk"],
                       joined=ch["text"][:60])
     return out
 
