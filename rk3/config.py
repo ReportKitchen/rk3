@@ -64,11 +64,21 @@ def _deep_merge(base: dict, override: dict) -> dict:
 
 
 def load_config(pdf_path: Path) -> dict:
+    # config layers, lowest precedence first: code DEFAULTS < repo-wide
+    # config.json (the single global switch — same file rk3.ai reads) <
+    # per-document <name>.config.json. So `{"output": {"embedFonts": true}}`
+    # in config.json flips it on for every document; a per-doc file can still
+    # override either way.
+    cfg = copy.deepcopy(DEFAULTS)
+    global_path = Path(__file__).resolve().parent.parent / "config.json"
+    if global_path.exists():
+        try:
+            cfg = _deep_merge(cfg, json.loads(global_path.read_text()))
+        except (json.JSONDecodeError, OSError):
+            pass  # a broken global config must not break every conversion
     cfg_path = pdf_path.with_suffix("").with_name(pdf_path.stem + ".config.json")
     if cfg_path.exists():
-        cfg = _deep_merge(DEFAULTS, json.loads(cfg_path.read_text()))
-    else:
-        cfg = copy.deepcopy(DEFAULTS)
+        cfg = _deep_merge(cfg, json.loads(cfg_path.read_text()))
     # edit ops: durable per-element operations (viewer-written), applied at
     # render; loading them into cfg puts them in the render fingerprint, so
     # an op change re-runs render alone

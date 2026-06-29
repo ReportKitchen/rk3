@@ -3,5 +3,8 @@
     "mode": "generate",
     "provider": "anthropic",
     "model": null
+  },
+  "output": {
+    "embedFonts": true
   }
 }
