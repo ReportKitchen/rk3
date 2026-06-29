@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 72
+VERSION = 73
 
 
 # PDF font-descriptor flag bits
@@ -65,28 +65,62 @@ def _is_italic(name, flags):
     return any(k in low for k in _ITAL_KW) or low.endswith(("ita", "ital", "obl"))
 
 
-def _is_bold(name, flags, weight, base_name, base_weight):
-    low = (name or "").lower()
-    if any(k in low for k in _BOLD_KW) \
-            or re.search(r"(?:^|[^a-z])(bd|blk|sb|dem)(?![a-z])", low):
-        return True
-    if flags & FORCEBOLD_FLAG:
-        return True
-    # a marked weight jump within the SAME family is bold; pdfium's absolute
-    # weights are unreliable across families (a 'Regular' can report 600-768)
-    return bool(weight and base_weight and weight - base_weight >= 120
-                and _font_family(name) == _font_family(base_name))
+def _font_width_profile(ext):
+    """Per-font mean glyph INK width (box width / point size) per letter, from
+    the raw extracted chars. Lets weight be MEASURED from the geometry instead
+    of read from pdfium's unreliable font-weight field. Char tuple:
+    [uc, l, b, r, t, fontIdx, size, colorIdx]."""
+    acc = {}
+    for p in (ext or {}).get("pages", []):
+        for c in p.get("chars", []):
+            uc, size, fi = c[0], c[6], c[5]
+            if size <= 0 or len(uc) != 1 or not uc.isalpha():
+                continue
+            d = acc.setdefault(fi, {}).setdefault(uc, [0.0, 0])
+            d[0] += (c[3] - c[1]) / size
+            d[1] += 1
+    return {fi: {ch: s / n for ch, (s, n) in m.items() if n >= 3}
+            for fi, m in acc.items()}
 
 
-def _font_emphasis(name, weight, flags, base_name, base_weight, base_flags):
-    """'strong'/'em' when this font is a bold/italic variant the base isn't.
-    Italic comes from the descriptor ITALIC flag or the name; bold from the
-    name, the ForceBold flag, or a same-family weight jump — never a raw
-    absolute weight (pdfium reports those inconsistently)."""
-    if _is_italic(name, flags) and not _is_italic(base_name, base_flags):
+def _is_bold_name(f):
+    low = (f["name"] or "").lower()
+    return bool(any(k in low for k in _BOLD_KW)
+                or re.search(r"(?:^|[^a-z])(bd|blk|sb|dem)(?![a-z])", low)
+                or f.get("flags", 0) & FORCEBOLD_FLAG)
+
+
+# within-family ink-width ratio above which a run reads as a heavier weight; the
+# measured signal (calibrated: Medium/Regular ~1.05, SemiBold ~1.08, Bold higher)
+BOLD_INK_RATIO = 1.04
+
+
+def _glyph_ratio(fi, base_fi, widths):
+    """Median ink-width ratio of font `fi` to `base_fi` over their shared
+    letters — a measured, name-independent weight comparison. None if too few
+    shared letters to judge."""
+    a, b = widths.get(fi), widths.get(base_fi)
+    if not a or not b:
+        return None
+    ratios = sorted(a[ch] / b[ch] for ch in a if ch in b and b[ch] > 0)
+    return ratios[len(ratios) // 2] if len(ratios) >= 4 else None
+
+
+def _font_emphasis(fi, base_fi, fonts, widths):
+    """'strong'/'em' when font `fi` is a bold/italic variant the base `base_fi`
+    isn't. Italic: descriptor ITALIC flag or name (reliable). Bold: a glyph
+    ink-width measurement WITHIN the same family (replaces pdfium's unreliable
+    weight numbers), or — across families, where width is a typeface trait not a
+    weight — the name/ForceBold flag."""
+    rf, bf = fonts[fi], fonts[base_fi]
+    if _is_italic(rf["name"], rf.get("flags", 0)) \
+            and not _is_italic(bf["name"], bf.get("flags", 0)):
         return "em"
-    if _is_bold(name, flags, weight, base_name, base_weight) \
-            and not _is_bold(base_name, base_flags, base_weight, base_name, base_weight):
+    if _font_family(rf["name"]) == _font_family(bf["name"]):
+        r = _glyph_ratio(fi, base_fi, widths)
+        if r is not None:
+            return "strong" if r >= BOLD_INK_RATIO else None
+    if _is_bold_name(rf) and not _is_bold_name(bf):
         return "strong"
     return None
 
@@ -192,6 +226,7 @@ def run(ctx):
     blocks, fonts, colors = asm["blocks"], asm["fonts"], asm["colors"]
     pages = {p["n"]: p for p in asm["pages"]}
     ctx.page_h = {p["n"]: p["height"] for p in asm["pages"]}
+    ctx.font_width = _font_width_profile(ctx.artifact("extract"))
     ctx.colors = colors
     ctx.questions = []
     ctx.nids = set()
@@ -2490,19 +2525,14 @@ def _join_block(ctx, blk, link_colors=()):
 
         line_font = ctx.fonts[l["fontIdx"]]
         for s, e, fi in l.get("fontRuns", []):
-            f = ctx.fonts[fi]
-            kind = _font_emphasis(f["name"], f.get("weight", 0), f.get("flags", 0),
-                                  line_font["name"], line_font.get("weight", 0),
-                                  line_font.get("flags", 0))
+            kind = _font_emphasis(fi, l["fontIdx"], ctx.fonts, ctx.font_width)
             if kind and (e - s) < 0.9 * max(len(t), 1):  # sub-line runs only
                 emph.append([s + base, e + base, kind])
         if l["fontIdx"] != blk_dom_idx:
             # a whole line in a bold/italic variant of the BLOCK's font:
             # name lines in contact lists, emphasis wrapping across lines
             # ('imported APIs can | generally be understood...')
-            kind = _font_emphasis(line_font["name"], line_font.get("weight", 0),
-                                  line_font.get("flags", 0), blk_font["name"],
-                                  blk_font.get("weight", 0), blk_font.get("flags", 0))
+            kind = _font_emphasis(l["fontIdx"], blk_dom_idx, ctx.fonts, ctx.font_width)
             if kind:
                 emph.append([base, base + len(t), kind])
 
