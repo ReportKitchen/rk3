@@ -523,6 +523,29 @@ pre.error {
 }
 .fbtable-doc:hover { text-decoration-color: #2c4a75; }
 
+/* ----------------------------------------------------- PDF metadata table */
+
+.meta-dim { color: #aaa; }
+.meta-font { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 0.78rem; }
+.meta-more {
+  font: inherit; font-variant-numeric: tabular-nums;
+  min-width: 2.2rem; padding: 0.1rem 0.4rem;
+  border: 1px solid #b8cae3; border-radius: 5px;
+  background: #eef3fa; color: #2c4a75; cursor: pointer;
+}
+.meta-more:hover { background: #dde8f6; border-color: #5b7fb5; }
+.meta-fontrow td { background: #f6f9fd; }
+.meta-fontlist { display: flex; flex-wrap: wrap; gap: 0.35rem; padding: 0.2rem 0; }
+.meta-chip {
+  display: inline-flex; align-items: baseline; gap: 0.35rem;
+  padding: 0.12rem 0.5rem; border-radius: 999px;
+  border: 1px solid #d4d4d4; background: #fff;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 0.74rem;
+}
+.meta-chip.main { border-color: #5b7fb5; background: #eef3fa; }
+.meta-chip.embedded { border-color: #7fae7f; }
+.meta-chip em { color: #999; font-style: normal; font-variant-numeric: tabular-nums; }
+
 /* -------------------------------------------------------- questions panel */
 
 .qpanel {

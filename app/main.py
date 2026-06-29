@@ -49,6 +49,68 @@ def documents():
     return docs
 
 
+def _clean_font(name: str) -> str:
+    """'ANGKGH+Gotham-Book' -> 'Gotham-Book' (drop the subset tag)."""
+    return re.sub(r"^[A-Z]{6}\+", "", name or "")
+
+
+@app.get("/api/pdf-metadata")
+def pdf_metadata():
+    """Admin → PDF Metadata: one row per document with its authoring tools
+    (PDF Creator/Producer) and the fonts it uses, ranked by how much text each
+    sets. The main (bulk) font is surfaced; the long tail stays collapsed so a
+    document with dozens of named fonts can't blow up the table.
+
+    Authoring tool is read straight from the PDF (every doc has one); font usage
+    comes from the converted ir.json (so it's blank until a doc is converted)."""
+    import pypdfium2 as pdfium
+
+    rows = []
+    for d in list_documents():
+        slug = d["slug"]
+        row = {"slug": slug, "docName": d["name"], "folder": d.get("folder"),
+               "creator": None, "producer": None,
+               "mainFont": None, "fontCount": 0, "fonts": []}
+        src = source_for_slug(slug)
+        if src is not None:
+            try:
+                pdf = pdfium.PdfDocument(str(src))
+                meta = pdf.get_metadata_dict()
+                row["creator"] = (meta.get("Creator") or "").strip() or None
+                row["producer"] = (meta.get("Producer") or "").strip() or None
+                pdf.close()
+            except Exception:
+                pass
+        ir_path = output_dir(slug) / "ir.json"
+        if ir_path.exists():
+            try:
+                ir = json.loads(ir_path.read_text())
+                usage: Dict[str, int] = {}
+                embedded = {_clean_font(k) for k in (ir.get("fonts_embed") or {})}
+
+                def feed(n):
+                    f = (n.get("data") or {}).get("font")
+                    t = len(n.get("text") or "")
+                    if f and t:
+                        usage[_clean_font(f)] = usage.get(_clean_font(f), 0) + t
+
+                for n in ir.get("body", []):
+                    feed(n)
+                    for c in n.get("children", []):
+                        feed(c)
+                ranked = sorted(usage.items(), key=lambda kv: -kv[1])
+                if ranked:
+                    row["mainFont"] = ranked[0][0]
+                    row["fontCount"] = len(ranked)
+                    row["fonts"] = [{"name": nm, "chars": c,
+                                     "embedded": nm in embedded}
+                                    for nm, c in ranked]
+            except Exception:
+                pass
+        rows.append(row)
+    return rows
+
+
 class Assertion(BaseModel):
     """One eval check authored from the review UI — exactly the shape eval/<slug>
     .yaml stores. Exactly one of order/role/list/merge is set. `items` carries

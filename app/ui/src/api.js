@@ -1,8 +1,9 @@
 export const ENGINE = "pdfium";
 
-// client-only "document" id for the Admin → All Feedback view (never hits the
-// server; the slug regex there rejects the colon anyway)
+// client-only "document" ids for the Admin views (never hit the server; the
+// slug regex there rejects the colon anyway)
 export const ADMIN_FEEDBACK = "admin:all-feedback";
+export const ADMIN_METADATA = "admin:pdf-metadata";
 
 async function json(res) {
   if (!res.ok) {
@@ -47,6 +48,8 @@ export const saveAssertion = (slug, check, force = false) =>
 export const getFeedback = (slug) => fetch(`/api/feedback/${slug}`).then(json);
 
 export const getAllFeedback = () => fetch(`/api/feedback`).then(json);
+
+export const getPdfMetadata = () => fetch(`/api/pdf-metadata`).then(json);
 
 export const postFeedback = (slug, entry) =>
   fetch(`/api/feedback/${slug}`, {

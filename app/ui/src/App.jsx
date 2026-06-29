@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ADMIN_FEEDBACK, clearFeedback, deleteFeedback, deleteOp, emptyTrash, getBuildStatus, getDocuments, getFeedback, getIr, getOps, startConvert, postFeedback, postOp } from "./api.js";
+import { ADMIN_FEEDBACK, ADMIN_METADATA, clearFeedback, deleteFeedback, deleteOp, emptyTrash, getBuildStatus, getDocuments, getFeedback, getIr, getOps, startConvert, postFeedback, postOp } from "./api.js";
 import DocList from "./components/DocList.jsx";
 import DocumentView from "./components/DocumentView.jsx";
 import ErrorBanner from "./components/ErrorBanner.jsx";
 import FeedbackPopover from "./components/FeedbackPopover.jsx";
 import FeedbackTable from "./components/FeedbackTable.jsx";
+import MetadataTable from "./components/MetadataTable.jsx";
 import Toolbar from "./components/Toolbar.jsx";
 import { guard, reportError } from "./errorBus.js";
 
@@ -45,7 +46,10 @@ export default function App() {
   }, []);
 
   const refreshFeedback = useCallback(async () => {
-    if (selected) setFeedback(await getFeedback(selected).catch(guard("load feedback", [])));
+    // admin sentinels ("admin:…") aren't real slugs — the feedback endpoint
+    // rejects the colon (400). Skip the per-document fetch for those views.
+    if (!selected || selected.startsWith("admin:")) { setFeedback([]); return; }
+    setFeedback(await getFeedback(selected).catch(guard("load feedback", [])));
   }, [selected]);
 
   useEffect(() => { refresh(); }, [refresh]);
@@ -66,7 +70,9 @@ export default function App() {
   // build freshness: poll so a CLI/agent rebuild is detected even without an
   // in-app action; build_id (render fingerprint) busts the content iframe
   useEffect(() => {
-    if (!selected || selected === ADMIN_FEEDBACK) { setBuildStatus(null); return; }
+    if (!selected || selected === ADMIN_FEEDBACK || selected === ADMIN_METADATA) {
+      setBuildStatus(null); return;
+    }
     let alive = true;
     const tick = () =>
       getBuildStatus(selected)
@@ -157,6 +163,8 @@ export default function App() {
         <div id="content">
           {selected === ADMIN_FEEDBACK ? (
             <FeedbackTable onOpen={setSelected} />
+          ) : selected === ADMIN_METADATA ? (
+            <MetadataTable onOpen={setSelected} />
           ) : doc ? (
             <DocumentView
               key={doc.slug}

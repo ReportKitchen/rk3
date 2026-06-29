@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ADMIN_FEEDBACK } from "../api.js";
+import { ADMIN_FEEDBACK, ADMIN_METADATA } from "../api.js";
 
 const LABELS = {
   unconverted: "unconverted",
@@ -59,6 +59,12 @@ export default function DocList({ docs, selected, onSelect, onRefresh }) {
           onClick={() => onSelect(ADMIN_FEEDBACK)}
         >
           <span>All Feedback</span>
+        </li>
+        <li
+          className={"doc" + (selected === ADMIN_METADATA ? " selected" : "")}
+          onClick={() => onSelect(ADMIN_METADATA)}
+        >
+          <span>PDF Metadata</span>
         </li>
         {groups.map((g) => (
           <React.Fragment key={g.folder}>
