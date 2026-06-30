@@ -2,6 +2,7 @@
   "output": {
     "fonts": {
       "map": {
+        "cooperhewitt": "Plus Jakarta Sans",
         "proximanova": "proxima-nova",
         "whitney": "Open Sans"
       },

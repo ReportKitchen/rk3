@@ -2,7 +2,8 @@
   "output": {
     "fonts": {
       "map": {
-        "graphik": "Montserrat"
+        "graphik": "Montserrat",
+        "moderat": "DM Sans"
       }
     }
   }

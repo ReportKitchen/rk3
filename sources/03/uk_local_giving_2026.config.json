@@ -2,6 +2,7 @@
   "output": {
     "fonts": {
       "map": {
+        "maax": "Inter",
         "sourceserif": "Source Serif 4"
       }
     }

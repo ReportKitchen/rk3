@@ -6,7 +6,8 @@
         "futurapt": "futura-pt",
         "minion": "Source Serif 4",
         "myriad": "Source Sans 3",
-        "neuzeit": "helvetica-lt-pro"
+        "neuzeit": "helvetica-lt-pro",
+        "rift": "Oswald"
       },
       "load": [
         "https://use.typekit.net/qmh3dop.css"

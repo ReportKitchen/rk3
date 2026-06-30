@@ -2,6 +2,7 @@
   "output": {
     "fonts": {
       "map": {
+        "gtpressura": "Karla",
         "lato": "Lato",
         "minion": "Source Serif 4"
       }
