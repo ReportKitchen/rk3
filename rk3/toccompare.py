@@ -110,49 +110,76 @@ def _parse_toc(blocks):
         elif tail:
             page, body = (tail.group(1) or tail.group(2)), raw[:tail.start()].strip()
         body = _DASH_LEAD.sub("", _DOT_TAIL.sub("", body)).strip()
-        first = next((c for c in body if c.isalpha()), "")
-        if entries and first and first.islower():
-            e = entries[-1]                          # line wrap: fold into previous
-            e["title"] = f"{e['title']} {body}".strip()
-            if e["page"] is None:
-                e["page"] = page
-            e["norm"] = _norm(e["title"])
-            continue
         n = _norm(body)
         if len(n) < 2 or n in ("contents", "table of contents"):
             continue
         if page is None:                             # separate number column
             page = pair_number(r)
+        first = next((c for c in body if c.isalpha()), "")
+        # a line wraps the previous entry when it opens lowercase, OR — in a TOC
+        # that carries page numbers — when it has no number of its own (the
+        # uppercase-starting tail of a multi-line entry, e.g. "Climate and Nature
+        # Hazards" under "2.1 The Foundations of Development: …")
+        wrap = entries and ((first and first.islower())
+                            or (page is None and entries[-1].get("page")))
+        if wrap:
+            e = entries[-1]
+            e["title"] = f"{e['title']} {body}".strip()
+            if e["page"] is None:
+                e["page"] = page
+            e["norm"] = _norm(e["title"])
+            continue
         entries.append({"title": body, "level": None, "page": page,
                         "x": r["x"], "norm": n})
     _assign_levels(entries)
     return entries
 
 
+def _dotdepth(title):
+    """Decimal-numbering depth if the title opens with a dotted number: 1.1 -> 2,
+    1.2.3 -> 3. A single number ('1', 'Chapter 1') is NOT dotted — depth is then
+    a styling/indent question, not an explicit one."""
+    m = _SEC_NUM.match(title)
+    return m.group(1).count(".") + 1 if (m and "." in m.group(1)) else None
+
+
 def _assign_levels(entries):
-    """Level per entry. Most TOCs INDENT nested entries, so cluster the left
-    edges into tiers and read level off the tier — this catches un-numbered
-    sub-entries ('Stage 1', 'What the Science Says') that numbering misses. If
-    the TOC is flat (one tier), fall back to decimal section-number depth."""
+    """Level per entry, combining signals — because hierarchy is redundantly
+    encoded and any single signal is fragile. DOTTED numbering ('1.1' under '1')
+    is explicit author structure and immune to styling, so it wins: a dotted
+    entry's depth comes from its dot-count, nested BELOW the finest un-dotted
+    heading. The UN-dotted majors (Section / Chapter / Exec Summary) get their
+    level from indentation tiers. This fixes the case where a colored pill pads a
+    'Chapter' header rightward and fools pure x-indentation into ranking '1.1'
+    ABOVE its own chapter."""
     if not entries:
         return
-    reps = []                                        # indent-tier left edges
-    for x in sorted({round(e["x"], 1) for e in entries}):
+    undotted = [e for e in entries if _dotdepth(e["title"]) is None]
+    reps = []                                        # indent tiers of UN-dotted
+    for x in sorted({round(e["x"], 1) for e in undotted}):
         if not reps or x - reps[-1] > 8:
             reps.append(x)
     use_x = len(reps) >= 2 and reps[-1] - reps[0] >= 8
-    for e in entries:
+
+    def tier(x):
+        lvl = 1
+        for i, r in enumerate(reps):
+            if x >= r - 4:
+                lvl = i + 1
+        return lvl
+
+    for e in undotted:
         if use_x:
-            lvl = 1
-            for i, r in enumerate(reps):
-                if e["x"] >= r - 4:
-                    lvl = i + 1
-            e["level"] = min(lvl, 6)
+            e["level"] = min(tier(e["x"]), 6)
         elif _CHAPTER.match(e["title"]):
             e["level"] = 1
         else:
-            sm = _SEC_NUM.match(e["title"])
-            e["level"] = sm.group(1).count(".") + 1 if sm else None
+            e["level"] = None
+    deepest = max((e["level"] for e in undotted if e["level"]), default=1)
+    for e in entries:
+        dd = _dotdepth(e["title"])
+        if dd is not None:                           # numbering wins over indent
+            e["level"] = min(deepest + (dd - 1), 6)
 
 
 def _headings(od):
