@@ -150,7 +150,7 @@ def _anthropic_json(system, user, schema, model, max_tokens) -> dict:
 
 
 def vision_json(system: str, user: str, image_paths, schema: dict,
-                *, max_tokens: int = 4000) -> dict:
+                *, max_tokens: int = 4000, model: str = None) -> dict:
     """Structured call that also sees one or more page images — the basis of the
     vision-QA reviewer (analysis-only: it flags discrepancies, never edits).
     Anthropic only; raises on failure so callers decide on fallback."""
@@ -166,16 +166,20 @@ def vision_json(system: str, user: str, image_paths, schema: dict,
         content.append({"type": "image", "source": {
             "type": "base64", "media_type": "image/png", "data": b64}})
     content.append({"type": "text", "text": user})
+    model = model or cfg["model"]
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-    resp = client.messages.create(
-        model=cfg["model"],
+    kwargs = dict(
+        model=model,
         max_tokens=max_tokens,
         system=system,
-        thinking={"type": "adaptive"},
         messages=[{"role": "user", "content": content}],
         output_config={"format": {"type": "json_schema", "schema": schema}},
     )
-    _record_usage(cfg["model"], resp.usage)
+    # adaptive thinking is a 4.6+ feature; Haiku 4.5 rejects it
+    if "haiku" not in model:
+        kwargs["thinking"] = {"type": "adaptive"}
+    resp = client.messages.create(**kwargs)
+    _record_usage(model, resp.usage)
     text = next((b.text for b in resp.content if b.type == "text"), "")
     return _parse_json(text)
 

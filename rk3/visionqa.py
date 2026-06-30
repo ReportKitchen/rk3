@@ -112,25 +112,26 @@ def _system():
     return f"{_BASE_SYSTEM}\n\n=== CONVERSION RUBRIC ===\n{rubric}"
 
 
-def qa_page(slug, page, our_png=None):
-    """Flag discrepancies for one page (image-vs-image). Returns the flags list."""
+def qa_page(slug, page, our_png=None, model=None):
+    """Flag discrepancies for one page (image-vs-image). Returns the flags list.
+    model: override the reviewer model (e.g. claude-haiku-4-5 for cheap sweeps)."""
     orig = output_dir(slug) / "pages" / f"page-{page:04d}.png"
     if our_png is None:
         our_png = output_dir(slug) / "qa" / f"our-page-{page:04d}.png"
     user = ("IMAGE 1 is the ORIGINAL page. IMAGE 2 is OUR conversion of that page's "
             "content (reflowed to a single web column). Flag only real discrepancies, "
             "per the rubric — intentional transforms are not errors.")
-    res = vision_json(_system(), user, [orig, our_png], _SCHEMA, max_tokens=4000)
+    res = vision_json(_system(), user, [orig, our_png], _SCHEMA, max_tokens=4000, model=model)
     return res.get("flags", [])
 
 
-def qa_doc(slug, pages=None):
+def qa_doc(slug, pages=None, model=None):
     """Run vision-QA across a doc's pages (screenshots in one browser session).
     Returns a flat list of flags, each tagged with its source page."""
     shots = shoot(slug, pages=pages)
     out = []
     for page in sorted(shots):
-        for f in qa_page(slug, page, our_png=shots[page]):
+        for f in qa_page(slug, page, our_png=shots[page], model=model):
             f["page"] = page
             out.append(f)
     return out
