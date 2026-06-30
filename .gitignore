@@ -45,3 +45,6 @@ __pycache__/
 # node
 node_modules/
 app/ui/dist/
+
+# vision-QA render screenshots (regenerable)
+output/pdfium/*/qa/
