@@ -48,3 +48,6 @@ app/ui/dist/
 
 # vision-QA render screenshots (regenerable)
 output/pdfium/*/qa/
+
+# local API-usage log
+logs/

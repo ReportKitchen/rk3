@@ -7,11 +7,44 @@ environment variables (AI_ENABLED / AI_PROVIDER / AI_MODEL); API keys come from
 providers by editing config.json or .env.
 """
 
+import datetime
 import json
 import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+
+# $ per 1M tokens (input, output); falls back to Opus-tier rates
+_PRICING = {"claude-opus-4-8": (5.0, 25.0), "claude-opus-4-7": (5.0, 25.0),
+            "claude-sonnet-4-6": (3.0, 15.0), "claude-haiku-4-5": (1.0, 5.0)}
+
+
+def _record_usage(model, usage):
+    """Append per-call token usage + estimated cost to logs/api-usage.jsonl."""
+    try:
+        ipt = getattr(usage, "input_tokens", 0) or 0
+        opt = getattr(usage, "output_tokens", 0) or 0
+        rin, rout = _PRICING.get(model, (5.0, 25.0))
+        rec = {"ts": datetime.datetime.now().isoformat(timespec="seconds"),
+               "model": model, "in": ipt, "out": opt,
+               "cost": round((ipt * rin + opt * rout) / 1e6, 4)}
+        d = ROOT / "logs"
+        d.mkdir(exist_ok=True)
+        with (d / "api-usage.jsonl").open("a") as f:
+            f.write(json.dumps(rec) + "\n")
+    except Exception:
+        pass  # usage logging must never break a conversion
+
+
+def usage_summary():
+    """Running total across all logged API calls."""
+    p = ROOT / "logs" / "api-usage.jsonl"
+    if not p.exists():
+        return {"calls": 0, "in": 0, "out": 0, "cost": 0.0}
+    recs = [json.loads(l) for l in p.read_text().splitlines() if l.strip()]
+    return {"calls": len(recs), "in": sum(r["in"] for r in recs),
+            "out": sum(r["out"] for r in recs),
+            "cost": round(sum(r["cost"] for r in recs), 2)}
 
 # default model per provider; "model": null in config falls through to these
 DEFAULT_MODELS = {
@@ -111,6 +144,7 @@ def _anthropic_json(system, user, schema, model, max_tokens) -> dict:
         messages=[{"role": "user", "content": user}],
         output_config={"format": {"type": "json_schema", "schema": schema}},
     )
+    _record_usage(model, resp.usage)
     text = next((b.text for b in resp.content if b.type == "text"), "")
     return _parse_json(text)
 
@@ -141,6 +175,7 @@ def vision_json(system: str, user: str, image_paths, schema: dict,
         messages=[{"role": "user", "content": content}],
         output_config={"format": {"type": "json_schema", "schema": schema}},
     )
+    _record_usage(cfg["model"], resp.usage)
     text = next((b.text for b in resp.content if b.type == "text"), "")
     return _parse_json(text)
 
