@@ -41,6 +41,24 @@ export default function App() {
 
   const doc = docs.find((d) => d.slug === selected);
 
+  // selecting a doc writes ?doc=<slug> to the address bar (so a reload lands
+  // back here and the row links are real, shareable URLs). Back/forward restore
+  // the selection from the URL.
+  const selectDoc = useCallback((slug) => {
+    setSelected(slug);
+    const url = slug ? `?doc=${encodeURIComponent(slug)}` : window.location.pathname;
+    window.history.pushState({ doc: slug }, "", url);
+  }, []);
+
+  useEffect(() => {
+    const onPop = () => {
+      const p = new URLSearchParams(window.location.search);
+      setSelected(p.get("doc") || null);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
   const refresh = useCallback(async () => {
     setDocs(await getDocuments());
   }, []);
@@ -157,14 +175,14 @@ export default function App() {
 
   return (
     <div id="layout">
-      <DocList docs={docs} selected={selected} onSelect={setSelected} onRefresh={refresh} />
+      <DocList docs={docs} selected={selected} onSelect={selectDoc} onRefresh={refresh} />
       <div id="right">
         {doc && <Toolbar doc={doc} build={buildStatus} />}
         <div id="content">
           {selected === ADMIN_FEEDBACK ? (
-            <FeedbackTable onOpen={setSelected} />
+            <FeedbackTable onOpen={selectDoc} />
           ) : selected === ADMIN_METADATA ? (
-            <MetadataTable onOpen={setSelected} />
+            <MetadataTable onOpen={selectDoc} />
           ) : doc ? (
             <DocumentView
               key={doc.slug}
