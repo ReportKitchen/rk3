@@ -184,6 +184,12 @@ def _title_match(e, h):
         return False
     if e["norm"] == h["norm"]:
         return True
+    # space-insensitive: a run-together TOC entry (a space-synthesis miss, e.g.
+    # "DefiningLegalandTechnicalTerms") still matches its spaced heading. Cheaper
+    # and far safer than wordninja de-concatenation, which the corpus showed
+    # mostly mis-splits proper nouns / brands / closed compounds.
+    if e["norm"].replace(" ", "") == h["norm"].replace(" ", ""):
+        return True
     return (min(len(e["norm"]), len(h["norm"])) >= 6
             and (e["norm"] in h["norm"] or h["norm"] in e["norm"]))
 
