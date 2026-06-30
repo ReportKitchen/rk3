@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter, defaultdict
 
-VERSION = 47
+VERSION = 48
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -100,6 +100,18 @@ def _lines(chars, links, fills=()):
     return [ln for ln in lines if ln["text"].strip()]
 
 
+def _dropcap_join(prev_c, c):
+    """A drop cap — an ornamental first glyph several times the body size — leaves
+    a wide sidebearing that mimics a word gap ("E" before "DF subsidiary" sits
+    5pt off, 0.5 body-em). Geometry can't tell "Aboard" (join) from "A square"
+    (space): both hug the cap identically. English has exactly two single-letter
+    words, so join the cap to the following text UNLESS it is 'a' or 'I' — those
+    stay spaced, accepting the rare "A board"/"Aboard" ambiguity in their favor."""
+    return (prev_c is not None and prev_c[UC].isalpha()
+            and prev_c[SIZE] >= 1.8 * max(c[SIZE], 1.0)
+            and prev_c[UC] not in ("A", "a", "I", "i"))
+
+
 def _finish_line(chars, links, fills=()):
     # Some PDFs place space chars at geometrically impossible positions: a space
     # whose x falls at or before the RIGHT edge of the char that PRECEDES it in
@@ -138,6 +150,7 @@ def _finish_line(chars, links, fills=()):
     text = []
     src = []  # source char (or None for synthesized spaces), parallel to text
     prev_r = None
+    prev_c = None  # previous source char (for drop-cap detection)
     sizes = Counter()
     fonts = Counter()
     colors = Counter()
@@ -147,7 +160,8 @@ def _finish_line(chars, links, fills=()):
         # letter-gap and word-gap sizes vary wildly between fonts/documents
         if prev_r is not None and c[L] - prev_r > space_em * max(c[SIZE], 1.0) \
                 and text and text[-1] != " " and c[UC] != " " \
-                and not (text[-1].isdigit() and c[UC].isdigit()):
+                and not (text[-1].isdigit() and c[UC].isdigit()) \
+                and not _dropcap_join(prev_c, c):
             # ...except between two digits: tabular figures vary their gaps
             # ("2012" -> "201 2") but a number never contains a real space.
             text.append(" ")
@@ -157,6 +171,7 @@ def _finish_line(chars, links, fills=()):
         if not (ch == " " and (not text or text[-1] == " ")):
             text.append(ch)
             src.append(c)
+        prev_c = c
         prev_r = c[R]
         sizes[c[SIZE]] += 1
         fonts[c[FONT]] += 1
