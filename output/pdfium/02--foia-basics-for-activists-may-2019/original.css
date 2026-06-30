@@ -32,7 +32,8 @@ h4 {
 }
 
 h5 {
-  font-family: var(--rkf-lato, "Lato", sans-serif);
+  font-family: var(--rkf-gtpressura, "GTPressura", sans-serif);
+  font-weight: 700;
   font-size: 1.83rem;
 }
 
@@ -43,6 +44,11 @@ h6 {
   font-size: 1.0rem;
 }
 
+.strong-alt {
+  font-family: var(--rkf-lato, "Lato", sans-serif);
+  font-weight: 800;
+}
+
 .lg-strong-italic-alt {
   font-family: var(--rkf-lato, "Lato", sans-serif);
   font-weight: 700;
@@ -50,20 +56,15 @@ h6 {
   font-size: 1.17em;
 }
 
-.strong-alt {
-  font-family: var(--rkf-lato, "Lato", sans-serif);
-  font-weight: 700;
-}
-
 .strong-alt-2 {
   font-family: var(--rkf-lato, "Lato", sans-serif);
-  font-weight: 800;
-  color: #e22725;
+  font-weight: 700;
 }
 
 .strong-alt-3 {
   font-family: var(--rkf-lato, "Lato", sans-serif);
   font-weight: 800;
+  color: #e22725;
 }
 
 .accent {

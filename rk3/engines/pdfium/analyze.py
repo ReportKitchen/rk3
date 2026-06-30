@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 104
+VERSION = 106
 
 
 # PDF font-descriptor flag bits
@@ -3193,7 +3193,12 @@ def _indents(ctx, nodes):
                       ["preserve", "remove"], mode)
 
 
-TOC_TITLE = re.compile(r"(table of )?contents", re.I)
+TOC_TITLE = re.compile(
+    r"(table of )?contents|what.?s inside|in this (report|issue|guide)", re.I)
+# a block whose whole text is just a 1-3 digit page number (the number column)
+_TOC_NUM = re.compile(r"0?\d{1,3}$")
+# an entry line that opens with a page number then a capitalized title
+_TOC_LEADNUM = re.compile(r"^\s*0?\d{1,3}\s+[A-Z0-9“‘(]")
 
 
 def _toc_pages(ctx, pages, blocks):
@@ -3203,25 +3208,57 @@ def _toc_pages(ctx, pages, blocks):
     entries go with it, but content sharing the page (a TOC that ends
     mid-page) survives. Navigation is reconstructed from our heading tree."""
     bands = {}
+    npages = len(pages)
     for p in pages.values():
         page_blocks = [blk for blk in blocks if blk["page"] == p["n"]]
         lines = [l["text"] for blk in page_blocks for l in blk["lines"]]
         leader = sum(1 for t in lines if re.search(r"\.{3,}\s*\d{1,3}$", t))
         trailing = sum(1 for t in lines if re.search(r"\s\d{1,3}$", t))
         titled = any(TOC_TITLE.fullmatch(t.strip()) for t in lines)
-        if not (leader >= 5 or (titled and trailing >= 3)):
+        # designed TOCs carry page numbers in a separate aligned column
+        # (numeric-only blocks) or as a leading token, with NO dot leaders —
+        # invisible to the trailing-number tests above.
+        def _blk_text(blk):
+            return " ".join(l["text"] for l in blk["lines"]).strip()
+        nums = []
+        numcol = leadnum = 0
+        for blk in page_blocks:
+            t = _blk_text(blk)
+            if _TOC_NUM.fullmatch(t):
+                numcol += 1
+                nums.append(int(t))
+            for l in blk["lines"]:
+                m = _TOC_LEADNUM.match(l["text"])
+                if m:
+                    leadnum += 1
+                    nums.append(int(re.match(r"\s*(0?\d{1,3})", l["text"]).group(1)))
+        # real page numbers can't exceed the doc, and they SPREAD across it with
+        # gaps; an endnote/list sequence (1,2,3…) is dense (range ≈ count) and
+        # data values are out of range — both are excluded here, which is what
+        # kept this off endnote pages and figure data.
+        pages_like = [v for v in nums if 1 <= v <= npages]
+        spread = (len(pages_like) >= 4
+                  and max(pages_like) - min(pages_like) > len(pages_like))
+        # and only near the front (TOCs live in the first few pages) unless a
+        # TOC title explicitly anchors it
+        designed = spread and (titled or p["n"] <= 7)
+        if not (leader >= 5 or (titled and trailing >= 3) or designed):
             continue
-        pat = r"\.{3,}\s*\d{1,3}$" if leader >= 5 else r"\s\d{1,3}$"
-        tocish = [blk for blk in page_blocks
-                  if any(re.search(pat, l["text"])
-                         or TOC_TITLE.fullmatch(l["text"].strip())
-                         for l in blk["lines"])]
-        bot = min(blk["bbox"][1] for blk in tocish) - 2
-        top = max(blk["bbox"][3] for blk in tocish) + 2
+
+        def tocish(blk):
+            if _TOC_NUM.fullmatch(_blk_text(blk)) or TOC_TITLE.fullmatch(_blk_text(blk)):
+                return True
+            return any(re.search(r"\.{3,}\s*\d{1,3}$|\s\d{1,3}$", l["text"])
+                       or _TOC_LEADNUM.match(l["text"]) for l in blk["lines"])
+        marks = [blk for blk in page_blocks if tocish(blk)]
+        if not marks:
+            continue
+        bot = min(blk["bbox"][1] for blk in marks) - 2
+        top = max(blk["bbox"][3] for blk in marks) + 2
         bands[p["n"]] = (bot, top)
         ctx.log.entry("toc-page", page=p["n"], leader_lines=leader,
-                      trailing_num_lines=trailing, titled=titled,
-                      band=[round(bot, 1), round(top, 1)])
+                      trailing_num_lines=trailing, numcol=numcol, leadnum=leadnum,
+                      titled=titled, band=[round(bot, 1), round(top, 1)])
     return bands
 
 

@@ -25,18 +25,11 @@ h2 {
 h3 {
   font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
   font-weight: 700;
-  color: #74c29e;
-  font-size: 1.56rem;
-}
-
-h4 {
-  font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
-  font-weight: 700;
   color: #61a1d7;
   font-size: 1.33rem;
 }
 
-h5 {
+h4 {
   font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
   font-weight: 600;
   color: #014e3f;
@@ -52,38 +45,10 @@ a:hover { text-decoration: underline; }
 .lg-strong-alt {
   font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
   font-weight: 700;
-  color: #014e3f;
-  font-size: 1.22em;
+  font-size: 1.33em;
 }
 
 .lg-strong-alt-2 {
-  font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
-  font-weight: 700;
-  color: #74c29e;
-  font-size: 1.56em;
-}
-
-.lg-strong-alt-3 {
-  font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
-  font-weight: 700;
-  color: #61a1d7;
-  font-size: 1.22em;
-}
-
-.lg-strong-alt-4 {
-  font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
-  font-weight: 700;
-  color: #0d877a;
-  font-size: 1.33em;
-}
-
-.lg-strong-alt-5 {
-  font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
-  font-weight: 700;
-  font-size: 1.33em;
-}
-
-.lg-strong-alt-6 {
   font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
   font-weight: 700;
   font-size: 1.22em;
@@ -94,7 +59,7 @@ a:hover { text-decoration: underline; }
   font-weight: 500;
 }
 
-.lg-strong-alt-7 {
+.lg-strong-alt-3 {
   font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
   font-weight: 700;
   color: #61a1d7;
@@ -177,28 +142,6 @@ a:hover { text-decoration: underline; }
   font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
   font-weight: 700;
 }
-
-[data-nid="n8a2ba90d49"] .soft-header,
-[data-nid="ndc8d7d2f61"] .soft-header,
-[data-nid="n7e9dc37661"] .soft-header,
-[data-nid="n0f2096ef8e"] .soft-header,
-[data-nid="nfb3ace9e00"] .soft-header {
-  font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
-  font-weight: 700;
-  color: #61a1d7;
-}
-
-[data-nid="nc1e0f6f4d9"] { color: #61a1d7; }
-
-[data-nid="nce51840484"] { color: #0d877a; }
-
-[data-nid="n9e614ecf29"] { color: #61a1d7; }
-
-[data-nid="nae41f993b0"] { color: #0d877a; }
-
-[data-nid="n45b995c28d"] { color: #0d877a; }
-
-[data-nid="n715f431b01"] { color: #0d877a; }
 
 [data-nid="n4d471893bf"] {
   background: transparent;

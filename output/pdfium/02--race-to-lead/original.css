@@ -37,13 +37,6 @@ h4 {
 
 h5 {
   font-family: var(--rkf-whitney, "Whitney", sans-serif);
-  font-weight: 400;
-  color: #a8801a;
-  font-size: 1.6rem;
-}
-
-h6 {
-  font-family: var(--rkf-whitney, "Whitney", sans-serif);
   font-weight: 500;
   color: #a8801a;
   font-size: 1.3rem;
@@ -61,12 +54,6 @@ a:hover { text-decoration: underline; }
   font-family: var(--rkf-whitney, "Whitney", sans-serif);
   font-weight: 500;
   font-size: 2.6em;
-}
-
-.xl-medium-alt-2 {
-  font-family: var(--rkf-whitney, "Whitney", sans-serif);
-  font-weight: 500;
-  font-size: 2.0em;
 }
 
 .fine {
@@ -197,8 +184,6 @@ a:hover { text-decoration: underline; }
 .display {
   font-size: 2.0em;
 }
-
-[data-nid="nbf195f304a"] { color: #a8801a; }
 
 [data-nid="n5683d398d7"] {
   background: #1f5c73;
