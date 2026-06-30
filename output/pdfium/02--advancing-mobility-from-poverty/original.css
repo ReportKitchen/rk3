@@ -286,13 +286,6 @@ a:hover { text-decoration: underline; }
   font-weight: 700;
 }
 
-.sm-strong-alt-3 {
-  font-family: var(--rkf-futurapt, "Futura PT", sans-serif);
-  font-weight: 600;
-  color: #5091cd;
-  font-size: 0.8em;
-}
-
 .strong-alt-6 {
   font-family: var(--rkf-futurapt, "Futura PT", sans-serif);
   font-weight: 600;

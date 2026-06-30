@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter
 
-VERSION = 40
+VERSION = 41
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -82,8 +82,15 @@ def _lines(chars, links, fills=()):
                 # partial-height glyphs anchor to one end of the line, so
                 # their midpoints wander - but they still overlap its band;
                 # one that doesn't (a symbol-font bullet of the next line,
-                # vertically detached) is a real break
-                split = c[T] < prev[B] or c[B] > prev[T]
+                # vertically detached) is a real break. Compare against the
+                # whole line's band, not the previous char: a closing quote /
+                # apostrophe sits at ascender height, so its bottom can clear a
+                # short lowercase top (627.8 > 627.1 'n') yet still overlap the
+                # line's ascenders. Using prev alone split the quote off.
+                fulls = [x for x in cur if x[UC] != " " and _full_height(x)]
+                band_top = max((x[T] for x in fulls), default=prev[T])
+                band_bot = min((x[B] for x in fulls), default=prev[B])
+                split = c[T] < band_bot or c[B] > band_top
             if split:
                 lines.append(_finish_line(cur, links, fills))
                 cur = []

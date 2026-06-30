@@ -537,11 +537,6 @@ a:hover { text-decoration: underline; }
   font-size: 0.85em;
 }
 
-.sm-center {
-  font-size: 0.85em;
-  text-align: center;
-}
-
 .strong-serif {
   font-family: var(--rkf-agaramondpro, "AGaramond Pro", serif);
   font-weight: 600;
@@ -1777,6 +1772,8 @@ a:hover { text-decoration: underline; }
 [data-nid="nc5f1e0c449"] { color: #4b4c4d; }
 
 [data-nid="n8a8eb8b7a8"] { color: #4b4c4d; }
+
+[data-nid="n344534ab73"] { color: #4b4c4d; }
 
 [data-nid="nc0e84bd3cc"] { color: #4b4c4d; }
 

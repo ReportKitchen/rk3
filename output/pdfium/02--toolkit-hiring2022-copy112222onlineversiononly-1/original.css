@@ -93,10 +93,6 @@ h5 {
   color: #00a6e4;
 }
 
-.centered {
-  text-align: center;
-}
-
 .accent {
   color: #00a6e4;
 }
@@ -141,12 +137,6 @@ h5 {
   font-family: var(--rkf-gotham, "Gotham", sans-serif);
   font-style: italic;
   color: #00a6e4;
-}
-
-.italic-center-alt {
-  font-family: var(--rkf-gotham, "Gotham", sans-serif);
-  font-style: italic;
-  text-align: center;
 }
 
 .lg-strong-alt-2 {

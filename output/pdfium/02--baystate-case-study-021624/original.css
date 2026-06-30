@@ -33,12 +33,6 @@ h4 {
   font-size: 1.2rem;
 }
 
-a {
-  color: #175d9e;
-  text-decoration: none;
-}
-a:hover { text-decoration: underline; }
-
 .xl-medium-alt {
   font-family: var(--rkf-oswald, "Oswald", sans-serif);
   font-weight: 500;
