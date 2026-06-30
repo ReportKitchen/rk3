@@ -422,6 +422,69 @@ def clear_feedback(slug: str, entry_id: str):
     raise HTTPException(404, f"no feedback entry {entry_id!r}")
 
 
+class QaRunBody(BaseModel):
+    pages: List[int] | None = None   # None = all pages (costly)
+
+
+class DispositionBody(BaseModel):
+    disposition: str                 # open | fixed | accepted | dismissed
+    note: str | None = None
+
+
+@app.post("/api/qa/{slug}/run")
+def run_vision_qa(slug: str, body: QaRunBody):
+    """Run the vision-QA reviewer and append its flags to the feedback queue as
+    triageable issues (source=vision-qa, severity, kind, disposition=open).
+    De-duplicates against still-open vision-QA issues so re-runs don't flood."""
+    from rk3.visionqa import qa_doc
+    flags = qa_doc(slug, pages=body.pages)
+    path = _feedback_path(slug)
+    existing = ([json.loads(l) for l in path.read_text().splitlines() if l.strip()]
+                if path.exists() else [])
+    open_keys = {(e.get("page"), e.get("text")) for e in existing
+                 if e.get("source") == "vision-qa"
+                 and e.get("disposition", "open") == "open"}
+    now = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
+    added = []
+    with path.open("a") as fh:
+        for f in flags:
+            key = (f.get("page"), f.get("issue"))
+            if key in open_keys:
+                continue
+            rec = {"ts": now, "id": str(uuid.uuid4())[:8], "status": "open",
+                   "disposition": "open", "type": "issue", "source": "vision-qa",
+                   "severity": f.get("severity"), "kind": f.get("kind", "error"),
+                   "category": f.get("category"), "text": f.get("issue", ""),
+                   "where": f.get("where"), "fix": f.get("fix"), "page": f.get("page")}
+            fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+            added.append(rec)
+            open_keys.add(key)
+    return {"added": len(added), "scanned": len({f.get("page") for f in flags}),
+            "issues": added}
+
+
+@app.post("/api/feedback/{slug}/{entry_id}/disposition")
+def set_disposition(slug: str, entry_id: str, body: DispositionBody):
+    """Triage an issue: open | fixed | accepted | dismissed (+ optional note)."""
+    if body.disposition not in ("open", "fixed", "accepted", "dismissed"):
+        raise HTTPException(400, "bad disposition")
+    path = _feedback_path(slug)
+    if not path.exists():
+        raise HTTPException(404, "no feedback for document")
+    lines = [json.loads(l) for l in path.read_text().splitlines() if l.strip()]
+    for rec in lines:
+        if rec.get("id") == entry_id:
+            rec["disposition"] = body.disposition
+            if body.note is not None:
+                rec["dispositionNote"] = body.note
+            rec["dispositionAt"] = datetime.datetime.now(
+                datetime.timezone.utc).isoformat(timespec="seconds")
+            path.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n"
+                                    for r in lines))
+            return rec
+    raise HTTPException(404, f"no entry {entry_id!r}")
+
+
 @app.post("/api/feedback/{slug}/empty-trash")
 def empty_trash(slug: str):
     path = _feedback_path(slug)

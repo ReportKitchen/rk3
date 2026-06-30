@@ -7,6 +7,7 @@ import { saveOrderAssertion, saveReorderOp, saveMergeOp, saveMergeAssertion } fr
 import { reportError } from "../errorBus.js";
 import QuestionsPanel from "./QuestionsPanel.jsx";
 import TocCompare from "./TocCompare.jsx";
+import ReviewBoard from "./ReviewBoard.jsx";
 
 // Puck is heavy (~90kB gzip); load the Landing Page Maker only when its tab opens
 const LandingMaker = lazy(() => import("../landing/LandingMaker.jsx"));
@@ -15,6 +16,7 @@ const LandingMaker = lazy(() => import("../landing/LandingMaker.jsx"));
 // rest are alternate representations of the same content
 const TABS = [
   { id: "convert", label: "Convert Document" },
+  { id: "review", label: "Review" },
   { id: "toc", label: "TOC ⇔ Headings" },
   { id: "landing", label: "Landing Page" },
 ];
@@ -604,6 +606,8 @@ export default function DocumentView({
             )}
           </div>
         </div>
+
+        {tab === "review" && <ReviewBoard slug={doc.slug} />}
 
         {tab === "toc" && <TocCompare slug={doc.slug} />}
 

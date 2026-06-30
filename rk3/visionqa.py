@@ -71,11 +71,14 @@ _SCHEMA = {
                         "structure", "emphasis-style", "spacing", "missing-content",
                         "extra-content", "reading-order", "table", "figure",
                         "link", "color", "other"]},
-                    "severity": {"type": "string", "enum": ["high", "medium", "low"]},
+                    "kind": {"type": "string", "enum": ["error", "opportunity"]},
+                    "severity": {"type": "string", "enum": [
+                        "critical", "high", "medium", "low"]},
                     "where": {"type": "string"},
                     "issue": {"type": "string"},
+                    "fix": {"type": "string"},
                 },
-                "required": ["category", "severity", "where", "issue"],
+                "required": ["category", "kind", "severity", "where", "issue", "fix"],
             },
         }
     },
@@ -87,13 +90,20 @@ _BASE_SYSTEM = (
     "given two images: IMAGE 1 is the ORIGINAL PDF page; IMAGE 2 is OUR web-optimized "
     "conversion of that page's content. Compare them and flag DISCREPANCIES where our "
     "output fails to faithfully represent the original.\n\n"
-    "CRITICAL: use the conversion rubric below to distinguish an INTENTIONAL TRANSFORM "
-    "(e.g. single column, no page breaks, dropped link underlines, TOC removed) — which "
-    "you must NOT flag — from a real ERROR (lost content, wrong reading order, dropped "
-    "emphasis, broken link, mis-spaced words like 'b y', content in the wrong container, "
-    "a heading missed or mis-leveled, a figure/table dropped). Only flag real errors. If "
-    "the conversion is faithful, return an empty list. Be specific and locatable. You are "
-    "a REVIEWER, not an editor — never rewrite content, only describe what is wrong."
+    "Use the conversion rubric below to distinguish an INTENTIONAL TRANSFORM (e.g. single "
+    "column, no page breaks, dropped link underlines, TOC removed) — which you must NOT "
+    "flag — from a fixable problem.\n\n"
+    "Classify each flag's KIND:\n"
+    "- 'error' — a fidelity FAILURE: lost content, wrong reading order, dropped emphasis, "
+    "broken link, mis-spaced words ('b y'), content in the wrong container, a heading "
+    "missed or mis-leveled, a figure/table dropped.\n"
+    "- 'opportunity' — the conversion is faithful but a web-optimization the rubric allows "
+    "would help (e.g. links not visually distinct enough; a data table kept as an image "
+    "that could be real HTML; contrast a touch low).\n\n"
+    "SEVERITY: critical (content/meaning lost) / high / medium / low. Give a one-line 'fix' "
+    "describing the resolution. If the conversion is faithful with no opportunities, return "
+    "an empty list. Be specific and locatable. You are a REVIEWER, not an editor — describe, "
+    "never rewrite."
 )
 
 
@@ -112,3 +122,15 @@ def qa_page(slug, page, our_png=None):
             "per the rubric — intentional transforms are not errors.")
     res = vision_json(_system(), user, [orig, our_png], _SCHEMA, max_tokens=4000)
     return res.get("flags", [])
+
+
+def qa_doc(slug, pages=None):
+    """Run vision-QA across a doc's pages (screenshots in one browser session).
+    Returns a flat list of flags, each tagged with its source page."""
+    shots = shoot(slug, pages=pages)
+    out = []
+    for page in sorted(shots):
+        for f in qa_page(slug, page, our_png=shots[page]):
+            f["page"] = page
+            out.append(f)
+    return out

@@ -103,6 +103,46 @@ body {
   color: #fff;
   white-space: nowrap;
 }
+/* Review dashboard (vision-QA triage) */
+.review { overflow: auto; height: 100%; font-size: 0.85rem; }
+.review-bar { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;
+  padding: 0.6rem 1rem; border-bottom: 1px solid #e2e2e2; position: sticky;
+  top: 0; background: #fafafa; z-index: 1; }
+.rv-run { background: #2c4a75; color: #fff; border: none; border-radius: 5px;
+  padding: 0.4rem 0.9rem; cursor: pointer; font-weight: 600; }
+.rv-run:disabled { background: #9aa; cursor: default; }
+.rv-pages input { width: 5rem; padding: 0.15rem 0.3rem; border: 1px solid #ccc;
+  border-radius: 4px; }
+.rv-counts { color: #555; }
+.rv-counts .ok { color: #2e7d32; } .rv-counts .muted { color: #999; }
+.rv-showres { color: #777; margin-left: auto; }
+.rv-list { list-style: none; margin: 0; padding: 0; }
+.rv-item { padding: 0.6rem 1rem; border-bottom: 1px solid #f0f0f0;
+  border-left: 4px solid #ddd; }
+.rv-item.critical { border-left-color: #c62828; }
+.rv-item.high { border-left-color: #e8770b; }
+.rv-item.medium { border-left-color: #b8860b; }
+.rv-item.low { border-left-color: #999; }
+.rv-item.done { opacity: 0.5; }
+.rv-head { display: flex; gap: 0.5rem; align-items: center; font-size: 0.7rem;
+  margin-bottom: 0.25rem; }
+.rv-sev { font-weight: 700; text-transform: uppercase; padding: 0.05rem 0.4rem;
+  border-radius: 0.6rem; color: #fff; }
+.rv-sev.critical { background: #c62828; } .rv-sev.high { background: #e8770b; }
+.rv-sev.medium { background: #b8860b; } .rv-sev.low { background: #999; }
+.rv-kind { padding: 0.05rem 0.4rem; border-radius: 0.6rem; border: 1px solid #ccc;
+  color: #555; text-transform: uppercase; }
+.rv-kind.opportunity { border-color: #2e7d32; color: #2e7d32; }
+.rv-cat { color: #888; } .rv-pg { color: #aaa; }
+.rv-dispo { margin-left: auto; color: #2e7d32; text-transform: uppercase;
+  font-weight: 600; }
+.rv-issue { color: #222; }
+.rv-fix { color: #2c4a75; font-size: 0.8rem; margin-top: 0.15rem; }
+.rv-actions { margin-top: 0.4rem; display: flex; gap: 0.35rem; }
+.rv-actions button { font-size: 0.72rem; padding: 0.2rem 0.6rem; cursor: pointer;
+  border: 1px solid #cbd5e3; background: #eef3fa; color: #2c4a75; border-radius: 4px; }
+.rv-actions button.active { background: #2c4a75; color: #fff; border-color: #2c4a75; }
+
 /* TOC ⇔ headings comparison (read-only diagnostic) */
 .toccmp { overflow: auto; height: 100%; font-size: 0.85rem; }
 .toccmp-summary { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;

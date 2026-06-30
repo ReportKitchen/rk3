@@ -54,6 +54,20 @@ export const getPdfMetadata = () => fetch(`/api/pdf-metadata`).then(json);
 // read-only TOC ⇔ headings reconciliation (diagnostic)
 export const getTocCompare = (slug) => fetch(`/api/toc-compare/${slug}`).then(json);
 
+// vision-QA reviewer: run it over pages → issues land in the feedback queue
+export const runVisionQa = (slug, pages) =>
+  fetch(`/api/qa/${slug}/run`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pages }),
+  }).then(json);
+
+// triage an issue: open | fixed | accepted | dismissed
+export const setDisposition = (slug, id, disposition, note) =>
+  fetch(`/api/feedback/${slug}/${id}/disposition`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ disposition, note }),
+  }).then(json);
+
 // persist a per-document embedded-fonts choice (true/false, or null = auto)
 export const setDocEmbedFonts = (slug, embedFonts) =>
   fetch(`/api/doc-config/${slug}`, {
