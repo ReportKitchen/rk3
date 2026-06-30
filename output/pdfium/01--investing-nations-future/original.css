@@ -171,6 +171,12 @@ a:hover { text-decoration: underline; }
   font-size: 0.67em;
 }
 
+.sm-right-alt {
+  font-family: var(--rkf-cambria, "Cambria", sans-serif);
+  font-size: 0.67em;
+  text-align: right;
+}
+
 .accent-2 {
   color: #1e1e1e;
 }

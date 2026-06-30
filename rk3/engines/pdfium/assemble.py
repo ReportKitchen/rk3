@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter
 
-VERSION = 38
+VERSION = 40
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -424,21 +424,20 @@ def _merge_baseline_fragments(ctx, lines, page_n):
 
 
 def _starts_column(r, lines, i, j):
-    """True when line `r` is the top of a column: ≥2 other lines share its left
-    edge and sit below it. Such a left margin is a recurring column edge, so a
-    fragment bridging into `r` from the left is crossing the gutter, not
-    continuing a visual line."""
+    """True when line `r` sits on a recurring column edge: ≥2 other lines share
+    its left edge (above OR below). Such a left margin is a column boundary, so a
+    same-baseline fragment bridging into `r` from the left is crossing the gutter,
+    not continuing a visual line. Counting both directions is essential — the
+    bottom line of a column has nothing below it, yet still sits on the gutter
+    (this was fusing a left column's last line into the right column's last)."""
     x0 = r["bbox"][0]
-    r_mid = (r["bbox"][1] + r["bbox"][3]) / 2
-    below = 0
+    shared = 0
     for k, ln in enumerate(lines):
         if k == i or k == j:
             continue
-        if (ln["bbox"][1] + ln["bbox"][3]) / 2 >= r_mid:
-            continue  # not below r (PDF y increases upward)
         if abs(ln["bbox"][0] - x0) <= 3.0:
-            below += 1
-            if below >= 2:
+            shared += 1
+            if shared >= 2:
                 return True
     return False
 
@@ -500,17 +499,30 @@ def _blocks(lines):
             # an ALL-CAPS kicker followed by mixed-case prose (or vice versa)
             # is a boundary even at body size
             same_case = _is_caps(ln["text"]) == _is_caps(last["text"])
-            if 0 <= gap <= limit and same_size and same_case:
+            # Column guard: never weld a line into a paragraph it shares no
+            # horizontal extent with. Interleaved two-column content arrives in
+            # content order as a zig-zag of small vertical gaps; without this it
+            # fuses left- and right-column lines into one block and splices
+            # sentences mid-clause across the gutter. Same-column lines overlap
+            # strongly; a gutter makes the overlap negative.
+            overlap = min(cur["x1"], ln["bbox"][2]) - max(cur["x0"], ln["bbox"][0])
+            same_col = overlap > 0.2 * min(cur["x1"] - cur["x0"],
+                                           ln["bbox"][2] - ln["bbox"][0], 1.0) \
+                if (cur["x1"] - cur["x0"]) > 0 else True
+            if 0 <= gap <= limit and same_size and same_case and same_col:
                 cur["lines"].append(ln)
+                cur["x0"] = min(cur["x0"], ln["bbox"][0])
+                cur["x1"] = max(cur["x1"], ln["bbox"][2])
                 if gap > 0.9 * height:
                     cur["pitch"] = True
                 continue
-        cur = {"lines": [ln]}
+        cur = {"lines": [ln], "x0": ln["bbox"][0], "x1": ln["bbox"][2]}
         blocks.append(cur)
     for blk in blocks:
         bs = [l["bbox"] for l in blk["lines"]]
         blk["bbox"] = [min(b[0] for b in bs), min(b[1] for b in bs),
                        max(b[2] for b in bs), max(b[3] for b in bs)]
+        blk.pop("x0", None); blk.pop("x1", None)
     return blocks
 
 

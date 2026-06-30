@@ -156,10 +156,6 @@ h6 {
   font-size: 0.72em;
 }
 
-.centered {
-  text-align: center;
-}
-
 .fine-8 {
   font-size: 0.84em;
 }
@@ -307,6 +303,13 @@ h6 {
   font-size: 0.63em;
 }
 
+.sm-strong-alt-7 {
+  font-family: var(--rkf-opensans, "Open Sans", sans-serif);
+  font-weight: 700;
+  color: #ff0000;
+  font-size: 0.63em;
+}
+
 .xl-accent-8 {
   color: #004202;
   font-size: 8.33em;
@@ -405,12 +408,6 @@ h6 {
 
 [data-nid="ne7f4bb6de4"] .soft-header {
   font-family: var(--rkf-opensans, "Open Sans", sans-serif);
-}
-
-[data-nid="n5d5d4c0b90"] .soft-header {
-  font-family: var(--rkf-opensans, "Open Sans", sans-serif);
-  font-weight: 700;
-  color: #ff0000;
 }
 
 [data-nid="na438ec9f12"] .soft-header,
@@ -848,6 +845,7 @@ h6 {
 [data-nid="nf1abda86bc"] td:nth-child(3) { color: #6b7b2a; }
 [data-nid="nf1abda86bc"] td:nth-child(4) { color: #004202; }
 [data-nid="nf1abda86bc"] td:nth-child(5) { color: #004902; }
+[data-nid="nf1abda86bc"] td:nth-child(6) { color: #6b7b2a; }
 [data-nid="nf1abda86bc"] td:nth-child(7) { color: #004902; }
 [data-nid="nf1abda86bc"] td:nth-child(8) { color: #004902; }
 [data-nid="nf1abda86bc"] td:nth-child(9) { color: #004202; }

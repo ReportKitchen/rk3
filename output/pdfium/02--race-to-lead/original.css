@@ -187,14 +187,6 @@ a:hover { text-decoration: underline; }
   font-size: 0.8em;
 }
 
-.sm-medium-center-alt {
-  font-family: var(--rkf-whitney, "Whitney", sans-serif);
-  font-weight: 500;
-  color: #1f5c73;
-  font-size: 0.8em;
-  text-align: center;
-}
-
 .sm-medium-alt-8 {
   font-family: var(--rkf-whitney, "Whitney", sans-serif);
   font-weight: 500;
@@ -204,25 +196,6 @@ a:hover { text-decoration: underline; }
 
 .display {
   font-size: 2.0em;
-}
-
-[data-nid="n4b4f4edc29"] .soft-header,
-[data-nid="n60171209c7"] .soft-header,
-[data-nid="nbe905c275f"] .soft-header {
-  font-family: var(--rkf-whitney, "Whitney", sans-serif);
-  font-weight: 400;
-}
-
-[data-nid="n743d463581"] .soft-header,
-[data-nid="nff76155469"] .soft-header {
-  font-family: var(--rkf-whitney, "Whitney", sans-serif);
-  font-weight: 500;
-}
-
-[data-nid="nf5ed4d83ff"] .soft-header {
-  font-family: var(--rkf-whitney, "Whitney", sans-serif);
-  font-weight: 500;
-  color: #adcc30;
 }
 
 [data-nid="nbf195f304a"] { color: #a8801a; }
@@ -256,6 +229,11 @@ a:hover { text-decoration: underline; }
   border: 1px solid #c2c4c6;
 }
 
+[data-nid="n9a919a8875"] {
+  background: #a8801a;
+  border: 1px solid #c2c4c6;
+}
+
 [data-nid="nbdbf60d0fa"] th, [data-nid="nbdbf60d0fa"] td { border-color: #eaeaeb; }
 [data-nid="nbdbf60d0fa"] td:nth-child(2) { color: #1f5c73; }
 [data-nid="nbdbf60d0fa"] td:nth-child(4) { color: #1f5c73; }
@@ -269,7 +247,7 @@ a:hover { text-decoration: underline; }
   margin: 0 0 1rem 1.5rem;
 }
 
-[data-nid="n8f6d207b37"] {
+[data-nid="nae8bf8262b"] {
   background: #519d9f;
   border: none;
   border-bottom: 1px solid #c2c4c6;
@@ -278,7 +256,7 @@ a:hover { text-decoration: underline; }
   margin: 0 1.5rem 1rem 0;
 }
 
-[data-nid="n6c8234fdd2"] {
+[data-nid="n895074fee9"] {
   background: #519d9f;
   border: none;
   border-bottom: 1px solid #c2c4c6;
@@ -318,7 +296,7 @@ a:hover { text-decoration: underline; }
   margin: 0 1.5rem 1rem 0;
 }
 
-[data-nid="n382b78f8e1"] {
+[data-nid="n2f07c8211a"] {
   background: #bcbec0;
   border: 1px solid #bcbec0;
 }

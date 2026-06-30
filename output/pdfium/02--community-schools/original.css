@@ -108,11 +108,6 @@ h6 {
   color: #21a4b0;
 }
 
-[data-nid="nc3759e5053"] .soft-header,
-[data-nid="nc9c26c64fd"] .soft-header {
-  font-family: var(--rkf-opensans, "Open Sans", sans-serif);
-}
-
 [data-nid="nefe56d9961"] { color: #1f3d59; }
 
 [data-nid="n82bfc48d19"] { color: #1f3d59; }

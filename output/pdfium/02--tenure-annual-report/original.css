@@ -94,6 +94,10 @@ h6 {
   color: #122338;
 }
 
+.centered {
+  text-align: center;
+}
+
 .right {
   text-align: right;
 }

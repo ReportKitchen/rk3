@@ -50,6 +50,7 @@ a {
 a:hover { text-decoration: underline; }
 
 [data-nid="n2ae3d749ef"] a,
+[data-nid="n264152260a"] a,
 [data-nid="n63ef0ee91b"] a,
 [data-nid="ne4094abda0"] a,
 [data-nid="n71622ed9c2"] a,
@@ -57,8 +58,10 @@ a:hover { text-decoration: underline; }
 [data-nid="n7c23edfd2c"] a,
 [data-nid="n8b734fd0a2"] a,
 [data-nid="nb8cf1b9f1f"] a,
+[data-nid="n22e645906f"] a,
 [data-nid="nb7f4feaa99"] a,
 [data-nid="n824ac53139"] a,
+[data-nid="n3ea229dcc3"] a,
 [data-nid="nf3b92981ea"] a,
 [data-nid="n58083b00e7"] a,
 [data-nid="nd082e0e457"] a,
@@ -67,15 +70,26 @@ a:hover { text-decoration: underline; }
 [data-nid="n702733582f"] a,
 [data-nid="ne6de061e78"] a,
 [data-nid="n9bafe7d97c"] a,
-[data-nid="nf4e9bc1654"] a,
+[data-nid="ne6cf0a844e"] a,
 [data-nid="ncf2b87d749"] a,
+[data-nid="nf4e9bc1654"] a,
 [data-nid="n380d24d49f"] a,
+[data-nid="n61c2d90235"] a,
+[data-nid="ndb5f2e7834"] a,
 [data-nid="n01d96fca0d"] a,
+[data-nid="nf12e3cc23e"] a,
+[data-nid="n936e105a7f"] a,
+[data-nid="n912663725c"] a,
 [data-nid="nfb8df8911c"] a,
 [data-nid="n8e21fad5c0"] a,
+[data-nid="n3a447b2d4d"] a,
 [data-nid="n35f4f61cb2"] a,
+[data-nid="nfd1d9201fe"] a,
 [data-nid="n333bcbd035"] a,
+[data-nid="ne190bd8728"] a,
+[data-nid="nb6359257da"] a,
 [data-nid="n1be5553094"] a,
+[data-nid="n4a89fd768e"] a,
 [data-nid="nd989c0a0c3"] a,
 [data-nid="nc17ca20eda"] a,
 [data-nid="n0fd71d8a54"] a,
@@ -84,22 +98,33 @@ a:hover { text-decoration: underline; }
 [data-nid="n37a9c33653"] a,
 [data-nid="n9439229df5"] a,
 [data-nid="naa71a9d7f9"] a,
+[data-nid="nbbc40eba48"] a,
 [data-nid="n154a9a01e4"] a,
 [data-nid="nf5a7ea5699"] a,
+[data-nid="n91290842b8"] a,
+[data-nid="n36b70be1c9"] a,
+[data-nid="n8ef7551800"] a,
 [data-nid="n7828356d04"] a,
 [data-nid="nc73f410dd1"] a,
+[data-nid="ncf6f4b42ec"] a,
 [data-nid="ne03600bd9c"] a,
+[data-nid="n897fb49582"] a,
+[data-nid="ne9bd05b816"] a,
 [data-nid="n2e62f1527f"] a,
 [data-nid="nc0b20f6e98"] a,
 [data-nid="n970823ab77"] a,
+[data-nid="n075c1af091"] a,
 [data-nid="n17f7530ca2"] a,
 [data-nid="ncbb00bf9c6"] a,
+[data-nid="n3f9c4fc425"] a,
 [data-nid="nb0d4057284"] a,
 [data-nid="nb2aec891fb"] a,
 [data-nid="n54be1e89a1"] a,
+[data-nid="n756998c4c9"] a,
 [data-nid="n1ab9c69cf9"] a,
 [data-nid="n0596c7df33"] a,
 [data-nid="n88d65fe7a2"] a,
+[data-nid="nd0afa23ed7"] a,
 [data-nid="n9d31dade50"] a,
 [data-nid="nb59ba8fa1a"] a,
 [data-nid="nc572b67c51"] a,
@@ -131,12 +156,6 @@ a:hover { text-decoration: underline; }
   font-size: 0.7em;
 }
 
-.strong-alt-3 {
-  font-family: var(--rkf-tstar, "TSTAR", sans-serif);
-  font-weight: 800;
-  color: #323ea8;
-}
-
 .strong-center-alt {
   font-family: var(--rkf-oxfamtstarpro, "Oxfam TSTARPRO", sans-serif);
   font-weight: 700;
@@ -150,11 +169,6 @@ a:hover { text-decoration: underline; }
   font-size: 0.7em;
 }
 
-.sm-center {
-  font-size: 0.7em;
-  text-align: center;
-}
-
 .sm-accent {
   color: #323ea8;
   font-size: 0.7em;
@@ -163,6 +177,11 @@ a:hover { text-decoration: underline; }
 .sm-italic-center-alt {
   font-family: var(--rkf-oxfamtstarpro, "Oxfam TSTARPRO", sans-serif);
   font-style: italic;
+  font-size: 0.7em;
+  text-align: center;
+}
+
+.sm-center {
   font-size: 0.7em;
   text-align: center;
 }
@@ -211,6 +230,7 @@ a:hover { text-decoration: underline; }
 [data-nid="n081d8ef1d5"] .soft-header,
 [data-nid="n51d266a1f3"] .soft-header,
 [data-nid="n5e239efc43"] .soft-header,
+[data-nid="n1c6bc88066"] .soft-header,
 [data-nid="n6f24208df2"] .soft-header,
 [data-nid="nba83ebbf0f"] .soft-header,
 [data-nid="n9238c148d6"] .soft-header,
@@ -329,15 +349,6 @@ a:hover { text-decoration: underline; }
 
 [data-nid="ne0851dce11"] { color: #323ea8; }
 
-[data-nid="nf8a013c4d7"] { color: #323ea8; }
-
-[data-nid="nc5db679c2a"] {
-  background: transparent;
-  float: left;
-  width: 50%;
-  margin: 0 1.5rem 1rem 0;
-}
-
 [data-nid="n5dd62cf39e"] {
   background: #323ea8;
   border: none;
@@ -375,7 +386,7 @@ a:hover { text-decoration: underline; }
   border-bottom: 0px solid #323ea8;
 }
 
-[data-nid="n8decbf9fd9"] {
+[data-nid="n249562740c"] {
   background: transparent;
   border: none;
   border-bottom: 0px solid #323ea8;
