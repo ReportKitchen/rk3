@@ -190,8 +190,14 @@ def _title_match(e, h):
     # mostly mis-splits proper nouns / brands / closed compounds.
     if e["norm"].replace(" ", "") == h["norm"].replace(" ", ""):
         return True
-    return (min(len(e["norm"]), len(h["norm"])) >= 6
-            and (e["norm"] in h["norm"] or h["norm"] in e["norm"]))
+    if (min(len(e["norm"]), len(h["norm"])) >= 6
+            and (e["norm"] in h["norm"] or h["norm"] in e["norm"])):
+        return True
+    # token-set: reordered/rephrased titles ("corporate power and extreme wealth"
+    # vs "extreme wealth and corporate power") share their word set
+    et, ht = set(e["norm"].split()), set(h["norm"].split())
+    return (min(len(et), len(ht)) >= 3
+            and len(et & ht) / min(len(et), len(ht)) >= 0.8)
 
 
 def _arabic(p):
