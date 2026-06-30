@@ -1,0 +1,15 @@
+{
+  "output": {
+    "fonts": {
+      "map": {
+        "myriad": "Source Sans 3",
+        "opensans": "Open Sans",
+        "overusedgrotesk": "helvetica-lt-pro",
+        "titillium": "Titillium Web"
+      },
+      "load": [
+        "https://use.typekit.net/qmh3dop.css"
+      ]
+    }
+  }
+}

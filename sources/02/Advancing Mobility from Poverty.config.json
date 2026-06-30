@@ -1,0 +1,16 @@
+{
+  "output": {
+    "fonts": {
+      "map": {
+        "futura": "futura-pt",
+        "futurapt": "futura-pt",
+        "minion": "Source Serif 4",
+        "myriad": "Source Sans 3",
+        "neuzeit": "helvetica-lt-pro"
+      },
+      "load": [
+        "https://use.typekit.net/qmh3dop.css"
+      ]
+    }
+  }
+}

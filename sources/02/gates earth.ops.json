@@ -1209,12 +1209,14 @@
    "naa9a6f05a1",
    "nbc2dda18c4",
    "n96d3d64e1c"
-  ]
+  ],
+  "orphaned": true
  },
  {
   "nid": "merge-n6775c5f33b",
   "op": "merge",
   "into": "ned1aa08175",
-  "frm": "n6775c5f33b"
+  "frm": "n6775c5f33b",
+  "orphaned": true
  }
 ]

@@ -1,9 +1,9 @@
 {
   "output": {
-    "embedFonts": false,
     "fonts": {
       "map": {
-        "gotham": "gotham"
+        "acaslonpro": "adobe-caslon-pro",
+        "acumin": "Source Sans 3"
       },
       "load": [
         "https://use.typekit.net/qmh3dop.css"

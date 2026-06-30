@@ -1,0 +1,182 @@
+{
+ "version": 1,
+ "template": "research",
+ "blocks": [
+  {
+   "id": "b1",
+   "type": "title",
+   "props": {
+    "eyebrow": "Oxfam Briefing Paper",
+    "title": "Inequality Inc.",
+    "subtitle": "How corporate power divides our world and the need for a new era of public action"
+   }
+  },
+  {
+   "id": "Findings-3f89a374-de93-40e6-8fc4-cd66ff527be5",
+   "type": "findings",
+   "props": {
+    "heading": "Key findings",
+    "items": [
+     {
+      "stat": "5",
+      "text": "richest men in the world have doubled their fortunes since 2020"
+     },
+     {
+      "stat": "5 billion",
+      "text": "people globally have become poorer during the same period"
+     },
+     {
+      "stat": "230 years",
+      "text": "is how long it will take to end poverty at current rates"
+     },
+     {
+      "stat": "10 years",
+      "text": "is when we could have our first trillionaire"
+     },
+     {
+      "stat": "7 in 10",
+      "text": "of the world's biggest corporates have a billionaire CEO or a billionaire as their principal shareholder"
+     },
+     {
+      "stat": "$3 trillion",
+      "text": "is how much the world's billionaires increased their wealth in the last three years alone"
+     },
+     {
+      "stat": "3",
+      "text": "people in the United States own more wealth than the bottom half of society"
+     },
+     {
+      "stat": "60%",
+      "text": "of US workers live paycheck to paycheck"
+     },
+     {
+      "stat": "50 years",
+      "text": "ago, real weekly wages for the average American worker were higher than they are today"
+     }
+    ]
+   }
+  },
+  {
+   "id": "Summary-39804c41-a7c2-45d4-af31-f0ea60bcc43f",
+   "type": "summary",
+   "props": {
+    "style": "neutral",
+    "length": "long",
+    "heading": "Executive summary",
+    "text": "Since 2020, the world's five richest men have doubled their fortunes, while almost five billion people globally have become poorer. Hardship and hunger remain daily realities for many. At current rates, it will take 230 years to end poverty, yet the world could see its first trillionaire within a decade.\n\nA growing concentration of global corporate and monopoly power is intensifying inequality across the economy. Seven out of ten of the world's biggest corporations have either a billionaire CEO or a billionaire as their principal shareholder. Through squeezing workers, dodging tax, privatizing the state, and accelerating climate breakdown, corporations are driving inequality and delivering ever-greater wealth to their wealthy owners.\n\nThe consequences are stark and global. While billionaire wealth has surged by over US$3 trillion in just three years, working people struggle and the poorest live in desperation. In the United States, three people own more wealth than the bottom half of society, over 60% of workers live paycheck to paycheck, and real weekly wages remain lower than 50 years ago despite gains in productivity and technology.\n\nA more equal world is possible if governments effectively regulate and reimagine the private sector. Ending extreme inequality requires radically redistributing the power of billionaires and corporations back to ordinary people, marking a new era of public action."
+   }
+  },
+  {
+   "id": "b2",
+   "type": "docSummary",
+   "props": {
+    "heading": "Executive summary",
+    "sectionId": "s0",
+    "blocks": [
+     "<h4>INEQUALITY INC.EXECUTIVE SUMMARY 8</h4>",
+     "<p>The wealth of the world’s five richest billionaires has more than doubled since the start of this decade, while 60% of humanity has grown poorer.7 For years, Oxfam has raised the alarm about widening and extreme inequality. As we enter 2024, the very real danger is that these extraordinary extremes are becoming the new normal. Corporate and monopoly power, as this paper shows, is an unrelenting inequality-generating machine.</p>",
+     "<h4>A decade of division</h4>",
+     "<p>➜ Jeff Bezos is one of the world’s richest men. His fortune of US$167.4bn has increased by US$32.7bn since 2020.1 Bezos flew to space for US$5.5bn and thanked Amazon workers for making this possible.2 Amazon has a history of making efforts to prevent unionizing by workers.3</p>",
+     "<p>➜ Reverend Ryan Brown works at an Amazon fulfillment center in North Carolina. He describes the work as physically demanding, monotonous and grueling, with workers subject to racism and discrimination. He is involved in workplace organizing to address racism and secure a living wage.4</p>",
+     "<p>The 2020s offer opportunities for leaders to take our world in a bold, new, fairer direction. This is yet to happen. An era of widening inequality has coincided with a narrowing of economic imagination. We are living through what appears to be the start of a decade of division: in just three years, we have experienced a global pandemic, war, a cost-of-living crisis and climate breakdown. Each crisis has widened the gulf – not so much between the rich and ‘While we were working there wasn’t time to rest. I was not people living in poverty, but between an oligarchic few and the vast majority.</p>",
+     "<p>➜ Seafood-processing workers in Southeast Asia have supplied food to supermarkets such as Amazon-owned Whole Foods and others.5 Workers in this industry include Susi, who used to work at a shrimp factory. She said,</p>",
+     "<p>allowed to drink.’6</p>",
+     "<h4>INEQUALITY INC. EXECUTIVE SUMMARY</h4>",
+     "<p>This paper lays out our fundamental choice: between a new age of billionaire supremacy, controlled by</p>",
+     "<p>A brutal world for the many For most people around the world, the start of this decade monopolists and financiers, or transformative public power has been incredibly hard. At the time of writing, 4.8 billion people are poorer than they were in 2019.19 For the poorest people, who are more likely to be women, racialized peoples, and marginalized groups in every society, daily life has become more brutal still. Global inequality – the gap between Global North and the Global South – has grown for the first time in 25 years.20</p>",
+     "<p>that is founded upon equality and dignity.</p>",
+     "<p>Prices are outpacing pay the world over,21 with hundreds of millions of people seeing their wages buy less each month and their prospects of a better future disappear. Climate breakdown, driven by the super-rich, is dramatically increasing global inequality.22 Protests and strikes by workers have repeatedly made the news headlines and filled the front pages.23</p>",
+     "<p>Governments are finding it impossible to stay financially afloat in the face of mounting debt and the escalating costs of importing fuel, food and medicines. Low- and lower-middle-income countries are set to pay nearly half a billion US dollars a day in interest and debt payments between now and 2029, and they are having to make severe cuts to spending to be able to pay their creditors.24 These cuts are often felt particularly acutely by women.25</p>",
+     "<p>A wonderful world for the few Meanwhile, the dramatic increase in extreme wealth witnessed since 2020 has become set in stone. Billionaires are now US$3.3 trillion or 34% richer than they were at the beginning of this decade of crisis, with their wealth growing three times as fast as the rate of inflation.26</p>",
+     "<p>This wealth is concentrated in the Global North. Only 21% of humanity lives in the countries of the Global North, but these countries are home to 69% of private wealth, and 74% of the world’s billionaire wealth.27 The other big winners in this period of crisis are global corporations. For huge corporations, just as for super-rich individuals, the last two decades have been extraordinarily lucrative and the last few years have been better still: the biggest firms experienced an 89% leap in profits in 2021 and 2022.28 New data shows that 2023 is set to shatter all records as the most profitable yet. Eighty-two percent of these profits are</p>",
+     "<h4>INEQUALITY INC. EXECUTIVE SUMMARY</h4>",
+     "<p>used to benefit shareholders,29 who are overwhelmingly among the richest people in every society.</p>",
+     "<p>The link between extreme wealth and corporate power Sharply increasing billionaire wealth and rising corporate and monopoly power are deeply connected. The profits of mega-corporations are in turn used to benefit shareholders, at the expense of workers and ordinary people. This paper reveals how corporate and monopoly power has exploded inequality – and how corporate power exploits and magnifies inequalities of gender and race, as well as economic inequality.</p>",
+     "<p>The report uses new data to demonstrate that the richest people are not only the biggest beneficiaries of the global economy but exercise significant control over it too.</p>",
+     "<p>all global financial assets.30 In the Middle East, the richest 1% hold 48% of financial wealth; in Asia, the richest 1% own 50% of wealth; and in Europe, the richest 1% own 47% of wealth.</p>",
+     "<p>Looking at the 50 biggest public corporations in the world, billionaires are either the principal shareholder or the CEO of 34% of these corporates, with a total market capitalization of US$13.3 trillion.31, 32 Seven out of the ten biggest publicly listed corporates in the world have a billionaire as CEO or as principal shareholder.33 A principal shareholder’s voting shares allow the shareholder to vote on who should be the Chief Executive Officer (CEO) and who should sit on the company’s board of directors.</p>",
+     "<p>Billionaire owners use this control to ensure that corporate power is constantly growing through increasing market concentration and monopoly, enabled by government. This increased corporate power is in turn focused on providing world’s financial assets are owned by the top 1%. Using data ever-greater returns to them, the shareholders, at the from Wealth X, we have found that the richest 1% own 43% of expense of everyone else.</p>",
+     "<p>New research by Oxfam illuminates just how much of the</p>",
+     "<h4>INEQUALITY INC. EXECUTIVE SUMMARY</h4>",
+     "<p>A new era of monopoly: the supercharging consolidation within Africa.38 India faces ’rising industrial concentration , especially by the top five firms.39</p>",
+     "<h4>of corporate power</h4>",
+     "<p>We are living through an era of monopoly power that enables corporations to control markets, set the terms of exchange, and profit without fear of losing business. Far from being an abstract phenomenon, this impacts us in many ways: influencing the wages we are paid, the foods we eat and can afford, and the medicines we can access. Far from being accidental, this power has been handed to monopolies by our governments.</p>",
+     "<p>In sector after sector, increased market concentration can be seen everywhere. Globally, over two decades, 60 pharmaceutical companies merged into just 10 giant, global ‘Big Pharma’ firms between 1995–2015.34 Two international companies now own more than 40% of the global seed market.35 ‘Big Tech’ firms dominate markets: three-quarters of global online advertising spending pays</p>",
+     "<p>’</p>",
+     "<p>Monopolies increase the power of corporations and their owners to the detriment of everyone else. Bodies such as the IMF agree that monopolistic power is growing and contributing to inequality.40 Average markups for megacorporations have ballooned in recent decades;41 while monopoly power enabled large firms in many concentrated sectors to implicitly coordinate to increase prices to drive up their margins since 2021,42 with energy, food and pharma sectors seeing huge price hikes.43</p>",
+     "<p>Private equity firms, backed globally by US$5.8 trillion of investors’ cash since 2009, have used privileged financial access to act as a monopolizing force across sectors.44, 45 Beyond private equity, the ‘Big Three’ index fund managers – BlackRock, State Street and Vanguard – together manage some US$20 trillion in people’s assets, Meta, Alphabet and Amazon;36 and more than 90% of global close to one-fifth of all assets under management,46 which has deepened monopoly power.47</p>",
+     "<p>online search is done via Google.37 Agriculture has seen</p>",
+     "<h4>INEQUALITY INC. EXECUTIVE SUMMARY</h4>",
+     "<p>secure jobs,50 and in 2019, earned just 51 cents for every US$1 in labour income earned by men.51 Racialized peoples face exploitation in supply chains,52 and white people disproportionately benefit from the profits generated by maximize shareholder returns, corporations use this power corporations.53</p>",
+     "<p>Four ways that corporate power fuels inequality Increasing monopolization has supercharged corporate power, which is directed at one primary goal above all others: increasing returns to shareholders. In order to</p>",
+     "<p>to act in ways that drive and further entrench inequality. This report looks at four of the ways this is done:</p>",
+     "<p>Further, corporations have used their influence to oppose labour laws and policies that could benefit workers, such as fighting minimum wage increases,54 reforms that undermine workers’ rights,55 political restrictions on unionization,56 and rollbacks to child labour laws.57</p>",
+     "<ul><li>Rewarding the wealthy, not the workers Corporations drive inequality by using their power to force wages down and direct profits to the ultra-wealthy. In 2022, the International Labour Organization (ILO) warned that the historic decline in real wages could increase</li><li>Dodging taxes inequality and fuel social unrest.48 Our own analysis for this Corporations and their wealthy owners also drive inequality report finds that 791 million workers have seen their wages by undertaking a sustained and highly effective war on taxation. The statutory corporate income tax rate has more than halved in OECD countries since 1980.58 Aggressive tax planning, abuse of tax havens, and incentives result in tax rates that are much lower, and often closer to zero.59</li></ul>",
+     "<p>fail to keep up with inflation and as a result have lost US$1.5 trillion over the last two years, equivalent to nearly a month (25 days) of lost wages for each worker.49 Women are vastly overrepresented in the poorest-paid and least</p>",
+     "<h4>INEQUALITY INC. EXECUTIVE SUMMARY</h4>",
+     "<p>This drives inequality in a number of ways. Corporate taxes are disproportionately borne by the richest, thus the collapse in corporate taxes in recent decades has essentially provided another tax cut for the wealthy.60 It has also deprived governments around the world, but especially in the Global South, of trillions of US dollars in revenue that could be used to reduce inequality and end poverty.61 Every tax dollar dodged is a nurse that will never be hired or a school that cannot be built.</p>",
+     "<p>3. Privatizing public services Around the world, corporate power is relentlessly pushing into the public sector, commodifying and segregating access to vital services such as education, water and healthcare, often while enjoying massive, taxpayerbacked profits.62 This can gut governments’ ability to deliver the type of high-quality, universal public services that can reduce inequality.63</p>",
+     "<p>corporate returns rather than human rights.64 Private equity firms are snapping up everything from water systems to healthcare providers and nursing homes, amid a litany of concerns about poor and even tragic outcomes.65</p>",
+     "<p>Privatization can drive and reinforce inequalities in vital public services, entrenching gaps between rich and poor, excluding and impoverishing those who cannot pay while those who can pay are able to access good healthcare and education.66 Privatization can also drive inequalities on the basis of gender,67 race,68 and caste. For example, Oxfam found that Dalits in India face high and unaffordable out-of-pocket fees in the private healthcare sector;69 financial exclusion in the private education sector; and overt discrimination in both.70</p>",
+     "<p>4. Driving climate breakdown Corporate power is driving climate breakdown, in turn causing great suffering and exacerbating inequalities, including along lines of race, class and gender.71 Many of dollar industries and immense opportunities for generating the world’s billionaires own, control, shape and financially profit and wealth for rich shareholders. The World Bank and profit from processes that emit greenhouse gases,72 and benefit when corporations seek to block progress on a fast and just transition, deny and spin the truth about climate change, and crush those who oppose fossil fuel extraction.73</p>",
+     "<p>The stakes are huge. Essential services constitute trillion-</p>",
+     "<p>other development finance actors have prioritized private service provision, effectively treating basic services as asset classes and using public money to guarantee</p>",
+     "<p>Share of wealth concentration in the Global North compared to the rest of the world (%)</p>",
+     "<h4>INEQUALITY INC. EXECUTIVE SUMMARY</h4>",
+     "<h4>It doesn’t have to be this way: an economy for all is possible</h4>",
+     "<p>Runaway corporate power and runaway extreme wealth have been contained and curbed in the past and can be again. This report outlines concrete, proven and practical ways to make the economy work for all of us.</p>",
+     "<p>Set goals and plans to radically reduce inequality fast There is broad agreement that inequality is too high in almost every nation and globally.76 In 2023, world-leading economists including Jayati Ghosh and Thomas Piketty77 came together with former UN, IMF and World Bank staff</p>",
+     "<p>to call for clear targets to be set for inequality reduction. Oxfam supports the idea, proposed by Joseph Stiglitz,78 that every nation should aim for a situation in which inequality is reduced to the point where the bottom 40% of the population have around the same income as the richest 10%, known as a Palma of 1.79</p>",
+     "<p>The richest governments have a particular responsibility, given their disproportionate influence in setting global rules and norms. The role of the Brazilian-led G20 and the efforts of Global South nations at the UN offer vital opportunities for multilateral action to tackle national and global inequality.</p>",
+     "<h4>INEQUALITY INC. EXECUTIVE SUMMARY</h4>",
+     "<p>Reining in corporate power: three practical steps</p>",
+     "<p>1. Revitalize the state A strong and effective state is the best bulwark against corporate power. It is a provider of public goods; a maker and shaper of markets; a corrector of market failures; and an owner and operator of national commercial ventures, accounting for up to 40% of domestic output worldwide in 2018.80 Governments need to take a proactive role in shaping their economies for the common good. They must:</p>",
+     "<ul><li>Guarantee inequality-busting public services including healthcare, education, care services and food security.</li><li>Invest in public transport, energy, housing, and other public infrastructure.</li><li>Explore a public monopoly or a public option in sectors that are prone to monopoly power and key to tackling extreme inequality and driving a rapid transition away from fossil fuels. These could include public energy, public transport (where the infrastructure investment costs mean there can only be one efficient provider), and other sectors where there is a significant national benefit.81</li><li>Improve the transparency, accountability and oversight of public institutions (including state-owned enterprises).</li><li>Strengthen, finance and staff regulatory capacity to enforce regulations to ensure that the private sector serves the common good.</li></ul>",
+     "<p>2. Regulate corporations Governments need to use their power to rein in the runaway power of corporates and prevent injustices across their supply chains, nationally and internationally. They must:</p>",
+     "<ul><li>Break up private monopolies and curb corporate power. Governments can learn from current anti-monopoly cases, such as those in the USA and Europe, and from the lessons of history where wealth concentration was</li><li>successfully tackled.82 They must also stop the monopoly over knowledge by democratizing trade and ending the abuse of patent rules (for example, by Big Pharma over medicines) that drive inequality. • Empower workers and communities. Corporations must pay living wages and commit to ensuring climate and gender justice: dividend payments and buybacks should be banned until this is guaranteed. Trade unions must be supported, protected and encouraged. CEO pay should be capped. Governments must introduce legally binding measures to guarantee the rights of women and racialized peoples, and to ensure mandatory human rights and environmental due diligence. • Radically increase taxes on corporates and rich individuals. This includes a permanent wealth tax and a permanent excess profit tax. The G20, under Brazilian leadership, should champion a new international agreement to increase taxes on the income and wealth of the world’s richest individuals.</li></ul>",
+     "<p>3. Reinvent business Governments can use their power to reinvent and repurpose the private sector. They must:</p>",
+     "<ul><li>Use all their power to create and promote a new generation of companies that do not put shareholders first – including worker and local cooperatives, social enterprises, and fair-trade businesses – that are owned and governed in the interest of workers, local communities, and the environment. Competitive and profitable businesses don’t have to be shackled by shareholder greed.</li><li>Provide financial support to equitable businesses. They can also use tax and other economic instruments such as public procurement to prioritize equitable business models. No economic aid or government contracts should be given to companies that are missing their net zero targets, paying below living wages, or dodging taxes.</li></ul>",
+     "<h3>Chapter 1</h3>"
+    ],
+    "floatTop": 0,
+    "media": [
+     {
+      "id": "b3",
+      "type": "cover",
+      "props": {
+       "src": "pages/page-0001.png",
+       "alt": "EXECUTIVE SUMMARY — cover"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "b4",
+   "type": "toc",
+   "props": {
+    "items": [
+     {
+      "text": "How corporate power divides our world and the need for a new era of public action",
+      "level": 2,
+      "anchor": "how-corporate-power-divides-our-world-and-the-need-for-a-new"
+     }
+    ]
+   }
+  },
+  {
+   "id": "b5",
+   "type": "download",
+   "props": {
+    "label": "Download the full report (PDF)",
+    "bgColor": "#1b4965",
+    "textColor": "#ffffff"
+   }
+  },
+  {
+   "id": "b6",
+   "type": "share",
+   "props": {}
+  }
+ ]
+}

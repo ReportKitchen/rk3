@@ -1,0 +1,10 @@
+{
+  "output": {
+    "fonts": {
+      "map": {
+        "agaramond": "EB Garamond",
+        "timesnewroman": "Tinos"
+      }
+    }
+  }
+}

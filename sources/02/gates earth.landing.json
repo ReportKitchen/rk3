@@ -1,0 +1,221 @@
+{
+ "version": 1,
+ "template": "research",
+ "blocks": [
+  {
+   "id": "b1",
+   "type": "title",
+   "props": {
+    "eyebrow": "Returns on Resilience",
+    "title": "Investing in Adaptation to Drive Prosperity, Growth and Competitiveness",
+    "subtitle": "A collaborative report"
+   }
+  },
+  {
+   "id": "Findings-57b7504e-e7bc-472d-8a97-abe30770d1c4",
+   "type": "findings",
+   "props": {
+    "heading": "Key findings",
+    "items": [
+     {
+      "stat": "October 2025",
+      "text": "was when this collaborative report on investing in climate adaptation was first published."
+     },
+     {
+      "stat": "",
+      "text": "Investing in climate adaptation delivers real returns—strengthening communities, stabilising economies, and creating opportunities for societies and businesses."
+     },
+     {
+      "stat": "",
+      "text": "For emerging markets and developing economies, closing the adaptation and resilience financing gap is not optional but essential for survival."
+     },
+     {
+      "stat": "",
+      "text": "Resilience is reframed not as a sunk cost but as a strategic investment in long-term prosperity that prevents the erosion of value before it happens."
+     },
+     {
+      "stat": "",
+      "text": "Resilience drives sustainable growth, creates jobs, and improves long-term debt prospects."
+     },
+     {
+      "stat": "",
+      "text": "Ecosystem health, community well-being and economic prosperity are inseparable from building resilience, making protection of natural capital essential."
+     },
+     {
+      "stat": "",
+      "text": "Proven interventions that protect progress in health, agriculture and economic opportunity are among the smartest ways to futureproof development investments."
+     }
+    ]
+   }
+  },
+  {
+   "id": "b2",
+   "type": "docSummary",
+   "props": {
+    "heading": "Executive summary",
+    "sectionId": "s0",
+    "blocks": [
+     "<h4>The Case for Investments in Resilience</h4>",
+     "<h4>In the face of mounting climate and nature impacts, building resilience is imperative. For</h4>",
+     "<p>of countries, companies and communities has emerged in recent years, showing that resilience investments are the surest way to drive growth, stability and competitiveness. The results from</p>",
+     "<p>decades, the world has pursued these investments undermine the historical</p>",
+     "<p>economic development and growth with the assumption of a relatively stable environment.</p>",
+     "<p>narrative that spending on resilience is ‘charity’ and ‘economically unproductive.’ In fact, the analysis of this report - which has been compiled with support from a consortium of partners - finds that resilience investments are a boon for both economies and human development. They offer concrete returns that include job creation, macroeconomic stability, growth and commerciality in addition to the most</p>",
+     "<p>That assumption no longer holds. The impacts of climate change and nature loss are now part of the ‘standard operating environment’ for ever-larger numbers of households, businesses and economies. obviously significant benefit: lives saved. They also They are experiencing both immediate and longterm costs, especially in lower-income countries. The ability to respond to and manage shifting risks is now essential to unlocking opportunity, in addition to safeguarding business and development gains. A remarkable body of evidence from the efforts</p>",
+     "<p>reinforce and supplement the longstanding frame of equity, justice and solidarity. The economic benefits furthermore stand in sharp contrast to the alternative: ruinously expensive inaction.</p>",
+     "<p>Among the report’s key findings • For countries: Adaptation interventions could</p>",
+     "<p>on resilience investments are their contributions to building stronger communities, companies and countries.</p>",
+     "<ul><li>For communities1: Resilience investments could generate 280 million jobs in emerging markets and developing economies (EMDEs) over the next decade.2 They could also limit the 1 to 2 million additional deaths expected annually by 2050 without action.3 Achieving resilient water, sanitation and hygiene (WASH) services alone could prevent 173,000 deaths annually until 2030.4</li><li>For companies: The global adaptation and resilience market could reach $500 billion to $1.3 trillion by 2030.5 Firms report high benefit- cost ratios: 7:1 in healthcare, biotech and pharmaceutical sectors6, and 4-5 :1 across sectors for climate-proofing transport, energy and water infrastructure.7</li></ul>",
+     "<p>generate a wide range of GDP gains versus current policies, but could be as high as 15 percentage point GDP by 2050 in certain countries highly vulnerable to climate and nature impacts, versus current policies.8 Improved resilience also lowers borrowing costs: a 10-point improvement in a country’s Notre Dame Global Adaptation Initiative (ND-GAIN) score (the difference between Haiti and the Dominican Republic; or between Zambia and Morocco), is associated with a 37.5 basis point drop in sovereign bond spreads.9</p>",
+     "<p>Across sectors, a synthesis of available benefit cost ratios (BCRs) by the Grantham Research Institute (GRI) suggests that investments in adaptation deliver a median of 4 times more benefits than costs. Available evidence also confirms a median economic internal rate of return (EIRR) of 25%.10 This reinforces findings from the World Resources Institute (WRI) that every $1 invested in climate adaptation yields over $10 in benefits, with average economic annual returns of 20% to 27% - reaching 79% in health services and 27% in agriculture.11 Investments in nature deliver particularly strong returns for communities, companies and countries, with 40% average economic annual returns for forestry and nature investments.12</p>",
+     "<p>For the purposes of this report, we use communities to refer to subnational groups of individuals and households - for example rural villages, towns and cities. 2 Systemiq analysis. See Technical Annex for further detail. Analysis is ongoing to inform the forthcoming flagship report Steer et al. (forthcoming), Jobs and Skills for the New Economy: An Action Agenda for a People-Centered Climate Transition, to be launched ahead of COP30. There may be minor adjustments to analysis. This initiative is funded by Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ), the Ares Foundation and NDC Partnership, and prepared by the World Resources Institute and Systemiq, with the contribution of several other partners including EDC, ADB, World Business Council for Sustainable Development (WBCSD) and LinkedIn. 3 Ibid. 4 WHO, COP29 Special Report on Climate Change and Health: Health is the Argument for Climate Action (2024). 5 BCG and Temasek, The Private Equity Opportunity in Climate Adaptation and Resilience (2025). 6 CDP, Unlocking the Disclosure Dividend (2025). 7 CDP, Unlocking the Disclosure Dividend (2025). 8 World Bank, People in a Changing Climate: From Vulnerability to Action-Insights from World Bank Group Country Climate and Development Reports Covering 72 Economies (Washington, DC: World Bank, 2024).</p>",
+     "<p>1</p>",
+     "<p>Cevik, Serhan and João Tovar Jalles, Why Climate Change Vulnerability Is Bad for Sovereign Credit Ratings (IMF Blog, 2021). Based on Cevik, Serhan and João Tovar Jalles, Feeling the Heat: Climate Shocks and Credit Ratings, IMF Working Paper No. 2020/286 (Washington DC:International Monetary Fund, 2020). 10 Grantham Research Institute preliminary analysis of 75 studies – The Macroeconomic Case for Adaptation Investment (2025, forthcoming) 11 WRI, Strengthening the Investment Case for Climate Adaptation: A Triple Dividend Approach (2025). 12 Ibid.</p>",
+     "<p>9</p>",
+     "<p>Climate and nature hazards are no longer future risks - they are today’s reality. Resilience is today’s imperative.</p>",
+     "<p>These impacts are not inevitable. They underline the critical need for greater efforts to reduce emissions and nature loss. But unless investment in resilience scales alongside mitigation, the cost of inaction will grow, and the choices available will narrow, as outlined in Chapter 1.</p>",
+     "<p>Impacts are hitting at much greater frequency and intensity than anticipated when the Paris Agreement was signed in 2015. Acute shocks, like floods and wildfires, and slow-onset changes,14 such as temperature rise, water stress and soil degradation, are disrupting people’s lives, threatening business continuity and eroding the foundations of strong economies. Between 2000 and 2020, drought events increased by one-third, extreme temperature events more than tripled,15 and billion-dollar weather disasters Investments in resilience and emission reductions now strike every three weeks - compared to every four months forty years ago.16</p>",
+     "<p>Communities, companies and countries are experiencing material impacts. At least 20 million people are displaced annually by climate shocks.17 Companies face mounting losses from damaged assets, disrupted supply chains and rising input costs. Emerging markets and developing economies have already lost more than $525 billion over the past two decades due to climate change18. The least developed countries are already an estimated 10% poorer today than they would have been without climate change, according to recent GRI analysis.19</p>",
+     "<p>Risks and losses fall disproportionately on lowerincome countries. EMDEs suffer more than 10 times more economic damage than higher-income countries in the face of extreme weather disasters, recover four times more slowly and endure deeper human development losses due to higher exposure and weaker fiscal capacity.20, 21</p>",
+     "<p>are synergistic and must be pursued together. This underscores the urgent need to double down on decarbonising the global economy.22 Not all the costs can be adapted to easily.23 There is no excuse for delay. And mitigation measures themselves must be resilient to remain effective over the longterm.24 Fortunately, there are many opportunities for investments which help us to adapt, reduce emissions and support development at the same time. This has to be the core strategy which will ultimately boost overall economic resilience.</p>",
+     "<p>The costs remain invisible in investment decisions, balance sheets and planning frameworks; the value of resilience interventions is not recognised. As outlined in Chapter 2, this risks setting a downward spiral of compounding costs in motion. See Exhibit 1 taken from Chapter 2.</p>",
+     "<p>Despite the profound threats and opportunities for building resilience, our economic and financial systems do not fully account for the impacts of climate change and nature loss.</p>",
+     "<h4>Downward Spiral</h4>",
+     "<h4>Upward Spiral</h4>",
+     "<h4>First, capital is exposed and liabilities mount. For every $1 spent on climate-resilient infrastructure right now, $87 is spent on infrastructure lacking resilience considerations.25</h4>",
+     "<p>Only 30% of the world’s largest 5,800 companies have quantified their exposure to climate and nature risks.26 The result is a build-up of hidden liabilities: future costs that will eventually surface as reconstruction bills, uninsurable assets, defaults, and write-downs.</p>",
+     "<p>Losses are especially severe in lower-income countries, many of which depend heavily on climate- and nature-sensitive sectors like agriculture for jobs and incomes.</p>",
+     "<p>Third, financial and fiscal instability rises as asset values and productivity fall. Properties exposed to flooding, wildfires or coastal erosion lose value as insurers withdraw and mortgages default. In the US, home insurers declined 37% of claims in 2023, up from 25% 20 years earlier36. As traditional risk-pooling breaks down, households, businesses and lenders are left unprotected.</p>",
+     "<p>Fiscal stability erodes as disruptions drive output volatility, inflation and debt stress. Rising emergency spending costs and lower earnings (due to productivity losses) reduce fiscal space and constrain monetary flexibility, limiting the tools available for macroeconomic management.</p>",
+     "<p>Second, losses compound, including: • For communities, an additional 1 to 2 million deaths per year in EMDEs,27 and 40 million more people experiencing extreme poverty by 2050.28 These impacts will increase inequality: climaterelated income losses are 70% greater for the poorest 40% of populations.29 • For companies, $885 billion losses by the 2030s, Weakened economies have less capacity to invest rising to $1.2 trillion by the 2050s for the world’s largest companies.30 Labour productivity losses equivalent to 80 million jobs are likely by 2030 globally.31 Supply-chain disruptions could also cause $25 trillion in net-losses by the middle of the century, as droughts, floods, storms and heatwaves cause widespread supply-chain failures and production halts.32 • For countries, an 18 to 23% decline in GDP by 2050 globally due to slow-onset and acute climate impacts under a current policy scenario.33, 34 This may not properly capture a further 7 to 10% GDP decline from nature impacts by 2030 (estimates for 2050 are not available).35</p>",
+     "<p>Finally, investment stalls not just in resilience interventions, but also in wider productivity-enhancing areas - as mounting damage makes these too risky.</p>",
+     "<p>in resilience to protect and expand capital, becoming trapped in a cycle of escalating risk.</p>",
+     "<p>Recognising the reality of climate and nature impacts and revaluing resilience can reverse the cycle. By protecting and expanding productive capital, communities, companies and countries can withstand disruptions, expand opportunities, take ‘productive risks’ rather than suffer from imposed risks, unlock value and build long-term prosperity.37 This unlocks an upward spiral of escalating benefits of action, in which stability and investment reinforce one another, economies grow more robust, and resilience is strengthened.</p>",
+     "<h4>The Resilience Investment Agenda</h4>",
+     "<h4>It is no surprise that the cost of inaction is far greater than the</h4>",
+     "<p>strengthening social institutions; ii) companies - by boosting agricultural yields and opening up new market opportunities; and iii) countries - by</p>",
+     "<p>cost of action. Only an estimated generating strong economic multipliers for growth,</p>",
+     "<h4>$350 billion - equivalent to 0.5% of EMDEs’ GDP in 203538 - is needed per year to build resilience in EMDEs by 2035.39</h4>",
+     "<p>jobs and sectoral development, among other benefits.41</p>",
+     "<p>Building resilience requires that all investments become resilient and invest in new approaches to tackle new risks. This begins with redirecting and scaling existing investments to ensure they are resilient. For example, when building a new road, that investment should factor in financing to ensure the road is resilient to slow-onset and acute climate impacts. Second, there is a need for new investments that tackle specific climate and nature risks, such as a new sea wall, or new cooling facilities. Where possible, investments that boost resilience and reduce emissions at the same time can maximise returns. Chapter 6 identifies 15 impactful 'A&amp;R Best Buys' comprising adaptation and resilience opportunities across sectors, including crop resilience, resilient health systems, and terrestrial protection and rehabilitation.</p>",
+     "<p>See Exhibit 2 taken from Chapter 3. Investing a portion of the $350 billion in four key sectors alone could help to avoid up to $690 - $850 billion in socioeconomic losses per year by 2050 in health, agriculture, infrastructure, and water sanitation and hygiene (WASH).40 Yet resilience investments do not flow at the scale needed. The inability in most cases to monetise avoided losses has long been at the crux of this paradox. However, this report highlights not just the avoided losses, but the value creation opportunities that resilience investments offer. Investing $350 billion per year can benefit: i) communities - by enhancing incomes and</p>",
+     "<p>Exhibit 2 The Additional Resilience Investment Need by 2035 in Emerging Markets and Developing Economies(1)</p>",
+     "<p>Developing countries investment needed1 ($ billion by 2035, US$2023 prices)</p>",
+     "<p>Estimates draw largely from 2025 UNEP Adaptation Gap Report (Forthcoming) (2)</p>",
+     "<p>348</p>",
+     "<p>(1) The values shown are for the non-annex 1 countries as defined by the UNFCCC, focusing only on LICs, LMICs and UMICs. (2) UNEP AGR (Forthcoming), covering adaptation estimates for agri-food, disaster risk reduction, health, fisheries and marine, energy and transport infrastructure, coastal protection and river flood protection. These sector results are only presented as aggregate numbers for country income groups. Systemiq conducted analysis to expand UNEP AGR (forthcoming) estimates for certain sectors, drawing on sources including Carapella et al. (2023), Aggarwal et al. (2024) and World Bank/UNESCO data on capital expenditure for education, Waldron et al. (2022)42. See Technical Annex for further detail. Note the figure captures public focused interventions, as well as interventions that have both public and private costs and benefits, for example climate-smart agriculture. It does not include interventions by private companies that are confined to their own assets or operations. The numbers are expressed in constant 2023 USD.</p>",
+     "<p>Policy is critical to mobilise private investment and redirect investment flows towards resilience. Governments can set a clear vision and integrate resilience into policymaking to ensure that economic growth and development are built to last. By setting the right frameworks and incentives, policymakers can shape markets to align capital with long-term stability and shared prosperity. And by establishing effective regulation, standards and innovation support, they can guide investment towards robust assets. Importantly, policy fosters inclusion and equity not to be possible currently, as a range of barriers by establishing social protections and public safety nets that ensure vulnerable households are not left unable to afford the costs of climate and nature impacts, preventing inequality from deepening.</p>",
+     "<p>Private finance Roughly 25% of the resilience investment needed in EMDEs - or $90 billion - lies in sectors that could generate predictable savings (including avoided losses or efficiency measures) or revenues that can be captured by the private sector.44 Commercial agriculture, water management and real estate are prime examples. Private sector opportunities are stronger in mature and stable markets; in fragile states, achieving 25% private investment is estimated</p>",
+     "<p>mean revenue models do not work. Just $4 billion flows from private sources into publicly oriented resilience in EMDEs today, leaving a $85 billion financing gap.45</p>",
+     "<p>Today, resilience investment flows fall far short of needs. Only about $54 billion flows annually into climate resilience in EMDEs - roughly one-seventh of the $350 billion needed.43 Chapter 4 outlines the main sources of finance that can close the resilience finance gap.</p>",
+     "<p>Public finance Approximately 75% of resilience investments - $260 billion - are best suited to public funding. These are investments that generate significant public goods or where the returns are hard to monetise. Yet just $50 billion flows from public sources (domestic and international) into resilience interventions in EMDEs today, leaving a $210 billion financing gap.50 Public finance sources include: • International public finance: an estimated $30 billion of international public finance flows into resilience investment in EMDEs, far below what is needed – and what has been committed through international negotiations.51 Deployment of scarce concessional finance – in the form of grants, first-loss capital and ultra-cheap loans – is widely viewed as a priority for countries that are both physically and financially vulnerable. • Domestic public finance: An estimated $20 billion flows into resilience investments from public EMDE sources each year.52 The amount flowing into proactive investment pales in comparison to reactive expenditure, with many African countries diverting up to 10% of their budgets in order to respond to climate extremes.53 Examples of proactive investments include health systems prepared for heatwaves or malaria outbreaks, and ecosystem protection. In countries facing high debt burdens and limited fiscal space, major public domestic investments are unlikely without external support.</p>",
+     "<h4>If the returns on resilience are so strong, why is investment not flowing at the scale it is needed?</h4>",
+     "<p>A set of barriers make it difficult for economic and financial decision-makers to fully understand or act on the investment opportunity, often owing to policy gaps. Challenges include: • Mispriced risks and returns: The economic value of investments in resilience is still poorly measured and rarely reported. Associated spending is perceived as a cost, not an investment that generates returns.</p>",
+     "<ul><li>Fragmented and underdeveloped markets: Resilience investments are diffuse, spanning many sectors or business units. Clear ‘resilience offerings’ are only starting to be defined and there remains a lack of clarity about investable project opportunities. Innovation in resilience solutions remains under-funded.</li><li>Externalities and misaligned incentives: Many resilience investments have strong public good characteristics, meaning that without supporting policies they are underprovided by the private sector. Yet rather than aligning private sector incentives with the need to invest in resilience, existing subsidies, price signals and regulations often encourage behaviour that undermines resilience.</li><li>Tragedy of the horizon: Governments, businesses and financial institutions tend to prioritise short-term returns and electoral or market cycles, rather than long-term risks. Because the most severe consequences of climate change and nature loss will materialise beyond these decision-makers’ immediate timeframes, there is little incentive to allocate capital today towards resilience measures.</li><li>High cost of capital: Many countries and communities that are most affected by climate change and nature loss are poor and face high cost of capital. Public budgets are stretched, and private investors demand returns that these countries cannot meet without support.</li><li>Weak capacity and information gaps: Ministries, local and national municipalities, and firms often lack the tools, skills and institutions needed to plan and deliver resilience investment. Reliable risk data is patchy; technical expertise is limited; institutions are overstretched.</li></ul>",
+     "<p>Economic and financial decision-makers can pull a series of levers to address these barriers and mobilise investment.</p>",
+     "<h4>Call to action</h4>",
+     "<p>The case for strengthening resilience is clear. We largely know what we need to do and how to do it.</p>",
+     "<p>By embedding resilience into investment decisions, economic and financial decision-makers can scale investment in resilience to drive better outcomes for communities, companies and countries.</p>",
+     "<p>• Scaling Country Platforms can play a valuable role in supporting the development of resilience investment strategies and facilitating collaboration across actors and sectors. Multiple countries are exploring options to launch country platforms for this purpose. In addition, A&amp;R Best Buys (Chapter 6) represent high-impact solution areas that can generate socioeconomic returns and help countries achieve NAP priorities. They also offer opportunities for financing across diverse funder types.</p>",
+     "<p>Chapters 5 and 6 outline key areas for action. Chapter 5 identifies the areas where momentum is building for finance ministers, central banks, private finance, businesses, development finance institutions, donors • A growing number of economic and financial and philanthropies to drive action through COP30. Chapter 6 drills down into 15 impactful ‘A&amp;R Best Buys’ in low- and middle-income countries that can be implemented now.54</p>",
+     "<p>COP30 offers a critical opportunity to pivot from raising awareness to implementation - the moment when the world aligns around resilience as the shared investment agenda. The Brazilian Presidency has placed unprecedented political focus on adaptation and resilience, providing much-needed space for a reimagining of priorities and next steps, alongside mitigation efforts. Building on existing coordination mechanisms like the Race to Resilience and Sharm El Sheikh Adaptation Agenda, hundreds of stakeholders are working with the Brazilian Presidency and High-Level Champions to spotlight a number of global initiatives that can serve as vehicles to address risks and opportunities identified in this report. They are importantly taking a multi-year frame, looking to 2028 when the United Nations’ next ‘Global Stocktake’ takes place to assess progress on the Paris Agreement and set corresponding ambition. Among categories of action that stakeholders have identified to enhance the returns on resilience are:</p>",
+     "<p>Delivering on country priorities: • Turn National Adaptation Plans (NAPs) into investable resilience strategies. This means credible, costed investment pathways and aligned project pipelines at the heart of national planning and budgeting processes that identify priority resilience investments, clarify investment needs and financing sources, and plot the policies and financing mechanisms needed to get finance flowing.</p>",
+     "<p>Embedding resilience into all economic and financial decision-making:</p>",
+     "<p>decision-makers - in government, business and finance - are starting to embed resilience into policies, strategies and markets. COP30 offers a platform to showcase progress, share lessons and accelerate high-impact actions. Table 1 outlines key opportunities for action, where momentum is emerging. • As part of these efforts, increasing provision of insurance and pre-arranged financing have a particularly important role to play. They provide liquidity when shocks occur, reduce fiscal disruption, and lower the long-term costs of disasters. And with insurers collectively managing about one-third of global assets, the sector has the potential to mobilise long-term capital for resilient infrastructure. Yet in many climate-vulnerable countries, most households, small businesses, and even governments are uninsured; in low-income settings, more than 90% of disaster losses go uncovered, compared to around 50% on average in higher-income economies.55 Expected losses from natural disasters have also risen steadily, increasing by roughly 6% per year in real terms since 1994.56 By 2024, this amounted to an estimated $35 billion in uninsured losses across EMDEs. Addressing the protection gap is therefore a critical priority for decision-makers seeking to embed resilience into decision-making.</p>",
+     "<p>Getting key enablers in place: • Turning the resilience opportunity into reality requires a set of enabling actions that no single actor can deliver alone. These are the shared foundations - the data, tools, and frameworks - that allow decision-makers to measure what matters, align on goals and track progress. Based on discussions to inform this report, momentum and collaboration are growing in the following areas, with the potential to enable resilience investment at scale.</p>",
+     "<ul><li>Pricing resilience risks and returns: Developing frameworks and tools for finance ministries and Central Banks to better understand the fiscal impact not just of climate and nature shocks, but also the quantified positive impacts of and co- benefits unlocked by resilience investments; for CEOs and CFOs to quantify resilience- adjusted profitability under different scenarios; and for investors to improve risk models and benchmarks to assess opportunities.</li><li>Developing a shared risk typology across systems: Coalescing around a common framework for how climate and nature risks accumulate across physical, natural, human and social capital, to create a shared language across sectors, reducing fragmentation and enabling alignment on systemic exposure.</li></ul>",
+     "<ul><li>Improving access to physical risk data: Leaders from the insurance, technology and data sectors coming together with potential users of physical risk data to create a shared baseline of exposure, enabling better fiscal planning, investment choices and insurance pricing.</li><li>Tracking progress and positive outcomes of resilience investments: As the delivery of resilience investments scales up, there is a need to converge around a coherent set of metrics to track progress and positive impacts for communities, companies and countries. This can help to inform approaches with best practice examples, avoid maladaptation, and strengthen the investment case. The Global Goal on Adaptation represents an important step towards developing the metrics to understand, monitor and assess resilience- building efforts and their impact.</li></ul>",
+     "<p>The combination of these enablers ultimately drives transformation. Decision-makers can form partnerships to align strategies, pool resources, and drive systemic change at scale.</p>",
+     "<p>Table 1 Embedding Resilience into Investment Decisions – Priority Actions and Emerging Momentum</p>",
+     "<h4>Adaptation and Resilience (A&amp;R) Best Buys</h4>",
+     "<p>The risks and opportunities around adaptation and resilience are especially pronounced in low- and middle-income countries (LMICs), given their high exposure to climate hazards alongside typically limited adaptive capacity and financing. Declining aid flows and increasingly scarce grant finance are compounding existing challenges around investment opportunities that meet financiers’ data and risk thresholds.</p>",
+     "<p>They unlock the ‘triple dividend’ of avoided losses, induced economic returns, and wider social and environmental benefits - such as reducing mortality and morbidity from climate-sensitive diseases, strengthening food security, and bolstering GDP growth, jobs and incomes.</p>",
+     "<p>The A&amp;R Best Buys span six impact sectors broadly aligned with sectors prioritised by the Global Goal on Adaptation. These are broadly aligned with sectors prioritised by the Global Goal on Adaptation and include i) food; ii) water; iii) health; iv) infrastructure; v) community and business; and vi) nature, ecosystems and biodiversity. The A&amp;R Best Buys also include cross-cutting enablers such as information, technology and planning that support and amplify impact across sectors. Among these, food and health are especially emphasised, as they are critical sectors that underpin human wellbeing and economic stability, jobs and growth. Food systems are central to food security and livelihoods</p>",
+     "<p>Yet there are already significant entry points for every funder - public, private and philanthropic to finance adaptation and resilience in LMICs in ways aligned with their mandates and riskreturn profiles.</p>",
+     "<p>To this end, the A&amp;R Best Buys (see Chapter 6) identify 15 high-impact solution areas that can already generate strong socioeconomic returns (see Exhibit 3). These are drawn from analysis by BCG of countries’ NAPs and Technology Needs Assessments, consultations with over 50 climate and in LMICs, where agriculture represents a large share development experts across governments, funders, NGOs and the private sector, and an extensive literature review. Chapter 6 outlines the rationale for each best buy and showcases exemplar solutions that are innovative, scalable and ready for investment. societies more broadly in LMICs. The Best Buys are critical options for LMICs facing diverse climate hazards, and simultaneously enhance climate resilience and deliver development outcomes aligned with the SDGs.</p>",
+     "<p>of GDP and employment and is particularly climatesensitive, while health systems are the frontline for protecting lives under rising climate risks. Both sectors are foundational to resilient economies and</p>",
+     "<p>Example A&amp;R Best Buys include • Crop resilience: Climate change is projected to have a staggering impact on global crops, cutting yields by up to 12% by 205058; impacts in Africa could be especially severe, with crop yields projected to drop 18% by 2050.59 This is on top of the more than 30% decline in agricultural productivity growth due to climate change since 1961 - the steepest decline of any region worldwide.60 The agriculture sector is already absorbing 26% of the economic impact of climate disasters – increasing to 83% for drought in developing countries.61 Crop resilience is vital for boosting productivity, strengthening food security, raising farmer incomes, and supporting economic stability, jobs and GDP growth especially in LMICs.62 Investments are needed in solutions such as climate-resilient crop varieties and agricultural practices, and innovations such as AI-enabled guidance and improved weather and seasonal forecasts.63 • Resilient health systems: Climate change is amplifying health threats at a scale that could overwhelm already strained health systems. For example, climate change is projected to cause more than 550,000 additional malaria deaths between 2030 and 2049. Of these, 92% are predicted to arise due to extreme weather events driven by the disruptions they cause to malaria protection and treatment.64 Without action, climate-related health risks could drive at least $21 trillion in economic costs in LMICs by 2050.65</p>",
+     "<p>Resilient health systems reduce morbidity and mortality, increase access to essential services during climate disruptions, and safeguard lives and jobs. Key investments include reducing dependence on facilities that may be inaccessible or non-functional during extreme weather events and strengthening health product supply chains through cold chain resilience and local pre-positioning of health commodities closer to communities. • Terrestrial protection and rehabilitation: Climate change is disrupting more than 80% of ecological processes, degrading ecosystems, and driving biodiversity loss. The economic cost of nature decline could cut global GDP by $10 trillion by 2050 if the climate and nature emergency is not addressed, undermining livelihoods and economies that depend on nature.66, 67 Conservation, restoration and sustainable management of forests, rangelands, and other terrestrial ecosystems can reduce climate vulnerability by preventing erosion, restoring soil fertility, retaining water and lowering risk from floods and landslides. Investments are needed in reforestation, assisted natural regeneration and wildfire prevention.</p>",
+     "<p>The A&amp;R Best Buys are not a prescriptive list but a starting point to guide discussion and inform countryand locally-led adaptation planning, pointing to critical investments that can shift outcomes at scale. There are multiple considerations that advocates, funders and policymakers should keep in mind when assessing A&amp;R Best Buys and broader A&amp;R funding opportunities, which are explored in Chapter 6.</p>",
+     "<p>Exhibit 3 The Adaptation and Resilience (A&amp;R) Best Buys</p>",
+     "<p>At COP30, governments, civil society, businesses, investors and financiers will gather to push resilience higher up the economic and political agenda. The challenge is not new plans, but delivery.</p>",
+     "<p>If governments, businesses, investors and civil society act together, they can reverse the spiral from escalating costs to rising returns. The choice is clear: delay and face mounting losses, or act now to secure stronger, safer, more competitive economies that deliver for all.</p>",
+     "<p>Resilience is no longer a side-agenda - it is the foundation of growth and stability.</p>"
+    ],
+    "floatTop": 0,
+    "media": [
+     {
+      "id": "b3",
+      "type": "cover",
+      "props": {
+       "src": "pages/page-0001.png",
+       "alt": "Executive Summary — cover"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "b4",
+   "type": "toc",
+   "props": {
+    "items": [
+     {
+      "text": "Food",
+      "level": 2,
+      "anchor": "food"
+     },
+     {
+      "text": "Water",
+      "level": 2,
+      "anchor": "water"
+     },
+     {
+      "text": "Health",
+      "level": 2,
+      "anchor": "health"
+     },
+     {
+      "text": "Infrastructure",
+      "level": 2,
+      "anchor": "infrastructure"
+     },
+     {
+      "text": "Community and",
+      "level": 2,
+      "anchor": "community-and"
+     },
+     {
+      "text": "business resilience",
+      "level": 2,
+      "anchor": "business-resilience"
+     },
+     {
+      "text": "Nature, ecosystems",
+      "level": 2,
+      "anchor": "nature-ecosystems"
+     },
+     {
+      "text": "and biodiversity",
+      "level": 2,
+      "anchor": "and-biodiversity"
+     }
+    ]
+   }
+  },
+  {
+   "id": "b5",
+   "type": "download",
+   "props": {
+    "label": "Download the full report (PDF)",
+    "bgColor": "#1b4965",
+    "textColor": "#ffffff"
+   }
+  },
+  {
+   "id": "b6",
+   "type": "share",
+   "props": {}
+  }
+ ]
+}

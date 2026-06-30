@@ -1,0 +1,10 @@
+{
+  "output": {
+    "fonts": {
+      "map": {
+        "ibmplexsans": "IBM Plex Sans",
+        "ibmplexserif": "IBM Plex Serif"
+      }
+    }
+  }
+}

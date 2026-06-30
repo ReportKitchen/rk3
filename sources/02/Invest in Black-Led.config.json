@@ -1,9 +1,10 @@
 {
   "output": {
-    "embedFonts": false,
+    "embedFonts": true,
     "fonts": {
       "map": {
-        "gotham": "gotham"
+        "akkurat": "helvetica-lt-pro",
+        "algebra": "Roboto Slab"
       },
       "load": [
         "https://use.typekit.net/qmh3dop.css"

@@ -1,0 +1,16 @@
+{
+  "output": {
+    "fonts": {
+      "map": {
+        "calibri": "Carlito",
+        "cambria": "Caladea",
+        "gotham": "gotham",
+        "proximanova": "proxima-nova",
+        "timesnewroman": "Tinos"
+      },
+      "load": [
+        "https://use.typekit.net/qmh3dop.css"
+      ]
+    }
+  }
+}

@@ -1,0 +1,122 @@
+{
+ "version": 1,
+ "template": "research",
+ "blocks": [
+  {
+   "id": "b1",
+   "type": "title",
+   "props": {
+    "eyebrow": "Atlantic Council · Adrienne Arsht Latin America Center",
+    "title": "Unlocking Economic Development in Latin America and the Caribbean",
+    "subtitle": "Five Opportunities for Private-Sector Leadership and Partnership"
+   }
+  },
+  {
+   "id": "Findings-b6055633-c7f2-4957-b5a4-05d99ab20a21",
+   "type": "findings",
+   "props": {
+    "heading": "Key findings",
+    "items": [
+     {
+      "stat": "Five",
+      "text": "vital opportunities were identified for the private sector to drive socioeconomic progress in Latin America and the Caribbean"
+     },
+     {
+      "stat": "16",
+      "text": "recommendations private firms can consider as they take steps to support the region"
+     },
+     {
+      "stat": "3.4%",
+      "text": "LAC's growth slowed to in 2022"
+     },
+     {
+      "stat": "2.8%",
+      "text": "regional growth is expected to further weaken to in 2023"
+     },
+     {
+      "stat": "2014–2019",
+      "text": "structural micro-level vulnerabilities made LAC the slowest-growing region globally during this period"
+     },
+     {
+      "stat": "2020",
+      "text": "LAC was the region worst affected economically by COVID, before rebounding in 2021 on successful vaccination campaigns and intensive fiscal support"
+     },
+     {
+      "stat": "9",
+      "text": "private-sector stakeholders and experts provided insights through one-on-one interviews"
+     },
+     {
+      "stat": "12+",
+      "text": "IDB colleagues provided inputs and facilitated connections that helped inform the report"
+     }
+    ]
+   }
+  },
+  {
+   "id": "Summary-d56f89b1-90da-48a8-b985-628399c88e8b",
+   "type": "summary",
+   "props": {
+    "style": "neutral",
+    "length": "medium",
+    "heading": "Executive summary",
+    "text": "Latin America and the Caribbean face a slowing economic outlook, with regional growth falling to 3.4 percent in 2022 and projected to drop to 2.8 percent in 2023 amid inflation, rate hikes, tightening fiscal positions, high debt, and spillovers from the war in Ukraine. Structural vulnerabilities—including rigid and informal labor markets and low productivity—left the region the slowest-growing globally from 2014–2019 and the worst affected economically by COVID-19 in 2020. Sustaining recovery and building inclusive, productive, and sustainable development over the long term will require private-sector engagement alongside public action. Drawing on surveys and interviews with senior executives at multinational firms operating in the region, the analysis identifies five opportunity areas: building human capital, advancing digital transformation, strengthening institutions and competitiveness, addressing multidimensional inequality, and meaningfully advancing the green agenda. Sixteen accompanying recommendations outline how companies can act, including addressing gender-based and place-based inequality, empowering SMEs, creating green jobs, promoting the circular economy, and partaking in green finance. The findings underscore the role of public-private cooperation and the multilateral sector in supporting the region's prosperity."
+   }
+  },
+  {
+   "id": "b2",
+   "type": "docSummary",
+   "props": {
+    "heading": "Executive summary",
+    "sectionId": "s0",
+    "blocks": [
+     "<p>H ow does the private sector perceive Latin America</p>",
+     "<p>the Inter-American Development Bank (IDB) to glean insights from its robust network of private-sector partners. Through surveys and in-depth interviews, this report identified five vital opportunities for the private sector to drive socioeconomic progress in LAC, with sixteen corresponding recommendations private firms can consider as they take steps to support the region.</p>",
+     "<p>and the Caribbean (LAC)? What opportunities do firms find most exciting? And what precisely can companies do to seize on these opportunities and support the region’s journey toward recovery and sustainable development? To answer these questions, the Atlantic Council collaborated with</p>"
+    ],
+    "floatTop": 0,
+    "media": [
+     {
+      "id": "b3",
+      "type": "cover",
+      "props": {
+       "src": "pages/page-0001.png",
+       "alt": "Accelerating — cover"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "b4",
+   "type": "toc",
+   "props": {
+    "items": [
+     {
+      "text": "Enhancing Market Size, Scalability, and Regional Integration",
+      "level": 2,
+      "anchor": "enhancing-market-size-scalability-and-regional-integration-2"
+     },
+     {
+      "text": "Meaningfully Advancing the Green Agenda",
+      "level": 2,
+      "anchor": "meaningfully-advancing-the-green-agenda-2"
+     }
+    ]
+   }
+  },
+  {
+   "id": "b5",
+   "type": "download",
+   "props": {
+    "label": "Download the full report (PDF)",
+    "bgColor": "#1b4965",
+    "textColor": "#ffffff"
+   }
+  },
+  {
+   "id": "b6",
+   "type": "share",
+   "props": {}
+  }
+ ]
+}

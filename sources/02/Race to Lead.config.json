@@ -1,9 +1,8 @@
 {
   "output": {
-    "embedFonts": false,
     "fonts": {
       "map": {
-        "gotham": "gotham"
+        "proximanova": "proxima-nova"
       },
       "load": [
         "https://use.typekit.net/qmh3dop.css"

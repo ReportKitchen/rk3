@@ -1,0 +1,129 @@
+{
+ "version": 1,
+ "template": "research",
+ "blocks": [
+  {
+   "id": "b1",
+   "type": "title",
+   "props": {
+    "eyebrow": "World Resources Institute",
+    "title": "The Compelling Investment Case for Climate Adaptation",
+    "subtitle": "Strengthening the Investment Case for Climate Adaptation: A Triple Dividend Approach"
+   }
+  },
+  {
+   "id": "Findings-9e0a4728-33d5-4032-8741-d29cacf6690e",
+   "type": "findings",
+   "props": {
+    "heading": "Key findings",
+    "items": [
+     {
+      "stat": "$10.50",
+      "text": "in benefits over 10 years can be yielded from every $1 invested in adaptation"
+     },
+     {
+      "stat": "$359 billion",
+      "text": "per year is the gap between funding needed to adapt to climate change and what is currently available"
+     },
+     {
+      "stat": "58",
+      "text": "disasters in 2024 each wreaked over a billion dollars in damages"
+     },
+     {
+      "stat": "$1.4 trillion",
+      "text": "in benefits over 10 years are expected from the analyzed adaptation investments, which cost over $133 billion"
+     },
+     {
+      "stat": "320",
+      "text": "adaptation and resilience projects across agriculture, water, health and infrastructure were analyzed by WRI"
+     },
+     {
+      "stat": "27%",
+      "text": "is the average return individual adaptation investments were estimated to generate"
+     },
+     {
+      "stat": "8%",
+      "text": "of investment appraisals estimated the full monetized values of the dividends, suggesting returns are substantially underestimated"
+     },
+     {
+      "stat": "78%",
+      "text": "average return makes health-sector adaptation investments among the highest analyzed"
+     },
+     {
+      "stat": "36%",
+      "text": "average return is delivered by disaster risk management investments"
+     },
+     {
+      "stat": "29%",
+      "text": "average return comes from adaptation in the agriculture and forestry sector"
+     }
+    ]
+   }
+  },
+  {
+   "id": "b2",
+   "type": "cover",
+   "props": {
+    "src": "pages/page-0001.png",
+    "alt": "The Compelling Investment Case for Climate Adaptation — cover"
+   }
+  },
+  {
+   "id": "b3",
+   "type": "summary",
+   "props": {
+    "text": "Floods and droughts are striking communities harder and more often, and in 2024 alone the world endured 58 disasters that each caused more than a billion dollars in damages. Yet the money available to cope with these impacts falls persistently short, leaving an adaptation funding gap as high as $359 billion per year. In this paper, we set out to reframe adaptation not merely as a way to avoid losses but as one of the smartest investments available today. Drawing on an analysis of 320 adaptation and resilience projects across agriculture, water, health and infrastructure, we apply the 'triple dividend of resilience' framework to capture avoided losses, induced economic development, and additional social and environmental benefits. We find that $1 invested in adaptation can yield more than $10.50 in benefits over 10 years, and that returns are often evenly distributed across all three dividends. Because most appraisals fail to monetize these wider benefits, we conclude that even these strong returns are likely substantial underestimates.",
+    "style": "intro",
+    "length": "medium",
+    "heading": "Executive summary"
+   }
+  },
+  {
+   "id": "b4",
+   "type": "toc",
+   "props": {
+    "items": [
+     {
+      "text": "The ‘Triple Dividend’ of Adaptation Investments",
+      "level": 2,
+      "anchor": "the-triple-dividend-of-adaptation-investments"
+     },
+     {
+      "text": "Good Adaptation Is Good Development",
+      "level": 2,
+      "anchor": "good-adaptation-is-good-development"
+     },
+     {
+      "text": "Adaptation Yields High Returns Even when Disasters Don’t Strike",
+      "level": 2,
+      "anchor": "adaptation-yields-high-returns-even-when-disasters-don-t-str"
+     },
+     {
+      "text": "Adaptation Investments Also Curb Emissions",
+      "level": 2,
+      "anchor": "adaptation-investments-also-curb-emissions"
+     },
+     {
+      "text": "Unlocking Adaptation’s Full Value",
+      "level": 2,
+      "anchor": "unlocking-adaptation-s-full-value"
+     }
+    ]
+   }
+  },
+  {
+   "id": "b5",
+   "type": "download",
+   "props": {
+    "label": "Download the full report (PDF)",
+    "bgColor": "#1b4965",
+    "textColor": "#ffffff"
+   }
+  },
+  {
+   "id": "b6",
+   "type": "share",
+   "props": {}
+  }
+ ]
+}

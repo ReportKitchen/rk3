@@ -1,0 +1,10 @@
+{
+  "output": {
+    "fonts": {
+      "map": {
+        "minion": "Source Serif 4",
+        "publicsans": "Public Sans"
+      }
+    }
+  }
+}

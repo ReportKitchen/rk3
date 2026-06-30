@@ -1,0 +1,17 @@
+{
+  "output": {
+    "fonts": {
+      "map": {
+        "franklingothicurw": "franklin-gothic-urw",
+        "franklingothicurwcon": "franklin-gothic-urw-cond",
+        "franklingothicurwcond": "franklin-gothic-urw-cond",
+        "lato": "Lato",
+        "roboto": "Roboto",
+        "robotoslab": "Roboto Slab"
+      },
+      "load": [
+        "https://use.typekit.net/qmh3dop.css"
+      ]
+    }
+  }
+}

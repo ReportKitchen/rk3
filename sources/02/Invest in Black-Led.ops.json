@@ -594,12 +594,14 @@
    "n97901d669f",
    "n695bae1406",
    "n6b95a0531b"
-  ]
+  ],
+  "orphaned": true
  },
  {
   "nid": "merge-n30681d8498",
   "op": "merge",
   "into": "nfb40ae85ff",
-  "frm": "n30681d8498"
+  "frm": "n30681d8498",
+  "orphaned": true
  }
 ]

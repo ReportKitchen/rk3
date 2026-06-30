@@ -3,7 +3,8 @@
     "embedFonts": false,
     "fonts": {
       "map": {
-        "gotham": "gotham"
+        "anton": "Anton",
+        "franklingothicurw": "franklin-gothic-urw"
       },
       "load": [
         "https://use.typekit.net/qmh3dop.css"

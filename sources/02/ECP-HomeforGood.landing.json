@@ -1,0 +1,118 @@
+{
+ "version": 1,
+ "template": "research",
+ "blocks": [
+  {
+   "id": "b1",
+   "type": "title",
+   "props": {
+    "eyebrow": "Preservation & Eviction Prevention",
+    "title": "A Roadmap to Prevent Eviction and Promote Housing Stability",
+    "subtitle": "Upstream strategies, evidence-based programs, and case studies for an equitable recovery"
+   }
+  },
+  {
+   "id": "b2",
+   "type": "docSummary",
+   "props": {
+    "heading": "Executive summary",
+    "sectionId": "s0",
+    "blocks": [
+     "<p>With inflation on the rise, rapidly depleting federal stimulus funds and millions of Americans still unable to pay their rent, preventing eviction and supporting long-term housing stability are urgent national imperatives. Among many other repercussions for families, eviction results in long-term financial instability and limited access to affordable housing, while also causing psychological strain, depression, physical health problems and child poverty.</p>",
+     "<p>Like most systems deeply rooted in our nation’s history of segregation and discrimination, eviction’s effects have entrenched disparate outcomes for people of color. Black people experience homelessness at a significantly higher rate than whites; according to the Center for Social Innovation1, “although Black people comprise 13% of the general population in the United States and 26% of those living in poverty, they account for more than 40% of the homeless population, suggesting that poverty rates alone do not explain the over-representation.” Covid has exacerbated and gendered this disparity – a USA TODAY analysis2 of local and national housing records and data found that Black women are more likely than any other group to be evicted – with Black women renters filed against at twice the rate of white women renters nationwide.</p>",
+     "<p>The harms exacted by the eviction process expand well beyond tenants. Eviction has exceedingly destabilized the affordable housing industry at large, exacting a financial toll on the very developers and owners who are needed to preserve and expand the limited supply of subsidized, affordable housing. Back-due rent, tenant turnover and court fees leave many affordable housing owners in a precarious financial position – particularly those that are small, independent owners. In hard hit areas, these realities threaten the viability of their properties and can have devastating economic impacts, including a diminished supply of the affordable housing that is so desperately needed.</p>",
+     "<p>The goal of this paper is to highlight a range of strategies that prevent or reduce the long-term harm of eviction across the stages of the eviction cycle: during housing instability (“upstream”), once a rent payment is missed (“after arrears/ pre-filing”), after a landlord has filed for eviction</p>",
+     "<p>This paper outlines a roadmap that offers policymakers, practitioners and advocates a full suite of policy tools, evidence-based programs, and case studies. The roadmap organizes available strategies according to the various stages of the eviction cycle:</p>",
+     "<ul><li>{'text': 'Upstream: Prevention strategies that increase housing instability and reduce or eliminate the prospect of eviction.', 'emph': [[0, 9, 'strong']]}</li><li>{'text': 'AfterArrears/Pre-Filing:Intervention strategies to provide options, court alternatives, and emergency assistance once a rent payment is missed.', 'emph': [[0, 24, 'strong']]}</li><li>{'text': 'AfterEvictionFiling: Mitigation strategies to assist tenants in navigating the court system after a landlord has filed for eviction.', 'emph': [[0, 20, 'strong']]}</li><li>{'text': 'Post-Eviction: Harm reduction strategies to provide safe options and prevent homelessness after a court has determined that an eviction can proceed.', 'emph': [[0, 14, 'strong']]}</li></ul>",
+     "<p>Each strategy is rated according to three components:</p>",
+     "<ul><li>{'text': 'Level of effort: How difficult will it be to implement, from start to finish? Does it require a slight modification or a high level of effort to bring parties together and reach agreement?', 'emph': [[0, 16, 'strong']]}</li><li>{'text': 'Cost of implementation: Will it be costly for taxpayers or the public/private sectors to implement?', 'emph': [[0, 23, 'strong']]}</li><li>{'text': 'Scale of impact: Will it have a localized or broad impact? Will it be felt most significantly at the household, community, or systems level?', 'emph': [[0, 16, 'strong']]}</li></ul>",
+     "<p>In making the case for upstream prevention and outlining an exhaustive list of solutions, our hope is that readers will be able to custom-tailor a set of intervention strategies that address the unique needs of each community. As communities strive to address the lingering impacts of the pandemic, the strategies outlined in this paper can help guide them toward an equitable recovery.</p>"
+    ],
+    "floatTop": 0,
+    "media": [
+     {
+      "id": "b3",
+      "type": "cover",
+      "props": {
+       "src": "pages/page-0001.png",
+       "alt": "Table of Contents — cover"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "Summary-51df264f-5970-4896-8d91-c8857260a283",
+   "type": "summary",
+   "props": {
+    "style": "intro",
+    "length": "medium",
+    "heading": "Executive summary",
+    "text": "Every year, thousands of well-designed affordable homes are built—yet many thousands more are lost to disrepair, expiring affordability, or market pressure, and millions of families who already have a home struggle to keep it. Covid-19 recentered the national debate on evictions, but the crisis was raging long before the pandemic: an estimated 1.5 million households received eviction judgments annually pre-Covid, with informal displacement potentially doubling that toll. In this report, we set out to make the case for preventing eviction rather than merely responding to it after the fact. We outline a roadmap that offers policymakers, practitioners, and advocates a full suite of policy tools, evidence-based programs, and case studies organized by the stages of the eviction cycle. Our central argument is that an upstream approach—systematic, sustainable strategies that ensure renters have the resources to pay for their home—is key to reducing eviction and increasing housing stability. We hope readers will custom-tailor interventions to the unique needs of their communities and chart a path toward an equitable recovery."
+   }
+  },
+  {
+   "id": "b4",
+   "type": "toc",
+   "props": {
+    "items": [
+     {
+      "text": "Making the Case: The Evidence Base for Preventing Eviction",
+      "level": 2,
+      "anchor": "making-the-case-the-evidence-base-for-preventing-eviction"
+     },
+     {
+      "text": "Case Studies",
+      "level": 2,
+      "anchor": "case-studies-2"
+     },
+     {
+      "text": "Conclusion",
+      "level": 2,
+      "anchor": "conclusion-2"
+     },
+     {
+      "text": "Works Cited",
+      "level": 2,
+      "anchor": "works-cited"
+     }
+    ]
+   }
+  },
+  {
+   "id": "DocSummary-5b7123d2-8dfc-4ee6-840c-8370430f6fe0",
+   "type": "docSummary",
+   "props": {
+    "sectionId": "s0",
+    "heading": "Executive Summary",
+    "blocks": [
+     "<p>With inflation on the rise, rapidly depleting federal stimulus funds and millions of Americans still unable to pay their rent, preventing eviction and supporting long-term housing stability are urgent national imperatives. Among many other repercussions for families, eviction results in long-term financial instability and limited access to affordable housing, while also causing psychological strain, depression, physical health problems and child poverty.</p>",
+     "<p>Like most systems deeply rooted in our nation’s history of segregation and discrimination, eviction’s effects have entrenched disparate outcomes for people of color. Black people experience homelessness at a significantly higher rate than whites; according to the Center for Social Innovation1, “although Black people comprise 13% of the general population in the United States and 26% of those living in poverty, they account for more than 40% of the homeless population, suggesting that poverty rates alone do not explain the over-representation.” Covid has exacerbated and gendered this disparity – a USA TODAY analysis2 of local and national housing records and data found that Black women are more likely than any other group to be evicted – with Black women renters filed against at twice the rate of white women renters nationwide.</p>",
+     "<p>The harms exacted by the eviction process expand well beyond tenants. Eviction has exceedingly destabilized the affordable housing industry at large, exacting a financial toll on the very developers and owners who are needed to preserve and expand the limited supply of subsidized, affordable housing. Back-due rent, tenant turnover and court fees leave many affordable housing owners in a precarious financial position – particularly those that are small, independent owners. In hard hit areas, these realities threaten the viability of their properties and can have devastating economic impacts, including a diminished supply of the affordable housing that is so desperately needed.</p>",
+     "<p>The goal of this paper is to highlight a range of strategies that prevent or reduce the long-term harm of eviction across the stages of the eviction cycle: during housing instability (“upstream”), once a rent payment is missed (“after arrears/ pre-filing”), after a landlord has filed for eviction</p>",
+     "<p>This paper outlines a roadmap that offers policymakers, practitioners and advocates a full suite of policy tools, evidence-based programs, and case studies. The roadmap organizes available strategies according to the various stages of the eviction cycle:</p>",
+     "<ul><li>{'text': 'Upstream: Prevention strategies that increase housing instability and reduce or eliminate the prospect of eviction.', 'emph': [[0, 9, 'strong']]}</li><li>{'text': 'AfterArrears/Pre-Filing:Intervention strategies to provide options, court alternatives, and emergency assistance once a rent payment is missed.', 'emph': [[0, 24, 'strong']]}</li><li>{'text': 'AfterEvictionFiling: Mitigation strategies to assist tenants in navigating the court system after a landlord has filed for eviction.', 'emph': [[0, 20, 'strong']]}</li><li>{'text': 'Post-Eviction: Harm reduction strategies to provide safe options and prevent homelessness after a court has determined that an eviction can proceed.', 'emph': [[0, 14, 'strong']]}</li></ul>",
+     "<p>Each strategy is rated according to three components:</p>",
+     "<ul><li>{'text': 'Level of effort: How difficult will it be to implement, from start to finish? Does it require a slight modification or a high level of effort to bring parties together and reach agreement?', 'emph': [[0, 16, 'strong']]}</li><li>{'text': 'Cost of implementation: Will it be costly for taxpayers or the public/private sectors to implement?', 'emph': [[0, 23, 'strong']]}</li><li>{'text': 'Scale of impact: Will it have a localized or broad impact? Will it be felt most significantly at the household, community, or systems level?', 'emph': [[0, 16, 'strong']]}</li></ul>",
+     "<p>In making the case for upstream prevention and outlining an exhaustive list of solutions, our hope is that readers will be able to custom-tailor a set of intervention strategies that address the unique needs of each community. As communities strive to address the lingering impacts of the pandemic, the strategies outlined in this paper can help guide them toward an equitable recovery.</p>"
+    ],
+    "floatTop": 0,
+    "media": []
+   }
+  },
+  {
+   "id": "b5",
+   "type": "download",
+   "props": {
+    "label": "Download the full report (PDF)",
+    "bgColor": "#1b4965",
+    "textColor": "#ffffff"
+   }
+  },
+  {
+   "id": "b6",
+   "type": "share",
+   "props": {}
+  }
+ ]
+}

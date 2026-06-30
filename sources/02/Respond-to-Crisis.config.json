@@ -1,0 +1,10 @@
+{
+  "output": {
+    "fonts": {
+      "map": {
+        "calibri": "Carlito",
+        "merriweather": "Merriweather"
+      }
+    }
+  }
+}

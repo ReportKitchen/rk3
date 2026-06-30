@@ -1,0 +1,157 @@
+{
+ "version": 1,
+ "template": "research",
+ "blocks": [
+  {
+   "id": "b1",
+   "type": "title",
+   "props": {
+    "eyebrow": "Enacting the Science of Learning and Development",
+    "title": "Design Principles for Teacher Preparation",
+    "subtitle": "A research-grounded framework for strengthening how educators are prepared to teach"
+   }
+  },
+  {
+   "id": "Findings-a3067a68-552f-47b5-bf61-4fd15461fe83",
+   "type": "findings",
+   "props": {
+    "heading": "Key findings",
+    "items": [
+     {
+      "stat": "2 decades",
+      "text": "the knowledge base for education, built on the science of learning and development, has evolved considerably in the last 20 years, driven by new tools of neuroscience"
+     },
+     {
+      "stat": "3",
+      "text": "expert professions are rooted in at least three commitments to taking account of advances in knowledge"
+     },
+     {
+      "stat": "4 foundations",
+      "text": "EdPrepLab's work on this project was supported by the Carnegie Corporation of New York, Skyline Foundation, Spencer Foundation, and W. Clement & Jessie V. Stone Foundation"
+     },
+     {
+      "stat": "4 foundations",
+      "text": "EdPrepLab's work on this project was supported by the Carnegie Corporation of New York, Skyline Foundation, Spencer Foundation, and W. Clement & Jessie V. Stone Foundation"
+     },
+     {
+      "stat": "4 external reviewers",
+      "text": "reviewed the report, including experts from UC Berkeley, University of Wisconsin–Madison, and the American Institutes for Research"
+     },
+     {
+      "stat": "",
+      "text": "New insights show how interconnected the social, emotional, physical, and academic elements of development are for learning"
+     }
+    ]
+   }
+  },
+  {
+   "id": "b2",
+   "type": "docSummary",
+   "props": {
+    "heading": "Executive summary",
+    "sectionId": "s0",
+    "blocks": [
+     "<p>Over the last several decades, we have learned a great deal about how people learn and develop from research in neuroscience; the developmental and learning sciences; and fields like anthropology, sociology, and social psychology. This report identifies design principles for teacher preparation built on recent syntheses of this emerging research and on the wisdom of practice that is found in many leading-edge preparation programs. It is intended to inform ongoing efforts by individual programs to strengthen the ways in which they prepare candidates for teaching and efforts by accrediting bodies and licensing agencies to frame the expectations for teacher preparation. Further, these principles provide the foundation for a related set of principles for leader preparation so that teachers’ efforts can be supported by principals and other system leaders who understand how to develop organizational settings that enable successful practice.</p>",
+     "<p>This report follows on the heels of a companion effort by a body of researchers and practitioners to define design principles for schools that seek to enact insights from the science of learning and development (SoLD). These Guiding Principles for Equitable Whole-Child Design are:</p>",
+     "<ul><li>positive developmental relationships that support children’s attachment to caring adults and a supportive peer community, as well as their own growth and development;</li><li>environments filled with safety and belonging, which are not only physically safe, offering consistent norms and routines, but also emotionally and identity safe so that all children know they are a valued part of the school community;</li><li>rich learning experiences that support deep knowledge through authentic activities that build on prior knowledge and cultural contexts, enabling children to work collaboratively with peers to develop transferable knowledge and higher-order thinking skills;</li><li>development of skills, habits, and mindsets that foster social, emotional, and cognitive capacities in support of personal and interpersonal awareness and skills, including cultural competence, as well as mindsets that support perseverance, resilience, and a community orientation that responds to the needs of others and contributes to their success; and</li><li>integrated support systems that have readily available academic, physical and health, and social service supports that remove obstacles to learning and support thriving.</li></ul>",
+     "<p>The above principles for school design have direct implications for how teaching and learning must be reimagined. Transformations in teaching practice are needed to ensure that children experience the secure relationships, skillful teaching, robust curriculum practices, appropriate and relevant assessments, and personalized supports that will enable them to have healthy development and successful lives inside and outside of schools and classrooms. This report tackles the topic of how educators need to be prepared to engage in this type of transformative teaching. The Guiding Principles for Enacting SoLD- Aligned Teacher Preparation serve to make explicit the content, pedagogy, organization, processes, and norms of teacher preparation programs aligned with the science of learning and development.</p>",
+     "<h3>Guiding Principles for Enacting SoLD-Aligned Teacher Preparation</h3>",
+     "<p>The organizing framework to guide transformation of teacher preparation programs is reflected in the elements shown in Figure ES.1 and include:</p>",
+     "<ul><li>curriculum rooted in a deep understanding of learners, learning, and development;</li><li>development of skills, habits, and mindsets of an equitable educator;</li><li>rich, experiential learning opportunities;</li><li>pedagogical alignment and modeling; and</li><li>supportive developmental relationships in communities of practice.</li></ul>",
+     "<p>Source: Learning Policy Institute &amp; EdPrepLab. (2024).</p>",
+     "<p>Below we provide a brief summary of each of the Guiding Principles for Enacting SoLD-Aligned Teacher Preparation associated with research from developmental and learning science.</p>",
+     "<h3>Curriculum Rooted in a Deep Understanding of Learners, Learning, and Development</h3>",
+     "<p>A curriculum rooted in a deep understanding of learners, learning, and development is the most important foundation teacher preparation programs can offer to ensure that teacher candidates have the knowledge and skills to teach and support children well. Also, preparation programs should be attuned to these tenets of learning and development when considering how they are developing learning environments for their aspiring teachers.</p>",
+     "<p>Educator preparation programs (EPPs) should be designed to prepare educators who can effectively address the complex ways in which children learn and develop. Programs should model learning that is rooted in culture, experience, and relationships and should equip educators with the understanding of the interrelated conditions necessary for optimal brain development in children and adolescents. This includes a curriculum that connects subject matter with strategies for an asset-based approach to learning about students’ backgrounds, families, and communities. Programs should prepare educators who evaluate, modify, and adapt curricular materials for individual students and create assessment experiences that allow students to learn deeply, engaging in inquiry that is relevant to their lives.</p>",
+     "<h3>Development of Skills, Habits, and Mindsets of an Equitable Educator</h3>",
+     "<p>Students learn best when they can connect what happens in school to their cultural contexts and experiences; when their teachers see their families and communities as assets and are responsive to their strengths and needs; and when their environment affirms and supports their identities, reinforcing their sense of value and belonging.</p>",
+     "<p>Thus, EPPs must be designed to develop educators with mindsets that support all students well and equitably. Program faculty should model empathy, demonstrate social and emotional learning and cultural competence, and prepare educators to use restorative practices. This includes supporting and strengthening teacher candidates’ understanding of how to create environments of trust and belonging and build partnerships with families, community members, and other educators while centering children’s learning needs. Programs should prepare educators who understand how contextual realities impact the experiences of their students, their understanding of themselves, and their perceptions of social identities so educators understand how to negotiate school policies toward equitable ends.</p>",
+     "<h3>Rich, Experiential Learning Opportunities</h3>",
+     "<p>All learners—including prospective teachers and their students—actively construct knowledge and pursue meaning based on their experiences, relationships, and social contexts. EPPs should be designed to immerse teacher candidates in active and compelling learning opportunities that are paired with authentic and performance-based assessments. Programs should coordinate coursework and fieldwork to provide a full range of adult learning experiences as part of their scope and sequence, including practice, feedback, skill development, growth in understanding, and expansion of capacity for adaptive expertise. This includes pedagogical activities that promote inquiry and cycles of reflection and the use of strategies that support purposeful analysis of teaching, learning, and reasoning through complex practice situations.</p>",
+     "<p>Programs should be designed to help teacher candidates deeply examine student learning for different students in different contexts and student learning in relation to instruction; plan curriculum with students’ learning goals and trajectories in mind; incorporate strategies that build on funds of knowledge and are supportive for individual learners; build tasks that are motivating and well scaffolded; and use a repertoire of teaching strategies that can build understanding by enabling discussion, application, practice, feedback, and opportunities to revise.</p>",
+     "<h3>Pedagogical Alignment and Modeling</h3>",
+     "<p>A critical program strategy for enabling teacher candidates to learn sophisticated approaches to teaching is pedagogical alignment in both coursework and clinical work around a coherent vision of whole child development, learning, and teaching. In both their coursework and clinical work settings, new teachers should experience the very kinds of teaching strategies they are expected to develop for their pupils. In subject areas, this may focus on the modes of inquiry in the disciplines—for example, approaches to scientific inquiry, historical or social science research, mathematical modeling, literary analysis or close reading, writing processes, and so on. In more cross-cutting areas like classroom management, this may focus on strategies like community circles, design of classroom responsibilities, and restorative practices that are used in both coursework and clinical site contexts so that candidates experience and see how they can create a strong learning community that functions to create membership, shared norms, and positive supports for behavior.</p>",
+     "<p>EPPs should model a developmental approach to learning and development where instructors, supervisors, and cooperating teachers enact and unpack approaches they expect teacher candidates to use in practice. This includes the integration of theory and practice around SoLD-aligned principles, which will shape preparation programs and clinical experience and is made possible by close partnerships between programs, schools, and districts. Programs should prepare educators who focus on whole child development and who understand how to implement holistic models of learning into their teaching.</p>",
+     "<h3>Supportive Developmental Relationships in Communities of Practice</h3>",
+     "<p>Teacher candidates can benefit from professional learning communities within their university classrooms, within their clinical placement schools, and within disciplinary and professional groups. These communities can be designed and nurtured to provide supportive environments that allow candidates to productively engage with real problems of practice as they promote active, interactive, constructive, and iterative learning. In such settings, the social aspects of learning come to the fore, as does the active, and shared, construction of knowledge and understanding. Preparation programs should draw in particular upon research that describes learning in professional communities to consciously create, model, and help teacher candidates learn to engage productively in these communities and with experienced and expert leaders and colleagues so that they are surrounded with examples and supports for participation, problem-solving, and the work of teaching.</p>",
+     "<p>EPPs should be designed with structures that attend to the social aspects of learning and give time and space to the development of professional communities of practice that promote active, interactive, constructive, and iterative learning. Programs should have strong, reciprocal relationships with PreK–12 schools and model how to create authentic, trusting learning communities that are expansive and inclusive. This includes program structures such as teacher residencies, cohorts, and clinical teaching teams that are organized to create opportunities where educators observe one another, share practices, develop plans together, and solve problems collectively. Programs should prepare educators who seek to engage with collaborative communities of practice in the pursuit of developing and employing effective teaching practices that result in deep learning for all students.</p>",
+     "<h3>Conclusion</h3>",
+     "<p>Teachers commonly enter the profession with the hope and intention of helping young people reach their potential. The extent to which they can do this often provides intrinsic satisfaction and motivation to remain committed to their careers and to high-quality instruction. Preparation programs can contribute to these desired outcomes by preparing candidates to create the outcomes that students and families deserve and that most teachers desire. These design principles can become the foundation for a new approach to learning as preparation programs integrate and implement the conditions teachers need to support whole child education by creating equitable classrooms that promote the optimal development of each child.</p>"
+    ],
+    "floatTop": 0,
+    "media": [
+     {
+      "id": "b3",
+      "type": "cover",
+      "props": {
+       "src": "pages/page-0001.png",
+       "alt": "Acknowledgments — cover"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "b4",
+   "type": "toc",
+   "props": {
+    "items": [
+     {
+      "text": "External Reviewers",
+      "level": 2,
+      "anchor": "external-reviewers"
+     },
+     {
+      "text": "List of Figures and Tables",
+      "level": 2,
+      "anchor": "list-of-figures-and-tables"
+     },
+     {
+      "text": "Guiding Principles for Enacting SoLD-Aligned Teacher Preparation",
+      "level": 2,
+      "anchor": "guiding-principles-for-enacting-sold-aligned-teacher-prepara"
+     },
+     {
+      "text": "Figure ES.1. Guiding Principles for Enacting SoLD-Aligned Teacher Preparation",
+      "level": 2,
+      "anchor": "figure-es-1-guiding-principles-for-enacting-sold-aligned-tea"
+     },
+     {
+      "text": "Conclusion",
+      "level": 2,
+      "anchor": "conclusion"
+     },
+     {
+      "text": "Figure 1. Guiding Principles for Enacting SoLD-Aligned Teacher Preparation",
+      "level": 2,
+      "anchor": "figure-1-guiding-principles-for-enacting-sold-aligned-teache"
+     },
+     {
+      "text": "Figure 2. The “What” of Teacher Education",
+      "level": 2,
+      "anchor": "figure-2-the-what-of-teacher-education"
+     },
+     {
+      "text": "What the Science Says",
+      "level": 2,
+      "anchor": "what-the-science-says"
+     }
+    ]
+   }
+  },
+  {
+   "id": "b5",
+   "type": "download",
+   "props": {
+    "label": "Download the full report (PDF)",
+    "bgColor": "#1b4965",
+    "textColor": "#ffffff"
+   }
+  },
+  {
+   "id": "b6",
+   "type": "share",
+   "props": {}
+  }
+ ]
+}

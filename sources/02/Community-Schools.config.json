@@ -1,0 +1,12 @@
+{
+  "output": {
+    "embedFonts": false,
+    "fonts": {
+      "map": {
+        "acumin": "Source Sans 3",
+        "opensans": "Open Sans",
+        "zillaslab": "Zilla Slab"
+      }
+    }
+  }
+}
