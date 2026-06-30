@@ -64,37 +64,67 @@ def _toc_blocks(od):
     return [by_rk[rk] for rk in rks if rk in by_rk]
 
 
+_ONLY_NUM = re.compile(r"0?\d{1,3}$")
+_LEAD_NUM = re.compile(r"^\s*(0?\d{1,3})\s+(.+)")
+_DOT_TAIL = re.compile(r"(\s*[.·•…]){2,}\s*$")
+_DASH_LEAD = re.compile(r"^[\s.·•…\-–—_]+")
+
+
 def _parse_toc(blocks):
-    """One outline entry per TOC line: {title, level, page, x, norm}. Lines that
-    start lowercase are wraps of the previous entry (TOC titles otherwise start
-    capitalized) and get folded back in. Levels are assigned afterwards."""
-    entries = []
+    """One outline entry per TOC line: {title, level, page, x, norm}. Handles the
+    designed-TOC layouts too: a page number can be TRAILING ("Title … 18"),
+    LEADING ("18 Title"), or in a SEPARATE aligned column paired to the entry by
+    baseline. Lowercase-starting lines are wraps of the previous entry."""
+    # flatten every TOC line with its geometry, top-to-bottom
+    raws = []
     for b in blocks:
         for ln in b.get("lines", []):
-            raw = ln["text"].strip()
-            if not raw:
-                continue
-            x = ln["bbox"][0]
-            page = None
-            m = _PAGE_TAIL.search(raw)
-            body = raw
-            if m:
-                page = m.group(1) or m.group(2)   # arabic or roman (string)
-                body = raw[:m.start()].strip()
-            body = re.sub(r"[\s.·•…_]{2,}$", "", body).strip()  # trailing dot leaders
-            first = next((c for c in body if c.isalpha()), "")
-            if entries and first and first.islower():
-                e = entries[-1]                      # line wrap: fold into previous
-                e["title"] = f"{e['title']} {body}".strip()
-                if e["page"] is None:
-                    e["page"] = page
-                e["norm"] = _norm(e["title"])
-                continue
-            n = _norm(body)
-            if len(n) < 2 or n in ("contents", "table of contents"):
-                continue  # bare page numbers, dot rows, the TOC's own title
-            entries.append({"title": body, "level": None, "page": page,
-                            "x": x, "norm": n})
+            t = ln["text"].strip()
+            if t:
+                raws.append({"t": t, "x": ln["bbox"][0],
+                             "ymid": (ln["bbox"][1] + ln["bbox"][3]) / 2})
+    raws.sort(key=lambda r: -r["ymid"])
+    # standalone page-number blocks (the number column) — paired to entries by y
+    numbers = [r for r in raws if _ONLY_NUM.fullmatch(r["t"])]
+
+    def pair_number(entry):
+        best, bestd = None, 6.0
+        for n in numbers:
+            if not n.get("used") and abs(n["ymid"] - entry["ymid"]) < bestd:
+                bestd, best = abs(n["ymid"] - entry["ymid"]), n
+        if best is not None:
+            best["used"] = True
+            return best["t"]
+        return None
+
+    entries = []
+    for r in raws:
+        raw = r["t"]
+        if _ONLY_NUM.fullmatch(raw):
+            continue  # the number column itself; paired below
+        page, body = None, raw
+        lead = _LEAD_NUM.match(raw)
+        tail = _PAGE_TAIL.search(raw)
+        if lead and lead.group(2)[:1].isalpha() and lead.group(2)[:1].isupper():
+            page, body = lead.group(1), lead.group(2).strip()   # "18 Title"
+        elif tail:
+            page, body = (tail.group(1) or tail.group(2)), raw[:tail.start()].strip()
+        body = _DASH_LEAD.sub("", _DOT_TAIL.sub("", body)).strip()
+        first = next((c for c in body if c.isalpha()), "")
+        if entries and first and first.islower():
+            e = entries[-1]                          # line wrap: fold into previous
+            e["title"] = f"{e['title']} {body}".strip()
+            if e["page"] is None:
+                e["page"] = page
+            e["norm"] = _norm(e["title"])
+            continue
+        n = _norm(body)
+        if len(n) < 2 or n in ("contents", "table of contents"):
+            continue
+        if page is None:                             # separate number column
+            page = pair_number(r)
+        entries.append({"title": body, "level": None, "page": page,
+                        "x": r["x"], "norm": n})
     _assign_levels(entries)
     return entries
 
