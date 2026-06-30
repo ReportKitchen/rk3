@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 54
+VERSION = 56
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -906,6 +906,24 @@ def _original_css(ctx, ir):
     # can toggle, so turning embedded fonts off just drops to the fallback.
     embed = ir.get("fonts_embed") or {}
 
+    # config-driven web-font mapping: a per-doc fonts.map turns a source font
+    # name into a real Google/Adobe family that actually exists on a CDN (the
+    # extracted name, e.g. "OxfamTSTARPRO", is on no CDN). "*" maps every font; a
+    # substring key maps just the matching ones. A big, cheap fidelity boost
+    # while true font embedding stays parked.
+    font_cfg = (ctx.cfg.get("output") or {}).get("fonts") or {}
+    fmap = font_cfg.get("map") or {}
+
+    def _web(name, fam):
+        low = (name or "").lower()
+        star = None
+        for k, v in fmap.items():
+            if k == "*":
+                star = v
+            elif k.lower() in low:
+                return v
+        return star or fam
+
     def fam_value(name, fam, generic):
         """font-family value. For an embedded font, route through a CSS var that
         ONLY embed.css defines (as "PDFEmbed <family>", "<family>", generic) — so
@@ -913,15 +931,21 @@ def _original_css(ctx, ir):
         guessed font and the element never names the embedded face. All cuts of a
         family share one "PDFEmbed <family>" name so <strong>/<em> pick the
         bold/italic face by weight/style — emphasis works like a real font."""
+        mapped = _web(name, fam)
+        if mapped != fam:                  # explicit config map wins over embed
+            return f'"{mapped}", {generic}'
         if name in embed:
             return f'var(--rkf-{_famkey(fam)}, "{fam}", {generic})'
         return f'"{fam}", {generic}'
 
     def note_family(name, fam, weight, style):
+        mapped = _web(name, fam)
+        if mapped == fam and name in embed:
+            return  # embedded & not remapped — served locally, never fetched
+        fam = mapped                        # fetch the mapped CDN family
         low = (fam or "").lower()
-        if not fam or name in embed or low in SYSTEM_FAMILIES \
-                or low.split()[0] in SYSTEM_FAMILIES:
-            return  # embedded families are served locally, never fetched
+        if not fam or low in SYSTEM_FAMILIES or low.split()[0] in SYSTEM_FAMILIES:
+            return
         f = families.setdefault(fam, {"weights": set(), "italic": False})
         f["weights"].add(weight or 400)
         if style == "italic":
@@ -1177,6 +1201,8 @@ def _original_css(ctx, ir):
             axis = ":wght@" + ";".join(str(w) for w in wlist)
         if axis != ":wght@400":
             imports.append(f'@import url("{base}{axis}&display=swap");')
+    for url in (font_cfg.get("load") or []):     # Adobe kits / explicit sheets
+        imports.insert(0, f'@import url("{url}");')
     if imports:
         out[4:4] = imports + [""]
 

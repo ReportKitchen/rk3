@@ -1,0 +1,8 @@
+{
+  "output": {
+    "embedFonts": false,
+    "fonts": {
+      "map": { "*": "Montserrat" }
+    }
+  }
+}

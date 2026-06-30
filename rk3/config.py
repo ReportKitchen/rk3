@@ -52,6 +52,10 @@ DEFAULTS = {
         # fully reconstructable (no dropped glyphs); a per-document config can
         # force true/false (the viewer writes the user's choice there).
         "embedFonts": "auto",
+        # config-driven web fonts — a big, cheap fidelity boost. Map a source
+        # font name to a real CDN family, and/or load extra stylesheets (Adobe):
+        #   "fonts": {"map": {"*": "EB Garamond"}, "load": ["https://use.typekit.net/xxx.css"]}
+        "fonts": {"map": {}, "load": []},
     },
 }
 
