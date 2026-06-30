@@ -13,8 +13,15 @@ parsing proves good it can later move into analyze as ir["outline"].
 
 import json
 import re
+from collections import Counter
 
 from rk3.documents import output_dir
+
+
+def _median(xs):
+    s = sorted(xs)
+    n = len(s)
+    return s[n // 2] if n % 2 else (s[n // 2 - 1] + s[n // 2]) / 2
 
 # trailing printed page number: arabic after optional leaders ("Title .... 18"),
 # OR a roman numeral but ONLY after real dot leaders, so it can't swallow a word
@@ -142,40 +149,60 @@ def _headings(od):
     return out
 
 
+def _title_match(e, h):
+    if not (e["norm"] and h["norm"]):
+        return False
+    if e["norm"] == h["norm"]:
+        return True
+    return (min(len(e["norm"]), len(h["norm"])) >= 6
+            and (e["norm"] in h["norm"] or h["norm"] in e["norm"]))
+
+
+def _arabic(p):
+    try:
+        return int(p)
+    except (TypeError, ValueError):
+        return None  # roman numeral / None
+
+
 def _reconcile(toc, heads):
-    """Match TOC entries to headings (greedy by normalized title), then emit one
-    unified list in OUR document order: every detected heading is a row (with its
-    TOC counterpart, or blank when it's below TOC depth), and TOC entries with no
-    heading are interleaved as 'missed' rows in TOC order."""
-    match_for_head = {}     # heading index -> toc index
-    toc_to_head = {}        # toc index -> heading index
-    used = set()
+    """Match TOC entries to headings, then emit one unified list in OUR document
+    order: every detected heading is a row (with its TOC counterpart, or blank
+    when it's below TOC depth); unmatched TOC entries interleave as 'missed'.
+
+    A title can legitimately repeat — an executive summary often mirrors the
+    chapter list — but the TOC is in PAGE ORDER. So rather than grab the first
+    title match (which would steal the exec-summary mention and leave the real
+    chapter blank), estimate the printed→physical page offset from confident 1:1
+    matches, then map each TOC entry to the occurrence nearest its expected
+    page. Falls back to order-preserving first-match when pages aren't usable."""
+    cand = {ti: [hi for hi, h in enumerate(heads) if _title_match(e, h)]
+            for ti, e in enumerate(toc)}
+    head_uses = Counter(hi for hs in cand.values() for hi in hs)
+    offs = [heads[hs[0]]["page"] - _arabic(toc[ti]["page"])
+            for ti, hs in cand.items()
+            if _arabic(toc[ti]["page"]) and len(hs) == 1
+            and head_uses[hs[0]] == 1 and heads[hs[0]]["page"]]
+    offset = _median(offs) if len(offs) >= 2 else None
+
+    used, toc_to_head, last = set(), {}, -1
     for ti, e in enumerate(toc):
-        best = next((i for i, h in enumerate(heads)
-                     if i not in used and h["norm"] == e["norm"]), None)
-        if best is None:
-            best = next((i for i, h in enumerate(heads)
-                         if i not in used and e["norm"] and h["norm"]
-                         and min(len(e["norm"]), len(h["norm"])) >= 6
-                         and (e["norm"] in h["norm"] or h["norm"] in e["norm"])),
-                        None)
-        if best is not None:
-            used.add(best)
-            match_for_head[best] = ti
-            toc_to_head[ti] = best
+        avail = [hi for hi in cand[ti] if hi not in used]
+        if not avail:
+            continue
+        tp = _arabic(e["page"])
+        if offset is not None and tp is not None:
+            target = tp + offset
+            best = min(avail, key=lambda hi: (abs((heads[hi]["page"] or 0) - target), hi))
+        else:                              # order-preserving fallback
+            fwd = [hi for hi in avail if hi > last]
+            best = (fwd or avail)[0]
+        used.add(best)
+        toc_to_head[ti] = best
+        last = max(last, best)
+    head_to_toc = {hi: ti for ti, hi in toc_to_head.items()}
 
-    def row_for_match(hi, ti):
-        e, h = toc[ti], heads[hi]
-        row = {"status": "match", "toc": e, "heading": h}
-        # TOC nesting depth is the level we'd ADOPT (depth N -> hN); flag drift
-        if e["level"] and h["level"]:
-            row["expected"] = min(e["level"], 6)
-            if h["level"] != row["expected"]:
-                row["status"] = "level?"
-        return row
-
-    rows = []
-    flushed = set()
+    rows, flushed = [], set()
 
     def flush_missed_before(ti_limit):
         for ti, e in enumerate(toc):
@@ -184,13 +211,19 @@ def _reconcile(toc, heads):
                 rows.append({"status": "missed", "toc": e, "heading": None})
 
     for hi, h in enumerate(heads):
-        ti = match_for_head.get(hi)
+        ti = head_to_toc.get(hi)
         if ti is not None:
-            flush_missed_before(ti)      # TOC entries we skipped past, unmatched
-            rows.append(row_for_match(hi, ti))
+            flush_missed_before(ti)
+            e = toc[ti]
+            row = {"status": "match", "toc": e, "heading": h}
+            if e["level"] and h["level"]:
+                row["expected"] = min(e["level"], 6)
+                if h["level"] != row["expected"]:
+                    row["status"] = "level?"
+            rows.append(row)
         else:
             rows.append({"status": "extra", "toc": None, "heading": h})
-    for ti, e in enumerate(toc):         # any remaining unmatched TOC entries
+    for ti, e in enumerate(toc):
         if ti not in toc_to_head and ti not in flushed:
             rows.append({"status": "missed", "toc": e, "heading": None})
     return rows
