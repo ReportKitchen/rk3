@@ -2,7 +2,8 @@
   "output": {
     "fonts": {
       "map": {
-        "proximanova": "proxima-nova"
+        "proximanova": "proxima-nova",
+        "whitney": "Open Sans"
       },
       "load": [
         "https://use.typekit.net/qmh3dop.css"

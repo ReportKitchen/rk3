@@ -2,8 +2,7 @@
   "output": {
     "fonts": {
       "map": {
-        "myriad": "Source Sans 3",
-        "readerpro": "Inter"
+        "graphik": "Montserrat"
       }
     }
   }
