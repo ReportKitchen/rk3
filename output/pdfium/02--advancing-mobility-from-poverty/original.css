@@ -128,15 +128,6 @@ a:hover { text-decoration: underline; }
   font-weight: 800;
 }
 
-.fine {
-  font-size: 0.6em;
-}
-
-.sm-accent {
-  color: #56616d;
-  font-size: 0.6em;
-}
-
 .strong-alt-2 {
   font-family: var(--rkf-futurapt, "Futura PT", sans-serif);
   font-weight: 800;
@@ -271,7 +262,7 @@ a:hover { text-decoration: underline; }
   font-size: 0.47em;
 }
 
-.fine-2 {
+.fine {
   font-size: 0.8em;
 }
 
@@ -295,6 +286,11 @@ a:hover { text-decoration: underline; }
 .xl-center {
   font-size: 1.7em;
   text-align: center;
+}
+
+.sm-accent {
+  color: #56616d;
+  font-size: 0.6em;
 }
 
 [data-nid="nc022ec471f"] .soft-header,

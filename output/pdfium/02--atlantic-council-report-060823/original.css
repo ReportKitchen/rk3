@@ -103,12 +103,6 @@ h6 {
   font-size: 0.68em;
 }
 
-.sm-alt-4 {
-  font-family: var(--rkf-proximanova, "Proxima Nova", sans-serif);
-  font-weight: 300;
-  font-size: 0.87em;
-}
-
 .lg-strong-alt-4 {
   font-family: var(--rkf-gotham, "Gotham", sans-serif);
   font-weight: 700;
@@ -236,13 +230,6 @@ h6 {
 [data-nid="nb786d8b321"] { color: #e34d25; }
 
 [data-nid="n2c375605cd"] { color: #e34d25; }
-
-[data-nid="nb09ef186b7"] {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #ffffff;
-  border-left: 17px solid #fafafb;
-}
 
 [data-nid="n9a2dfc40dd"] { color: #0d243d; }
 

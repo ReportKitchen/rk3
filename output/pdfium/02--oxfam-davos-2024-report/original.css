@@ -39,22 +39,15 @@ h5 {
 
 h6 {
   font-family: var(--rkf-oxfamtstarpro, "Oxfam TSTARPRO", sans-serif);
-  color: #ec6225;
+  color: #323ea8;
   font-size: 1.3rem;
 }
 
 a {
-  color: #ec6225;
+  color: #323ea8;
   text-decoration: none;
 }
 a:hover { text-decoration: underline; }
-
-[data-nid="n2ae3d749ef"] a,
-[data-nid="n8b734fd0a2"] a,
-[data-nid="nb8cf1b9f1f"] a,
-[data-nid="n8e21fad5c0"] a,
-[data-nid="nc17ca20eda"] a,
-[data-nid="n607be0143e"] a { color: #323ea8; }
 
 .xl-alt {
   font-family: var(--rkf-oxfamtstarpro, "Oxfam TSTARPRO", sans-serif);
@@ -74,6 +67,7 @@ a:hover { text-decoration: underline; }
 .medium-alt {
   font-family: var(--rkf-oxfamtstarpro, "Oxfam TSTARPRO", sans-serif);
   font-weight: 500;
+  color: #ec6225;
 }
 
 .strong-center-alt {
@@ -142,10 +136,6 @@ a:hover { text-decoration: underline; }
   color: #323ea8;
 }
 
-[data-nid="na5f9f5c0ad"] { color: #323ea8; }
-
-[data-nid="ncf4ad10638"] { color: #323ea8; }
-
 [data-nid="n47362a511b"] {
   background: #323ea8;
   border: none;
@@ -154,12 +144,6 @@ a:hover { text-decoration: underline; }
   width: 49%;
   margin: 0 1.5rem 1rem 0;
 }
-
-[data-nid="n329e310e67"] { color: #323ea8; }
-
-[data-nid="nb2854894d1"] { color: #323ea8; }
-
-[data-nid="n4bf1923d2e"] { color: #323ea8; }
 
 [data-nid="nebea5ab3ae"] {
   background: #323ea8;
@@ -182,8 +166,6 @@ a:hover { text-decoration: underline; }
   margin: 0 1.5rem 1rem 0;
 }
 
-[data-nid="ne7c347812c"] { color: #323ea8; }
-
 [data-nid="nd9b170244e"] { color: #505050; }
 
 [data-nid="ncaac1f6d1a"] {
@@ -197,8 +179,6 @@ a:hover { text-decoration: underline; }
   border: none;
   border-bottom: 0px solid #ffffff;
 }
-
-[data-nid="nfd005f1eac"] { color: #323ea8; }
 
 [data-nid="na747160711"] {
   background: #323ea8;
@@ -248,8 +228,6 @@ a:hover { text-decoration: underline; }
   margin: 0 1.5rem 1rem 0;
 }
 
-[data-nid="ne0851dce11"] { color: #323ea8; }
-
 [data-nid="n5dd62cf39e"] {
   background: #323ea8;
   border: none;
@@ -258,10 +236,6 @@ a:hover { text-decoration: underline; }
   width: 49%;
   margin: 0 1.5rem 1rem 0;
 }
-
-[data-nid="n92bce28da2"] { color: #323ea8; }
-
-[data-nid="n54a87785b5"] { color: #323ea8; }
 
 [data-nid="n5f131578b8"] {
   background: transparent;

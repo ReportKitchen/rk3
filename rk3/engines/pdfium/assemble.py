@@ -10,9 +10,9 @@ Artifact: blocks.json
 """
 
 import re
-from collections import Counter
+from collections import Counter, defaultdict
 
-VERSION = 41
+VERSION = 45
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -559,8 +559,27 @@ def _join_amp_wraps(ctx, blocks):
 
 
 def _strip_repeating(ctx, blocks, page_dims, n_pages):
-    """Drop running headers/footers (same normalized text near the same edge
-    position on several pages) and standalone page-number lines."""
+    """Drop running headers/footers and standalone page-number lines.
+
+    A running header recurs at a page margin across many pages, but its text is
+    NOT always identical. A book/report title is routinely paired with a
+    per-section title ("INEQUALITY INC. | A Gilded Age of Division") and an
+    embedded page number, so the full string changes every section and every
+    page, and the number is inconsistently attached to the same block. Keying on
+    the exact normalized string misses all of these — each variant falls below
+    the repeat threshold even though the header is on most pages.
+
+    So strip on three signals, any of which marks an edge-zone block as running:
+      - its exact normalized text repeats on enough pages (the classic case);
+      - its leading two tokens recur on enough pages (stable title, drifting
+        tail — the section name and page number change, the title does not);
+      - its trailing two tokens recur on enough pages (title trails the section
+        name, the mirror layout).
+    Counting DISTINCT PAGES (not blocks) lets a 7-page section plus its
+    page-numbered variants sum past the threshold. The top/bottom-margin zone
+    restriction keeps the token signals from touching body text — recurring
+    leading words in a 10%-margin band across many pages are a header, not prose
+    (whose first words differ every page)."""
     zones = (0.10, 0.10)  # top / bottom fraction of page height
 
     def zone(blk):
@@ -575,25 +594,75 @@ def _strip_repeating(ctx, blocks, page_dims, n_pages):
         text = " ".join(l["text"] for l in blk["lines"])
         return re.sub(r"\d+", "#", text).strip().lower()
 
-    seen = Counter()
-    for blk in blocks:
-        z = zone(blk)
-        if z:
-            seen[(z, norm(blk))] += 1
-
     # capped: in long docs many pages legitimately lack the footer (covers,
     # worksheets), but 8 identical edge-zone repeats is conclusive regardless
     min_repeats = max(3, min(8, round(0.4 * n_pages)))
+
+    # The fuzzy lead/trail signals (varying header text) need a higher bar than
+    # exact repeats, because real recurring CONTENT can also share a prefix at a
+    # stable position: a figure series ("Figure 12: …", "Figure 13: …") or a
+    # per-chapter title ("CHAPTER 3. …"). The separator is page COVERAGE — a
+    # running header sits in the margin of a large share of the document, while a
+    # figure series or chapter title covers only a sliver. Require a third of the
+    # pages (still floored at min_repeats for short docs).
+    fuzzy_min = max(min_repeats, round(0.33 * n_pages))
+
+    # signature = normalized text with ALL whitespace removed, so a dropped
+    # space ("INC.EXECUTIVE" vs "INC. EXECUTIVE", a space-synthesis miss) can't
+    # change it. The leading / trailing 12 chars are the stable ends of the
+    # header that survive a drifting section name and page number.
+    def sig(blk):
+        return re.sub(r"\s+", "", norm(blk))
+
+    # The fuzzy lead/trail signals are gated on POSITION: a running header recurs
+    # at a consistent y-band, page after page. Recurring *content* with a shared
+    # text shape — figure titles ("Figure 12: …", "Figure 13: …") or numbered
+    # footnotes — sits wherever the figure or note falls, so its y scatters and
+    # never accumulates in one band. Keying the signature with a top-edge band
+    # (2% of page height) keeps those out while still folding every section /
+    # page-number variant of the real header into one slot.
+    def band(blk):
+        h = page_dims[blk["page"]][1]
+        return round(blk["bbox"][3] / h / 0.02)
+
+    exact = Counter()
+    head_pages = defaultdict(set)   # (zone, band, first 12 sig chars) -> pages
+    tail_pages = defaultdict(set)   # (zone, band, last  12 sig chars) -> pages
+    for blk in blocks:
+        z = zone(blk)
+        if not z:
+            continue
+        exact[(z, norm(blk))] += 1
+        s = sig(blk)
+        if len(s) >= 8:
+            b = band(blk)
+            head_pages[(z, b, s[:12])].add(blk["page"])
+            tail_pages[(z, b, s[-12:])].add(blk["page"])
+
+    def running(z, blk):
+        if exact[(z, norm(blk))] >= min_repeats:
+            return "exact"
+        s = sig(blk)
+        if len(s) >= 8:
+            b = band(blk)
+            if len(head_pages[(z, b, s[:12])]) >= fuzzy_min:
+                return "lead"
+            if len(tail_pages[(z, b, s[-12:])]) >= fuzzy_min:
+                return "trail"
+        return None
+
     kept = []
     for blk in blocks:
         z = zone(blk)
         text = " ".join(l["text"] for l in blk["lines"]).strip()
-        if z and seen[(z, norm(blk))] >= min_repeats:
-            ctx.log.entry("strip-running", page=blk["page"], zone=z, text=text[:80],
-                          repeats=seen[(z, norm(blk))], min_repeats=min_repeats)
-            continue
-        if z and re.fullmatch(r"(page\s*)?\d{1,4}", text, re.I):
-            ctx.log.entry("strip-pagenum", page=blk["page"], zone=z, text=text)
-            continue
+        if z:
+            by = running(z, blk)
+            if by:
+                ctx.log.entry("strip-running", page=blk["page"], zone=z,
+                              text=text[:80], by=by, min_repeats=min_repeats)
+                continue
+            if re.fullmatch(r"(page\s*)?\d{1,4}", text, re.I):
+                ctx.log.entry("strip-pagenum", page=blk["page"], zone=z, text=text)
+                continue
         kept.append(blk)
     return kept
