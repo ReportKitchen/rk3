@@ -223,10 +223,6 @@ a:hover { text-decoration: underline; }
   border: 1px solid #c2c4c6;
 }
 
-[data-nid="nbdbf60d0fa"] th, [data-nid="nbdbf60d0fa"] td { border-color: #eaeaeb; }
-[data-nid="nbdbf60d0fa"] td:nth-child(2) { color: #1f5c73; }
-[data-nid="nbdbf60d0fa"] td:nth-child(4) { color: #1f5c73; }
-
 [data-nid="nb26295974e"] {
   background: #c2c4c6;
   border: none;
@@ -270,12 +266,6 @@ a:hover { text-decoration: underline; }
   background: #a8801a;
   border: 1px solid #c2c4c6;
 }
-
-[data-nid="nb865954170"] th, [data-nid="nb865954170"] td { border-color: #c2c4c6; }
-[data-nid="nb865954170"] td:nth-child(3) { color: #a8801a; }
-[data-nid="nb865954170"] td:nth-child(4) { color: #c2c4c6; }
-[data-nid="nb865954170"] td:nth-child(5) { color: #1f5c73; }
-[data-nid="nb865954170"] td:nth-child(6) { color: #a8801a; }
 
 [data-nid="n2713df4695"] {
   background: #bcbec0;

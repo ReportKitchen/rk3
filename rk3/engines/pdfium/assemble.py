@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter, defaultdict
 
-VERSION = 45
+VERSION = 47
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -117,8 +117,23 @@ def _finish_line(chars, links, fills=()):
                 drop.add(i)
         elif c[UC] != " ":
             prev_real = c
-    chars = sorted((c for i, c in enumerate(chars) if i not in drop),
-                   key=lambda c: c[L])
+    # x-sort to recover pdfium's occasional out-of-order glyphs — but an explicit
+    # space whose recorded x lands AT/AFTER the next glyph (a positioning quirk:
+    # the space's L is its post-advance position) would sort INTO the next word,
+    # and the word-gap it left behind then gets re-synthesized: "review by" ->
+    # "review b y". Pin each space's sort key to just before the next content
+    # glyph so it stays where the content stream put it. Only quirky spaces move.
+    kept = [c for i, c in enumerate(chars) if i not in drop]
+    keys, next_l = [0.0] * len(kept), None
+    for j in range(len(kept) - 1, -1, -1):
+        c = kept[j]
+        if c[UC] == " " and next_l is not None:
+            keys[j] = min(c[L], next_l - 0.01)
+        else:
+            keys[j] = c[L]
+            if c[UC] != " ":
+                next_l = c[L]
+    chars = [kept[j] for j in sorted(range(len(kept)), key=lambda j: (keys[j], j))]
     space_em = _space_threshold(chars)
     text = []
     src = []  # source char (or None for synthesized spaces), parallel to text
@@ -131,7 +146,10 @@ def _finish_line(chars, links, fills=()):
         # real space chars, but not always); threshold is adaptive per line —
         # letter-gap and word-gap sizes vary wildly between fonts/documents
         if prev_r is not None and c[L] - prev_r > space_em * max(c[SIZE], 1.0) \
-                and text and text[-1] != " " and c[UC] != " ":
+                and text and text[-1] != " " and c[UC] != " " \
+                and not (text[-1].isdigit() and c[UC].isdigit()):
+            # ...except between two digits: tabular figures vary their gaps
+            # ("2012" -> "201 2") but a number never contains a real space.
             text.append(" ")
             src.append(None)
         # unmapped control glyphs in symbol fonts are almost always hyphens
