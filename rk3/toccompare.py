@@ -16,8 +16,11 @@ import re
 
 from rk3.documents import output_dir
 
-# trailing printed page number, with optional dot/space leaders ("Title .... 18")
-_PAGE_TAIL = re.compile(r"[\s.·•…\-—]*\b(\d{1,4})\s*$")
+# trailing printed page number: arabic after optional leaders ("Title .... 18"),
+# OR a roman numeral but ONLY after real dot leaders, so it can't swallow a word
+# that happens to end in roman letters ("…civil", "…mix")
+_PAGE_TAIL = re.compile(
+    r"(?:[\s.·•…\-—_]*\b(\d{1,4})|[.·•…]{2,}\s*\b([ivxlcdm]{1,7}))\s*$", re.I)
 # leading decimal section number "1", "1.2", "3.4.1"
 _SEC_NUM = re.compile(r"^((?:\d+\.)*\d+)\.?\s+")
 # chapter/part/appendix keyword openers (treated as top level)
@@ -55,31 +58,64 @@ def _toc_blocks(od):
 
 
 def _parse_toc(blocks):
-    """One outline entry per TOC line: {title, level, page, norm}."""
+    """One outline entry per TOC line: {title, level, page, x, norm}. Lines that
+    start lowercase are wraps of the previous entry (TOC titles otherwise start
+    capitalized) and get folded back in. Levels are assigned afterwards."""
     entries = []
     for b in blocks:
         for ln in b.get("lines", []):
             raw = ln["text"].strip()
             if not raw:
                 continue
+            x = ln["bbox"][0]
             page = None
             m = _PAGE_TAIL.search(raw)
-            title = raw
+            body = raw
             if m:
-                page = int(m.group(1))
-                title = raw[:m.start()].strip()
-            n = _norm(title)
+                page = m.group(1) or m.group(2)   # arabic or roman (string)
+                body = raw[:m.start()].strip()
+            body = re.sub(r"[\s.·•…_]{2,}$", "", body).strip()  # trailing dot leaders
+            first = next((c for c in body if c.isalpha()), "")
+            if entries and first and first.islower():
+                e = entries[-1]                      # line wrap: fold into previous
+                e["title"] = f"{e['title']} {body}".strip()
+                if e["page"] is None:
+                    e["page"] = page
+                e["norm"] = _norm(e["title"])
+                continue
+            n = _norm(body)
             if len(n) < 2 or n in ("contents", "table of contents"):
                 continue  # bare page numbers, dot rows, the TOC's own title
-            level = None
-            sm = _SEC_NUM.match(title)
-            if _CHAPTER.match(title):
-                level = 1
-            elif sm:
-                level = sm.group(1).count(".") + 1
-            entries.append({"title": title, "level": level, "page": page,
-                            "norm": _norm(title)})
+            entries.append({"title": body, "level": None, "page": page,
+                            "x": x, "norm": n})
+    _assign_levels(entries)
     return entries
+
+
+def _assign_levels(entries):
+    """Level per entry. Most TOCs INDENT nested entries, so cluster the left
+    edges into tiers and read level off the tier — this catches un-numbered
+    sub-entries ('Stage 1', 'What the Science Says') that numbering misses. If
+    the TOC is flat (one tier), fall back to decimal section-number depth."""
+    if not entries:
+        return
+    reps = []                                        # indent-tier left edges
+    for x in sorted({round(e["x"], 1) for e in entries}):
+        if not reps or x - reps[-1] > 8:
+            reps.append(x)
+    use_x = len(reps) >= 2 and reps[-1] - reps[0] >= 8
+    for e in entries:
+        if use_x:
+            lvl = 1
+            for i, r in enumerate(reps):
+                if e["x"] >= r - 4:
+                    lvl = i + 1
+            e["level"] = min(lvl, 6)
+        elif _CHAPTER.match(e["title"]):
+            e["level"] = 1
+        else:
+            sm = _SEC_NUM.match(e["title"])
+            e["level"] = sm.group(1).count(".") + 1 if sm else None
 
 
 def _headings(od):
@@ -107,11 +143,14 @@ def _headings(od):
 
 
 def _reconcile(toc, heads):
-    """Greedy title match (exact norm, then containment); add a relative-level
-    note where matched depths disagree. Returns (rows, extra-headings)."""
+    """Match TOC entries to headings (greedy by normalized title), then emit one
+    unified list in OUR document order: every detected heading is a row (with its
+    TOC counterpart, or blank when it's below TOC depth), and TOC entries with no
+    heading are interleaved as 'missed' rows in TOC order."""
+    match_for_head = {}     # heading index -> toc index
+    toc_to_head = {}        # toc index -> heading index
     used = set()
-    rows = []
-    for e in toc:
+    for ti, e in enumerate(toc):
         best = next((i for i, h in enumerate(heads)
                      if i not in used and h["norm"] == e["norm"]), None)
         if best is None:
@@ -120,24 +159,41 @@ def _reconcile(toc, heads):
                          and min(len(e["norm"]), len(h["norm"])) >= 6
                          and (e["norm"] in h["norm"] or h["norm"] in e["norm"])),
                         None)
-        if best is None:
-            rows.append({"status": "missed", "toc": e, "heading": None})
-        else:
+        if best is not None:
             used.add(best)
-            rows.append({"status": "match", "toc": e, "heading": heads[best]})
+            match_for_head[best] = ti
+            toc_to_head[ti] = best
 
-    # level note: the TOC's nesting depth is the level we'd ADOPT (depth N -> hN).
-    # Flag where our detected h-level differs from that — e.g. a 1.x subsection
-    # the TOC puts one below its chapter, which we rendered as a deep h6.
-    for r in rows:
-        if r["status"] == "match" and r["toc"]["level"] and r["heading"]["level"]:
-            exp = min(r["toc"]["level"], 6)
-            r["expected"] = exp
-            if r["heading"]["level"] != exp:
-                r["status"] = "level?"
+    def row_for_match(hi, ti):
+        e, h = toc[ti], heads[hi]
+        row = {"status": "match", "toc": e, "heading": h}
+        # TOC nesting depth is the level we'd ADOPT (depth N -> hN); flag drift
+        if e["level"] and h["level"]:
+            row["expected"] = min(e["level"], 6)
+            if h["level"] != row["expected"]:
+                row["status"] = "level?"
+        return row
 
-    extras = [h for i, h in enumerate(heads) if i not in used]
-    return rows, extras
+    rows = []
+    flushed = set()
+
+    def flush_missed_before(ti_limit):
+        for ti, e in enumerate(toc):
+            if ti < ti_limit and ti not in toc_to_head and ti not in flushed:
+                flushed.add(ti)
+                rows.append({"status": "missed", "toc": e, "heading": None})
+
+    for hi, h in enumerate(heads):
+        ti = match_for_head.get(hi)
+        if ti is not None:
+            flush_missed_before(ti)      # TOC entries we skipped past, unmatched
+            rows.append(row_for_match(hi, ti))
+        else:
+            rows.append({"status": "extra", "toc": None, "heading": h})
+    for ti, e in enumerate(toc):         # any remaining unmatched TOC entries
+        if ti not in toc_to_head and ti not in flushed:
+            rows.append({"status": "missed", "toc": e, "heading": None})
+    return rows
 
 
 def compare(slug):
@@ -146,7 +202,7 @@ def compare(slug):
         raise FileNotFoundError(slug)
     toc = _parse_toc(_toc_blocks(od))
     heads = _headings(od)
-    rows, extras = _reconcile(toc, heads)
+    rows = _reconcile(toc, heads)
     summary = {
         "hasToc": bool(toc),
         "tocEntries": len(toc),
@@ -154,6 +210,6 @@ def compare(slug):
         "matched": sum(1 for r in rows if r["status"] == "match"),
         "levelFlags": sum(1 for r in rows if r["status"] == "level?"),
         "missed": sum(1 for r in rows if r["status"] == "missed"),
-        "extra": len(extras),
+        "extra": sum(1 for r in rows if r["status"] == "extra"),
     }
-    return {"summary": summary, "rows": rows, "extras": extras}
+    return {"summary": summary, "rows": rows}

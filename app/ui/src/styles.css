@@ -122,9 +122,10 @@ body {
 .toccmp-row.warn { background: #fdf8ec; }
 .toccmp-side { width: 44%; }
 .toccmp-note { width: 12%; white-space: nowrap; }
-.toccmp-lvl { display: inline-block; min-width: 1.7rem; color: #999;
-  font: 600 0.7rem/1.4 ui-monospace, monospace; }
-.toccmp-title { color: #222; }
+.toccmp-lvl { color: #aaa; margin-right: 0.45rem;
+  font: 600 0.68rem/1 ui-monospace, monospace; }
+.toccmp-title { color: #222; display: block; }
+.toccmp-row.extra .toccmp-title { color: #555; }
 .toccmp-pg { color: #aaa; margin-left: 0.4rem; font-size: 0.72rem; }
 .toccmp-empty { color: #c62828; font-style: italic; }
 .toccmp-badge { display: inline-block; padding: 0.05rem 0.45rem; border-radius: 0.6rem;
