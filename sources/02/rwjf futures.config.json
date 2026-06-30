@@ -2,6 +2,7 @@
   "output": {
     "fonts": {
       "map": {
+        "foundersgrotesk": "Space Grotesk",
         "myriad": "Source Sans 3",
         "readerpro": "Inter"
       }

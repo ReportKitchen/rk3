@@ -4,6 +4,8 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap");
 
 body {
   font-family: "Inter", sans-serif;
@@ -12,28 +14,28 @@ body {
 }
 
 h1 {
-  font-family: var(--rkf-foundersgrotesk, "Founders Grotesk", sans-serif);
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 500;
   color: #002e52;
   font-size: 9.17rem;
 }
 
 h2 {
-  font-family: var(--rkf-foundersgrotesk, "Founders Grotesk", sans-serif);
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 500;
   color: #002e52;
   font-size: 8.22rem;
 }
 
 h3 {
-  font-family: var(--rkf-foundersgrotesk, "Founders Grotesk", sans-serif);
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 600;
   color: #002e52;
   font-size: 7.3rem;
 }
 
 h4 {
-  font-family: var(--rkf-foundersgrotesk, "Founders Grotesk", sans-serif);
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 600;
   font-size: 5.0rem;
 }
@@ -46,7 +48,7 @@ h5 {
 }
 
 h6 {
-  font-family: var(--rkf-foundersgrotesk, "Founders Grotesk", sans-serif);
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 600;
   color: #002e52;
   font-size: 2.0rem;
@@ -69,7 +71,7 @@ a:hover { text-decoration: underline; }
 }
 
 .xl-medium-alt {
-  font-family: var(--rkf-foundersgrotesk, "Founders Grotesk", sans-serif);
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 500;
   font-size: 3.33em;
 }
@@ -80,7 +82,7 @@ a:hover { text-decoration: underline; }
 }
 
 .xl-strong-alt-2 {
-  font-family: var(--rkf-foundersgrotesk, "Founders Grotesk", sans-serif);
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 600;
   font-size: 2.0em;
 }
@@ -97,13 +99,13 @@ a:hover { text-decoration: underline; }
 }
 
 .xl-strong-alt-3 {
-  font-family: var(--rkf-foundersgrotesk, "Founders Grotesk", sans-serif);
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 700;
   font-size: 2.0em;
 }
 
 .lg-strong-alt-2 {
-  font-family: var(--rkf-foundersgrotesk, "Founders Grotesk", sans-serif);
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 700;
   font-size: 1.5em;
 }
@@ -121,13 +123,13 @@ a:hover { text-decoration: underline; }
 }
 
 .xl-strong-alt-4 {
-  font-family: var(--rkf-foundersgrotesk, "Founders Grotesk", sans-serif);
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 700;
   font-size: 4.0em;
 }
 
 .xl-strong-alt-5 {
-  font-family: var(--rkf-foundersgrotesk, "Founders Grotesk", sans-serif);
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 600;
   font-size: 5.0em;
 }
@@ -140,7 +142,7 @@ a:hover { text-decoration: underline; }
 }
 
 .xl-strong-alt-6 {
-  font-family: var(--rkf-foundersgrotesk, "Founders Grotesk", sans-serif);
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 700;
   font-size: 3.5em;
 }
@@ -166,7 +168,7 @@ a:hover { text-decoration: underline; }
 }
 
 .sm-strong-alt-5 {
-  font-family: var(--rkf-foundersgrotesk, "Founders Grotesk", sans-serif);
+  font-family: "Space Grotesk", sans-serif;
   font-weight: 700;
   font-size: 0.83em;
 }
