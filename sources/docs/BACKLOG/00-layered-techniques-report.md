@@ -1,0 +1,3 @@
+
+# layered techniques report
+The one honest caveat I want to leave you with: the most valuable version of your idea — noticing when the converter picked a method that was available but wrong — needs the disagreement report, because the current order-until-applicable design is blind to it by construction. That's the thing I'd build first when you're ready, because it's also how we'd discover which new config rules are worth adding as the corpus grows.

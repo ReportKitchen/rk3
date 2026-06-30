@@ -71,3 +71,128 @@ One way I justify this work is by claiming HTML performs better in SEO and AEO t
 
 ## Let's get smarter
 Whenever the user does a manual override, we should log that and see if we can identify common issues that we could have prevented.  We could periodically do a review of these and select ones for implementation.
+
+
+# Grouping by node becomes classnames
+It's great that we're grouping styles instead of one-offs.  At some point we need to convert that list of data nids into a class name and apply it to all the associated nodes. 
+
+# Additional Tabs
+The full UX will feature the following tabs:
+- Document Analysis
+- Landing Page Maker
+- Full Document
+
+Note that once we build in the user model, some users will only have access to some of these tabs.
+
+## Document Analysis tab
+The goal of this tab is to give the user some high-level, aggregate information about their document(s).
+
+## Landing Page Maker
+This should be a highly interactive, workshop-style page.  The user will have a variety of simple controls they can use to customize a landing page for their PDF.
+
+The goal of this builder should be to offer opinionated best practices for an SEO/AEO/a11y optimized PDF landing page, not necessarily to build a highly customizable page builder.  The expectation is the user will either download HTML code to paste into their CMS, or copy a JavaScript embed code from us and embed the landing page they've built, into their site.
+
+### UX
+Upon inital load, we need to analyze the PDF and extract information to build from.  If we've already converted the document from PDF into our IR much of that will already be available.  
+
+The page itself should be the main document element -- that is, when the user scrolls the outermost element (BODY) the landing page scrolls.
+
+### Content Elements
+The page should be assembled as a stack of content elements.  Users can drag to reorder them, and click to insert a new element at the beginning, end, or in between two existing elements.  The UX for this "mini CMS" needs to be highly interactive and intuitive. We may build this portion custom or we may use an existing "blocks based" CMS-style page builder.
+
+
+### Config
+We need a config file to represent the landing page -- which elements are included, what colors various elements are, etc.  I want several different starter templates to choose from.
+
+
+### Elements
+Optional elements to include
+- Title
+- Summary
+- Hero image
+- Report cover/thumbnail
+- Table of Contents
+- Social Share prompt
+- Charts/graphs
+- Slideshow
+- Highlights / Key Findings bullet points
+- Download CTA
+
+We need to evaluate how much of this we can extract with deterministic code vs. where we need to pass content to an AI LLM for analysis and extraction. 
+
+The system should allow for future content elements to be developed, and some elements to be gated based on user access level.
+
+### AI Elements
+Some users may wish to disable AI entirely from their experience.  We need to:
+- Clearly label any component/option which is based on sending the user's content to an AI engine
+- Offer a user setting to disable all AI-based features
+
+
+### Styling
+The styling for the landing page should be a separate config file. Values will come from multiple sources:
+- system defaults
+- extract from the PDF
+- extract from a given web URL (make this look like our site)
+- a stored profile (paid user account can store one or more design systems)
+
+For the system default config file use black text on white background, sane defaults for header sizes, and use Public Sans from Google Fonts
+
+
+#### Features to be available based on user level, in the future
+
+#### Level of AI Use
+Options:
+- none
+- analysis only (allows only copying **verbatim** from the source)
+- content generation (summaries, etc)
+
+##### Split document into sections
+From a single uploaded document, identify where major sections split (chapters, parts etc) and offer a table of downloads of the individual parts.  This requires splitting the PDF into multiple separate files.
+
+##### Multiple PDFs
+Sometimes the work actually consists of multiple documents, such as an executive summary, full report, methodology notes, sources notes, other language translations etc.  Allow user to upload multiple supporting documents in addition to the primary, and offer those in a download box/table/panel etc.
+
+#### Edit the prompts sent to the AI agent for generating summaries
+Make additional styles like the "hard sell" version
+
+
+
+-- then, we need to improve the contents/TOC field.  Much of this applies to the full RK3, so consider where to make your edits so they benefit the whole platform the most.  -- they're not always very reflective of the actual contents.  Gates for example, it pulls a bullet list of items from chapter 5 instead of getting the actual chapter titles.  Atlantic council is a bit of a mess, RWJF is better than it was, but we should also take the time to fix up the uppercase/lowercase mess.   That's something I wrestled quite a bit with in RK2, specifically, it's imperative to offer a document- and/or client-specific list of forced upper and lower case words and phrases.  There's just no getting around it.  An org can very easily have acronyms as simple/common as THE or AND and now any automatic case-conversion fails.  The approach I used was to keep a list of words and phrases to retain as-is.
+
+But that's getting ahead of ourselves.  I think we're close to needing to build out a full user model and there's no sense worrying about per-user/per-org customizations when we don't have those concepts yet.  so flag that for future, and just work in some better TOC detection and first-pass case cleanup to round out
+
+
+
+
+- I need ALL prompts that get sent to AI engines to be easily reviewed and configured -- either in config files or in the database with an admin.
+
+
+
+
+
+
+
+# So "two-column" isn't a stable IR feature to assert on
+The vast majority of the time, we don't care if two columns were merged into one for the purposes of the IR.  However (1) we will occasionally want to specify text be in two columns.  So that should be supported.  and (2) I do worry about losing too much information in the IR -- sometimes detecting something far down the line suddenly becomes easier if you realize the text had a certain class, or size indent, or number of leading spaces, or something else trivial.  Are we throwing away any potentially useful information in building the IR?
+
+
+
+## Document Styling
+I want tools to let the user adjust the styling on the document.  
+
+  **We do need to remember our focus:** Conversion and information design patterns.  Visual design is a distant second priority, but where it's straightforward, we should offer it.  When we reach that limit, the user is better off exporting the HTML/CSS and taking it to a more sophisticated design platform.  We might even consider one-click exports to such tools.
+
+Primary focus is document-wide: Body text, body color, heading sizes, etc.
+
+I want multiple surfaces for this (editing the same source of truth)
+- click the element and adjust, real-time
+- A "style guide" style panel with sliders and pulldowns
+- A CSS editing panel
+- A code editor showing the full CSS (possibly. Might decide against)
+
+Secondary focus is *fixing* issues, like we didn't pick up this section of bold, or we missed a UL.  
+
+All of these tools need to be usable by agents as well -- user may choose to tell an agent to make H2 30% larger, rather than doing that directly with controls.
+
+
+
