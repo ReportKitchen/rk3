@@ -51,6 +51,9 @@ export const getAllFeedback = () => fetch(`/api/feedback`).then(json);
 
 export const getPdfMetadata = () => fetch(`/api/pdf-metadata`).then(json);
 
+// read-only TOC ⇔ headings reconciliation (diagnostic)
+export const getTocCompare = (slug) => fetch(`/api/toc-compare/${slug}`).then(json);
+
 // persist a per-document embedded-fonts choice (true/false, or null = auto)
 export const setDocEmbedFonts = (slug, embedFonts) =>
   fetch(`/api/doc-config/${slug}`, {

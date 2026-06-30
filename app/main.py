@@ -25,6 +25,7 @@ from rk3.ai import ai_can_analyze, ai_can_generate, ai_mode
 from rk3.documents import OUTPUT, list_documents, output_dir, source_for_slug
 from rk3.eval import append_check, canonical_for_nid, evaluate_check
 from rk3.pipeline import build_status
+from rk3.toccompare import compare as toc_compare
 from rk3.landing.ai import (
     find_findings, find_intro_section, generate_landing_ai, generate_summary_variant)
 from rk3.landing.extract import build_default_theme
@@ -197,6 +198,15 @@ def get_build_status(slug: str, response: Response):
     # the iframe it's about to bust) is the latest
     response.headers["Cache-Control"] = "no-store"
     return build_status(slug)
+
+
+@app.get("/api/toc-compare/{slug}")
+def get_toc_compare(slug: str):
+    """Read-only TOC ⇔ headings reconciliation (diagnostic; writes nothing)."""
+    try:
+        return toc_compare(slug)
+    except FileNotFoundError:
+        raise HTTPException(404, "no output for this document")
 
 
 @app.post("/api/convert/{slug}")

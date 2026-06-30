@@ -6,6 +6,7 @@ import DocToolbar from "./DocToolbar.jsx";
 import { saveOrderAssertion, saveReorderOp, saveMergeOp, saveMergeAssertion } from "../api.js";
 import { reportError } from "../errorBus.js";
 import QuestionsPanel from "./QuestionsPanel.jsx";
+import TocCompare from "./TocCompare.jsx";
 
 // Puck is heavy (~90kB gzip); load the Landing Page Maker only when its tab opens
 const LandingMaker = lazy(() => import("../landing/LandingMaker.jsx"));
@@ -14,6 +15,7 @@ const LandingMaker = lazy(() => import("../landing/LandingMaker.jsx"));
 // rest are alternate representations of the same content
 const TABS = [
   { id: "convert", label: "Convert Document" },
+  { id: "toc", label: "TOC ⇔ Headings" },
   { id: "landing", label: "Landing Page" },
 ];
 
@@ -602,6 +604,8 @@ export default function DocumentView({
             )}
           </div>
         </div>
+
+        {tab === "toc" && <TocCompare slug={doc.slug} />}
 
         {tab === "landing" && (
           <Suspense fallback={<div className="hint" style={{ padding: "2rem" }}>Loading editor…</div>}>
