@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 99
+VERSION = 104
 
 
 # PDF font-descriptor flag bits
@@ -92,6 +92,16 @@ def _marker_value(raw):
     if raw.isdigit() and len(raw) <= 3:
         return int(raw)
     return ROMAN.get(raw.lower())
+
+# function words that mark a WRAPPED clause when they END a candidate run-in
+# heading (a heading ends on a content word; "…points for" / "…already in the"
+# is a sentence fragment or a truncated multi-line heading we must not promote)
+_LEAD_STOPWORDS = frozenset((
+    "a an the and or but nor for of to in on at by with from as into than then so "
+    "is are was were be been that this these those which who whom will would can could "
+    "may might about over under between per via up out our their its your we you they it if when while "
+    "any many both several each every another"
+).split())
 
 BULLETS = "•◦▪‣–—-*·§◊♦►▸✦➤●○"
 # bullets that count as list markers when sitting INSIDE a line of text — the
@@ -364,6 +374,7 @@ def run(ctx):
             for bi in reg["blockIdx"]:
                 ctx.audit_claimed[blocks[bi]["page"]] += _alnum(texts[bi])
 
+    nodes = _promote_lead_headings(ctx, nodes, used_ids)
     nodes = _split_inline_bullets(ctx, nodes)
     nodes = _group_tag_lists(ctx, nodes)
     nodes = _group_bullet_paragraphs(ctx, nodes)
@@ -876,6 +887,51 @@ def _heading_node(ctx, blk, text, level, reason, prov, used_ids):
     return node
 
 
+def _promote_lead_headings(ctx, nodes, used_ids):
+    """Split each paragraph flagged with a bold run-in lead (_leadHead, set by
+    _block_node) into a real heading node + the paragraph remainder, rebasing
+    every style run (emph/links/marks via _slice_runs; refs/breaks by hand)."""
+    out = []
+    for n in nodes:
+        lh = n.pop("_leadHead", None) if isinstance(n, dict) else None
+        if not lh or n.get("type") != "paragraph":
+            out.append(n)
+            continue
+        e0, level, lead_prov = lh
+        text = n["text"]
+        blk = {"page": n["page"], "bbox": n["bbox"], "rk": n.get("rk")}
+        out.append(_heading_node(ctx, blk, text[:e0].strip(), level,
+                                 "bold run-in lead", dict(lead_prov), used_ids))
+        # paragraph remainder begins at the first non-space char past the lead
+        rstart = e0
+        while rstart < len(text) and text[rstart] in " \t":
+            rstart += 1
+        rest = _slice_runs(n, rstart, len(text))   # emph/links/marks rebased to 0
+        n["text"] = rest["text"]
+        for key in _RUN_KEYS:
+            if rest.get(key):
+                n[key] = rest[key]
+            elif key in n:
+                del n[key]
+        if n.get("refs"):
+            refs = [[s - rstart, e - rstart, v] for s, e, v in n["refs"] if s >= rstart]
+            if refs:
+                n["refs"] = refs
+            else:
+                del n["refs"]
+        if n.get("breaks"):
+            br = [b - rstart for b in n["breaks"] if b > rstart]
+            if br:
+                n["breaks"] = br
+            else:
+                del n["breaks"]
+        n.pop("lead", None)   # the inline soft-header is now a real heading
+        n["nid"] = _stable_id("n", ctx.nids, "paragraph", n["page"],
+                              n["bbox"], n["text"])
+        out.append(n)
+    return out
+
+
 def _section_number(ctx, text):
     """'4Institutional Strategies' — a design-element section number glued to
     the heading (circle/badge numerals). Only fires with no space between the
@@ -1015,6 +1071,58 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         node["emph"] = rich["emph"]
     if rich.get("marks"):
         node["marks"] = rich["marks"]
+
+    # Run-in heading: a bold first line, on its own line and heading-shaped,
+    # welded onto the front of a regular-weight paragraph IS a real subsection
+    # heading (the author set it bold instead of larger). Detected on the
+    # glyph-width emph signal — the project's bold source of truth — so it
+    # catches leads in the SAME font cut as the body, where the fontIdx-based
+    # soft-header path is blind. Marked here; _promote_lead_headings splits it
+    # into a heading + the paragraph remainder. Guards: the bold must cover the
+    # whole first line (line-aligned, not a mid-line emphasized clause) and the
+    # body below must be mostly regular weight (so a fully-bold callout/statement
+    # is never carved up).
+    joins = rich.get("lineJoins") or []
+    emph = rich.get("emph") or []
+    if not in_aside and len(blk["lines"]) >= 2 and joins:
+        e0 = joins[0]
+        head_txt = text[:e0].strip()
+        # the bold must START the block and END right at the first-line boundary:
+        # a heading occupies exactly its own line. A bold run that spills PAST e0
+        # is a multi-line bold lead-in (e.g. a wrapped list-item label
+        # "Improving governance, capacity, and transparency:"), not a heading.
+        lead_strong = any(k == "strong" and s <= 1 and e0 - 3 <= e <= e0 + 3
+                          for s, e, k in emph)
+        body_len = len(text) - e0
+        strong_after = sum(min(e, len(text)) - max(s, e0) for s, e, k in emph
+                           if k == "strong" and min(e, len(text)) > max(s, e0))
+        body_regular = body_len > 30 and strong_after <= 0.4 * body_len
+        words = head_txt.split()
+        # a short all-capitalized lead is a person's name (a signature/byline
+        # "Pepe Zhang" over a title line), not a section heading. Real run-in
+        # headings are longer or carry lowercase function words ("the", "for").
+        name_like = len(words) <= 3 and all(w[:1].isupper()
+                                            for w in words if w[:1].isalpha())
+        # a lead ending on a dangling function word is a WRAPPED CLAUSE, not a
+        # heading: a bold sentence opener ("…significant entry points for") or a
+        # multi-line heading whose line 1 we'd otherwise truncate ("…seeking
+        # already in the"). A real heading ends on a content word.
+        last = re.sub(r"[^\w]+$", "", head_txt).rsplit(" ", 1)[-1].lower()
+        dangling = last in _LEAD_STOPWORDS
+        if (lead_strong and body_regular and not name_like and not dangling
+                and 0 < len(head_txt) <= 90 and len(words) <= 14
+                and head_txt[0] not in BULLETS and head_txt[0] not in "“\"‘'»›▶◀«‹"
+                and _looks_like_heading(head_txt)):
+            level = min(6, (max(levels.values()) if levels else 2) + 1)
+            l0 = blk["lines"][0]
+            lead_prov = {"font": fonts[l0["fontIdx"]]["name"],
+                         "weight": fonts[l0["fontIdx"]]["weight"], "size": size,
+                         "color": _hex(ctx.colors[l0["colorIdx"]])}
+            node["_leadHead"] = [e0, level, lead_prov]
+            ctx.log.entry("lead-heading", page=blk["page"], block=blk["rk"],
+                          level=level, head=head_txt[:60])
+            return node
+
     brk_ov = _override_for(ctx.cfg["structure"].get("breakOverrides", []), text)
     if brk_ov is not None:
         ctx.log.entry("break-override", page=blk["page"], block=blk["rk"],

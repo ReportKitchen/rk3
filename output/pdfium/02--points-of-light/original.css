@@ -24,8 +24,8 @@ h2 {
 h4 {
   font-family: var(--rkf-gotham, "Gotham", sans-serif);
   font-weight: 700;
-  color: #8bbd3f;
-  font-size: 0.81rem;
+  color: #231f20;
+  font-size: 1.0rem;
 }
 
 a {
@@ -121,19 +121,12 @@ a:hover { text-decoration: underline; }
   color: #175d9e;
 }
 
-[data-nid="n70bef700cd"] .soft-header,
-[data-nid="na87a66c740"] .soft-header,
-[data-nid="n2181c8ba5e"] .soft-header,
-[data-nid="nbb85bf4c5c"] .soft-header,
-[data-nid="n1dfd8e87c3"] .soft-header,
-[data-nid="n949163be86"] .soft-header,
-[data-nid="n388d74a845"] .soft-header,
-[data-nid="n9a14398bc9"] .soft-header,
-[data-nid="n5ba74dc76c"] .soft-header,
 [data-nid="nb6ce8da116"] .soft-header {
   font-family: var(--rkf-gotham, "Gotham", sans-serif);
   font-weight: 700;
 }
+
+[data-nid="na14f35b4ff"] { color: #8bbd3f; }
 
 [data-nid="n7c67b752cf"] {
   background: #4280c2;
@@ -141,28 +134,42 @@ a:hover { text-decoration: underline; }
   border-left: 3px solid #8bbd3f;
 }
 
+[data-nid="nd4745adf86"] { color: #8bbd3f; }
+
 [data-nid="n90a96a9eae"] {
   background: #4280c2;
   border: none;
 }
+
+[data-nid="n332553ef07"] { color: #8bbd3f; }
+
+[data-nid="n8e98a0d706"] { color: #8bbd3f; }
+
+[data-nid="n11af619134"] { color: #8bbd3f; }
+
+[data-nid="n8cf3b2c6f6"] { color: #8bbd3f; }
 
 [data-nid="nda6c5a691e"] {
   background: #4280c2;
   border: none;
 }
 
-[data-nid="nfa7c5a3e83"] { color: #231f20; }
+[data-nid="n4a7d766fe9"] { color: #8bbd3f; }
 
-[data-nid="n0d2a9c8ce4"] { color: #231f20; }
+[data-nid="n608666f933"] { color: #8bbd3f; }
+
+[data-nid="n608666f933-2"] { color: #8bbd3f; }
+
+[data-nid="na00a20699a"] { color: #8bbd3f; }
+
+[data-nid="neea48b7aac"] { color: #8bbd3f; }
 
 [data-nid="nbebce2ecd0"] {
   background: #4280c2;
   border: none;
 }
 
-[data-nid="n3f3843bcc3"] { color: #231f20; }
-
-[data-nid="nb19ed1451f"] { color: #231f20; }
+[data-nid="n3b1011cc41"] { color: #8bbd3f; }
 
 [data-nid="n9f3b8b7ad0"] {
   background: #929292;
@@ -171,6 +178,10 @@ a:hover { text-decoration: underline; }
   width: 62%;
   margin: 0 0 1rem 1.5rem;
 }
+
+[data-nid="n275c8a7c49"] { color: #8bbd3f; }
+
+[data-nid="n958c92ab8a"] { color: #8bbd3f; }
 
 [data-nid="nf23a80be63"] {
   background: #929292;

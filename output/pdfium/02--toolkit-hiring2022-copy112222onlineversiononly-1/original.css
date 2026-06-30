@@ -152,10 +152,7 @@ h5 {
 }
 
 [data-nid="n98d67d68fe"] .soft-header,
-[data-nid="n9ee47333f5"] .soft-header,
-[data-nid="na74233a3c5"] .soft-header,
-[data-nid="n580c8cf258"] .soft-header,
-[data-nid="na08720be68"] .soft-header {
+[data-nid="n9ee47333f5"] .soft-header {
   font-family: var(--rkf-gotham, "Gotham", sans-serif);
   font-weight: 700;
 }
@@ -345,6 +342,14 @@ h5 {
   border-right: 1px solid #00a6e4;
   border-top: 1px solid #00a6e4;
 }
+
+[data-nid="n0ec5f1137a"] { color: #231f20; }
+
+[data-nid="nf9ec2381f1"] { color: #231f20; }
+
+[data-nid="n3dd6ada8b3"] { color: #231f20; }
+
+[data-nid="n783a693b17"] { color: #231f20; }
 
 [data-nid="n7476f8079f"] {
   background: transparent;

@@ -38,6 +38,12 @@ h5 {
   font-size: 1.2rem;
 }
 
+h6 {
+  font-family: var(--rkf-franklingothicurw, "Franklin Gothic URW", sans-serif);
+  color: #0033cc;
+  font-size: 1.0rem;
+}
+
 a {
   color: #0033cc;
   text-decoration: none;
@@ -50,13 +56,6 @@ a:hover { text-decoration: underline; }
 
 [data-nid="n9239dd1c64"] .soft-header {
   font-family: var(--rkf-franklingothicurw, "Franklin Gothic URW", sans-serif);
-}
-
-[data-nid="n923d85ed0b"] .soft-header,
-[data-nid="n7b12501d8b"] .soft-header,
-[data-nid="n1a644211d3"] .soft-header {
-  font-family: var(--rkf-franklingothicurw, "Franklin Gothic URW", sans-serif);
-  color: #0033cc;
 }
 
 [data-nid="n6b343c38bd"] {

@@ -415,46 +415,23 @@ h6 {
 [data-nid="nf3d79646bb"] .soft-header,
 [data-nid="n1c2cf58f21"] .soft-header,
 [data-nid="nb0b146e916"] .soft-header,
-[data-nid="n8f60df667b"] .soft-header,
 [data-nid="n78d2bba18f"] .soft-header,
-[data-nid="n1d15f0253a-2"] .soft-header,
 [data-nid="n7b00717192"] .soft-header,
 [data-nid="n4ff12c2380"] .soft-header,
 [data-nid="na47c01c171"] .soft-header,
-[data-nid="n108161589f"] .soft-header,
 [data-nid="n0da9ee9942"] .soft-header,
 [data-nid="n58d3aec966"] .soft-header,
 [data-nid="n2e5e95cf02"] .soft-header,
-[data-nid="n53b505bf1b"] .soft-header,
 [data-nid="ned0f11abbe"] .soft-header,
-[data-nid="n1bb52456db"] .soft-header,
 [data-nid="n11e108fd3f"] .soft-header,
-[data-nid="nacfa94aac0"] .soft-header,
 [data-nid="nf45dbd1f4a"] .soft-header,
-[data-nid="nfad54031bd"] .soft-header,
 [data-nid="n0c3ce34763"] .soft-header,
-[data-nid="n720dd69df6"] .soft-header,
 [data-nid="n9e3c44d96b"] .soft-header,
-[data-nid="nfc8e21d96d"] .soft-header,
 [data-nid="n2b727a5611"] .soft-header,
-[data-nid="n4c38d89f98"] .soft-header,
 [data-nid="nc7a298509c"] .soft-header,
-[data-nid="nfe4f3d077a"] .soft-header,
 [data-nid="nafbe8692a7"] .soft-header,
-[data-nid="n57c17a9744"] .soft-header,
 [data-nid="n8ebce85f4a"] .soft-header,
-[data-nid="ndcae86d2b7"] .soft-header,
-[data-nid="n8386e133e4"] .soft-header,
-[data-nid="n6bb930b149"] .soft-header,
-[data-nid="nc27712dc28"] .soft-header,
-[data-nid="ndc974c49ca"] .soft-header,
-[data-nid="n900b30a1de"] .soft-header,
-[data-nid="n72769c195b"] .soft-header,
-[data-nid="n3ca43483c0"] .soft-header,
-[data-nid="n8e6d8a9e48"] .soft-header,
-[data-nid="n710f284c9c"] .soft-header,
-[data-nid="ncac8b8f930"] .soft-header,
-[data-nid="n1075692068"] .soft-header {
+[data-nid="n8386e133e4"] .soft-header {
   font-family: var(--rkf-overusedgrotesk, "Overused Grotesk", sans-serif);
   font-weight: 300;
 }
@@ -486,8 +463,6 @@ h6 {
   color: #6b7b2a;
 }
 
-[data-nid="n9f84aacf45"] .soft-header,
-[data-nid="n635a8102aa"] .soft-header,
 [data-nid="n74ddd2cd07"] .soft-header,
 [data-nid="na324b8fd38"] .soft-header,
 [data-nid="n75a6ab165b"] .soft-header {
@@ -496,9 +471,6 @@ h6 {
   color: #735936;
 }
 
-[data-nid="n7543d660a6"] .soft-header,
-[data-nid="n596672f217"] .soft-header,
-[data-nid="n3cb22bfdc1"] .soft-header,
 [data-nid="n22d60966f3"] .soft-header,
 [data-nid="n47f38a3099"] .soft-header {
   font-family: var(--rkf-overusedgrotesk, "Overused Grotesk", sans-serif);
@@ -511,21 +483,10 @@ h6 {
 [data-nid="nc2ba08e936"] .soft-header,
 [data-nid="n9d811331a7"] .soft-header,
 [data-nid="nb3963a2295"] .soft-header,
-[data-nid="na5db5f42db"] .soft-header,
-[data-nid="nacbd64e886"] .soft-header,
-[data-nid="nc83d2f6418"] .soft-header,
-[data-nid="nb8aa097178"] .soft-header {
+[data-nid="na5db5f42db"] .soft-header {
   font-family: var(--rkf-overusedgrotesk, "Overused Grotesk", sans-serif);
   font-weight: 300;
   color: #fea000;
-}
-
-[data-nid="n68362ac7f5"] .soft-header,
-[data-nid="nc8a74e0fc9"] .soft-header,
-[data-nid="na2cff2a3e3"] .soft-header {
-  font-family: var(--rkf-overusedgrotesk, "Overused Grotesk", sans-serif);
-  font-weight: 300;
-  color: #ff7800;
 }
 
 [data-nid="n548efda3cd"] {
@@ -857,6 +818,40 @@ h6 {
 [data-nid="n46378cf94e"] td:nth-child(4) { color: #1e421e; }
 [data-nid="n46378cf94e"] td:nth-child(5) { color: #1e421e; }
 [data-nid="n46378cf94e"] td:nth-child(7) { color: #1e421e; }
+
+[data-nid="n6a506af96d"] { color: #735936; }
+
+[data-nid="ne4f06b09df"] { color: #735936; }
+
+[data-nid="na646838fe5"] { color: #ff7800; }
+
+[data-nid="n7f03e06bcb"] { color: #ff7800; }
+
+[data-nid="n583b41b8d9"] { color: #ff7800; }
+
+[data-nid="n134ee987bf"] { color: #fea000; }
+
+[data-nid="nc3a1a277d7"] { color: #fea000; }
+
+[data-nid="n2f8e0339d7"] { color: #fea000; }
+
+[data-nid="nc0579bdf5e"] { color: #db578a; }
+
+[data-nid="nca2a3758c0"] { color: #db578a; }
+
+[data-nid="n6cf6ddb0a8"] { color: #db578a; }
+
+[data-nid="n514fac1473"] { color: #6b7b2a; }
+
+[data-nid="ne1fce96620"] { color: #6b7b2a; }
+
+[data-nid="nff13f1b05d"] { color: #6b7b2a; }
+
+[data-nid="nc3804eeb17"] { color: #6b7b2a; }
+
+[data-nid="nce15768497"] { color: #6b7b2a; }
+
+[data-nid="n7619759f55"] { color: #6b7b2a; }
 
 figure { border: none; padding: 0; }
 

@@ -314,14 +314,6 @@ a:hover { text-decoration: underline; }
   color: #f57d29;
 }
 
-[data-nid="n3d93bd2644"] .soft-header,
-[data-nid="nec98e77168"] .soft-header,
-[data-nid="na27ac347c3"] .soft-header {
-  font-family: var(--rkf-futurapt, "Futura PT", sans-serif);
-  font-weight: 700;
-  color: #035a8b;
-}
-
 [data-nid="n28b3a9d691"] {
   background: #035a8b;
   border: none;

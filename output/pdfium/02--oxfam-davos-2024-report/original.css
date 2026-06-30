@@ -39,8 +39,9 @@ h5 {
 
 h6 {
   font-family: var(--rkf-oxfamtstarpro, "Oxfam TSTARPRO", sans-serif);
+  font-weight: 700;
   color: #323ea8;
-  font-size: 1.3rem;
+  font-size: 1.0rem;
 }
 
 a {
@@ -81,60 +82,19 @@ a:hover { text-decoration: underline; }
   font-size: 0.7em;
 }
 
-[data-nid="n3059d4fc87"] .soft-header {
-  font-family: var(--rkf-oxfamtstarpro, "Oxfam TSTARPRO", sans-serif);
-  font-weight: 500;
-}
-
-[data-nid="neeb4551365"] .soft-header,
-[data-nid="nc25108c49c"] .soft-header,
-[data-nid="ncb840fbab2"] .soft-header {
-  font-family: var(--rkf-oxfamtstarpro, "Oxfam TSTARPRO", sans-serif);
-  font-weight: 500;
-  color: #323ea8;
-}
-
-[data-nid="ne6429e50fa"] .soft-header,
-[data-nid="ncca963c0d5"] .soft-header,
-[data-nid="n031c596029"] .soft-header,
-[data-nid="ndb0ca646f7"] .soft-header,
-[data-nid="nb52b6585df"] .soft-header,
-[data-nid="n27e478531e"] .soft-header,
-[data-nid="ncf757f6dde"] .soft-header,
-[data-nid="n22600cdfe2"] .soft-header,
-[data-nid="ndcb88dcaf8"] .soft-header,
-[data-nid="nc4fc7900ba"] .soft-header,
-[data-nid="n399a153202"] .soft-header,
-[data-nid="n30fe6efedc"] .soft-header,
-[data-nid="n04c7e38aa1"] .soft-header,
-[data-nid="nb954b09cd6"] .soft-header,
-[data-nid="n69002aae91"] .soft-header,
-[data-nid="na0a970f5ae"] .soft-header,
-[data-nid="n256c2db54f"] .soft-header {
+[data-nid="n399a153202"] .soft-header {
   font-family: var(--rkf-oxfamtstarpro, "Oxfam TSTARPRO", sans-serif);
   font-weight: 700;
   color: #323ea8;
 }
 
-[data-nid="n873c5d7aa2"] .soft-header,
-[data-nid="n664be98019"] .soft-header,
-[data-nid="n8796e170d2"] .soft-header,
-[data-nid="nb3acc45ba1"] .soft-header,
-[data-nid="n897a6f5e8e"] .soft-header,
-[data-nid="n657583509f"] .soft-header,
-[data-nid="n081d8ef1d5"] .soft-header,
-[data-nid="n51d266a1f3"] .soft-header,
-[data-nid="n5e239efc43"] .soft-header,
-[data-nid="n1c6bc88066"] .soft-header,
-[data-nid="n6f24208df2"] .soft-header,
-[data-nid="nba83ebbf0f"] .soft-header,
-[data-nid="n9238c148d6"] .soft-header,
-[data-nid="n2865cc1f41"] .soft-header,
-[data-nid="n66da9dac30"] .soft-header {
+[data-nid="n873c5d7aa2"] .soft-header {
   font-family: var(--rkf-tstar, "TSTAR", sans-serif);
   font-weight: 800;
   color: #323ea8;
 }
+
+[data-nid="n41cbdf2653"] { color: #000000; }
 
 [data-nid="n47362a511b"] {
   background: #323ea8;

@@ -252,18 +252,14 @@ a:hover { text-decoration: underline; }
 
 [data-nid="n1c62074e93"] .soft-header,
 [data-nid="n1e2563e277"] .soft-header,
-[data-nid="n2853538f81"] .soft-header,
 [data-nid="nbae564a5fc"] .soft-header {
   font-family: var(--rkf-calibri, "Calibri", sans-serif);
   font-weight: 700;
 }
 
-[data-nid="n23c4c817a5"] .soft-header,
 [data-nid="n6bb354ff79"] .soft-header,
 [data-nid="n824b25ceb4"] .soft-header,
 [data-nid="n40e6e5a44d"] .soft-header,
-[data-nid="nc8d27402f1"] .soft-header,
-[data-nid="n2215d1b6c8"] .soft-header,
 [data-nid="n12a5914eb6"] .soft-header,
 [data-nid="nc903eac97f"] .soft-header,
 [data-nid="n7f56ae8924"] .soft-header,
@@ -280,6 +276,16 @@ a:hover { text-decoration: underline; }
 [data-nid="ne1ffa89043"] { color: #152844; }
 
 [data-nid="n70b330849f"] { color: #002060; }
+
+[data-nid="nc7079260e9"] { color: #002060; }
+
+[data-nid="n27bf4d96a5"] { color: #002060; }
+
+[data-nid="n60e7c25eee"] { color: #002060; }
+
+[data-nid="nc35cd39f67"] { color: #002060; }
+
+[data-nid="ncd48e3f0d1"] { color: #002060; }
 
 [data-nid="n3aa56af001"] {
   background: transparent;

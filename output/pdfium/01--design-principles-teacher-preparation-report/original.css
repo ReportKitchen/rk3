@@ -26,6 +26,12 @@ h3 {
   font-size: 1.24rem;
 }
 
+h4 {
+  font-family: var(--rkf-franklingothicurw, "Franklin Gothic URW", sans-serif);
+  color: #3e6a91;
+  font-size: 1.0rem;
+}
+
 a {
   color: #3e6a91;
   text-decoration: none;

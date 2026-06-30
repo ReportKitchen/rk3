@@ -161,7 +161,6 @@ a:hover { text-decoration: underline; }
 [data-nid="na1dc559e75"] .soft-header,
 [data-nid="n6db78fd5ae"] .soft-header,
 [data-nid="nb4a990270c"] .soft-header,
-[data-nid="n996eb9a067"] .soft-header,
 [data-nid="ndec548f19e"] .soft-header {
   font-family: var(--rkf-maax, "Maax", sans-serif);
   font-weight: 700;
@@ -348,6 +347,8 @@ a:hover { text-decoration: underline; }
   width: 47%;
   margin: 0 0 1rem 1.5rem;
 }
+
+[data-nid="n266337a5b1"] { color: #000000; }
 
 [data-nid="n5e39af3140"] {
   background: #0d393b;
