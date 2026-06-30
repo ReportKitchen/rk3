@@ -90,8 +90,9 @@ export const postOp = (slug, op) =>
 export const saveOrderAssertion = (slug, order, note) =>
   saveAssertion(slug, { order, note, stage: "analyze" }, true);
 
-export const saveReorderOp = (slug, page, order) =>
-  postOp(slug, { nid: `reorder-p${page}`, op: "reorder", page, order });
+// doc-level reorder: ALL top-level nids in the corrected reading order
+export const saveReorderOp = (slug, order) =>
+  postOp(slug, { nid: "reorder-doc", op: "reorder", order });
 
 export const deleteOp = (slug, opKind, nid) =>
   fetch(`/api/ops/${slug}/${opKind}/${nid}`, { method: "DELETE" }).then(json);

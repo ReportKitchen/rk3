@@ -552,6 +552,16 @@ pre.error {
 .embed-auto.ok { background: #e7f4e7; color: #2f6b2f; }
 .embed-auto.warn { background: #fdeede; color: #8a5316; }
 
+/* ------------------------------------------- reading-order edit (toolbar) */
+.order-editing { font-size: 0.82rem; color: #2c4a75; font-weight: 600; }
+.order-msg { font-size: 0.8rem; color: #2f6b2f; }
+.order-save, .order-fix, .order-cancel { font: inherit; padding: 0.25rem 0.7rem;
+  border-radius: 5px; border: 1px solid #b8cae3; cursor: pointer; }
+.order-save { background: #e7f4e7; border-color: #9fce9f; color: #2f6b2f; }
+.order-fix { background: #faf3e6; border-color: #cdb48c; color: #6b5320; }
+.order-cancel { background: #f3f3f3; border-color: #ccc; color: #555; }
+.order-save:hover { background: #d6ecd6; } .order-fix:hover { background: #f3e7cf; }
+
 /* ----------------------------------------------------- reading-order tool */
 
 .rorder-tab { flex: 1; min-height: 0; overflow: auto; padding: 0.5rem 0.9rem; }

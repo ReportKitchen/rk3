@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 51
+VERSION = 52
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -171,18 +171,26 @@ def _apply_ops(ctx, ir):
 
     ir["body"] = transform(ir["body"])
 
-    # reorder ops (page-scoped): the viewer's reading-order tool writes the
-    # corrected nid sequence per page; reorder that page's top-level nodes to
-    # match (the page's nodes are a contiguous run, so this just permutes them).
-    reorders = {op["page"]: op["order"] for op in ops
-                if op.get("op") == "reorder" and op.get("order")
-                and op.get("page") is not None}
-    for page, seq in reorders.items():
+    # reorder ops from the viewer's reading-order tool. A doc-level op (no page)
+    # lists ALL top-level nids in the corrected reading order — reorder the whole
+    # body to match (nodes not listed keep their relative order at the end). A
+    # page-scoped op permutes just that page's contiguous run of nodes.
+    doc_order = next((op["order"] for op in reversed(ops)  # last save wins
+                      if op.get("op") == "reorder" and op.get("order")
+                      and op.get("page") is None), None)
+    if doc_order:
+        rank = {nid: i for i, nid in enumerate(doc_order)}
+        ir["body"].sort(key=lambda n: rank.get(n.get("nid"), len(rank)))
+        ctx.log.entry("op-reorder-doc", count=len(doc_order))
+    page_reorders = {op["page"]: op["order"] for op in ops
+                     if op.get("op") == "reorder" and op.get("order")
+                     and op.get("page") is not None}
+    for page, seq in page_reorders.items():
         rank = {nid: i for i, nid in enumerate(seq)}
         slots = [k for k, n in enumerate(ir["body"]) if n.get("page") == page]
         nodes = sorted((ir["body"][k] for k in slots),
                        key=lambda n: rank.get(n["nid"], len(rank)))
-        for slot, node in zip(slots, nodes):  # same slots, reordered contents
+        for slot, node in zip(slots, nodes):
             ir["body"][slot] = node
         ctx.log.entry("op-reorder", page=page, count=len(slots))
 

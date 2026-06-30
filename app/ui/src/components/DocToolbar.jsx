@@ -2,9 +2,25 @@ import React from "react";
 
 // toggles for the full document view; lives inside the Convert Document tab
 // since every control here only affects the html/pdf representation
-export default function DocToolbar({ doc, toggles, setToggles, embed, fontsComplete, onToggleEmbed, questionCount, answeredCount }) {
+export default function DocToolbar({ doc, toggles, setToggles, embed, fontsComplete, onToggleEmbed,
+  orderEdit, orderMsg, onEnterOrderEdit, onSaveOrder, onFixOrder, onCancelOrder,
+  questionCount, answeredCount }) {
   const done = doc.status === "done";
   const set = (key) => (e) => setToggles((t) => ({ ...t, [key]: e.target.checked }));
+
+  // editing reading order takes over the toolbar: save / fix / cancel
+  if (orderEdit) {
+    return (
+      <div className="doc-toolbar">
+        <span className="order-editing">Editing reading order — ↑/↓ on each element</span>
+        <button className="order-save" onClick={onSaveOrder}
+          title="Record the corrected order as a gold-set assertion">✓ Save correct order</button>
+        <button className="order-fix" onClick={onFixOrder}
+          title="Apply the corrected order to this document's output">⤓ Apply as fix</button>
+        <button className="order-cancel" onClick={onCancelOrder}>✕ Cancel</button>
+      </div>
+    );
+  }
 
   return (
     <div className="doc-toolbar">
@@ -25,6 +41,11 @@ export default function DocToolbar({ doc, toggles, setToggles, embed, fontsCompl
           ? Questions {answeredCount}/{questionCount}
         </button>
       )}
+      {done && (
+        <button className="mode" onClick={onEnterOrderEdit}
+          title="Reorder elements into the correct reading order">⇅ Edit Reading Order</button>
+      )}
+      {orderMsg && <span className="order-msg">{orderMsg}</span>}
       {doc.pages > 0 && (
         <label><input type="checkbox" checked={toggles.showPdf} onChange={set("showPdf")} /> Original PDF</label>
       )}

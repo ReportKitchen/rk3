@@ -1,9 +1,10 @@
-import React, { Suspense, lazy, useCallback, useEffect, useRef, useState } from "react";
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panels";
 import { docUrl, pageUrl } from "../api.js";
 import { setupSync } from "../syncScroll.js";
 import DocToolbar from "./DocToolbar.jsx";
-import ReadingOrderPanel from "./ReadingOrderPanel.jsx";
+import { saveOrderAssertion, saveReorderOp } from "../api.js";
+import { reportError } from "../errorBus.js";
 import QuestionsPanel from "./QuestionsPanel.jsx";
 
 // Puck is heavy (~90kB gzip); load the Landing Page Maker only when its tab opens
@@ -13,9 +14,23 @@ const LandingMaker = lazy(() => import("../landing/LandingMaker.jsx"));
 // rest are alternate representations of the same content
 const TABS = [
   { id: "convert", label: "Convert Document" },
-  { id: "reading-order", label: "Reading Order" },
   { id: "landing", label: "Landing Page" },
 ];
+
+// injected into the iframe while editing reading order: a translucent tint +
+// an up/down control on each reorderable element
+const ORDER_CSS = `
+.rk-order-mode [data-nid] { position: relative; }
+.rk-order-mode .rk-order-item { outline: 1.5px solid rgba(43,74,117,.5);
+  outline-offset: 1px; background: rgba(91,127,181,.08); }
+.rk-order-ctl { position: absolute; top: 0; right: 0; z-index: 9; display: flex;
+  gap: 2px; background: rgba(255,255,255,.92); border: 1px solid #b8cae3;
+  border-radius: 5px; padding: 1px; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+.rk-order-ctl button { font: 13px/1 sans-serif; width: 22px; height: 20px;
+  border: none; background: #eef3fa; color: #2c4a75; cursor: pointer;
+  border-radius: 3px; }
+.rk-order-ctl button:hover { background: #d8e6f7; }
+`;
 
 const MARKER_CSS = `
 .rk-qmark {
@@ -123,6 +138,100 @@ export default function DocumentView({
     setEmbed((e) => ({ ...e, on }));
     onPersistEmbed?.(on);
   }, [onPersistEmbed]);
+
+  // ----- inline reading-order editing (overlay up/down on each element) -----
+  const [orderEdit, setOrderEdit] = useState(false);
+  const [orderMsg, setOrderMsg] = useState(null);
+  const dirtyPages = useRef(new Set());
+  const textByNid = useMemo(() => {
+    const m = {};
+    for (const n of ir?.body || [])
+      m[n.nid] = n.text || n.title || n.children?.find((c) => c.text)?.text || `[${n.type}]`;
+    return m;
+  }, [ir]);
+
+  useEffect(() => {
+    const idoc = iframeRef.current?.contentDocument;
+    if (!idoc?.body || !frameLoaded) return;
+    if (!orderEdit) {
+      idoc.body.classList.remove("rk-order-mode");
+      idoc.querySelectorAll(".rk-order-ctl").forEach((c) => c.remove());
+      idoc.querySelectorAll(".rk-order-item").forEach((e) => e.classList.remove("rk-order-item"));
+      return;
+    }
+    if (!idoc.getElementById("rk-order-style")) {
+      const s = idoc.createElement("style");
+      s.id = "rk-order-style";
+      s.textContent = ORDER_CSS;
+      idoc.head.appendChild(s);
+    }
+    idoc.body.classList.add("rk-order-mode");
+    dirtyPages.current = new Set();
+    const article = idoc.querySelector("article") || idoc.body;
+    const move = (el, dir) => {
+      const sib = dir < 0 ? el.previousElementSibling : el.nextElementSibling;
+      if (!sib || !sib.dataset?.nid) return;
+      if (dir < 0) article.insertBefore(el, sib);
+      else article.insertBefore(sib, el);
+      for (const e of [el, sib]) if (e.dataset.page) dirtyPages.current.add(+e.dataset.page);
+      el.scrollIntoView({ block: "nearest" });
+    };
+    for (const el of [...article.children].filter((e) => e.dataset?.nid)) {
+      el.classList.add("rk-order-item");
+      const ctl = idoc.createElement("div");
+      ctl.className = "rk-order-ctl";
+      ctl.setAttribute("contenteditable", "false");
+      for (const [dir, glyph, title] of [[-1, "↑", "Move up"], [1, "↓", "Move down"]]) {
+        const b = idoc.createElement("button");
+        b.textContent = glyph;
+        b.title = title;
+        b.onclick = (e) => { e.preventDefault(); e.stopPropagation(); move(el, dir); };
+        ctl.appendChild(b);
+      }
+      el.appendChild(ctl);
+    }
+    return () => {
+      idoc.body.classList.remove("rk-order-mode");
+      idoc.querySelectorAll(".rk-order-ctl").forEach((c) => c.remove());
+      idoc.querySelectorAll(".rk-order-item").forEach((e) => e.classList.remove("rk-order-item"));
+    };
+  }, [orderEdit, frameLoaded]);
+
+  const _orderSeq = () => {
+    const idoc = iframeRef.current?.contentDocument;
+    const article = idoc?.querySelector("article") || idoc?.body;
+    return [...(article?.children || [])].filter((e) => e.dataset?.nid)
+      .map((e) => ({ nid: e.dataset.nid, page: +e.dataset.page || null }));
+  };
+  const enterOrderEdit = () => {
+    setToggles((t) => ({ ...t, feedbackMode: false }));  // modes are exclusive
+    setOrderMsg(null);
+    setOrderEdit(true);
+  };
+  const reloadFrame = () => iframeRef.current?.contentWindow?.location.reload();
+  const cancelOrder = () => { setOrderEdit(false); reloadFrame(); };
+  const saveOrder = async () => {
+    const seq = _orderSeq();
+    let n = 0;
+    for (const pg of dirtyPages.current) {
+      const prefixes = seq.filter((x) => x.page === pg)
+        .map((x) => (textByNid[x.nid] || "").replace(/\s+/g, " ").trim().slice(0, 45))
+        .filter(Boolean);
+      if (prefixes.length >= 2) {
+        await saveOrderAssertion(doc.slug, prefixes, `p${pg} reading order`)
+          .then(() => n++).catch((e) => reportError("save order assertion", e));
+      }
+    }
+    setOrderEdit(false);
+    setOrderMsg(n ? `Saved gold-set order for ${n} page(s).` : "No changes to save.");
+    reloadFrame();
+  };
+  const fixOrder = async () => {
+    await saveReorderOp(doc.slug, _orderSeq().map((x) => x.nid))
+      .catch((e) => reportError("apply reorder", e));
+    setOrderEdit(false);
+    setOrderMsg("Reorder applied — reconverting…");
+  };
 
   // sync scroll
   useEffect(() => {
@@ -372,6 +481,12 @@ export default function DocumentView({
             embed={embed}
             fontsComplete={fontsComplete}
             onToggleEmbed={toggleEmbed}
+            orderEdit={orderEdit}
+            orderMsg={orderMsg}
+            onEnterOrderEdit={enterOrderEdit}
+            onSaveOrder={saveOrder}
+            onFixOrder={fixOrder}
+            onCancelOrder={cancelOrder}
             questionCount={questions.length}
             answeredCount={questions.filter((q) => answers.has(q.qid)).length}
           />
@@ -413,12 +528,6 @@ export default function DocumentView({
             )}
           </div>
         </div>
-
-        {tab === "reading-order" && (
-          <div className="rorder-tab">
-            <ReadingOrderPanel slug={doc.slug} ir={ir} onConvert={onConvert} />
-          </div>
-        )}
 
         {tab === "landing" && (
           <Suspense fallback={<div className="hint" style={{ padding: "2rem" }}>Loading editor…</div>}>
