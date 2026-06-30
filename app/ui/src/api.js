@@ -94,6 +94,13 @@ export const saveOrderAssertion = (slug, order, note) =>
 export const saveReorderOp = (slug, order) =>
   postOp(slug, { nid: "reorder-doc", op: "reorder", order });
 
+// merge: fold node `frm` into node `into` (a rejoined split paragraph)
+export const saveMergeOp = (slug, into, frm) =>
+  postOp(slug, { nid: `merge-${frm}`, op: "merge", into, frm });
+
+export const saveMergeAssertion = (slug, a, b) =>
+  saveAssertion(slug, { merge: [a, b] }, true);
+
 export const deleteOp = (slug, opKind, nid) =>
   fetch(`/api/ops/${slug}/${opKind}/${nid}`, { method: "DELETE" }).then(json);
 

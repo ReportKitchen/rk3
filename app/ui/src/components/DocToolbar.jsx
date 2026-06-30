@@ -12,7 +12,7 @@ export default function DocToolbar({ doc, toggles, setToggles, embed, fontsCompl
   if (orderEdit) {
     return (
       <div className="doc-toolbar">
-        <span className="order-editing">Editing reading order — ↑/↓ on each element</span>
+        <span className="order-editing">Editing structure — ↑/↓ reorder, ⊕ merge with next</span>
         <button className="order-save" onClick={onSaveOrder}
           title="Record the corrected order as a gold-set assertion">✓ Save correct order</button>
         <button className="order-fix" onClick={onFixOrder}

@@ -3,7 +3,7 @@ import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panel
 import { docUrl, pageUrl } from "../api.js";
 import { setupSync } from "../syncScroll.js";
 import DocToolbar from "./DocToolbar.jsx";
-import { saveOrderAssertion, saveReorderOp } from "../api.js";
+import { saveOrderAssertion, saveReorderOp, saveMergeOp, saveMergeAssertion } from "../api.js";
 import { reportError } from "../errorBus.js";
 import QuestionsPanel from "./QuestionsPanel.jsx";
 
@@ -149,6 +149,7 @@ export default function DocumentView({
   const [orderEdit, setOrderEdit] = useState(false);
   const [orderMsg, setOrderMsg] = useState(null);
   const dirtyPages = useRef(new Set());
+  const merges = useRef([]);  // [{into, frm}] folds queued in this edit session
   const textByNid = useMemo(() => {
     const m = {};
     const walk = (nodes) => {
@@ -159,6 +160,21 @@ export default function DocumentView({
     };
     walk(ir?.body);
     return m;
+  }, [ir]);
+  // the engine's leaf reading order (no children), to detect which adjacencies
+  // the user actually fixed — we only assert those (the eval order check is a
+  // strict A-before-B pair)
+  const irLeafOrder = useMemo(() => {
+    const out = [];
+    const walk = (nodes, page) => {
+      for (const n of nodes || []) {
+        const pg = n.page ?? page;
+        if (n.children?.length) walk(n.children, pg);
+        else out.push({ nid: n.nid, page: pg });
+      }
+    };
+    walk(ir?.body, null);
+    return out;
   }, [ir]);
 
   useEffect(() => {
@@ -178,6 +194,7 @@ export default function DocumentView({
     }
     idoc.body.classList.add("rk-order-mode");
     dirtyPages.current = new Set();
+    merges.current = [];
     // a reorderable element's siblings are the OTHER [data-nid] elements with
     // the same parent — so this works at any level (top-level OR inside a
     // callout/list). The injected handle is a non-[data-nid] child, so it never
@@ -195,17 +212,34 @@ export default function DocumentView({
       for (const e of [el, sib]) if (e.dataset.page) dirtyPages.current.add(+e.dataset.page);
       el.scrollIntoView({ block: "nearest" });
     };
+    // merge this element with the next leaf: pull its content in (space-joined),
+    // record the fold, remove it from the DOM
+    const mergeDown = (el) => {
+      const sib = reSib(el, 1);
+      if (!sib || sib.querySelector("[data-nid]")) return;  // next must be a leaf
+      const elCtl = el.querySelector(":scope > .rk-order-ctl");
+      el.insertBefore(idoc.createTextNode(" "), elCtl);
+      for (const node of [...sib.childNodes]) {
+        if (node.classList?.contains("rk-order-ctl")) continue;
+        el.insertBefore(node, elCtl);
+      }
+      merges.current.push({ into: el.dataset.nid, frm: sib.dataset.nid });
+      if (el.dataset.page) dirtyPages.current.add(+el.dataset.page);
+      sib.remove();
+    };
     for (const el of idoc.querySelectorAll("[data-nid]")) {
       const container = !!el.querySelector("[data-nid]");
       el.classList.add("rk-order-item", container ? "rk-order-container" : "rk-order-leaf");
       const ctl = idoc.createElement("div");
       ctl.className = "rk-order-ctl";
       ctl.setAttribute("contenteditable", "false");
-      for (const [dir, glyph, title] of [[-1, "↑", "Move up"], [1, "↓", "Move down"]]) {
+      const btns = [[() => move(el, -1), "↑", "Move up"], [() => move(el, 1), "↓", "Move down"]];
+      if (!container) btns.push([() => mergeDown(el), "⊕", "Merge with the element below"]);
+      for (const [fn, glyph, title] of btns) {
         const b = idoc.createElement("button");
         b.textContent = glyph;
         b.title = title;
-        b.onclick = (e) => { e.preventDefault(); e.stopPropagation(); move(el, dir); };
+        b.onclick = (e) => { e.preventDefault(); e.stopPropagation(); fn(); };
         ctl.appendChild(b);
       }
       el.appendChild(ctl);
@@ -233,27 +267,44 @@ export default function DocumentView({
   };
   const reloadFrame = () => iframeRef.current?.contentWindow?.location.reload();
   const cancelOrder = () => { setOrderEdit(false); reloadFrame(); };
+  const clean = (nid) => (textByNid[nid] || "").replace(/\s+/g, " ").trim();
   const saveOrder = async () => {
-    const seq = _orderSeq();
-    let n = 0;
+    const cur = _orderSeq().filter((x) => x.leaf);
+    const origIdx = {};
+    irLeafOrder.forEach((x, i) => { origIdx[x.nid] = i; });
+    let n = 0, skipped = 0;
     for (const pg of dirtyPages.current) {
-      const prefixes = seq.filter((x) => x.page === pg && x.leaf)
-        .map((x) => (textByNid[x.nid] || "").replace(/\s+/g, " ").trim().slice(0, 45))
-        .filter(Boolean);
-      if (prefixes.length >= 2) {
-        await saveOrderAssertion(doc.slug, prefixes, `p${pg} reading order`)
+      const leaves = cur.filter((x) => x.page === pg);
+      for (let i = 0; i < leaves.length - 1; i++) {
+        const X = leaves[i].nid, Y = leaves[i + 1].nid;
+        // assert only an adjacency the user FIXED (X was after Y before)
+        if (origIdx[X] == null || origIdx[Y] == null || origIdx[X] <= origIdx[Y]) continue;
+        const tx = clean(X).slice(0, 45), ty = clean(Y).slice(0, 45);
+        if (!tx || !ty || tx.startsWith("[") || ty.startsWith("[")) { skipped++; continue; }
+        await saveOrderAssertion(doc.slug, [tx, ty], `reads before (p${pg})`)
           .then(() => n++).catch((e) => reportError("save order assertion", e));
       }
     }
+    let m = 0;
+    for (const { into, frm } of merges.current) {
+      const a = clean(into).slice(0, 45), b = clean(frm).slice(0, 45);
+      if (a && b && !a.startsWith("[") && !b.startsWith("["))
+        await saveMergeAssertion(doc.slug, a, b).then(() => m++)
+          .catch((e) => reportError("save merge assertion", e));
+    }
     setOrderEdit(false);
-    setOrderMsg(n ? `Saved gold-set order for ${n} page(s).` : "No changes to save.");
+    setOrderMsg([n && `${n} order`, m && `${m} merge`].filter(Boolean).join(" + ")
+      ? `Saved ${[n && `${n} order`, m && `${m} merge`].filter(Boolean).join(" + ")} assertion(s).`
+      : "No changes to save.");
     reloadFrame();
   };
   const fixOrder = async () => {
     await saveReorderOp(doc.slug, _orderSeq().map((x) => x.nid))
       .catch((e) => reportError("apply reorder", e));
+    for (const { into, frm } of merges.current)
+      await saveMergeOp(doc.slug, into, frm).catch((e) => reportError("apply merge", e));
     setOrderEdit(false);
-    setOrderMsg("Reorder applied — reconverting…");
+    setOrderMsg("Applied — reconverting…");
   };
 
   // sync scroll

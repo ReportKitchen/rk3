@@ -442,10 +442,12 @@ class EditOp(BaseModel):
     `reorder` is page-scoped (nid = "reorder-p<page>"): `order` lists the page's
     nids in the corrected reading order."""
     nid: str
-    op: str  # set-text | delete | set-level | reorder
+    op: str  # set-text | delete | set-level | reorder | merge
     value: str | int | None = None
     page: int | None = None
     order: list[str] | None = None
+    into: str | None = None  # merge target
+    frm: str | None = None   # merge source (folded into `into`, then dropped)
 
 
 def _ops_path(slug: str) -> Path:

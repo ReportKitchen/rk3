@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 53
+VERSION = 54
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -200,6 +200,57 @@ def _apply_ops(ctx, ir):
         for slot, node in zip(slots, nodes):
             ir["body"][slot] = node
         ctx.log.entry("op-reorder", page=page, count=len(slots))
+
+    # merge ops: fold node `frm` into node `into` (a paragraph the user rejoined
+    # in the reading-order tool — usually a sentence split across a column break).
+    # Run after reorder so the corrected adjacency is in place.
+    for op in ops:
+        if op.get("op") != "merge" or not (op.get("into") and op.get("frm")):
+            continue
+        a = _find_node(ir["body"], op["into"])
+        holder, b = _find_node_parent(ir["body"], op["frm"])
+        if a is None or b is None or a is b or "text" not in a or "text" not in b:
+            continue
+        _merge_into(a, b)
+        holder.remove(b)
+        ctx.log.entry("op-merge", into=op["into"], frm=op["frm"])
+
+
+def _find_node(nodes, nid):
+    for n in nodes:
+        if n.get("nid") == nid:
+            return n
+        if n.get("children"):
+            hit = _find_node(n["children"], nid)
+            if hit is not None:
+                return hit
+    return None
+
+
+def _find_node_parent(nodes, nid):
+    """(containing list, node) for nid, so the node can be removed from it."""
+    for n in nodes:
+        if n.get("nid") == nid:
+            return nodes, n
+        if n.get("children"):
+            hit = _find_node_parent(n["children"], nid)
+            if hit[1] is not None:
+                return hit
+    return nodes, None
+
+
+def _merge_into(a, b):
+    """Concatenate b's text + style runs onto a (rebased), dropping nothing —
+    the split-paragraph rejoin (cf. analyze._join_broken_paragraphs) as an op."""
+    sep = " " if a.get("text") and not a["text"].endswith(("-", " ")) else ""
+    off = len(a.get("text", "")) + len(sep)
+    a["text"] = a.get("text", "") + sep + b.get("text", "")
+    for key in ("emph", "links", "marks", "sups", "refs"):
+        if b.get(key):
+            a[key] = a.get(key, []) + [[s + off, e + off, *rest]
+                                       for s, e, *rest in b[key]]
+    if b.get("breaks"):
+        a["breaks"] = a.get("breaks", []) + [x + off for x in b["breaks"]]
 
 
 def _norm_anchor(text):
