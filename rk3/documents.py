@@ -21,7 +21,10 @@ def list_documents() -> list[dict]:
     docs = []
     for pdf in sorted(SOURCES.glob("*/*.pdf")):
         folder = pdf.parent.name
-        if folder == "docs":
+        # "docs" holds prose; "inactive/…" holds parked/atypical sources we don't
+        # process (the */*.pdf glob already skips inactive's deeper nesting, but
+        # guard a PDF dropped directly in sources/inactive/ too)
+        if folder in ("docs", "inactive"):
             continue
         slug = f"{folder}--{slugify(pdf.stem)}"
         docs.append({
