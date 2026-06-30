@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 106
+VERSION = 109
 
 
 # PDF font-descriptor flag bits
@@ -291,7 +291,16 @@ def run(ctx):
             if grouped is not None:
                 items = grouped
                 geom_order, ncols = _reading_order([item_bbox(it) for it in items])
-            order = geom_order
+                order = geom_order
+            else:
+                # heading-left/body-right rows return a flat list already in
+                # reading order — don't re-run the XY-cut (it would re-derive the
+                # column-major order this is here to override)
+                aside = _heading_aside_rows(ctx, items, blocks, body_size, page_n)
+                if aside is not None:
+                    items, order = aside, list(range(len(aside)))
+                else:
+                    order = geom_order
             src = "geometry"
         page_items[page_n] = [items[k] for k in order]
         if ncols >= 2:
@@ -1935,6 +1944,96 @@ def _side_rows(ctx, items, blocks, body_size, page_n):
                 placed.add(ri)
                 out.append(("row", row))
     return out
+
+
+def _heading_aside_rows(ctx, items, blocks, body_size, page_n):
+    """Heading-left / body-right rows (asymmetric, unlike _side_rows' matched
+    cards). A heading-styled block in a left column, with body content to its
+    right and nothing below it in its OWN column, governs that right content as a
+    band ("Leverage loan…" heading + its bullet list to the right). Left alone,
+    the column-first XY-cut reads every left heading and THEN every right body
+    ("h1 h2 b1 b2"); grouping each heading with its band restores "h1 b1 h2 b2".
+    Distinguished from a per-column header (which reads column-major) by the body
+    — not another heading — sitting to the heading's right; and the "nothing below
+    it in its own column" gate rules out a heading that merely tops a 2-col flow."""
+    def sig(it):
+        kind, ref = it
+        if kind != "block":
+            return None
+        ln = blocks[ref]["lines"][0]
+        return (ln.get("fontIdx"), round(ln.get("size", 0.0)), ln.get("colorIdx"))
+
+    def bbox(it):
+        kind, ref = it
+        return blocks[ref]["bbox"] if kind == "block" else ref["bbox"]
+
+    sigs = [sig(it) for it in items]
+    counts = Counter(s for s in sigs if s is not None)
+    if not counts:
+        return None
+    body_sig = counts.most_common(1)[0][0]
+    boxes = [bbox(it) for it in items]
+    is_body = lambda i: sigs[i] == body_sig
+
+    headings = []
+    for h in range(len(items)):
+        if sigs[h] is None or sigs[h] == body_sig:
+            continue
+        # a sidebar heading is visually LARGER than body — guards against dense
+        # infographics where scattered small chart labels (7-9pt) would each
+        # qualify as a "heading" with body coincidentally to their right
+        if sigs[h][1] < body_size + 1:
+            continue
+        H = boxes[h]
+        # body to the right, sharing the heading's vertical band
+        has_right = any(i != h and is_body(i) and boxes[i][0] >= H[2] + 6
+                        and boxes[i][1] < H[3] and boxes[i][3] > H[1]
+                        for i in range(len(items)))
+        if not has_right:
+            continue
+        # ...and NOTHING of substance below it in its own column (else it's a
+        # heading topping a normal two-column flow → leave to column-major)
+        below_left = any(i != h and is_body(i) and boxes[i][3] <= H[1] + 1
+                         and boxes[i][0] < H[2] and boxes[i][2] > H[0]
+                         for i in range(len(items)))
+        if not below_left:
+            headings.append(h)
+    if len(headings) < 2:  # a repeated pattern, not a one-off
+        return None
+    if max(boxes[h][0] for h in headings) > min(boxes[h][2] for h in headings):
+        return None  # the headings must stack in one shared left column
+
+    headings.sort(key=lambda h: -boxes[h][3])  # top-down
+    tops = [boxes[h][3] for h in headings]
+    gutter = min(boxes[h][2] for h in headings)  # right edge of the heading column
+    bands, used_all = {}, set()
+    for k, h in enumerate(headings):
+        top = tops[k]
+        nxt = tops[k + 1] if k + 1 < len(headings) else float("-inf")
+        band = [i for i in range(len(items))
+                if i != h and i not in used_all and boxes[i][0] >= gutter + 6
+                and nxt < (boxes[i][1] + boxes[i][3]) / 2 <= top]
+        if not band:
+            continue
+        band.sort(key=lambda i: -boxes[i][3])
+        used_all.update(band)
+        used_all.add(h)
+        bands[h] = band
+    if len(bands) < 2:
+        return None
+
+    # Emit a FLAT reading order, not a grid: each heading expands to itself then
+    # its right-column band; loose items keep their place. Flat (vs grid cells)
+    # so the downstream list/figure grouping still sees the band's bullets as
+    # siblings and merges them into one list. Units sort top-down by their head.
+    units = [(boxes[h][3], [h] + band) for h, band in bands.items()]
+    units += [(boxes[i][3], [i]) for i in range(len(items)) if i not in used_all]
+    units.sort(key=lambda u: -u[0])
+    ctx.log.entry("heading-aside", page=page_n, rows=len(bands),
+                  order=[blocks[items[i][1]]["lines"][0]["text"][:24]
+                         if items[i][0] == "block" else "·"
+                         for _, seq in units for i in seq])
+    return [items[i] for _, seq in units for i in seq]
 
 
 def _item_rk(item, blocks):
