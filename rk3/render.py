@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 52
+VERSION = 53
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -180,7 +180,14 @@ def _apply_ops(ctx, ir):
                       and op.get("page") is None), None)
     if doc_order:
         rank = {nid: i for i, nid in enumerate(doc_order)}
-        ir["body"].sort(key=lambda n: rank.get(n.get("nid"), len(rank)))
+
+        def _reorder(nodes):  # sort each level by the global reading-order rank
+            nodes.sort(key=lambda n: rank.get(n.get("nid"), len(rank)))
+            for n in nodes:
+                if n.get("children"):
+                    _reorder(n["children"])
+
+        _reorder(ir["body"])
         ctx.log.entry("op-reorder-doc", count=len(doc_order))
     page_reorders = {op["page"]: op["order"] for op in ops
                      if op.get("op") == "reorder" and op.get("order")

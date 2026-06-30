@@ -21,15 +21,21 @@ const TABS = [
 // an up/down control on each reorderable element
 const ORDER_CSS = `
 .rk-order-mode [data-nid] { position: relative; }
-.rk-order-mode .rk-order-item { outline: 1.5px solid rgba(43,74,117,.5);
-  outline-offset: 1px; background: rgba(91,127,181,.08); }
+.rk-order-mode .rk-order-item { outline: 1.5px solid rgba(43,74,117,.45);
+  outline-offset: 1px; }
+.rk-order-mode .rk-order-leaf { background: rgba(91,127,181,.10); }
 .rk-order-ctl { position: absolute; top: 0; right: 0; z-index: 9; display: flex;
   gap: 2px; background: rgba(255,255,255,.92); border: 1px solid #b8cae3;
   border-radius: 5px; padding: 1px; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+/* containers (a callout, a list) put their handle on the LEFT so it doesn't
+   collide with the top-right handle of their first child */
+.rk-order-container > .rk-order-ctl { right: auto; left: 0; border-color: #cdb48c;
+  background: rgba(250,243,230,.95); }
 .rk-order-ctl button { font: 13px/1 sans-serif; width: 22px; height: 20px;
   border: none; background: #eef3fa; color: #2c4a75; cursor: pointer;
   border-radius: 3px; }
-.rk-order-ctl button:hover { background: #d8e6f7; }
+.rk-order-container > .rk-order-ctl button { background: #faf3e6; color: #6b5320; }
+.rk-order-ctl button:hover { filter: brightness(0.94); }
 `;
 
 const MARKER_CSS = `
@@ -145,8 +151,13 @@ export default function DocumentView({
   const dirtyPages = useRef(new Set());
   const textByNid = useMemo(() => {
     const m = {};
-    for (const n of ir?.body || [])
-      m[n.nid] = n.text || n.title || n.children?.find((c) => c.text)?.text || `[${n.type}]`;
+    const walk = (nodes) => {
+      for (const n of nodes || []) {
+        m[n.nid] = n.text || n.title || `[${n.type}]`;
+        walk(n.children);
+      }
+    };
+    walk(ir?.body);
     return m;
   }, [ir]);
 
@@ -156,7 +167,7 @@ export default function DocumentView({
     if (!orderEdit) {
       idoc.body.classList.remove("rk-order-mode");
       idoc.querySelectorAll(".rk-order-ctl").forEach((c) => c.remove());
-      idoc.querySelectorAll(".rk-order-item").forEach((e) => e.classList.remove("rk-order-item"));
+      idoc.querySelectorAll(".rk-order-item").forEach((e) => e.classList.remove("rk-order-item", "rk-order-container", "rk-order-leaf"));
       return;
     }
     if (!idoc.getElementById("rk-order-style")) {
@@ -167,17 +178,26 @@ export default function DocumentView({
     }
     idoc.body.classList.add("rk-order-mode");
     dirtyPages.current = new Set();
-    const article = idoc.querySelector("article") || idoc.body;
+    // a reorderable element's siblings are the OTHER [data-nid] elements with
+    // the same parent — so this works at any level (top-level OR inside a
+    // callout/list). The injected handle is a non-[data-nid] child, so it never
+    // counts as a sibling.
+    const reSib = (el, dir) => {
+      let s = dir < 0 ? el.previousElementSibling : el.nextElementSibling;
+      while (s && !s.dataset?.nid) s = dir < 0 ? s.previousElementSibling : s.nextElementSibling;
+      return s;
+    };
     const move = (el, dir) => {
-      const sib = dir < 0 ? el.previousElementSibling : el.nextElementSibling;
-      if (!sib || !sib.dataset?.nid) return;
-      if (dir < 0) article.insertBefore(el, sib);
-      else article.insertBefore(sib, el);
+      const sib = reSib(el, dir);
+      if (!sib) return;
+      if (dir < 0) el.parentNode.insertBefore(el, sib);
+      else el.parentNode.insertBefore(sib, el);
       for (const e of [el, sib]) if (e.dataset.page) dirtyPages.current.add(+e.dataset.page);
       el.scrollIntoView({ block: "nearest" });
     };
-    for (const el of [...article.children].filter((e) => e.dataset?.nid)) {
-      el.classList.add("rk-order-item");
+    for (const el of idoc.querySelectorAll("[data-nid]")) {
+      const container = !!el.querySelector("[data-nid]");
+      el.classList.add("rk-order-item", container ? "rk-order-container" : "rk-order-leaf");
       const ctl = idoc.createElement("div");
       ctl.className = "rk-order-ctl";
       ctl.setAttribute("contenteditable", "false");
@@ -193,15 +213,18 @@ export default function DocumentView({
     return () => {
       idoc.body.classList.remove("rk-order-mode");
       idoc.querySelectorAll(".rk-order-ctl").forEach((c) => c.remove());
-      idoc.querySelectorAll(".rk-order-item").forEach((e) => e.classList.remove("rk-order-item"));
+      idoc.querySelectorAll(".rk-order-item").forEach((e) => e.classList.remove("rk-order-item", "rk-order-container", "rk-order-leaf"));
     };
   }, [orderEdit, frameLoaded]);
 
+  // every [data-nid] in document (= reading) order, at all nesting levels; the
+  // `leaf` ones (no nested [data-nid]) are the actual content sequence we assert
   const _orderSeq = () => {
     const idoc = iframeRef.current?.contentDocument;
-    const article = idoc?.querySelector("article") || idoc?.body;
-    return [...(article?.children || [])].filter((e) => e.dataset?.nid)
-      .map((e) => ({ nid: e.dataset.nid, page: +e.dataset.page || null }));
+    return [...(idoc?.querySelectorAll("[data-nid]") || [])].map((e) => ({
+      nid: e.dataset.nid, page: +e.dataset.page || null,
+      leaf: !e.querySelector("[data-nid]"),
+    }));
   };
   const enterOrderEdit = () => {
     setToggles((t) => ({ ...t, feedbackMode: false }));  // modes are exclusive
@@ -214,7 +237,7 @@ export default function DocumentView({
     const seq = _orderSeq();
     let n = 0;
     for (const pg of dirtyPages.current) {
-      const prefixes = seq.filter((x) => x.page === pg)
+      const prefixes = seq.filter((x) => x.page === pg && x.leaf)
         .map((x) => (textByNid[x.nid] || "").replace(/\s+/g, " ").trim().slice(0, 45))
         .filter(Boolean);
       if (prefixes.length >= 2) {
