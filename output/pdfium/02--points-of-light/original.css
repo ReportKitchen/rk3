@@ -49,6 +49,10 @@ a:hover { text-decoration: underline; }
 [data-nid="nb52a629a82"] a,
 [data-nid="nb712503dc2"] a { color: #175d9e; }
 
+strong.c-175d9e { color: #175d9e; font-weight: inherit; }
+strong.c-231f20 { color: #231f20; font-weight: inherit; }
+strong.c-4280c2 { color: #4280c2; font-weight: inherit; }
+
 .strong-alt {
   font-family: "gotham", sans-serif;
   font-weight: 700;
@@ -75,6 +79,13 @@ a:hover { text-decoration: underline; }
 }
 
 .strong-alt-2 {
+  font-family: "gotham", sans-serif;
+  font-weight: 700;
+  color: #4280c2;
+  font-size: 1.1em;
+}
+
+.strong-alt-3 {
   font-family: "gotham", sans-serif;
   font-weight: 700;
   color: #4280c2;
@@ -178,9 +189,6 @@ a:hover { text-decoration: underline; }
 [data-nid="n9f3b8b7ad0"] {
   background: #929292;
   border: none;
-  float: right;
-  width: 62%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="n275c8a7c49"] { color: #8bbd3f; }

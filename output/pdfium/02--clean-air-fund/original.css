@@ -64,9 +64,18 @@ a:hover { text-decoration: underline; }
 
 [data-nid="n4468e7e039"] a { color: #eabf60; }
 
+strong.c-000000 { color: #000000; font-weight: inherit; }
+strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
+
 .strong-alt {
   font-family: "Karla", sans-serif;
   font-weight: 700;
+}
+
+.strong-alt-2 {
+  font-family: "Karla", sans-serif;
+  font-weight: 700;
+  font-size: 1.09em;
 }
 
 .centered {
@@ -147,6 +156,7 @@ a:hover { text-decoration: underline; }
 
 .alt {
   font-family: "Karla", sans-serif;
+  font-size: 1.09em;
 }
 
 [data-nid="nacb5aa9455"] { color: #ea581d; }

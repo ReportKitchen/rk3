@@ -66,6 +66,9 @@ a:hover { text-decoration: underline; }
 [data-nid="n9d3571f4e2"] a,
 [data-nid="n29a41f461a"] a { color: #202224; }
 
+strong.c-000000 { color: #000000; font-weight: inherit; }
+strong.c-088d92 { color: #088d92; font-weight: inherit; }
+
 .lg-serif {
   font-family: "IBM Plex Serif", serif;
   font-size: 1.5em;
@@ -130,6 +133,7 @@ a:hover { text-decoration: underline; }
   font-family: "IBM Plex Sans", sans-serif;
   font-weight: 500;
   font-style: italic;
+  font-size: 0.9em;
 }
 
 .xl-serif {
@@ -145,12 +149,20 @@ a:hover { text-decoration: underline; }
 
 .serif {
   font-family: "IBM Plex Serif", serif;
+  font-size: 1.1em;
 }
 
 .medium-alt-2 {
   font-family: "IBM Plex Sans", sans-serif;
   font-weight: 500;
+  font-size: 0.9em;
+}
+
+.medium-alt-3 {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-weight: 500;
   color: #202224;
+  font-size: 0.9em;
 }
 
 .lg-italic-alt {
@@ -158,6 +170,14 @@ a:hover { text-decoration: underline; }
   font-style: italic;
   color: #444746;
   font-size: 1.2em;
+}
+
+.styled {
+  font-size: 1.1em;
+}
+
+.styled-2 {
+  font-size: 0.9em;
 }
 
 [data-nid="nb86d70826e"] .soft-header,
@@ -217,9 +237,6 @@ a:hover { text-decoration: underline; }
   border: none;
   border-bottom: 20px solid #ffffff;
   border-top: 20px solid #ffffff;
-  float: right;
-  width: 60%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="nc88aceb5fe"] {
@@ -227,9 +244,6 @@ a:hover { text-decoration: underline; }
   border: none;
   border-bottom: 20px solid #ffffff;
   border-top: 20px solid #ffffff;
-  float: right;
-  width: 59%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="n7f425db9a4"] {
@@ -260,12 +274,6 @@ a:hover { text-decoration: underline; }
   border-left: 4px solid #fade00;
 }
 
-[data-nid="n63e689cde2"] {
-  float: left;
-  width: 64%;
-  margin: 0 1.5rem 1rem 0;
-}
-
 [data-nid="n8e489109a1"] { color: #005963; }
 
 [data-nid="n66bd13d218"] {
@@ -275,12 +283,6 @@ a:hover { text-decoration: underline; }
 }
 
 [data-nid="n7761804b74"] { color: #005963; }
-
-[data-nid="nac62ac8f0a"] {
-  float: left;
-  width: 56%;
-  margin: 0 1.5rem 1rem 0;
-}
 
 [data-nid="n7ca3fe0a18"] {
   background: transparent;
@@ -304,9 +306,6 @@ a:hover { text-decoration: underline; }
   border: none;
   border-bottom: 20px solid #ffffff;
   border-top: 17px solid #ffffff;
-  float: right;
-  width: 58%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="n2fe8350425"] {

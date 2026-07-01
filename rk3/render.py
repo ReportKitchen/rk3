@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 56
+VERSION = 58
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -245,7 +245,7 @@ def _merge_into(a, b):
     sep = " " if a.get("text") and not a["text"].endswith(("-", " ")) else ""
     off = len(a.get("text", "")) + len(sep)
     a["text"] = a.get("text", "") + sep + b.get("text", "")
-    for key in ("emph", "links", "marks", "sups", "refs"):
+    for key in ("emph", "links", "marks", "sups", "refs", "colors"):
         if b.get(key):
             a[key] = a.get(key, []) + [[s + off, e + off, *rest]
                                        for s, e, *rest in b[key]]
@@ -334,7 +334,8 @@ def _render_node(ctx, node, pages, state):
             else:
                 body = _inline(c["text"], c.get("links"), c.get("refs"),
                                state, breaks=c.get("breaks"),
-                               emph=c.get("emph"), marks=c.get("marks"))
+                               emph=c.get("emph"), marks=c.get("marks"),
+                               colors=c.get("colors"))
                 parts.append(f"  <dd {_attrs(c, pages)}>{body}</dd>")
         inner = "\n".join(parts)
         return f'<dl {_attrs(node, pages)}>\n{inner}\n</dl>'
@@ -387,14 +388,16 @@ def _render_node(ctx, node, pages, state):
         lead = node.get("lead")
         emph = node.get("emph")
         marks = node.get("marks")
+        colors = node.get("colors")
         if lead:
             # the lead's own styling comes from layer-3 .soft-header rules;
             # inline runs inside it would collide with the lead event
             emph = [r for r in (emph or []) if r[0] >= lead]
             marks = [r for r in (marks or []) if r[0] >= lead]
+            colors = [r for r in (colors or []) if r[0] >= lead]
         body = _inline(node["text"], node.get("links"), node.get("refs"), state,
                        breaks=node.get("breaks"), emph=emph,
-                       marks=marks, lead=lead)
+                       marks=marks, lead=lead, colors=colors)
         if node.get("strong"):
             body = f"<strong>{body}</strong>"
         if node.get("quoteOpen"):
@@ -493,17 +496,19 @@ def _item_inline(it, state):
     if isinstance(it, str):
         return html.escape(it)
     return _inline(it.get("text", ""), it.get("links"), None, state,
-                   emph=it.get("emph"), marks=it.get("marks"))
+                   emph=it.get("emph"), marks=it.get("marks"),
+                   colors=it.get("colors"))
 
 
 # nesting order for overlapping wrap spans: lower rank = outer wrapper, so a
 # bold+italic+linked title renders <a><strong><em>…. Fixed ranks make the
 # segment sweep's nesting deterministic regardless of where spans start/end.
-_WRAP_RANK = {"lead": 0, "link": 1, "mark": 2, "strong": 3, "em": 4}
+_WRAP_RANK = {"lead": 0, "link": 1, "mark": 2, "strong": 3, "color": 3.5,
+              "em": 4}
 
 
 def _inline(text, links, refs, state, breaks=None, emph=None, marks=None,
-            lead=None):
+            lead=None, colors=None):
     """Escape text and apply inline markup with NO silent drops on overlap.
 
     Two kinds of inline markup:
@@ -540,6 +545,14 @@ def _inline(text, links, refs, state, breaks=None, emph=None, marks=None,
     for s, e, kind in (emph or []):
         if kind in ("strong", "em"):
             wraps.append((s, e, _WRAP_RANK[kind], f"<{kind}>", f"</{kind}>"))
+    for s, e, hx in (colors or []):
+        # emphasis-by-color (rubric §3): promoted to <strong> with a class that
+        # restores the exact source color (the class neutralizes the default
+        # bolding — the source colored this text, it didn't embolden it).
+        # Marker glyphs (colored bullets, dingbats) carry no words — skip them.
+        if _usable_color(hx) and any(ch.isalnum() for ch in text[s:e]):
+            wraps.append((s, e, _WRAP_RANK["color"],
+                          f'<strong class="c-{hx[1:]}">', "</strong>"))
 
     # --- replacement events ---------------------------------------------
     # collected as (s, e, prio, kind, data); markup is built AFTER overlap
@@ -555,7 +568,8 @@ def _inline(text, links, refs, state, breaks=None, emph=None, marks=None,
                     + [(s, e) for s, e, _n in (refs or [])]
                     + [(s, s + 1) for s in (breaks or [])]
                     + [(s, e) for s, e, _k in (emph or [])]
-                    + [(s, e) for s, e, _c in (marks or [])])
+                    + [(s, e) for s, e, _c in (marks or [])]
+                    + [(s, e) for s, e, _c in (colors or [])])
         for s, e, _kind, payload in _autolink_events(text, occupied):
             link_events.append((s, e, payload))
     for s, e, payload in link_events:
@@ -1048,7 +1062,9 @@ def _original_css(ctx, ir):
                 link_exceptions.setdefault(own, []).append(n["nid"])
             else:
                 rules.append(f"  color: {own};")
-        if d.get("size") and abs(d["size"] / body_pt - 1) >= 0.12:
+        # fidelity-first: reproduce even small size departures (a 9pt caption
+        # against 10pt body reads differently); 5% ≈ below rounding noise
+        if d.get("size") and abs(d["size"] / body_pt - 1) >= 0.05:
             rules.append(f"  font-size: {round(d['size'] / body_pt, 2)}em;")
         if d.get("align"):
             rules.append(f"  text-align: {d['align']};")
@@ -1097,6 +1113,34 @@ def _original_css(ctx, ir):
                              for nid in link_exceptions[c])
             out += [f"{sel} {{ color: {c}; }}", ""]
 
+    # inline emphasis-by-color palette (rubric §3): colored non-link runs render
+    # as <strong class="c-xxxxxx">; the class restores the exact source color
+    # and neutralizes strong's default bolding (the source colored this text,
+    # it didn't embolden it — a run that IS also bold nests inside a real
+    # <strong> and inherits its weight).
+    cpal = set()
+
+    def feed_cpal(n):
+        for _s, _e, hx in n.get("colors") or []:
+            cpal.add(hx)
+        for it in n.get("items") or []:
+            if isinstance(it, dict):
+                for _s, _e, hx in it.get("colors") or []:
+                    cpal.add(hx)
+                for si in (it.get("sub") or {}).get("items") or []:
+                    if isinstance(si, dict):
+                        for _s, _e, hx in si.get("colors") or []:
+                            cpal.add(hx)
+        for c in n.get("children", []):
+            feed_cpal(c)
+
+    for n in ir["body"]:
+        feed_cpal(n)
+    cpal_rules = [f"strong.c-{hx[1:]} {{ color: {hx}; font-weight: inherit; }}"
+                  for hx in sorted(cpal) if _usable_color(hx)]
+    if cpal_rules:
+        out += cpal_rules + [""]
+
     # paragraph style departures become ONE named class each (.lead/.fine/…),
     # tagged onto the nodes, instead of a list of [data-nid] selectors
     used_names = {}
@@ -1120,6 +1164,25 @@ def _original_css(ctx, ir):
     # the column) their floated position and width; floated figures too
     for n in ir["body"]:
         d = n.get("data") or {}
+        if n["type"] == "paragraph" and d.get("dropCap"):
+            # ornamental drop cap (rubric §3: preserve via CSS by default).
+            # data.dropCap = "<scale> <#hex>": scale = cap size / body size.
+            # ~0.65× the print scale spans about the same lines on the web
+            # (web line-height is looser than print leading).
+            try:
+                scale_s, dc_color = d["dropCap"].split()
+                dc_size = round(float(scale_s) * 0.65, 2)
+            except (ValueError, AttributeError):
+                dc_size, dc_color = None, None
+            if dc_size and dc_size >= 1.3:
+                rules_dc = [f"  float: left;",
+                            f"  font-size: {dc_size}em;",
+                            "  line-height: 0.8;",
+                            "  padding: 0.04em 0.08em 0 0;"]
+                if _usable_color(dc_color):
+                    rules_dc.append(f"  color: {dc_color};")
+                out += [f'[data-nid="{n["nid"]}"]::first-letter {{',
+                        *rules_dc, "}", ""]
         if n["type"] == "heading":
             # heading whose own color differs from its level's dominant color
             lv_color = heads.get(n["level"], {}).get("color")

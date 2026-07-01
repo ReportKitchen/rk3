@@ -71,17 +71,24 @@ a:hover { text-decoration: underline; }
 .strong-alt {
   font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
   font-weight: 700;
+  font-size: 1.09em;
 }
 
 .center-alt {
   font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
   font-weight: 300;
+  font-size: 1.09em;
   text-align: center;
 }
 
 .alt {
   font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
   font-weight: 300;
+  font-size: 1.09em;
+}
+
+.styled {
+  font-size: 1.09em;
 }
 
 .lg-medium-alt {
@@ -91,7 +98,28 @@ a:hover { text-decoration: underline; }
 }
 
 .centered {
+  font-size: 0.91em;
   text-align: center;
+}
+
+.styled-2 {
+  font-size: 0.91em;
+}
+
+.centered-2 {
+  font-size: 1.09em;
+  text-align: center;
+}
+
+.strong-alt-2 {
+  font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
+  font-weight: 700;
+}
+
+.strong-alt-3 {
+  font-family: var(--rkf-publicsans, "Public Sans", sans-serif);
+  font-weight: 700;
+  font-size: 0.91em;
 }
 
 .lg-strong-alt-2 {

@@ -114,6 +114,11 @@ a:hover { text-decoration: underline; }
 [data-nid="nac51eaed58"] a,
 [data-nid="nea98de3ba3"] a { color: #f57d29; }
 
+strong.c-000000 { color: #000000; font-weight: inherit; }
+strong.c-035a8b { color: #035a8b; font-weight: inherit; }
+strong.c-5091cd { color: #5091cd; font-weight: inherit; }
+strong.c-e8cf79 { color: #e8cf79; font-weight: inherit; }
+
 .xl-strong-alt {
   font-family: "futura-pt", sans-serif;
   font-weight: 700;
@@ -528,9 +533,6 @@ a:hover { text-decoration: underline; }
   border: none;
   border-bottom: 1px solid #5091cd;
   border-left: 1px solid #f57d29;
-  float: left;
-  width: 55%;
-  margin: 0 1.5rem 1rem 0;
 }
 
 [data-nid="n839d4c1324-3"] {
@@ -562,9 +564,6 @@ a:hover { text-decoration: underline; }
   border: none;
   border-bottom: 1px solid #5091cd;
   border-left: 1px solid #f57d29;
-  float: left;
-  width: 51%;
-  margin: 0 1.5rem 1rem 0;
 }
 
 [data-nid="n09e51ccdea-2"] {
@@ -572,9 +571,6 @@ a:hover { text-decoration: underline; }
   border: none;
   border-bottom: 1px solid #5091cd;
   border-left: 1px solid #f57d29;
-  float: left;
-  width: 60%;
-  margin: 0 1.5rem 1rem 0;
 }
 
 [data-nid="n09e51ccdea-3"] {
@@ -592,9 +588,6 @@ a:hover { text-decoration: underline; }
   border: none;
   border-bottom: 1px solid #5091cd;
   border-left: 1px solid #f57d29;
-  float: left;
-  width: 56%;
-  margin: 0 1.5rem 1rem 0;
 }
 
 [data-nid="n09e51ccdea-5"] {
@@ -602,9 +595,6 @@ a:hover { text-decoration: underline; }
   border: none;
   border-bottom: 1px solid #5091cd;
   border-left: 1px solid #f57d29;
-  float: left;
-  width: 18%;
-  margin: 0 1.5rem 1rem 0;
 }
 
 [data-nid="n9962a6d059"] {

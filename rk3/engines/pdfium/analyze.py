@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 109
+VERSION = 110
 
 
 # PDF font-descriptor flag bits
@@ -968,6 +968,9 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         color_votes[l["colorIdx"]] += len(l["text"])
     if color_votes:
         prov["color"] = _hex(ctx.colors[color_votes.most_common(1)[0][0]])
+    dc = blk["lines"][0].get("dropCap")
+    if dc:
+        prov["dropCap"] = f"{dc[0]} {_hex(ctx.colors[dc[1]])}"
     tag_role, tag_cov = role
     if tag_role:
         prov["role"] = tag_role
@@ -1080,6 +1083,8 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         node["emph"] = rich["emph"]
     if rich.get("marks"):
         node["marks"] = rich["marks"]
+    if rich.get("colors"):
+        node["colors"] = rich["colors"]
 
     # Run-in heading: a bold first line, on its own line and heading-shaped,
     # welded onto the front of a regular-weight paragraph IS a real subsection
@@ -2325,7 +2330,7 @@ def _split_inline_bullets(ctx, nodes):
         if lead:
             lr = _slice_runs(n, 0, pts[0])
             n["text"] = lr["text"].rstrip()
-            for key in ("emph", "links"):
+            for key in ("emph", "links", "marks", "colors"):
                 if lr.get(key):
                     n[key] = lr[key]
                 elif key in n:
@@ -2604,7 +2609,12 @@ def _aside_layout_and_pullquotes(ctx, nodes, twocol_pages=()):
             continue
         w = n["bbox"][2] - n["bbox"][0]
         frac = w / col_w
-        if frac <= 0.7:
+        # float thresholds (rubric §1, user's Q2a numbers): a sidebar floats on
+        # its original side only at 20–50% of the column; wider ones read as
+        # bands, not floats, and fall back to inline placement before the
+        # related text (their natural document-order position). Org-adjustable
+        # settings later.
+        if 0.2 <= frac <= 0.5:
             anchor = None
             if col_r - n["bbox"][2] < 0.08 * col_w and \
                     n["bbox"][0] - col_l > 0.2 * col_w:
@@ -2668,7 +2678,7 @@ def _join_pagebreak_sentences(ctx, children):
             # joined text renders under prev's page; credit the source page
             ctx.audit_moved[ch["page"]] += _alnum(ch["text"])
             prev["text"] += " " + ch["text"]
-            for key in ("refs", "links", "emph", "marks"):
+            for key in ("refs", "links", "emph", "marks", "colors"):
                 if ch.get(key):
                     prev.setdefault(key, []).extend(
                         [r[0] + off, r[1] + off, *r[2:]] for r in ch[key])
@@ -2715,7 +2725,7 @@ def _join_column_wrap(ctx, nodes):
         off = len(prev["text"]) + len(joiner)
         ctx.audit_moved[ch["page"]] += _alnum(ch["text"])
         prev["text"] += joiner + ch["text"]
-        for key in ("refs", "links", "emph", "marks"):
+        for key in ("refs", "links", "emph", "marks", "colors"):
             if ch.get(key):
                 prev.setdefault(key, []).extend(
                     [r[0] + off, r[1] + off, *r[2:]] for r in ch[key])
@@ -2769,7 +2779,7 @@ def _join_broken_paragraphs(ctx, nodes):
         off = len(prev["text"]) + len(joiner)
         ctx.audit_moved[ch["page"]] += _alnum(ch["text"])
         prev["text"] += joiner + ch["text"]
-        for key in ("refs", "links", "emph", "marks"):
+        for key in ("refs", "links", "emph", "marks", "colors"):
             if ch.get(key):
                 prev.setdefault(key, []).extend(
                     [r[0] + off, r[1] + off, *r[2:]] for r in ch[key])
@@ -2904,7 +2914,7 @@ def _ordinal_block(ctx, blk):
 # the style runs a list item carries: each is a [start, end, payload] span list
 # over the item's own text. Underline will join here once detected (a graphics
 # object - sibling of mark detection), and then it can't drop either.
-_RUN_KEYS = ("emph", "links", "marks")
+_RUN_KEYS = ("emph", "links", "marks", "colors")
 
 
 def _node_runs(node):
@@ -3070,6 +3080,7 @@ def _build_runs(ctx, blk, lines, blk_font, link_colors=()):
     list item."""
     out = ""
     sups, links, emph, marks = [], [], [], []
+    cspans = []  # colored-but-not-link runs (rubric §3: emphasis-by-color)
     line_joins = []  # offsets of the spaces where source lines were joined
     # baseline = the lighter of the dominant weight and the lightest-significant
     # weight, so a bold lede is caught even when it dominates the block
@@ -3140,6 +3151,15 @@ def _build_runs(ctx, blk, lines, blk_font, link_colors=()):
         for s, e in styled:
             if not any(s < re_ and rs < e for rs, re_, _t in real):
                 links.append([s, e, {"styled": True}])
+
+        # colored-but-NOT-link inline runs (rubric §3): color used for emphasis.
+        # Carried as [s, e, hex]; render promotes to <strong class="c-xxxxxx">
+        # whose class restores the color. Link-colored runs became styled links
+        # above; highlight fills are marks; this is the remainder.
+        for s, e, col in l.get("colors", []):
+            if col in link_colors:
+                continue
+            cspans.append([s + base, e + base, _hex(ctx.colors[col])])
     # merge adjacent same-kind emphasis (a phrase wrapped across lines)
     merged_emph = []
     for s, e, kind in sorted(emph):
@@ -3148,8 +3168,16 @@ def _build_runs(ctx, blk, lines, blk_font, link_colors=()):
             merged_emph[-1][1] = e
         else:
             merged_emph.append([s, e, kind])
+    # merge adjacent same-color spans (a phrase wrapped across lines)
+    merged_c = []
+    for s, e, hx in sorted(cspans):
+        if merged_c and s - merged_c[-1][1] <= 1 and merged_c[-1][2] == hx:
+            merged_c[-1][1] = e
+        else:
+            merged_c.append([s, e, hx])
     return {"text": out, "sups": sups, "links": links,
-            "emph": merged_emph, "marks": marks, "lineJoins": line_joins}
+            "emph": merged_emph, "marks": marks, "colors": merged_c,
+            "lineJoins": line_joins}
 
 
 def _link_colors(ctx, blocks):

@@ -54,6 +54,8 @@ a {
 }
 a:hover { text-decoration: underline; }
 
+strong.c-000000 { color: #000000; font-weight: inherit; }
+
 .xl-medium-alt {
   font-family: "Inter", sans-serif;
   font-weight: 500;
@@ -178,9 +180,6 @@ a:hover { text-decoration: underline; }
   border-left: 1px solid #ff3b21;
   border-right: 1px solid #ff3b21;
   border-top: 1px solid #ff3b21;
-  float: right;
-  width: 68%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="n11bb38898b"] {
@@ -189,9 +188,6 @@ a:hover { text-decoration: underline; }
   border-bottom: 4px solid #d1d7e8;
   border-left: 1px solid #ff3b21;
   border-top: 1px solid #ff3b21;
-  float: right;
-  width: 68%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="n1d6e1bdc66"] {
@@ -201,9 +197,6 @@ a:hover { text-decoration: underline; }
   border-left: 1px solid #ff3b21;
   border-right: 1px solid #ff3b21;
   border-top: 1px solid #ff3b21;
-  float: right;
-  width: 56%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="n6b26f130b8"] {
@@ -213,9 +206,6 @@ a:hover { text-decoration: underline; }
   border-left: 1px solid #ff3b21;
   border-right: 1px solid #ff3b21;
   border-top: 1px solid #ff3b21;
-  float: right;
-  width: 56%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="n475c39a52a"] {
@@ -231,9 +221,6 @@ a:hover { text-decoration: underline; }
   background: #0d393b;
   border: none;
   border-left: 1px solid #ad894f;
-  float: right;
-  width: 56%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="n33cafdbc33"] {
@@ -243,9 +230,6 @@ a:hover { text-decoration: underline; }
   border-left: 1px solid #ff3b21;
   border-right: 1px solid #ff3b21;
   border-top: 1px solid #ff3b21;
-  float: right;
-  width: 56%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="nbff5f318cb"] th, [data-nid="nbff5f318cb"] td { border-color: #0d393b; }
@@ -257,9 +241,6 @@ a:hover { text-decoration: underline; }
   border-bottom: 4px solid #daf0de;
   border-left: 1px solid #ff3b21;
   border-top: 1px solid #ff3b21;
-  float: right;
-  width: 56%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="ne6aa6ac630"] {
@@ -269,9 +250,6 @@ a:hover { text-decoration: underline; }
   border-left: 1px solid #ad894f;
   border-right: 1px solid #ad894f;
   border-top: 1px solid #ad894f;
-  float: right;
-  width: 56%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="ncf2559f5ff"] {
@@ -287,9 +265,6 @@ a:hover { text-decoration: underline; }
   background: #0d393b;
   border: none;
   border-left: 1px solid #ff3b21;
-  float: right;
-  width: 56%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="n4c4cfc5fdc"] {
@@ -348,9 +323,6 @@ a:hover { text-decoration: underline; }
   background: #e8ecec;
   border: none;
   border-left: 1px solid #ffffff;
-  float: left;
-  width: 55%;
-  margin: 0 1.5rem 1rem 0;
 }
 
 [data-nid="n78c97f8a3d"] {
@@ -384,18 +356,12 @@ a:hover { text-decoration: underline; }
   background: #0d393b;
   border: none;
   border-left: 1px solid #000000;
-  float: left;
-  width: 56%;
-  margin: 0 1.5rem 1rem 0;
 }
 
 [data-nid="n25fa6d3101"] {
   background: #d2c1dd;
   border: none;
   border-left: 1px solid #000000;
-  float: right;
-  width: 55%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 figure { border: none; padding: 0; }

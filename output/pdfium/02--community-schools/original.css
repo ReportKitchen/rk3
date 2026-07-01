@@ -48,6 +48,10 @@ h6 {
   font-size: 2.18rem;
 }
 
+strong.c-1f3d59 { color: #1f3d59; font-weight: inherit; }
+strong.c-21a4b0 { color: #21a4b0; font-weight: inherit; }
+strong.c-d13d42 { color: #d13d42; font-weight: inherit; }
+
 .centered {
   text-align: center;
 }
@@ -55,6 +59,7 @@ h6 {
 .strong-alt {
   font-family: var(--rkf-zillaslab, "Zilla Slab", sans-serif);
   font-weight: 600;
+  font-size: 1.09em;
 }
 
 .sm-alt {
@@ -65,6 +70,7 @@ h6 {
 .strong-center-alt {
   font-family: var(--rkf-zillaslab, "Zilla Slab", sans-serif);
   font-weight: 600;
+  font-size: 1.09em;
   text-align: center;
 }
 
@@ -126,9 +132,6 @@ h6 {
 [data-nid="n86400cae42"] {
   background: #eefaf1;
   border: none;
-  float: left;
-  width: 57%;
-  margin: 0 1.5rem 1rem 0;
 }
 
 [data-nid="ncb4c77a981"] { color: #ffe378; }
@@ -178,9 +181,6 @@ h6 {
 [data-nid="nab08a229f2"] {
   background: #e4f9fc;
   border: none;
-  float: left;
-  width: 57%;
-  margin: 0 1.5rem 1rem 0;
 }
 
 [data-nid="n0d96816f66"] { color: #ffe378; }
@@ -310,9 +310,6 @@ h6 {
 [data-nid="n8c0ca1a35f"] {
   background: #faecec;
   border: none;
-  float: left;
-  width: 57%;
-  margin: 0 1.5rem 1rem 0;
 }
 
 [data-nid="n4630b222c7"] {
@@ -349,9 +346,6 @@ h6 {
 [data-nid="n61f0ae901b"] {
   background: #eefaf1;
   border: none;
-  float: left;
-  width: 57%;
-  margin: 0 1.5rem 1rem 0;
 }
 
 [data-nid="ncca697c36f"] {

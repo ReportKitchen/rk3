@@ -93,6 +93,11 @@ a:hover { text-decoration: underline; }
 
 [data-nid="n415db423f9"] a { color: #addabe; }
 
+strong.c-231f20 { color: #231f20; font-weight: inherit; }
+strong.c-a8def3 { color: #a8def3; font-weight: inherit; }
+strong.c-addabe { color: #addabe; font-weight: inherit; }
+strong.c-cabfd9 { color: #cabfd9; font-weight: inherit; }
+
 .fine {
   font-size: 0.86em;
 }
@@ -104,6 +109,7 @@ a:hover { text-decoration: underline; }
 .medium-alt {
   font-family: var(--rkf-roboto, "Roboto", sans-serif);
   font-weight: 500;
+  font-size: 0.93em;
 }
 
 .sm-strong-center-alt {
@@ -116,6 +122,7 @@ a:hover { text-decoration: underline; }
 .strong-center-alt {
   font-family: "Roboto", sans-serif;
   font-weight: 700;
+  font-size: 0.93em;
   text-align: center;
 }
 
@@ -131,10 +138,23 @@ a:hover { text-decoration: underline; }
   font-size: 1.52em;
 }
 
+.medium-alt-2 {
+  font-family: var(--rkf-roboto, "Roboto", sans-serif);
+  font-weight: 500;
+  font-size: 0.91em;
+}
+
 .sm-strong-center-alt-2 {
   font-family: "Roboto", sans-serif;
   font-weight: 700;
   font-size: 0.84em;
+  text-align: center;
+}
+
+.strong-center-alt-2 {
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  font-size: 0.91em;
   text-align: center;
 }
 
@@ -218,6 +238,7 @@ a:hover { text-decoration: underline; }
 .center-alt {
   font-family: "franklin-gothic-urw", sans-serif;
   color: #0072a5;
+  font-size: 0.9em;
   text-align: center;
 }
 
@@ -524,9 +545,6 @@ a:hover { text-decoration: underline; }
   border: none;
   border-bottom: 16px solid #b8ccc2;
   border-left: 16px solid #b8ccc2;
-  float: right;
-  width: 50%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="n3efad21072"] {

@@ -50,6 +50,10 @@ h6 {
   font-size: 1.0rem;
 }
 
+strong.c-15364f { color: #15364f; font-weight: inherit; }
+strong.c-80afc6 { color: #80afc6; font-weight: inherit; }
+strong.c-80afc7 { color: #80afc7; font-weight: inherit; }
+
 .strong-alt {
   font-family: "Carlito", sans-serif;
   font-weight: 700;
@@ -91,6 +95,11 @@ h6 {
   color: #667e94;
 }
 
+.accent-2 {
+  color: #15364f;
+  font-size: 0.92em;
+}
+
 .strong-alt-2 {
   font-family: "Carlito", sans-serif;
   font-weight: 700;
@@ -100,6 +109,7 @@ h6 {
   font-family: "Carlito", sans-serif;
   font-weight: 300;
   color: #15364f;
+  font-size: 0.92em;
 }
 
 .italic-alt {
@@ -117,6 +127,14 @@ h6 {
   font-family: var(--rkf-merriweather, "Merriweather", sans-serif);
   font-style: italic;
   color: #15364f;
+  font-size: 0.92em;
+}
+
+.strong-alt-3 {
+  font-family: "Carlito", sans-serif;
+  font-weight: 700;
+  color: #15364f;
+  font-size: 0.92em;
 }
 
 .sm-strong-alt-2 {
@@ -124,6 +142,17 @@ h6 {
   font-weight: 700;
   color: #15364f;
   font-size: 0.82em;
+}
+
+.accent-3 {
+  color: #15364f;
+  font-size: 0.9em;
+}
+
+.strong-alt-4 {
+  font-family: "Carlito", sans-serif;
+  font-weight: 700;
+  font-size: 0.94em;
 }
 
 .sm-alt {
@@ -144,7 +173,7 @@ h6 {
   font-size: 0.83em;
 }
 
-.strong-alt-3 {
+.strong-alt-5 {
   font-family: "Carlito", sans-serif;
   font-weight: 700;
   color: #80afc7;
@@ -161,12 +190,20 @@ h6 {
   font-family: var(--rkf-merriweather, "Merriweather", sans-serif);
   font-style: italic;
   color: #d5e5f1;
+  font-size: 0.92em;
 }
 
-.strong-alt-4 {
+.strong-alt-6 {
   font-family: "Carlito", sans-serif;
   font-weight: 700;
   color: #d5e5f1;
+  font-size: 0.92em;
+}
+
+.strong-alt-7 {
+  font-family: "Carlito", sans-serif;
+  font-weight: 700;
+  font-size: 1.08em;
 }
 
 [data-nid="n0149117e98"] .soft-header,

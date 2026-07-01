@@ -49,16 +49,282 @@ h6 {
 
 .alt {
   font-family: "franklin-gothic-urw", sans-serif;
+  font-size: 1.1em;
+}
+
+.alt-2 {
+  font-family: "franklin-gothic-urw", sans-serif;
+  font-size: 0.95em;
+}
+
+.alt-3 {
+  font-family: "franklin-gothic-urw", sans-serif;
 }
 
 [data-nid="n9239dd1c64"] .soft-header {
   font-family: "franklin-gothic-urw", sans-serif;
 }
 
+[data-nid="ned98684fde"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="nebfa19ad55"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="na2137d793a"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n630053cdd3"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
 [data-nid="n6b343c38bd"] {
   background: transparent;
   border: none;
   border-bottom: 1px solid #bcbec0;
+}
+
+[data-nid="n913bccdceb"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n1b7506d73f"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n91d5857073"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n1648c5f82c"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="neb8b5cfa73"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n5e6e659341"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="nbd52187234"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="nf36730fdcf"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n5c54e1461a"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="ne3df39e644"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="nb5d6dfd7d3"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="naf04ee065a"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n15432d6f0c"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="ndbcea477e1"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n67abe31e85"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n23f542ab63"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="nef722e8f2f"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n4c2efe1622"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n23515cf708"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n9f96d64a21"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="ne258418370"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n609d57187c"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="nae52b39e86"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n90eea4c6a6"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n71889aa487"]::first-letter {
+  float: left;
+  font-size: 1.3em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="n76e12c607f"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="ned2b26bb45"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
+[data-nid="ne5daf6889e"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
 }
 
 figure { border: none; padding: 0; }

@@ -47,6 +47,10 @@ h5 {
   font-size: 1.0rem;
 }
 
+strong.c-00a6e4 { color: #00a6e4; font-weight: inherit; }
+strong.c-175d9e { color: #175d9e; font-weight: inherit; }
+strong.c-231f20 { color: #231f20; font-weight: inherit; }
+
 .italic-alt {
   font-family: "gotham", sans-serif;
   font-style: italic;
@@ -366,23 +370,14 @@ h5 {
 
 [data-nid="n0e89fb3c6b"] {
   background: transparent;
-  float: right;
-  width: 14%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="ncc852aff70"] {
   background: transparent;
-  float: right;
-  width: 15%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="nae69ccb722"] {
   background: transparent;
-  float: right;
-  width: 14%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="ndd3a78c69c"] {
@@ -396,9 +391,6 @@ h5 {
 
 [data-nid="n3a3780223a"] {
   background: transparent;
-  float: right;
-  width: 12%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="n3558798dbb"] {

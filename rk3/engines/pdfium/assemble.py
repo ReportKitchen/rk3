@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter, defaultdict
 
-VERSION = 48
+VERSION = 49
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -217,6 +217,14 @@ def _finish_line(chars, links, fills=()):
     color_runs = _color_runs(src, line["colorIdx"])
     if color_runs:
         line["colors"] = color_runs
+    # ornamental drop cap: the line's first glyph is a letter several times the
+    # body size. Record its scale + color so render can re-create the visual
+    # cap via CSS (rubric §3: preserve by default; content-joining is handled
+    # by _dropcap_join above).
+    if (src and src[0] is not None and src[0][UC].isalpha()
+            and src[0][SIZE] >= 1.8 * max(dom_size, 1.0)):
+        line["dropCap"] = [round(src[0][SIZE] / max(dom_size, 1.0), 2),
+                           src[0][COLOR]]
     font_runs = _font_runs(src, line["fontIdx"])
     if font_runs:
         line["fontRuns"] = font_runs

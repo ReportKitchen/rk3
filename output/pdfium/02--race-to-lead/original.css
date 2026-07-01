@@ -54,6 +54,10 @@ a:hover { text-decoration: underline; }
 
 [data-nid="nef2adf868f"] a { color: #1f5c73; }
 
+strong.c-1f5c73 { color: #1f5c73; font-weight: inherit; }
+strong.c-519d9f { color: #519d9f; font-weight: inherit; }
+strong.c-adcc30 { color: #adcc30; font-weight: inherit; }
+
 .xl-medium-alt {
   font-family: "Open Sans", sans-serif;
   font-weight: 500;
@@ -67,6 +71,7 @@ a:hover { text-decoration: underline; }
 .medium-alt {
   font-family: "Open Sans", sans-serif;
   font-weight: 500;
+  font-size: 0.9em;
 }
 
 .sm-alt {
@@ -83,6 +88,12 @@ a:hover { text-decoration: underline; }
 .sm-right {
   font-size: 0.8em;
   text-align: right;
+}
+
+.medium-alt-2 {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 500;
+  font-size: 1.1em;
 }
 
 .sm-medium-alt-2 {
@@ -114,6 +125,7 @@ a:hover { text-decoration: underline; }
 .medium-center-alt {
   font-family: "Open Sans", sans-serif;
   font-weight: 500;
+  font-size: 1.1em;
   text-align: center;
 }
 
@@ -165,10 +177,11 @@ a:hover { text-decoration: underline; }
   font-size: 1.3em;
 }
 
-.medium-alt-2 {
+.medium-alt-3 {
   font-family: "Open Sans", sans-serif;
   font-weight: 500;
   color: #bcbec0;
+  font-size: 0.9em;
 }
 
 .sm-medium-alt-7 {
@@ -270,9 +283,6 @@ a:hover { text-decoration: underline; }
 [data-nid="n2713df4695"] {
   background: #bcbec0;
   border: 1px solid #bcbec0;
-  float: left;
-  width: 17%;
-  margin: 0 1.5rem 1rem 0;
 }
 
 [data-nid="n2f07c8211a"] {

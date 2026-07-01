@@ -53,6 +53,9 @@ a {
 }
 a:hover { text-decoration: underline; }
 
+strong.c-000000 { color: #000000; font-weight: inherit; }
+strong.c-ec6225 { color: #ec6225; font-weight: inherit; }
+
 .xl-alt {
   font-family: "Inter", sans-serif;
   font-size: 3.08em;
@@ -66,6 +69,7 @@ a:hover { text-decoration: underline; }
 .strong-alt-2 {
   font-family: "Inter", sans-serif;
   font-weight: 800;
+  font-size: 1.05em;
 }
 
 .medium-alt {
@@ -83,6 +87,16 @@ a:hover { text-decoration: underline; }
 
 .fine {
   font-size: 0.7em;
+}
+
+.strong-alt-3 {
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  font-size: 0.9em;
+}
+
+.styled {
+  font-size: 0.9em;
 }
 
 [data-nid="n399a153202"] .soft-header {

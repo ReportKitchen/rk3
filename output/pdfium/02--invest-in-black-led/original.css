@@ -33,6 +33,8 @@ h3 {
   font-size: 0.8rem;
 }
 
+strong.c-244698 { color: #244698; font-weight: inherit; }
+
 .display {
   font-size: 4.3em;
 }
@@ -50,11 +52,13 @@ h3 {
 
 .alt {
   font-family: "helvetica-lt-pro", sans-serif;
+  font-size: 0.9em;
 }
 
 .italic-alt {
   font-family: "helvetica-lt-pro", sans-serif;
   font-style: italic;
+  font-size: 0.9em;
 }
 
 .sm-alt {
@@ -81,6 +85,12 @@ h3 {
 .strong-alt-2 {
   font-family: "helvetica-lt-pro", sans-serif;
   font-weight: 700;
+}
+
+.strong-alt-3 {
+  font-family: "helvetica-lt-pro", sans-serif;
+  font-weight: 700;
+  font-size: 0.9em;
 }
 
 .sm-alt-2 {
@@ -117,7 +127,12 @@ h3 {
 .strong-right-alt {
   font-family: "helvetica-lt-pro", sans-serif;
   font-weight: 700;
+  font-size: 0.9em;
   text-align: right;
+}
+
+.styled {
+  font-size: 1.1em;
 }
 
 [data-nid="n3e60f7ce44"] .soft-header {

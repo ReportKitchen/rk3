@@ -55,6 +55,8 @@ h6 {
   font-size: 1.68rem;
 }
 
+strong.c-005596 { color: #005596; font-weight: inherit; }
+
 .strong-alt {
   font-family: "proxima-nova", sans-serif;
   font-weight: 600;
@@ -138,6 +140,11 @@ h6 {
   font-family: "Caladea", sans-serif;
   font-style: italic;
   color: #626262;
+  font-size: 0.89em;
+}
+
+.styled {
+  font-size: 0.95em;
 }
 
 [data-nid="ne5a5f0b086"] .soft-header,
@@ -157,6 +164,14 @@ h6 {
 [data-nid="n558e525f05"] { color: #a21e21; }
 
 [data-nid="n139bdb8fc3"] { color: #a21e21; }
+
+[data-nid="n375cf23249"]::first-letter {
+  float: left;
+  font-size: 4.34em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #a21e21;
+}
 
 [data-nid="n10667f2468"] thead th { background: #c02026; color: #ffffff; }
 [data-nid="n10667f2468"] td:nth-child(1) { background: #da8c75; }
@@ -181,6 +196,14 @@ h6 {
 [data-nid="nd28d4040ea"] td:nth-child(2) { background: #bec6e2; }
 
 [data-nid="n201ac2385e"] { color: #a21e21; }
+
+[data-nid="nba37b8e372"]::first-letter {
+  float: left;
+  font-size: 4.34em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #a21e21;
+}
 
 [data-nid="n4f517d8dc5"] {
   background: #fceed6;
@@ -302,6 +325,14 @@ h6 {
 }
 
 [data-nid="n13ce5e5966"] { color: #a21e21; }
+
+[data-nid="na3d1e7e36e"]::first-letter {
+  float: left;
+  font-size: 4.34em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #a21e21;
+}
 
 [data-nid="nef88f0a338"] {
   background: #e0e8f2;
