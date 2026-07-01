@@ -56,9 +56,11 @@ a:hover { text-decoration: underline; }
 
 strong.c-000000 { color: #000000; font-weight: inherit; }
 
-.xl-medium-alt {
+.xl-medium-panel-alt {
   font-family: "Inter", sans-serif;
   font-weight: 500;
+  background: #0d383b;
+  padding: 0.6em 0.8em;
   font-size: 2.1em;
 }
 
@@ -67,13 +69,18 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   font-size: 0.7em;
 }
 
-.display {
+.xl-panel {
+  background: #544368;
+  padding: 0.6em 0.8em;
+  color: #ffffff;
   font-size: 7.0em;
 }
 
-.lg-strong-alt {
+.lg-strong-panel-alt {
   font-family: "Inter", sans-serif;
   font-weight: 700;
+  background: #0d393b;
+  padding: 0.6em 0.8em;
   color: #0d393b;
   font-size: 1.2em;
 }
@@ -110,6 +117,17 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   font-size: 0.7em;
 }
 
+.lg-strong-alt {
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  color: #0d393b;
+  font-size: 1.2em;
+}
+
+.display {
+  font-size: 7.0em;
+}
+
 .large {
   font-size: 1.2em;
 }
@@ -127,19 +145,69 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   font-size: 1.3em;
 }
 
-.xl-medium-alt-2 {
+.xl-medium-alt {
   font-family: "Inter", sans-serif;
   font-weight: 500;
   font-size: 37.5em;
 }
 
-.lg-alt {
+.lg-panel-alt {
   font-family: "Inter", sans-serif;
+  background: #554368;
+  padding: 0.6em 0.8em;
   font-size: 1.3em;
 }
 
-.lg-center-alt {
+.lg-panel-alt-2 {
   font-family: "Inter", sans-serif;
+  background: #554368;
+  padding: 0.6em 0.8em;
+  color: #ffffff;
+  font-size: 1.3em;
+}
+
+.lg-panel-alt-3 {
+  font-family: "Inter", sans-serif;
+  background: #0d393b;
+  padding: 0.6em 0.8em;
+  color: #ffffff;
+  font-size: 1.3em;
+}
+
+.lg-panel-alt-4 {
+  font-family: "Inter", sans-serif;
+  background: #0d393b;
+  padding: 0.6em 0.8em;
+  font-size: 1.3em;
+}
+
+.lg-center-panel-alt {
+  font-family: "Inter", sans-serif;
+  background: #0d393b;
+  padding: 0.6em 0.8em;
+  font-size: 1.3em;
+  text-align: center;
+}
+
+.lg-panel-alt-5 {
+  font-family: "Inter", sans-serif;
+  background: #1a3796;
+  padding: 0.6em 0.8em;
+  font-size: 1.3em;
+}
+
+.lg-panel-alt-6 {
+  font-family: "Inter", sans-serif;
+  background: #1a3796;
+  padding: 0.6em 0.8em;
+  color: #ffffff;
+  font-size: 1.3em;
+}
+
+.lg-center-panel-alt-2 {
+  font-family: "Inter", sans-serif;
+  background: #1a3796;
+  padding: 0.6em 0.8em;
   font-size: 1.3em;
   text-align: center;
 }
@@ -171,7 +239,24 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   font-weight: 700;
 }
 
-[data-nid="n4664b125bb"] { color: #0d393b; }
+[data-nid="neee50078b2"] {
+  background: #0d383b;
+  padding: 0.4em 0.6em;
+}
+
+[data-nid="n2b847de09b"] {
+  background: #0d383b;
+  padding: 0.4em 0.6em;
+}
+
+[data-nid="n4664b125bb"] {
+  color: #0d393b;
+}
+
+[data-nid="n56af1850b9"] {
+  background: #000000;
+  padding: 0.4em 0.6em;
+}
 
 [data-nid="ne5a9804860"] {
   background: #0d393b;
@@ -197,6 +282,11 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   border-left: 1px solid #ff3b21;
   border-right: 1px solid #ff3b21;
   border-top: 1px solid #ff3b21;
+}
+
+[data-nid="n0da839c75d"] {
+  background: #000000;
+  padding: 0.4em 0.6em;
 }
 
 [data-nid="n6b26f130b8"] {
@@ -275,6 +365,16 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   margin: 0 0 1rem 1.5rem;
 }
 
+[data-nid="nb6603cd2b7"] {
+  background: #000000;
+  padding: 0.4em 0.6em;
+}
+
+[data-nid="n0e5c44920d"] {
+  background: #554368;
+  padding: 0.4em 0.6em;
+}
+
 [data-nid="n339a02eb6f"] {
   background: #554368;
   border: none;
@@ -287,6 +387,11 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   margin: 0 0 1rem 1.5rem;
 }
 
+[data-nid="naab45d71f2"] {
+  background: #0d393b;
+  padding: 0.4em 0.6em;
+}
+
 [data-nid="n74c8c2aa21"] {
   background: #f1f3f4;
   border: none;
@@ -297,6 +402,11 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   float: right;
   width: 47%;
   margin: 0 0 1rem 1.5rem;
+}
+
+[data-nid="n097022daf3"] {
+  background: #1a3796;
+  padding: 0.4em 0.6em;
 }
 
 [data-nid="nc93dffbe78"] {
@@ -317,6 +427,11 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   float: right;
   width: 41%;
   margin: 0 0 1rem 1.5rem;
+}
+
+[data-nid="ncce321eb72"] {
+  background: #000000;
+  padding: 0.4em 0.6em;
 }
 
 [data-nid="n8e446f8f36"] {

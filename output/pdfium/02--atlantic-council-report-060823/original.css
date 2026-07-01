@@ -114,6 +114,14 @@ strong.c-005596 { color: #005596; font-weight: inherit; }
   font-size: 0.68em;
 }
 
+.lg-strong-panel-alt {
+  font-family: "proxima-nova", sans-serif;
+  font-weight: 700;
+  background: #e0e8f2;
+  padding: 0.6em 0.8em;
+  font-size: 1.26em;
+}
+
 .lg-strong-alt-4 {
   font-family: "gotham", sans-serif;
   font-weight: 700;
@@ -153,17 +161,29 @@ strong.c-005596 { color: #005596; font-weight: inherit; }
   font-weight: 700;
 }
 
-[data-nid="ne94ed324d3"] { color: #eeb01e; }
+[data-nid="ne94ed324d3"] {
+  color: #eeb01e;
+}
 
-[data-nid="n12ea731f4e"] { color: #eb8257; }
+[data-nid="n12ea731f4e"] {
+  color: #eb8257;
+}
 
-[data-nid="nc2bc71bc7a"] { color: #a31115; }
+[data-nid="nc2bc71bc7a"] {
+  color: #a31115;
+}
 
-[data-nid="n83239de59a"] { color: #a21e21; }
+[data-nid="n83239de59a"] {
+  color: #a21e21;
+}
 
-[data-nid="n558e525f05"] { color: #a21e21; }
+[data-nid="n558e525f05"] {
+  color: #a21e21;
+}
 
-[data-nid="n139bdb8fc3"] { color: #a21e21; }
+[data-nid="n139bdb8fc3"] {
+  color: #a21e21;
+}
 
 [data-nid="n375cf23249"]::first-letter {
   float: left;
@@ -181,7 +201,9 @@ strong.c-005596 { color: #005596; font-weight: inherit; }
 [data-nid="nd75340a2b2"] td:nth-child(1) { background: #f8c389; }
 [data-nid="nd75340a2b2"] td:nth-child(2) { background: #fcdebf; }
 
-[data-nid="nb8656f8a44"] { color: #cca63d; }
+[data-nid="nb8656f8a44"] {
+  color: #cca63d;
+}
 
 [data-nid="n42594765ad"] thead th { background: #f15829; color: #ffffff; }
 [data-nid="n42594765ad"] td:nth-child(1) { background: #f9a883; }
@@ -195,7 +217,9 @@ strong.c-005596 { color: #005596; font-weight: inherit; }
 [data-nid="nd28d4040ea"] td:nth-child(1) { background: #899aca; }
 [data-nid="nd28d4040ea"] td:nth-child(2) { background: #bec6e2; }
 
-[data-nid="n201ac2385e"] { color: #a21e21; }
+[data-nid="n201ac2385e"] {
+  color: #a21e21;
+}
 
 [data-nid="nba37b8e372"]::first-letter {
   float: left;
@@ -218,7 +242,9 @@ strong.c-005596 { color: #005596; font-weight: inherit; }
   border-right: 1px solid #808285;
 }
 
-[data-nid="n143f911809"] { color: #eeb111; }
+[data-nid="n143f911809"] {
+  color: #eeb111;
+}
 
 [data-nid="ne80002a2e7"] {
   background: transparent;
@@ -227,18 +253,26 @@ strong.c-005596 { color: #005596; font-weight: inherit; }
   border-left: 17px solid #fafafb;
 }
 
-[data-nid="neadcacc0b8"] { color: #d8a446; }
+[data-nid="neadcacc0b8"] {
+  color: #d8a446;
+}
 
 [data-nid="nfd84c12c09"] {
   background: #fceed6;
   border: none;
 }
 
-[data-nid="n6974a0af47"] { color: #e34d25; }
+[data-nid="n6974a0af47"] {
+  color: #e34d25;
+}
 
-[data-nid="ncaf5617a4f"] { color: #e34d25; }
+[data-nid="ncaf5617a4f"] {
+  color: #e34d25;
+}
 
-[data-nid="ndd6a9bfaaf"] { color: #e34d25; }
+[data-nid="ndd6a9bfaaf"] {
+  color: #e34d25;
+}
 
 [data-nid="nd18a20636c"] {
   background: #fafafb;
@@ -250,31 +284,47 @@ strong.c-005596 { color: #005596; font-weight: inherit; }
   margin: 0 1.5rem 1rem 0;
 }
 
-[data-nid="n3988f49797"] { color: #172548; }
+[data-nid="n3988f49797"] {
+  color: #172548;
+}
 
 [data-nid="n2b637d0f63"] {
   background: #fceed6;
   border: none;
 }
 
-[data-nid="ne624a770b3"] { color: #e34d25; }
+[data-nid="ne624a770b3"] {
+  color: #e34d25;
+}
 
-[data-nid="nb786d8b321"] { color: #e34d25; }
+[data-nid="nb786d8b321"] {
+  color: #e34d25;
+}
 
-[data-nid="n2c375605cd"] { color: #e34d25; }
+[data-nid="n2c375605cd"] {
+  color: #e34d25;
+}
 
-[data-nid="n9a2dfc40dd"] { color: #0d243d; }
+[data-nid="n9a2dfc40dd"] {
+  color: #0d243d;
+}
 
 [data-nid="n1b927e172b"] {
   background: #fceed6;
   border: none;
 }
 
-[data-nid="n07a2a3a508"] { color: #e34d25; }
+[data-nid="n07a2a3a508"] {
+  color: #e34d25;
+}
 
-[data-nid="n0f6c1b0c91"] { color: #e34d25; }
+[data-nid="n0f6c1b0c91"] {
+  color: #e34d25;
+}
 
-[data-nid="n9083d497aa"] { color: #e34d25; }
+[data-nid="n9083d497aa"] {
+  color: #e34d25;
+}
 
 [data-nid="ned3bd7a388"] {
   background: #fafafb;
@@ -286,20 +336,30 @@ strong.c-005596 { color: #005596; font-weight: inherit; }
   margin: 0 1.5rem 1rem 0;
 }
 
-[data-nid="n98850a40ec"] { color: #f69696; }
+[data-nid="n98850a40ec"] {
+  color: #f69696;
+}
 
 [data-nid="n0b7ba781b9"] {
   background: #fceed6;
   border: none;
 }
 
-[data-nid="n22cb6e57d7"] { color: #e34d25; }
+[data-nid="n22cb6e57d7"] {
+  color: #e34d25;
+}
 
-[data-nid="nfb111742c6"] { color: #e34d25; }
+[data-nid="nfb111742c6"] {
+  color: #e34d25;
+}
 
-[data-nid="n34012314bf"] { color: #e34d25; }
+[data-nid="n34012314bf"] {
+  color: #e34d25;
+}
 
-[data-nid="nef39d989b6"] { color: #e34d25; }
+[data-nid="nef39d989b6"] {
+  color: #e34d25;
+}
 
 [data-nid="n861e2cc416"] {
   background: #fafafb;
@@ -311,20 +371,30 @@ strong.c-005596 { color: #005596; font-weight: inherit; }
   margin: 0 1.5rem 1rem 0;
 }
 
-[data-nid="nea27815b8e"] { color: #edb11f; }
+[data-nid="nea27815b8e"] {
+  color: #edb11f;
+}
 
-[data-nid="nd5d7426d95"] { color: #e34d25; }
+[data-nid="nd5d7426d95"] {
+  color: #e34d25;
+}
 
-[data-nid="n15e3d3b535"] { color: #e34d25; }
+[data-nid="n15e3d3b535"] {
+  color: #e34d25;
+}
 
-[data-nid="n6446c05f49"] { color: #e34d25; }
+[data-nid="n6446c05f49"] {
+  color: #e34d25;
+}
 
 [data-nid="n6c4c214958"] {
   background: #fceed6;
   border: none;
 }
 
-[data-nid="n13ce5e5966"] { color: #a21e21; }
+[data-nid="n13ce5e5966"] {
+  color: #a21e21;
+}
 
 [data-nid="na3d1e7e36e"]::first-letter {
   float: left;
@@ -339,27 +409,47 @@ strong.c-005596 { color: #005596; font-weight: inherit; }
   border: none;
 }
 
-[data-nid="n1fdca2fbe4"] { color: #a21e21; }
+[data-nid="n1fdca2fbe4"] {
+  color: #a21e21;
+}
 
 [data-nid="necea842c2b"] thead th { background: #000000; color: #ffffff; }
 
-[data-nid="n67ce19849e"] { color: #005495; }
+[data-nid="n67ce19849e"] {
+  color: #005495;
+}
 
-[data-nid="n56d97f1727"] { color: #005495; }
+[data-nid="n56d97f1727"] {
+  color: #005495;
+}
 
-[data-nid="n67ce19849e-2"] { color: #005495; }
+[data-nid="n67ce19849e-2"] {
+  color: #005495;
+}
 
-[data-nid="n99443a4bcf"] { color: #005495; }
+[data-nid="n99443a4bcf"] {
+  color: #005495;
+}
 
-[data-nid="n56d97f1727-2"] { color: #005495; }
+[data-nid="n56d97f1727-2"] {
+  color: #005495;
+}
 
-[data-nid="n99443a4bcf-2"] { color: #005495; }
+[data-nid="n99443a4bcf-2"] {
+  color: #005495;
+}
 
-[data-nid="n3ea779a7c0"] { color: #005495; }
+[data-nid="n3ea779a7c0"] {
+  color: #005495;
+}
 
-[data-nid="n3ea779a7c0-2"] { color: #005495; }
+[data-nid="n3ea779a7c0-2"] {
+  color: #005495;
+}
 
-[data-nid="ndf73c21885"] { color: #005495; }
+[data-nid="ndf73c21885"] {
+  color: #005495;
+}
 
 [data-nid="nc0c27e28ba"] {
   background: transparent;

@@ -159,16 +159,22 @@ strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
   font-size: 1.09em;
 }
 
-[data-nid="nacb5aa9455"] { color: #ea581d; }
+[data-nid="nacb5aa9455"] {
+  color: #ea581d;
+}
 
-[data-nid="n1a5c856b9d"] { color: #149a7c; }
+[data-nid="n1a5c856b9d"] {
+  color: #149a7c;
+}
 
 [data-nid="nce09bd6edb"] {
   background: #cde0d7;
   border: none;
 }
 
-[data-nid="nb1d6ea97b0"] { color: #1f8ca5; }
+[data-nid="nb1d6ea97b0"] {
+  color: #1f8ca5;
+}
 
 [data-nid="n3951388bcc"] {
   background: #ea581d;
@@ -182,13 +188,22 @@ strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
   border: none;
 }
 
-[data-nid="n43bcaa6410"] { color: #eabf60; }
+[data-nid="n43bcaa6410"] {
+  color: #eabf60;
+}
 
-[data-nid="n1afadbf12e"] { color: #dc5d6c; }
+[data-nid="n1afadbf12e"] {
+  color: #dc5d6c;
+}
 
 [data-nid="nefb6d1d2bd"] {
   background: #dc5e6c;
   border: none;
+}
+
+[data-nid="nd9570652cb"] {
+  background: #dc5e6c;
+  padding: 0.4em 0.6em;
 }
 
 [data-nid="n2d7f431868"] {
@@ -253,6 +268,16 @@ strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
   border: none;
 }
 
+[data-nid="n3b29814994"] {
+  background: #a7aeab;
+  padding: 0.4em 0.6em;
+}
+
+[data-nid="n38fa0d7686"] {
+  background: #a7aeab;
+  padding: 0.4em 0.6em;
+}
+
 [data-nid="n53e64db870"] {
   background: #dc5e6c;
   border: none;
@@ -274,9 +299,13 @@ strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
   margin: 0 0 1rem 1.5rem;
 }
 
-[data-nid="n95b8233f42"] { color: #ea581d; }
+[data-nid="n95b8233f42"] {
+  color: #ea581d;
+}
 
-[data-nid="nf41b002bed"] { color: #000000; }
+[data-nid="nf41b002bed"] {
+  color: #000000;
+}
 
 figure { border: none; padding: 0; }
 

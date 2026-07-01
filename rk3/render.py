@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 58
+VERSION = 59
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -848,6 +848,8 @@ def _style_class_name(rules):
         traits.append("center")
     elif "text-align: right" in txt:
         traits.append("right")
+    if "background:" in txt:
+        traits.append("panel")
     if re.search(r"^\s*color:", txt, re.M):
         traits.append("accent")
     if re.search(r"font-family:[^;]*(?<!sans-)serif", txt):
@@ -1052,6 +1054,15 @@ def _original_css(ctx, ir):
                 if style and style != b_style:
                     rules.append(f"  font-style: {style};")
         own = _usable_color(d.get("color"))
+        bg = d.get("bg")
+        if bg:
+            # the block sits on a colored panel in the source (cover band,
+            # section banner): reproduce it, and on a dark panel the near-white
+            # text color _usable_color would drop becomes legible again
+            rules.append(f"  background: {bg};")
+            rules.append("  padding: 0.6em 0.8em;")
+            if own is None and d.get("color") and _dark(bg):
+                own = d["color"]
         # a link-dominated paragraph's color IS the link color: the `a`
         # rule styles it, the surrounding text keeps body color (documents
         # that mix link colors get per-node a-rules below)
@@ -1184,11 +1195,21 @@ def _original_css(ctx, ir):
                 out += [f'[data-nid="{n["nid"]}"]::first-letter {{',
                         *rules_dc, "}", ""]
         if n["type"] == "heading":
-            # heading whose own color differs from its level's dominant color
+            # heading whose own color differs from its level's dominant color;
+            # a heading on a colored panel (cover band) also reproduces the
+            # panel, which un-drops its light text color
             lv_color = heads.get(n["level"], {}).get("color")
             own = _usable_color(d.get("color"))
-            if own and lv_color and own != lv_color:
-                out += [f'[data-nid="{n["nid"]}"] {{ color: {own}; }}', ""]
+            bg = d.get("bg")
+            h_rules = []
+            if bg:
+                h_rules += [f"  background: {bg};", "  padding: 0.4em 0.6em;"]
+                if own is None and d.get("color") and _dark(bg):
+                    own = d["color"]
+            if own and own != (lv_color if lv_color else None):
+                h_rules.append(f"  color: {own};")
+            if h_rules:
+                out += [f'[data-nid="{n["nid"]}"] {{', *h_rules, "}", ""]
         if n["type"] == "table" and n.get("style"):
             st = n["style"]
             sel = f'[data-nid="{n["nid"]}"]'

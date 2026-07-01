@@ -279,12 +279,22 @@ h6 {
   color: #0033cc;
 }
 
+[data-nid="n2efa8540c1"] {
+  background: #c2f0ff;
+  padding: 0.4em 0.6em;
+}
+
 [data-nid="nae52b39e86"]::first-letter {
   float: left;
   font-size: 3.28em;
   line-height: 0.8;
   padding: 0.04em 0.08em 0 0;
   color: #0033cc;
+}
+
+[data-nid="n0ecf9412d7"] {
+  background: #c2f0ff;
+  padding: 0.4em 0.6em;
 }
 
 [data-nid="n90eea4c6a6"]::first-letter {
@@ -303,6 +313,11 @@ h6 {
   color: #0033cc;
 }
 
+[data-nid="n250ecb2280"] {
+  background: #c2f0ff;
+  padding: 0.4em 0.6em;
+}
+
 [data-nid="n76e12c607f"]::first-letter {
   float: left;
   font-size: 3.28em;
@@ -311,12 +326,22 @@ h6 {
   color: #0033cc;
 }
 
+[data-nid="n7b358d97d1"] {
+  background: #c2f0ff;
+  padding: 0.4em 0.6em;
+}
+
 [data-nid="ned2b26bb45"]::first-letter {
   float: left;
   font-size: 3.28em;
   line-height: 0.8;
   padding: 0.04em 0.08em 0 0;
   color: #0033cc;
+}
+
+[data-nid="n21b51f556d"] {
+  background: #c2f0ff;
+  padding: 0.4em 0.6em;
 }
 
 [data-nid="ne5daf6889e"]::first-letter {

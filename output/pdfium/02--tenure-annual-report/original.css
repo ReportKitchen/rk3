@@ -117,9 +117,13 @@ h6 {
   font-size: 1.06em;
 }
 
-[data-nid="n667c80fc60"] { color: #003849; }
+[data-nid="n667c80fc60"] {
+  color: #003849;
+}
 
-[data-nid="na9f41600f7"] { color: #003849; }
+[data-nid="na9f41600f7"] {
+  color: #003849;
+}
 
 [data-nid="n2d4fe9fbea"] th, [data-nid="n2d4fe9fbea"] td { border-color: #003849; }
 

@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 110
+VERSION = 111
 
 
 # PDF font-descriptor flag bits
@@ -170,6 +170,8 @@ def run(ctx):
     blocks, fonts, colors = asm["blocks"], asm["fonts"], asm["colors"]
     pages = {p["n"]: p for p in asm["pages"]}
     ctx.page_h = {p["n"]: p["height"] for p in asm["pages"]}
+    ctx.page_dims = {p["n"]: (p["width"], p["height"]) for p in asm["pages"]}
+    ctx.page_objs = {p["n"]: p.get("objects", []) for p in asm["pages"]}
     ctx.colors = colors
     ctx.questions = []
     ctx.nids = set()
@@ -971,6 +973,10 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
     dc = blk["lines"][0].get("dropCap")
     if dc:
         prov["dropCap"] = f"{dc[0]} {_hex(ctx.colors[dc[1]])}"
+    if not in_aside:
+        bg = _block_bg(ctx, blk)
+        if bg:
+            prov["bg"] = bg
     tag_role, tag_cov = role
     if tag_role:
         prov["role"] = tag_role
@@ -1477,6 +1483,37 @@ def _hard_returns(blk):
     # every transition starting an item are a stack, not a wrap
     return (len(lines) >= 3 and item_starts == len(lines) - 1
             and all(len(l["text"]) <= 45 for l in lines))
+
+
+def _block_bg(ctx, blk):
+    """The colored panel a main-flow block sits ON: the last-drawn (topmost)
+    non-white filled rect that covers the block and is meaningfully larger than
+    it. This is the styling the region classifier deliberately skipped (cover
+    panels around the document title, section banner bands) — the text stays in
+    the flow, but its background is real appearance (rubric north star) and
+    also the context that makes light text colors legible. Page-wide fills
+    (>70% of the page) are excluded — a tinted page ground is a future
+    body-background feature, not a per-block panel."""
+    bl, bb, br, bt = blk["bbox"]
+    barea = max((br - bl) * (bt - bb), 1.0)
+    pw, ph = ctx.page_dims.get(blk["page"], (612.0, 792.0))
+    best = None
+    for o in ctx.page_objs.get(blk["page"], []):
+        if o[0] != OBJ_PATH or not o[7] or o[5] is None:
+            continue
+        l, b, r, t = o[1:5]
+        farea = (r - l) * (t - b)
+        if farea < 1.4 * barea or farea > 0.7 * pw * ph:
+            continue
+        ix = min(br, r) - max(bl, l)
+        iy = min(bt, t) - max(bb, b)
+        if ix <= 0 or iy <= 0 or (ix * iy) / barea < 0.85:
+            continue
+        rgba = ctx.colors[o[5]]
+        if rgba[3] < 128 or min(rgba[:3]) > 240:
+            continue  # transparent or white-ish: not a visible panel
+        best = _hex(rgba)  # objects arrive in draw order; last cover wins
+    return best
 
 
 def _block_align(blk, size):

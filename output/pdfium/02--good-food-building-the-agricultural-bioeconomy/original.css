@@ -187,7 +187,9 @@ strong.c-088d92 { color: #088d92; font-weight: inherit; }
   font-style: italic;
 }
 
-[data-nid="nb47a98e7ab"] { color: #000000; }
+[data-nid="nb47a98e7ab"] {
+  color: #000000;
+}
 
 [data-nid="n3bb1f06b7e"] {
   background: transparent;
@@ -195,11 +197,17 @@ strong.c-088d92 { color: #088d92; font-weight: inherit; }
   border-bottom: 2px solid #000000;
 }
 
-[data-nid="nff36c88b1c"] { color: #005963; }
+[data-nid="nff36c88b1c"] {
+  color: #005963;
+}
 
-[data-nid="n00c1883900"] { color: #005963; }
+[data-nid="n00c1883900"] {
+  color: #005963;
+}
 
-[data-nid="n6dd5f5254d"] { color: #005963; }
+[data-nid="n6dd5f5254d"] {
+  color: #005963;
+}
 
 [data-nid="nbec988cf1d"] {
   background: transparent;
@@ -274,7 +282,9 @@ strong.c-088d92 { color: #088d92; font-weight: inherit; }
   border-left: 4px solid #fade00;
 }
 
-[data-nid="n8e489109a1"] { color: #005963; }
+[data-nid="n8e489109a1"] {
+  color: #005963;
+}
 
 [data-nid="n66bd13d218"] {
   float: right;
@@ -282,7 +292,9 @@ strong.c-088d92 { color: #088d92; font-weight: inherit; }
   margin: 0 0 1rem 1.5rem;
 }
 
-[data-nid="n7761804b74"] { color: #005963; }
+[data-nid="n7761804b74"] {
+  color: #005963;
+}
 
 [data-nid="n7ca3fe0a18"] {
   background: transparent;

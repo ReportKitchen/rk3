@@ -58,9 +58,11 @@ strong.c-1f5c73 { color: #1f5c73; font-weight: inherit; }
 strong.c-519d9f { color: #519d9f; font-weight: inherit; }
 strong.c-adcc30 { color: #adcc30; font-weight: inherit; }
 
-.xl-medium-alt {
+.xl-medium-panel-alt {
   font-family: "Open Sans", sans-serif;
   font-weight: 500;
+  background: #1f5c73;
+  padding: 0.6em 0.8em;
   font-size: 2.6em;
 }
 
@@ -133,6 +135,25 @@ strong.c-adcc30 { color: #adcc30; font-weight: inherit; }
   font-size: 0.85em;
 }
 
+.medium-panel-alt {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 500;
+  background: #c2c4c6;
+  padding: 0.6em 0.8em;
+  font-size: 1.1em;
+}
+
+.panel {
+  background: #c2c4c6;
+  padding: 0.6em 0.8em;
+}
+
+.sm-panel {
+  background: #c2c4c6;
+  padding: 0.6em 0.8em;
+  font-size: 0.8em;
+}
+
 .sm-right-2 {
   font-size: 0.7em;
   text-align: right;
@@ -202,10 +223,25 @@ strong.c-adcc30 { color: #adcc30; font-weight: inherit; }
   font-size: 2.0em;
 }
 
+[data-nid="n966a1b4ddb"] {
+  background: #1f5c73;
+  padding: 0.4em 0.6em;
+}
+
+[data-nid="nb47a98e7ab"] {
+  background: #1f5c73;
+  padding: 0.4em 0.6em;
+}
+
 [data-nid="n5683d398d7"] {
   background: #1f5c73;
   border: none;
   border-bottom: 1px solid #c2c4c6;
+}
+
+[data-nid="nf7328638df"] {
+  background: #1f5c73;
+  padding: 0.4em 0.6em;
 }
 
 [data-nid="n0d0efc05a5"] {
@@ -234,6 +270,11 @@ strong.c-adcc30 { color: #adcc30; font-weight: inherit; }
 [data-nid="n9a919a8875"] {
   background: #a8801a;
   border: 1px solid #c2c4c6;
+}
+
+[data-nid="n65e767b874"] {
+  background: #1f5c73;
+  padding: 0.4em 0.6em;
 }
 
 [data-nid="nb26295974e"] {
@@ -278,6 +319,11 @@ strong.c-adcc30 { color: #adcc30; font-weight: inherit; }
 [data-nid="n8f20fc1e0c"] {
   background: #a8801a;
   border: 1px solid #c2c4c6;
+}
+
+[data-nid="nabec5791f0"] {
+  background: #1f5c73;
+  padding: 0.4em 0.6em;
 }
 
 [data-nid="n2713df4695"] {
@@ -337,6 +383,11 @@ strong.c-adcc30 { color: #adcc30; font-weight: inherit; }
   background: #1f5c73;
   border: none;
   border-bottom: 1px solid #c2c4c6;
+}
+
+[data-nid="n01885bd4ae"] {
+  background: #1f5c73;
+  padding: 0.4em 0.6em;
 }
 
 [data-nid="n2bf192ec35"] {

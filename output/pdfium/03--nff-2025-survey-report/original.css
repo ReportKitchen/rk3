@@ -86,6 +86,14 @@ strong.c-f78813 { color: #f78813; font-weight: inherit; }
   font-size: 0.8em;
 }
 
+.lg-panel-alt {
+  font-family: "helvetica-lt-pro", sans-serif;
+  background: #466bb3;
+  padding: 0.6em 0.8em;
+  color: #ffffff;
+  font-size: 1.48em;
+}
+
 .sm-strong-alt {
   font-family: "helvetica-lt-pro", sans-serif;
   font-weight: 700;
@@ -180,6 +188,26 @@ strong.c-f78813 { color: #f78813; font-weight: inherit; }
   border: none;
 }
 
+[data-nid="nb5c522c0f9"] {
+  background: #466bb3;
+  padding: 0.4em 0.6em;
+}
+
+[data-nid="n17a7c888a3"] {
+  background: #466bb3;
+  padding: 0.4em 0.6em;
+}
+
+[data-nid="nd24f4082fb"] {
+  background: #466bb3;
+  padding: 0.4em 0.6em;
+}
+
+[data-nid="n1a6a1b57c5"] {
+  background: #466bb3;
+  padding: 0.4em 0.6em;
+}
+
 [data-nid="nca9b870fae"] th, [data-nid="nca9b870fae"] td { border-color: #ced4d7; }
 [data-nid="nca9b870fae"] td:nth-child(1) { color: #5c6f7b; }
 [data-nid="nca9b870fae"] td:nth-child(2) { color: #5c6f7b; }
@@ -208,6 +236,16 @@ strong.c-f78813 { color: #f78813; font-weight: inherit; }
 [data-nid="n864a07c4ce"] {
   background: #f78813;
   border: none;
+}
+
+[data-nid="n4ae36cbd5a"] {
+  background: #466bb3;
+  padding: 0.4em 0.6em;
+}
+
+[data-nid="nde8c93834c"] {
+  background: #466bb3;
+  padding: 0.4em 0.6em;
 }
 
 [data-nid="n893f772709"] {
@@ -258,6 +296,16 @@ strong.c-f78813 { color: #f78813; font-weight: inherit; }
   float: right;
   width: 28%;
   margin: 0 0 1rem 1.5rem;
+}
+
+[data-nid="n79f64e33a4"] {
+  background: #466bb3;
+  padding: 0.4em 0.6em;
+}
+
+[data-nid="nbf2c0f9bb5"] {
+  background: #466bb3;
+  padding: 0.4em 0.6em;
 }
 
 [data-nid="n26fc97024f"] {
