@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 59
+VERSION = 60
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -1172,20 +1172,30 @@ def _original_css(ctx, ir):
         out += [f"{sel} {{", *key, "}", ""]
 
     # callout boxes keep their original fill/border and (when narrower than
-    # the column) their floated position and width; floated figures too
-    for n in ir["body"]:
+    # the column) their floated position and width; floated figures too.
+    # Walk RECURSIVELY: nested nodes (columns cells, aside children) carry the
+    # same per-node styling provenance — a top-level-only loop silently
+    # unstyles anything grouping passes have wrapped (the edf p6 drop cap).
+    def _iter_nodes(ns):
+        for n in ns:
+            yield n
+            yield from _iter_nodes(n.get("children", []))
+
+    for n in _iter_nodes(ir["body"]):
         d = n.get("data") or {}
         if n["type"] == "paragraph" and d.get("dropCap"):
             # ornamental drop cap (rubric §3: preserve via CSS by default).
             # data.dropCap = "<scale> <#hex>": scale = cap size / body size.
             # ~0.65× the print scale spans about the same lines on the web
-            # (web line-height is looser than print leading).
+            # (web line-height is looser than print leading). Floor 1.1em:
+            # even a modest oversized lead letter (chep's 1.9× labels) is a
+            # real design flourish — render it proportionally.
             try:
                 scale_s, dc_color = d["dropCap"].split()
                 dc_size = round(float(scale_s) * 0.65, 2)
             except (ValueError, AttributeError):
                 dc_size, dc_color = None, None
-            if dc_size and dc_size >= 1.3:
+            if dc_size and dc_size >= 1.1:
                 rules_dc = [f"  float: left;",
                             f"  font-size: {dc_size}em;",
                             "  line-height: 0.8;",

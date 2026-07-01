@@ -103,6 +103,14 @@ h6 {
   border-bottom: 1px solid #bcbec0;
 }
 
+[data-nid="n509718a3c8"]::first-letter {
+  float: left;
+  font-size: 3.28em;
+  line-height: 0.8;
+  padding: 0.04em 0.08em 0 0;
+  color: #0033cc;
+}
+
 [data-nid="n913bccdceb"]::first-letter {
   float: left;
   font-size: 3.28em;

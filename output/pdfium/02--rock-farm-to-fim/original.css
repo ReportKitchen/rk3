@@ -400,6 +400,26 @@ a:hover { text-decoration: underline; }
   border-top: 1px solid #345f5d;
 }
 
+[data-nid="n7a9221d71d"] {
+  background: #c8e4d1;
+  padding: 0.4em 0.6em;
+}
+
+[data-nid="n5fb04fd68c"] {
+  background: #d6dfdf;
+  padding: 0.4em 0.6em;
+}
+
+[data-nid="n32efaed2a1"] {
+  background: #c4e3e2;
+  padding: 0.4em 0.6em;
+}
+
+[data-nid="nea38a96a38"] {
+  background: #f9ffdb;
+  padding: 0.4em 0.6em;
+}
+
 [data-nid="nba17ed497a"] {
   background: #f9ffdb;
   padding: 0.4em 0.6em;
