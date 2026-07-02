@@ -170,6 +170,33 @@ def _list_items(node):
     return out
 
 
+def _check_nested(slug, c):
+    """PARENT and CHILD: some list item's own text contains PARENT, and a
+    list nested INSIDE that item contains CHILD as one of its items — pins
+    multi-level list reconstruction (lists plan L2: good-food p9's ○ run
+    under a ● parent). A flat sibling list, or CHILD absorbed at the wrong
+    level, fails."""
+    a, b = c["nested"]
+    na, nb = _norm(a), _norm(b)
+    for ln in _list_nodes(slug):
+        for it in ln.get("children") or []:
+            leaf = next((ch for ch in (it.get("children") or [])
+                         if ch.get("text")), None)
+            if leaf is None or na not in _norm(leaf):
+                continue
+            subs = [n for n in _walk(it.get("children") or [])
+                    if n.get("type") == "list"]
+            if any(nb in _norm(sit) for s in subs for sit in _list_items(s)):
+                return True, f"{a!r} holds a nested list containing {b!r}"
+            return False, (f"{a!r} is an item but no list nested under it "
+                           f"contains {b!r} — "
+                           + (f"{b!r} sits in a flat/other list"
+                              if any(nb in _norm(x) for o in _list_nodes(slug)
+                                     for x in _list_items(o))
+                              else f"{_localize(slug, b)}"))
+    return False, f"{a!r} is not a list item — {_localize(slug, a)}"
+
+
 def _check_not_list(slug, c):
     """Snippets must NOT be items of any list — the negative control for list
     detection (lists plan L10 / L3 gating): numbered citations, street
@@ -372,7 +399,8 @@ def _check_freeze(slug, c):
 
 
 EVALUATORS = {"order": _check_order, "role": _check_role, "list": _check_list,
-              "not_list": _check_not_list, "merge": _check_merge,
+              "not_list": _check_not_list, "nested": _check_nested,
+              "merge": _check_merge,
               "split": _check_split, "freeze": _check_freeze}
 
 

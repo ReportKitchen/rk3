@@ -36,3 +36,18 @@ checks:
       - "Prioritize the creation of research centers"
       - "Support at least five of these Centers"
       - "Work with Congress to codify these research centers"
+
+  # GOLD(lists L2) p9 (target, owner note 77bbd84c): the four "○" items are a
+  # level-3 sub-list NESTED inside the "● Build on successes…" item. At plant
+  # time (v158): "Build on successes" is a bare paragraph with a literal ●,
+  # the ○ list is flat, and "● Capitalize on this success" was absorbed into
+  # the ○ list at the WRONG level. Both checks red at plant.
+  - note: "GOLD(lists) p9 (target): ○ items nest under the 'Build on successes' bullet"
+    stage: analyze
+    nested: ["Build on successes in blue-sky research", "Improving variations and uses of soybeans"]
+
+  - note: "GOLD(lists) p9 (target): the two ● bullets are siblings of ONE list"
+    stage: analyze
+    list:
+      - "Build on successes in blue-sky research"
+      - "Capitalize on this success by expanding this ARS initiative"

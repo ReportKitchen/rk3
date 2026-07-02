@@ -1570,7 +1570,7 @@
       "footnotes": 1,
       "heading": 84,
       "list": 12,
-      "paragraph": 177,
+      "paragraph": 178,
       "table": 6
     },
     "asideChildren": 63,
@@ -1703,7 +1703,7 @@
       126
     ],
     "questions": 29,
-    "textChars": 155672
+    "textChars": 155673
   },
   "02--baystate-case-study-021624": {
     "status": "done",
@@ -3171,12 +3171,12 @@
       "figure": 10,
       "heading": 30,
       "list": 18,
-      "paragraph": 81
+      "paragraph": 80
     },
     "asideChildren": 39,
     "notes": [],
     "questions": 9,
-    "textChars": 40690
+    "textChars": 40688
   },
   "02--invest-in-black-led": {
     "status": "done",
@@ -3688,7 +3688,7 @@
       "list": 14,
       "paragraph": 246
     },
-    "asideChildren": 39,
+    "asideChildren": 37,
     "notes": [
       1,
       2,
@@ -4168,7 +4168,7 @@
       476
     ],
     "questions": 13,
-    "textChars": 386365
+    "textChars": 386363
   },
   "02--points-of-light": {
     "status": "done",

@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 158
+VERSION = 163
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -2739,11 +2739,31 @@ def _group_bullet_paragraphs(ctx, nodes):
         if not run:
             return
         # each bullet paragraph already carries its own style runs over its text;
-        # preserve them as the item's spans (bullet stripped, rebased)
-        items = [_strip_marker_item(_node_runs(n), BULLETS) for n in run]
-        bbox = [min(n["bbox"][0] for n in run), min(n["bbox"][1] for n in run),
-                max(n["bbox"][2] for n in run), max(n["bbox"][3] for n in run)]
+        # preserve them as the item's spans (bullet stripped, rebased). A list
+        # node that interrupted the run at a DEEPER indent rides along as the
+        # preceding item's sub-list (good-food p9: the ○ run under "● Build on
+        # successes", with "● Capitalize…" continuing the parent level after).
+        items, nested, bbox = [], 0, None
         page = run[0]["page"]
+        for n in run:
+            it = _strip_marker_item(_node_runs(n), BULLETS)
+            lst = n.pop("_sublist", None)
+            if lst is not None:
+                sub = {"items": lst.get("items", [])}
+                if lst.get("ordered"):
+                    sub["ordered"] = lst["ordered"]
+                    if lst.get("start", 1) > 1:
+                        sub["start"] = lst["start"]
+                it["sub"] = sub
+                nested += 1
+                bbox = _union(bbox, lst["bbox"]) if bbox else list(lst["bbox"])
+                if lst["page"] != page:  # nested content credited to its page
+                    ctx.audit_moved[lst["page"]] += sum(
+                        _alnum(t) for t in _item_texts(sub["items"]))
+            items.append(it)
+        run_bb = [min(n["bbox"][0] for n in run), min(n["bbox"][1] for n in run),
+                  max(n["bbox"][2] for n in run), max(n["bbox"][3] for n in run)]
+        bbox = _union(bbox, run_bb) if bbox else run_bb
         # A bullet run (even a single item) sitting right after an unordered
         # list at the same indent is that list's tail items that split into
         # their own block — rejoin them rather than orphaning a one-bullet <p>.
@@ -2757,10 +2777,10 @@ def _group_bullet_paragraphs(ctx, nodes):
                           text=next(_item_texts(items), "")[:50])
             run = []
             return
-        if len(run) >= 2:
+        if len(run) >= 2 or nested:
             rk = ctx.log.entry("list", page=page, bbox=bbox, items=len(items),
                                reason="consecutive bullet-led paragraphs",
-                               merged=[n["rk"] for n in run])
+                               merged=[n["rk"] for n in run], nested=nested)
             for n in run:
                 if n["page"] != page:  # grouped across pages: credit source
                     ctx.audit_moved[n["page"]] += _alnum(n["text"])
@@ -2777,6 +2797,22 @@ def _group_bullet_paragraphs(ctx, nodes):
     for n in nodes:
         if n["type"] == "paragraph" and n.get("text", "")[:1] in BULLETS:
             run.append(n)
+        elif (run and "_sublist" not in run[-1]
+                and n["type"] == "list" and n.get("items") is not None
+                and n["bbox"][0] > run[-1]["bbox"][0] + 6
+                # deeper indent only means "sub-list" WITHIN one column:
+                # require x-overlap with the bullet, else a right-column
+                # sibling list reads as "deeper" (gates p65: three sibling
+                # bullets in the next column are not children of the first)
+                and n["bbox"][0] < run[-1]["bbox"][2]
+                and 0 <= n["page"] - run[-1]["page"] <= 1):
+            # a deeper-indented list right after a bullet paragraph is that
+            # bullet's SUB-LIST, not a run breaker — capture it and keep the
+            # run open so following same-level bullets stay siblings
+            run[-1]["_sublist"] = n
+            ctx.log.entry("list-nested-under-bullet", page=n["page"],
+                          items=len(n["items"]),
+                          under=run[-1].get("text", "")[:50])
         else:
             flush()
             out.append(n)
@@ -3193,7 +3229,17 @@ def _absorb_bullet_stragglers(ctx, nodes):
                 and prev.get("items") is not None and not prev.get("ordered")
                 and ch.get("type") == "paragraph"
                 and (ch.get("text") or "")[:1] in BULLETS
-                and 0 <= ch["page"] - prev["page"] <= 1):
+                and 0 <= ch["page"] - prev["page"] <= 1
+                # a SAME-PAGE straggler SHALLOWER than the list is the list's
+                # PARENT level, not a lost sibling (good-food p9:
+                # "● Capitalize…" after the deeper ○ sub-list). Only that
+                # direction on that page is decidable from the list bbox: a
+                # multi-column list unions to the page's left edge (oxfam
+                # p52), a cross-column straggler sits far right of it (gates
+                # p9 "• For countries"), and across a page break (gates
+                # p54→55) the column x resets entirely.
+                and (ch["page"] != prev["page"]
+                     or prev["bbox"][0] - ch["bbox"][0] <= 12)):
             # the stripped bullet glyph leaves the text; claim it for audit
             ctx.audit_claimed[ch["page"]] += _alnum(ch["text"][:1])
             prev["items"].append(_strip_marker_item(_node_runs(ch), BULLETS))
