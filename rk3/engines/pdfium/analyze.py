@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 137
+VERSION = 138
 
 
 # PDF font-descriptor flag bits
@@ -193,12 +193,15 @@ def _container(ctx, type_, children, page, bbox, rk, data=None, **extra):
 
 
 def _assert_nids(nodes):
-    """Unified-model invariant: every typed node anywhere in the tree carries
-    a durable nid (addressable by ops/feedback). A missing nid means some
-    builder bypassed the _leaf/_container constructors."""
+    """Unified-model invariants: every typed node anywhere in the tree carries
+    a durable nid (addressable by ops/feedback — a missing one means some
+    builder bypassed the _leaf/_container constructors), and no node still
+    uses a retired container shape (items / rows / sub): one schema, every
+    container holds children, everywhere."""
     def walk(u):
         if isinstance(u, dict):
-            if u.get("type") and not u.get("nid"):
+            if u.get("type") and (not u.get("nid") or "items" in u
+                                  or "rows" in u or "sub" in u):
                 yield u
             for v in u.values():
                 if isinstance(v, (dict, list)):
@@ -209,7 +212,8 @@ def _assert_nids(nodes):
     bad = list(walk(nodes))
     if bad:
         raise InfoLossError(
-            f"{len(bad)} typed node(s) without a nid; first: "
+            f"{len(bad)} node(s) violate the unified container model "
+            f"(missing nid, or retired items/rows/sub shape); first: "
             f"{str(bad[0])[:140]}")
 
 
@@ -604,9 +608,6 @@ def _audit(ctx, blocks, texts, nodes):
     def count_node(n):
         page = n["page"]
         out[page] += _alnum(n.get("text"))
-        out[page] += sum(_alnum(t) for t in _item_texts(n.get("items", [])))
-        out[page] += _alnum(n.get("caption"))
-        out[page] += _alnum(n.get("title"))
         out[page] += _alnum(n.get("sectionNum"))
         for note in n.get("notes", []):
             out[note.get("page", page)] += _alnum(note["text"]) \
@@ -4090,12 +4091,6 @@ def _reconcile_notes(ctx, nodes, notes):
             ref_vals.add(r[2])
         for child in (u.get("children") or []):
             visit(child)
-        for it in (u.get("items") or []):
-            visit(it)
-            sub = it.get("sub") if isinstance(it, dict) else None
-            if sub:
-                for s in (sub.get("items") or []):
-                    visit(s)
     for n in nodes:
         visit(n)
 

@@ -1,13 +1,19 @@
 # Plan: Unified node / container model
 
-Status: IN PROGRESS (owner approved 2026-07-02).
-- Step 1 done — `_leaf`/`_container` constructors, `_assert_nids` invariant,
-  paragraph+heading routed through `_leaf` (commit 3988053; byte-identical
-  output, eval 25/4).
-- Step 2 done — table > row > cell > paragraph-leaf (commit 02fa59b); cell
-  refs/bold/links live; gates notes-without-ref went to zero; naming as
-  implemented: `row` / `cell` (not table-row/table-cell).
-- Steps 3-5 pending (list items, captions/header-cells, shim removal).
+Status: IMPLEMENTED (2026-07-02, owner approved; five eval-gated commits).
+- Step 1 — `_leaf`/`_container` constructors, `_assert_nids` invariant,
+  paragraph+heading routed through `_leaf` (3988053; byte-identical output).
+- Step 2 — table > row > cell > paragraph-leaf (02fa59b); cell refs/bold/
+  links live; gates notes-without-ref → 0. Naming as implemented: `row` /
+  `cell` (not table-row/table-cell).
+- Step 3 — list > item > [leaf, nested list] (0a25f6e); `_upgrade_lists` is
+  the finalization point (list passes keep runs-dict internals).
+- Step 4 — figure title/caption → `caption{variant, children:[leaf]}`
+  (292783b); caption refs/italics live. Header cells were covered by step 2.
+- Step 5 — legacy shims removed; `_assert_nids` also rejects retired
+  items/rows/sub shapes. Six sourceless orphan docs keep their pre-migration
+  static HTML (they cannot reconvert or re-render; no source PDF).
+Eval held 25/4 at every step; representative pages eyeballed per step.
 
 ## Why
 

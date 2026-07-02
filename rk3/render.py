@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 74
+VERSION = 75
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -152,15 +152,6 @@ def _apply_ops(ctx, ir):
             existing_ref_vals.add(r[2])
         for c in (u.get("children") or []):
             _scan(c)
-        for it in (u.get("items") or []):
-            _scan(it)
-            sub = it.get("sub") if isinstance(it, dict) else None
-            if sub:
-                for s in (sub.get("items") or []):
-                    _scan(s)
-        for row in (u.get("rows") or []):
-            for cell in (row or []):
-                _scan(cell)
     for n in ir["body"]:
         _scan(n)
 
@@ -376,15 +367,6 @@ def _reconcile_lists(ir):
                 note_vals.add(nt["n"])
         for child in (u.get("children") or []):
             visit(child)
-        for it in (u.get("items") or []):
-            visit(it)
-            sub = it.get("sub") if isinstance(it, dict) else None
-            if sub:
-                for s in (sub.get("items") or []):
-                    visit(s)
-        for row in (u.get("rows") or []):
-            for cell in (row or []):
-                visit(cell)
     for n in ir["body"]:
         visit(n)
     rn = [_fn_display_r(v) for v in sorted(v for v in ref_vals if v not in note_vals)]
@@ -574,13 +556,10 @@ def _render_node(ctx, node, pages, state):
     if t == "list":
         ordered = node.get("ordered")
         tag = "ol" if ordered else "ul"
-        legacy = node.get("items") is not None
-        entries = node["items"] if legacy else node.get("children", [])
+        entries = node.get("children", [])
 
         def lead_text(it):
-            # an item's first text leaf (unified shape) / its text (legacy)
-            if legacy:
-                return _item_text(it)
+            # an item's first text leaf carries the item's text
             return next((ch.get("text", "") for ch in it.get("children", [])
                          if ch.get("text")), "")
 
@@ -610,26 +589,9 @@ def _render_node(ctx, node, pages, state):
             extra["start"] = node["start"]
         parts = []
         for it in entries:
-            if legacy:
-                # legacy shape (pre analyze-v136 artifacts): rich text-dicts
-                # with an optional `sub` list; shim until step 5
-                body = _item_inline(it, state)
-                sub = it.get("sub") or {} if isinstance(it, dict) else {}
-                if not sub:
-                    parts.append(f"  <li>{body}</li>")
-                    continue
-                stype = f' type="{OL_TYPE[sub["ordered"]]}"' \
-                    if sub.get("ordered") in OL_TYPE else ""
-                sstart = f' start="{sub["start"]}"' \
-                    if sub.get("start", 1) > 1 else ""
-                subhtml = "\n".join(f"    <li>{_item_inline(s, state)}</li>"
-                                    for s in sub.get("items", []))
-                parts.append(f"  <li>{body}\n"
-                             f"  <ol{stype}{sstart}>\n{subhtml}\n  </ol></li>")
-                continue
-            # unified shape: an item is a container — its lead text leaf
-            # renders inline in the <li>, everything else (nested list, and
-            # any node type tomorrow) renders as itself
+            # an item is a container — its lead text leaf renders inline in
+            # the <li>, everything else (nested list, and any node type
+            # tomorrow) renders as itself
             inner = ""
             for ch in it.get("children", []):
                 if ch.get("type") == "paragraph" and not inner:
@@ -686,15 +648,9 @@ def _render_node(ctx, node, pages, state):
                 if c.get("type") == "caption"]
         tnode = next((c for c in caps if c.get("variant") == "title"), None)
         cnode = next((c for c in caps if c.get("variant") == "caption"), None)
-        title = node.get("title")
-        cap = node.get("caption")
-        if tnode is not None:
-            head = (f'  <figcaption data-nid="{tnode["nid"]}">'
-                    f'{cap_inline(tnode)}</figcaption>\n')
-        elif title:
-            head = f'  <figcaption>{html.escape(title)}</figcaption>\n'
-        else:
-            head = ""
+        head = (f'  <figcaption data-nid="{tnode["nid"]}">'
+                f'{cap_inline(tnode)}</figcaption>\n') if tnode is not None \
+            else ""
         if cnode is not None:
             body = cap_inline(cnode)
             # one figcaption per figure: a title heads it, the source/caption
@@ -703,32 +659,12 @@ def _render_node(ctx, node, pages, state):
                     f'{body}</p>' if head else
                     f'\n  <figcaption data-nid="{cnode["nid"]}">'
                     f'{body}</figcaption>')
-        elif cap and title:
-            tail = f'\n  <p class="fig-source">{html.escape(cap)}</p>'
-        elif cap:
-            tail = f'\n  <figcaption>{html.escape(cap)}</figcaption>'
         else:
             tail = ""
         return (f'<figure {_attrs(node, pages)}>\n{head}'
                 f'  <img src="{node["src"]}" alt="{html.escape(node["alt"], quote=True)}"'
                 f' width="{node["width"]}">{tail}\n</figure>')
     if t == "table":
-        if node.get("rows") is not None:
-            # legacy string-cell shape (pre analyze-v132 artifacts); shim until
-            # the corpus is fully reconverted, then removed (migration step 5)
-            rows = node["rows"]
-            head = ""
-            body_rows = rows
-            if node.get("header") and len(rows) > 1:
-                head = ("<thead><tr>"
-                        + "".join(f"<th>{html.escape(c)}</th>" for c in rows[0])
-                        + "</tr></thead>\n")
-                body_rows = rows[1:]
-            body = "\n".join(
-                "  <tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in r)
-                + "</tr>" for r in body_rows)
-            return (f'<figure class="table" {_attrs(node, pages)}>\n<table>\n'
-                    f'{head}<tbody>\n{body}\n</tbody>\n</table>\n</figure>')
         # unified container model: table > row > cell > leaf children. A cell
         # renders whatever nodes it holds (today a paragraph leaf; tomorrow a
         # figure or a list) — no cell-specific text handling. Rows/cells carry
@@ -833,22 +769,6 @@ def _render_node(ctx, node, pages, state):
                 f'<ol{ol_style}>\n' + "\n".join(items) + '\n</ol>\n</section>')
     ctx.log.entry("unknown-node", type=t, rk=node.get("rk"))
     return f"<!-- unrendered node type {html.escape(t)} ({node.get('rk')}) -->"
-
-
-def _item_text(it):
-    """The plain text of a list item (rich dict, or a stray legacy string)."""
-    return it if isinstance(it, str) else it.get("text", "")
-
-
-def _item_inline(it, state):
-    """Render a list item / sub-item, applying its style runs. Items are rich
-    dicts (analyze guarantees it via _assert_rich_items); a bare string is
-    tolerated defensively but carries no style by definition."""
-    if isinstance(it, str):
-        return html.escape(it)
-    return _inline(it.get("text", ""), it.get("links"), it.get("refs"), state,
-                   emph=it.get("emph"), marks=it.get("marks"),
-                   colors=it.get("colors"))
 
 
 # nesting order for overlapping wrap spans: lower rank = outer wrapper, so a

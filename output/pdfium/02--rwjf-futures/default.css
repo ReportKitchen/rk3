@@ -50,6 +50,12 @@ th, td {
   text-align: left;
 }
 
+/* cell content is real nodes (unified container model); a lone paragraph
+   inside a cell must sit like cell text, not like a body paragraph */
+th p, td p {
+  margin: 0;
+}
+
 nav {
   border-bottom: 1px solid #999;
   margin-bottom: 2rem;
