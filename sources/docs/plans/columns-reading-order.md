@@ -21,6 +21,15 @@ and-ask is reserved for capital crimes** (owner, open-questions 2c).
   left-column body vs right column; atlantic p6 'Jason Marczak' signature
   ordering; edf p6 MethaneAIR trailing clause. (The 4th, edf running-footer-
   as-heading, is typing — fix rides along but isn't ordering.)
+- **Two facts that scope the work** (from the column-fusion fix, assemble
+  v40 / 50b000a): (1) assemble now emits the CORRECT order on all three
+  failing pages — the layered diagnostics pass at assemble and fail only at
+  analyze, so the XY-cut is actively scrambling good input; (2)
+  `_reading_order_topo` is already implemented but PARKED — its first cut
+  regressed eval (added an edf p5 failure, fixed none). Phase 2 is therefore
+  a *revival with the phase-1 column model as its constraint source*, not a
+  from-scratch build, and the gold set exists precisely to keep a second
+  premature flip from happening.
 
 ## Phase 0 — the gold set arbitrates (before any engine change)
 
