@@ -180,6 +180,19 @@ export default function PatternsPanel({ doc }) {
                     </span>
                   </div>
                   <p className="pat-quote">“{(ref.quote || "").slice(0, 140)}”</p>
+                  {c.fields && Object.keys(c.fields).length > 0 && (
+                    <p className="pat-fields">
+                      {Object.entries(c.fields)
+                        .filter(([, v]) => v !== null && v !== "" &&
+                                String(v) !== (ref.quote || ""))
+                        .map(([k, v]) => (
+                          <span key={k} className="pat-field">
+                            <span className="pat-field-k">{k}</span>{" "}
+                            {String(typeof v === "object" ? JSON.stringify(v) : v).slice(0, 70)}
+                          </span>
+                        ))}
+                    </p>
+                  )}
                   {noteFor?.id === c.pattern_id && (
                     <input className="pat-note" autoFocus
                            placeholder={(noteFor.decision ? `${noteFor.decision.replaceAll("_", " ")} — ` : "")

@@ -727,6 +727,15 @@ pre.error {
 .pat-actions select { font-size: 0.7rem; max-width: 2.2rem; border: 1px solid #ccc;
   border-radius: 4px; background: #fff; height: 1.4rem; }
 .pat-quote { margin: 0.25rem 0 0 2rem; font-size: 0.78rem; color: #444; }
+/* the detector's EXTRACTED fields — what it thinks the value/label/speaker
+   is. Reviewing these is the whole point: a plausible quote can hide junk
+   extraction (value "2020," label "In"). */
+.pat-fields { margin: 0.2rem 0 0 2rem; display: flex; flex-wrap: wrap;
+  gap: 0.25rem 0.6rem; }
+.pat-field { font: 0.72rem/1.5 ui-monospace, monospace; color: #333;
+  background: #f5f2fb; border: 1px solid #e4dcf5; border-radius: 3px;
+  padding: 0 0.35rem; }
+.pat-field-k { color: #7c3aed; }
 .pat-note { margin: 0.3rem 0 0.1rem 2rem; width: calc(100% - 2.5rem);
   font-size: 0.75rem; padding: 0.2rem 0.4rem; border: 1px solid #c9b8e8;
   border-radius: 4px; }
