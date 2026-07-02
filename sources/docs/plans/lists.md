@@ -39,7 +39,7 @@ systematically instead of per-heuristic.
 | L1 | compound / stray markers — "•-" leaves a "-" in the item | clean-air p32 (`'•- Data was collected'`), chep p75/p105, clean-air p4 | `_strip_marker_item` strips ONE glyph |
 | L2 | multi-level nesting | clean-air p32 "last item has 2nd-level items", p9 "level 3 UL under 'Build on Successes'" | only ordinal `sub` + cross-page continuation; no indent-driven nesting |
 | L3 | ULs hiding inside paragraphs | clean-air p15 "there's UL hiding in here", p17 "UL starts within the paragraph", p16 | `_split_inline_bullets` catches some; misses block-interior starts |
-| L4 | over-split lists (adjacent same-style ULs) | clean-air p17 "should be one UL with 4 LIs; instead 2 ULs of 2" | cross-PAGE merges exist; same-page adjacency doesn't |
+| L4 | over-split lists (adjacent same-style ULs) | **GATES** p17 "should be one UL with 4 LIs; instead 2 ULs of 2" (mis-attributed to clean-air in v1 of this table — owner correction; clean-air p17 has no lists at all) | cross-PAGE merges exist; column-gutter splits don't merge |
 | L5 | broken items | chep p105 "each li is broken multiple times", chep p51 | `_join_list_tail` fixed the tail case; interior breaks remain |
 | L6 | missing initial bolds in items | ecp p4, clean-air p4 | possibly fixed by container work — VERIFY, then pin |
 | L7 | marker spacing | chep p51 "significant space after the bullet points" | unhandled (style-layer) |
@@ -56,10 +56,16 @@ strip rode along — clean-air's '•-' items start clean). Phase 2 SHIPPED
 renders a real second level. The A/B snapshot review caught a real
 drop-lines-before-first-marker bug — advancing lost 5 label items under the
 audit threshold; fixed, all recovered. Corpus snapshot byte-identical
-otherwise). NEXT: L3 (hidden ULs / inline enumerations) — REQUIRES its
-negative controls first: inline '1) x and 2) y' mid-sentence must stay
-prose; only marker-led, segment-substantial, node-spanning enumerations
-convert. Then L4 same-page merges, clean-air p9 level-3 gold.
+otherwise). L3 SHIPPED (v154: _split_inline_ordinals + the not_list: control kind;
+fired exactly once corpus-wide — its gold target). Page-number furniture
+shipped alongside (v155). NEXT: **L4 = the gates p17 cluster** (gold
+target encoded, red): four enabler items split 2+2 at the COLUMN gutter —
+needs a column-model-aware list merge; same page also has the parent
+bullet welded into the intro paragraph (L3-glyph variant for
+_split_inline_bullets) and the Table 1 caption interleaving BETWEEN the
+two half-lists (a model-ordering defect: diagnose why the spanning
+caption's band didn't sort after both columns). Then clean-air p9
+level-3 gold.
 
 ## Phase 0 — gold set first
 

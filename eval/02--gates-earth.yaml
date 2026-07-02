@@ -27,3 +27,13 @@ checks:
   # with "For communities" / "For companies" (reviewer note nd6d8031b6b).
   - note: "GOLD(col) p9 (target): 'For countries' joins the key-findings list"
     list: ["For communities", "For companies", "For countries: Adaptation interventions"]
+
+  # GOLD(lists) p17 (target, owner note ned1aa08175 — previously
+  # MIS-ATTRIBUTED to clean-air in the lists plan): the four bold-led
+  # enabler items are ONE list flowing across the column gutter; today they
+  # split 2+2 at the gutter (L4 x lists-in-columns). Source page also shows
+  # the parent bullet "Turning the resilience opportunity…" welded into the
+  # intro paragraph, and the Table 1 caption interleaving between the two
+  # half-lists (ordering defect) — same fix cluster.
+  - note: "GOLD(lists) p17 (target): four enabler items form one list across the column gutter"
+    list: ["Pricing resilience risks and returns", "Developing a shared risk typology", "Improving access to physical risk data", "Tracking progress and positive outcomes"]
