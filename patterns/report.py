@@ -115,8 +115,16 @@ def display_value(candidate: dict[str, Any]) -> str:
     if pattern_type == "funding_event":
         bits = [fields.get("amount"), fields.get("funder"), fields.get("program"), fields.get("recipient")]
         return " -> ".join(str(b) for b in bits if b)
+    if pattern_type == "impact_statement":
+        bits = [fields.get("impact_type"), fields.get("value"), fields.get("statement_text")]
+        return " | ".join(str(b) for b in bits if b)
     if pattern_type == "legal_reference":
         return fields.get("reference_text") or first_quote(candidate)
+    if pattern_type == "resource":
+        bits = [fields.get("resource_name"), fields.get("resource_type")]
+        return " | ".join(str(b) for b in bits if b)
+    if pattern_type == "callout_label":
+        return fields.get("label_text") or first_quote(candidate)
     if pattern_type == "entity_relationship":
         subject = fields.get("subject")
         predicate = fields.get("predicate")

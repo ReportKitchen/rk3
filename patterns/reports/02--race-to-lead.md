@@ -4,18 +4,20 @@
 - title: Introduction
 - pages: 50
 - irVersion: 1
-- convertedAt: 2026-07-02T21:00:00.832486+00:00
+- convertedAt: 2026-07-02T22:17:11.804240+00:00
 
 ## Inventory
 
 - callout: 24
 - date_time_period: 134
 - geography_place: 6
+- impact_statement: 14
 - key_finding: 5
 - metric_cluster: 33
 - named_entity: 16
 - question: 2
 - quotation: 23
+- resource: 5
 - source_note_reference: 84
 - statistic: 480
 
@@ -24,11 +26,13 @@
 - `callout`: 24 candidate(s). Sample: Hundreds of write-in responses and focus group in their own words observations indicate an exhaustion experienced by people of color in the nonprofit sector.8 People of color shared reflections about the constant demands of both job respon...; 27% 29%; 21%
 - `date_time_period`: 134 candidate(s). Sample: 2016; 2019; 2020
 - `geography_place`: 6 candidate(s). Sample: United States; United States; United States
+- `impact_statement`: 14 candidate(s). Sample: impact | 2019 | Although the 2019 data shows more support and fewer challenges for both people of color and white respondents, other responses indicate increased inequality in the sector.; impact | 42% | Lack of role models was the only challenge that increased for people of color, with 42% of respondents in 2019 (compared to 39% in 2016) reporting they often or always experienced this career challenge; white respondent...; need | As a working-class Hispanic in a majority upper- and middle-class white work environment … I probably need coaching and mentoring, but I feel that being Hispanic has prevented me from finding mentors or others who want...
 - `key_finding`: 5 candidate(s). Sample: key finding 1: The Same Story; As a working-class Hispanic in a majority upper- and middle-class white work environment … I probably need coaching and mentoring, but I feel that being Hispanic has prevented me from finding mentors or others who want...; key finding 2: The White Advantage
 - `metric_cluster`: 33 candidate(s). Sample: 2 metric(s): 75%, 50%; 2 metric(s): 0%, 10%; 12 metric(s): 41%, 14%, 10%, 7%, 1%, 8%
 - `named_entity`: 16 candidate(s). Sample: About the Building Movement Project; About the Building Movement Project; The Building Movement Project
 - `question`: 2 candidate(s). Sample: If your leadership is all white, how can they ever relate or understand how much effort you make for people to look past your race?; figure 23 | do you provide regular financial support to your family?
 - `quotation`: 23 candidate(s). Sample: trans, gender non-conforming, non-binary, et. al.; Peer support group meetings.; Peer support/affinity group meetings or online discussions.
+- `resource`: 5 candidate(s). Sample: The Building Movement Project | project; The Building Movement Project | project; Building Movement Project | project
 - `source_note_reference`: 84 candidate(s). Sample: To increase the diversity of nonprofit leaders, the report recommended that the sector shift its focus away from the individual qualifications or goals of emerging leaders of color and toward addressing the systemic bias in the sector that...; 3 The lack of diversity in nonprofit sector leadership was not a reflection of the qualifications or ambition of people of color, but the result of racialized barriers that inhibited their leadership ambitions, from lack of support by whit...; 2 The data and analysis presented here offer insight on how to support organizations that embrace racial equity internally as they work toward a society in which all people have equal voice, opportunity, and power.
 - `statistic`: 480 candidate(s). Sample: 5,000 people ryone who has supported the Race to Lead initiative, particularly the more than; 5,000 nprofit Racial Leadership Gap presents findings from a 2019 survey of more than; 75% s: White-run organizations in which the board and staff leadership is more than
 
@@ -82,10 +86,12 @@
 - `named_entity` p2 `patt_7a308caaa3e0` (0.66): The Building Movement Project | source: The Building Movement Project (BMP) supports and pushes the nonprofit sector by developing research, creating tools and training materials, and facilitating networks for social change.
 - `named_entity` p2 `patt_b4f9ab70689e` (0.66): Project Assistant | source: The communications team—Catherine Foley, Project Assistant, and Noelia Mann, former Communications and Operations Coordinator—ensured that the survey was seen widely and that focus groups went smoothly.
 - `named_entity` p2 `patt_eefdde8102da` (0.66): Co-Directors of the Building Movement Project | source: Frances Kunreuther and Sean Thomas-Breitfeld, Co-Directors of the Building Movement Project, authored this report.
+- `resource` p2 `patt_cf3cfa5576d1` (0.68): The Building Movement Project | project | source: The Building Movement Project (BMP) supports and pushes the nonprofit sector by developing research, creating tools and training materials, and facilitating networks for social change.
 - `statistic` p2 `patt_d31d07bd6bcc` (0.72): 5,000 people ryone who has supported the Race to Lead initiative, particularly the more than | source: BMP is grateful to everyone who has supported the Race to Lead initiative, particularly the more than 5,000 people who responded to the most recent survey, the hundreds of nonprofit leaders who have participated in BMP’s focus groups, and....
 - `geography_place` p4 `patt_f21e4fda61ba` (0.74): United States | source: Inequality in the United States is a familiar issue to those who work in the nation’s nonprofit sector.
 - `named_entity` p4 `patt_570d3858f250` (0.66): The Building Movement Project | source: The Building Movement Project released initial survey findings on race and leadership in the nonprofit sector in the 2017 report Race to Lead: Confronting the Nonprofit Racial Leadership Gap.
 - `named_entity` p4 `patt_b4de7098976f` (0.66): Building Movement Project | source: This report, Race to Lead Revisited: Obstacles and Opportunities in Addressing the Nonprofit Racial Leadership Gap, presents ongoing research and analysis by the Building Movement Project (BMP) into why the nonprofit sector has so few lead...
+- `resource` p4 `patt_0e1bb5482c36` (0.68): The Building Movement Project | project | source: The Building Movement Project released initial survey findings on race and leadership in the nonprofit sector in the 2017 report Race to Lead: Confronting the Nonprofit Racial Leadership Gap.
 - `statistic` p4 `patt_5a6283aea3ef` (0.72): 5,000 nprofit Racial Leadership Gap presents findings from a 2019 survey of more than | source: Race to Lead Revisited: Obstacles and Opportunities in Addressing the Nonprofit Racial Leadership Gap presents findings from a 2019 survey of more than 5,000 paid nonprofit staff on their experiences of race and leadership in nonprofit set...
 - `metric_cluster` p6 `patt_fb1f52c8ce9d` (0.68): 2 metric(s): 75%, 50% | source: This report categorizes the nonprofit workplaces of survey respondents into three organizational types: White-run organizations in which the board and staff leadership is more than 75% white; POC-led organizations in which more than 50% of...
 - `statistic` p6 `patt_6f73567d32ad` (0.72): 75% s: White-run organizations in which the board and staff leadership is more than | source: This report categorizes the nonprofit workplaces of survey respondents into three organizational types: White-run organizations in which the board and staff leadership is more than 75% white; POC-led organizations in which more than 50% of...
@@ -95,6 +101,7 @@
 - `geography_place` p8 `patt_7d9fb54c35e4` (0.74): United States | source: In the three years since the Building Movement Project conducted the first Race to Lead survey, significant changes occurred in the nonprofit sector and across the United States.
 - `named_entity` p8 `patt_29d5838e5eaa` (0.66): Building Movement Project | source: Subsequent publications will explore subsectors of responses from key demographic groups, as well as several regionally focused reports from areas where the Building Movement Project partnered with local organizations and generated suffici...
 - `named_entity` p8 `patt_37285516ac6a` (0.66): Building Movement Project | source: In the three years since the Building Movement Project conducted the first Race to Lead survey, significant changes occurred in the nonprofit sector and across the United States.
+- `resource` p8 `patt_ec28377728d3` (0.68): Building Movement Project | project | source: In the three years since the Building Movement Project conducted the first Race to Lead survey, significant changes occurred in the nonprofit sector and across the United States.
 - `statistic` p8 `patt_2023758856e8` (0.72): 10,000 people f 2019 through the Building Movement Project’s online newsletter list of almost | source: The survey link was promoted in the summer of 2019 through the Building Movement Project’s online newsletter list of almost 10,000 people, outreach by partner organizations, and social media outlets including Facebook, Instagram, LinkedIn,...
 - `geography_place` p9 `patt_bda46e417dd2` (0.74): United States | source: The result is a convenience sample 10 of those who work for pay in the nonprofit sector in the United States.
 - `metric_cluster` p9 `patt_b9cbea8732c5` (0.68): 2 metric(s): 0%, 10% | source: percentoftotalrespondents: 0% 10% totalrespondents: 5,261
@@ -107,16 +114,13 @@
 - `statistic` p9 `patt_da76ad57b7f6` (0.72): 5,261 The composition of the | source: The composition of the 5,261 survey respondents was remarkably similar to the more than 4,000 participants in the original Race to Lead data three years prior.
 - `statistic` p9 `patt_e45144bba3fb` (0.72): 8,000 people 11 Out of more than | source: 11 Out of more than 8,000 people who started the survey, 5,261 respondents were included in the final dataset.
 - `statistic` p9 `patt_ff83815a1aac` (0.72): 5,261 percentoftotalrespondents: 0% 10% totalrespondents | source: percentoftotalrespondents: 0% 10% totalrespondents: 5,261
-- `metric_cluster` p10 `patt_a325c5329863` (0.68): 12 metric(s): 41%, 14%, 10%, 7%, 1%, 8% | source: In 2019, 41% of respondents identified as people of color, including 14% African American/Black; 10% Latinx/ Hispanic; 7% Asian American; 1% Native American/Indigenous; less than 1% Arab American;12 and 8% multiracial. African American/Bla...
+- `metric_cluster` p10 `patt_3a1c8d654e96` (0.68): 12 metric(s): 41%, 14%, 10%, 7%, 1%, 8% | source: In 2019, 41% of respondents identified as people of color, including 14% African American/Black; 10% Latinx/ Hispanic; 7% Asian American; 1% Native American/Indigenous; less than 1% Arab American;12 and 8% multiracial. African American/Bla...
 - `statistic` p10 `patt_00d79d825f80` (0.72): 8% Asian American | source: Asian American 8%
 - `statistic` p10 `patt_033bd5afb569` (0.72): 20162019
 - `statistic` p10 `patt_0ae6d80077a8` (0.72): 15% African American/Black | source: African American/Black 15%
 - `statistic` p10 `patt_0c7bfc52ad04` (0.72): 14% | source: 14% African American/Black
 - `statistic` p10 `patt_1703f42537a2` (0.72): 3% in 2016, with three percentage points fewer men (16%) and the same percentage ( | source: 14 In the 2019 dataset, 81% of respondents identified as women compared to 78% in 2016, with three percentage points fewer men (16%) and the same percentage (3%) identifying as gender non-conforming (see Figure 5 on the following page).
 - `statistic` p10 `patt_1e7624b7f599` (0.72): 7% as people of color, including 14% African American/Black; 10% Latinx/ Hispanic | source: In 2019, 41% of respondents identified as people of color, including 14% African American/Black; 10% Latinx/ Hispanic; 7% Asian American; 1% Native American/Indigenous; less than 1% Arab American;12 and 8% multiracial.
-- `statistic` p10 `patt_234a4a97e227` (0.72): 79%
-- `statistic` p10 `patt_3b021c265a88` (0.72): 58%
-- `statistic` p10 `patt_3c7e71784657` (0.72): 78% 14 In the 2019 dataset, 81% of respondents identified as women compared to | source: 14 In the 2019 dataset, 81% of respondents identified as women compared to 78% in 2016, with three percentage points fewer men (16%) and the same percentage (3%) identifying as gender non-conforming (see Figure 5 on the following page).
 
 ## Reviewer Questions
 

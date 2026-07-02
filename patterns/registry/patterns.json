@@ -20,15 +20,29 @@
       "id": "funding_event",
       "name": "Funding Event",
       "layer": 1,
-      "definition": "A funding, grant, investment, loan, donor, or capital event anchored by an amount or funding context.",
-      "positive_indicators": ["currency amount", "grant", "funding", "investment", "loan", "donor"],
-      "negative_indicators": ["ordinary price mention", "unrelated currency in a comparison table"],
+      "definition": "A discrete funding, grant, investment, loan, pledge, donor, or capital event with a funder, recipient, program, or award action.",
+      "positive_indicators": ["currency amount with grant action", "pledge made by", "funded by", "awarded to", "investment by"],
+      "negative_indicators": ["ordinary price mention", "aggregate funding total", "average grant size", "capital backlog", "economic impact total"],
       "required_fields": ["amount"],
       "optional_fields": ["funder", "recipient", "program", "purpose", "time_period", "relationship_edges"],
       "evidence_requirements": ["amount or funding context appears in source_refs"],
       "candidate_component_treatments": ["funding_event_card", "relationship_graph_edge"],
-      "common_false_positives": ["financial statement totals without event context"],
+      "common_false_positives": ["financial statement totals without event context", "sector-wide funding totals", "repair backlogs", "return-on-investment statements"],
       "validation_rules": ["amount must appear in source quote"]
+    },
+    {
+      "id": "impact_statement",
+      "name": "Impact / Accomplishment Statement",
+      "layer": 1,
+      "definition": "A compact claim about what an organization, program, sector, or policy achieved, affected, needed, or produced.",
+      "positive_indicators": ["created homes", "touched lives", "helped organizations", "capital backlog", "need", "impact", "outcome"],
+      "negative_indicators": ["raw number without claim", "survey demographic makeup", "citation text"],
+      "required_fields": ["statement_text"],
+      "optional_fields": ["impact_type", "actor", "value", "time_period", "beneficiaries", "scope"],
+      "evidence_requirements": ["statement_text appears in source_refs"],
+      "candidate_component_treatments": ["impact_stat_card", "achievement_callout"],
+      "common_false_positives": ["methodology sample sizes", "chart legends"],
+      "validation_rules": ["must describe an accomplishment, need, outcome, or impact claim"]
     },
     {
       "id": "legal_reference",
@@ -43,6 +57,20 @@
       "candidate_component_treatments": ["legal_reference_badge", "citation_popover"],
       "common_false_positives": ["citation years", "footnote markers"],
       "validation_rules": ["reference_text must appear in source quote"]
+    },
+    {
+      "id": "resource",
+      "name": "Resource",
+      "layer": 1,
+      "definition": "A named program, guide, toolkit, data source, survey, report, grant program, database, or other reusable resource surfaced by the document.",
+      "positive_indicators": ["program", "guide", "toolkit", "survey", "report", "database", "resource", "grant program"],
+      "negative_indicators": ["ordinary organization name", "generic section heading"],
+      "required_fields": ["resource_name"],
+      "optional_fields": ["resource_type", "sponsor", "description"],
+      "evidence_requirements": ["resource_name appears in source_refs"],
+      "candidate_component_treatments": ["resource_card", "resource_list_item"],
+      "common_false_positives": ["generic Title Case phrases"],
+      "validation_rules": ["resource_name must appear in source quote"]
     },
     {
       "id": "quotation",
@@ -197,6 +225,20 @@
       "candidate_component_treatments": ["callout_box", "sidebar"],
       "common_false_positives": ["layout containers without semantic emphasis"],
       "validation_rules": ["must anchor to an IR node"]
+    },
+    {
+      "id": "callout_label",
+      "name": "Callout / Module Label",
+      "layer": 1,
+      "definition": "A repeated editorial label or named module family such as In Their Own Words, Digging Deeper, or Policy in Action.",
+      "positive_indicators": ["short styled heading", "repeated callout label", "module title"],
+      "negative_indicators": ["one-off section heading", "ordinary paragraph lead"],
+      "required_fields": ["label_text"],
+      "optional_fields": ["module_type", "sample_content"],
+      "evidence_requirements": ["label_text appears in source_refs"],
+      "candidate_component_treatments": ["callout_style_token", "module_theme"],
+      "common_false_positives": ["ordinary title-case headings"],
+      "validation_rules": ["label must be short and visually or structurally associated with a callout"]
     },
     {
       "id": "metric_cluster",

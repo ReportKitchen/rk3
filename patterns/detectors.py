@@ -34,6 +34,34 @@ FUNDING_CONTEXT_RE = re.compile(
     re.I,
 )
 FUNDING_NEGATIVE_CONTEXT_RE = re.compile(r"\b(fee waiver|fees? exceed|processing additional records|fee category)\b", re.I)
+DISCRETE_FUNDING_ACTION_RE = re.compile(
+    r"\b(received|provided|awarded|pledged|committed|granted|funded|invested|loaned|made by|from|to|launched|expand its commitment)\b",
+    re.I,
+)
+BROAD_FUNDING_SUMMARY_RE = re.compile(
+    r"\b(total|known funding|average grant size|capital backlog|economic impact|funding went to|level of funding|created over|generated over|invested nearly|foundation funding was invested|grant funding awarded|median amount|annual grantmaking)\b",
+    re.I,
+)
+IMPACT_STATEMENT_RE = re.compile(
+    r"\b(created|generated|helped|served|reached|touched|built|produced|preserved|provided|invested|awarded|funded|reduced|increased|improved|needed|needs|need|backlog|impact)\b",
+    re.I,
+)
+RESOURCE_HINT_RE = re.compile(
+    r"\b(programs?|resources?|guides?|toolkits?|surveys?|reports?|databases?|datasets?|index|indices|initiative|initiatives|project|projects|fund|funds|grant|grants|academy|challenge)\b",
+    re.I,
+)
+RESOURCE_PHRASE_RE = re.compile(
+    r"\b(?:[A-Z][A-Za-z0-9&.'’-]+|[A-Z]{2,})(?:\s+(?:[A-Z][A-Za-z0-9&.'’-]+|of|and|for|the|to|[A-Z]{2,})){0,8}\s+(?:Programs?|Resources?|Guides?|Toolkits?|Surveys?|Reports?|Databases?|Datasets?|Index|Initiative|Initiatives|Project|Projects|Fund|Funds|Grant|Grants|Academy|Challenge)\b"
+)
+CALLOUT_LABELS = {
+    "in their own words",
+    "digging deeper",
+    "policy in action",
+    "case study",
+    "stories of impact",
+    "spotlight",
+    "learn more",
+}
 DATE_RE = re.compile(
     r"\b(?:"
     r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|"
@@ -132,12 +160,14 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
     leaves = list(irwalk.leaves(body))
     for node in leaves:
         text = node.get("text") or ""
+        if is_citation_like_text(text):
+            continue
         legal_spans: list[tuple[int, int]] = []
         money_spans: list[tuple[int, int]] = []
 
         for match in LEGAL_REFERENCE_RE.finditer(text):
             reference = clean_legal_reference(match.group(0))
-            if not reference:
+            if not reference or should_skip_legal_reference(reference, text):
                 continue
             legal_spans.append(match.span())
             add(
@@ -159,6 +189,23 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
             if not amount or not is_funding_context(quote):
                 continue
             money_spans.append(match.span())
+            if not is_discrete_funding_event(quote):
+                add(
+                    "impact_statement",
+                    node,
+                    {
+                        "statement_text": quote,
+                        "impact_type": infer_impact_type(quote),
+                        "actor": infer_impact_actor(text, match.start()),
+                        "value": amount,
+                        "time_period": first_date_value(quote),
+                        "beneficiaries": infer_impact_beneficiaries(quote),
+                    },
+                    0.68,
+                    "Funding-like amount in aggregate impact, need, backlog, or summary context.",
+                    quote,
+                )
+                continue
             parties = infer_funding_parties(quote, amount)
             fallback_funder = None if parties.get("program") else infer_funder(text, match.start())
             fields = {
@@ -194,6 +241,28 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
                     "Funding context links inferred funder and recipient.",
                     quote,
                 )
+
+        impact = None if money_spans and is_funding_context(text) else find_impact_statement(text)
+        if impact:
+            add(
+                "impact_statement",
+                node,
+                impact,
+                0.64,
+                "Outcome, accomplishment, need, or impact language with measurable claim.",
+                impact["statement_text"],
+            )
+
+        resource = find_resource(text)
+        if resource:
+            add(
+                "resource",
+                node,
+                resource,
+                0.68,
+                "Named program, report, survey, guide, fund, or reusable resource.",
+                resource["description"] or resource["resource_name"],
+            )
 
         for match in NUMBER_RE.finditer(text):
             value = match.group("value").strip()
@@ -326,6 +395,25 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
 
     for node in irwalk.of_type(body, "heading"):
         text = clean_entity_text(node.get("text") or "")
+        if is_callout_label(text):
+            add(
+                "callout_label",
+                node,
+                {"label_text": text, "module_type": infer_callout_label_type(text), "sample_content": None},
+                0.72,
+                "Short editorial module/callout label.",
+                text,
+            )
+        resource = find_resource(text)
+        if resource:
+            add(
+                "resource",
+                node,
+                resource,
+                0.7,
+                "Heading names a reusable resource or program.",
+                text,
+            )
         if is_entity_candidate(text, heading=True):
             add(
                 "named_entity",
@@ -348,6 +436,8 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
     for node in leaves:
         text = node.get("text") or ""
         for entity in entities_in_text(text):
+            if is_resource_only_name(entity):
+                continue
             add(
                 "named_entity",
                 node,
@@ -766,6 +856,15 @@ def is_funding_context(text: str) -> bool:
     return bool(FUNDING_CONTEXT_RE.search(text or ""))
 
 
+def is_discrete_funding_event(text: str) -> bool:
+    text = text or ""
+    if BROAD_FUNDING_SUMMARY_RE.search(text):
+        return False
+    if re.search(r"\b(should|recommend|raise the guarantee cap|annually|increased investment of|increase investment of)\b", text, re.I):
+        return False
+    return bool(DISCRETE_FUNDING_ACTION_RE.search(text))
+
+
 def legal_reference_near(text: str, start: int) -> bool:
     window_start = max(0, start - 24)
     window_end = min(len(text), start + 48)
@@ -791,6 +890,14 @@ def clean_legal_reference(reference: str) -> str:
     while ref.endswith(")") and ref.count(")") > ref.count("("):
         ref = ref[:-1].rstrip()
     return ref
+
+
+def should_skip_legal_reference(reference: str, text: str) -> bool:
+    if re.fullmatch(r"501\s*\(?c\)?\s*3?", reference or "", re.I):
+        return True
+    if "501(c)" in (text or "").lower():
+        return True
+    return False
 
 
 def first_date_value(text: str) -> str | None:
@@ -851,6 +958,178 @@ def infer_recipient(text: str, amount_end: int) -> str | None:
 def infer_funding_purpose(quote: str) -> str | None:
     match = re.search(r"\b(?:to|for|supporting|toward)\s+(.+?)(?:[.;]|$)", quote or "", re.I)
     return clean_quote(match.group(1), 140) if match else None
+
+
+def find_impact_statement(text: str) -> dict[str, Any] | None:
+    quote = first_sentence(text)
+    if not quote or len(quote) < 30:
+        return None
+    if is_chart_or_methodology_text(quote) or is_definition_like_impact(quote):
+        return None
+    if not IMPACT_STATEMENT_RE.search(quote):
+        return None
+    has_value = bool(NUMBER_RE.search(quote) or MONEY_RE.search(quote) or re.search(r"\b(millions?|billions?|thousands?)\b", quote, re.I))
+    if not has_value and "," in quote and ROLE_HINT_RE.search(quote):
+        return None
+    if not has_value and not re.search(r"\b(backlog|need|needs|impact)\b", quote, re.I):
+        return None
+    return {
+        "statement_text": quote,
+        "impact_type": infer_impact_type(quote),
+        "actor": infer_impact_actor(text, 0),
+        "value": first_impact_value(quote),
+        "time_period": first_date_value(quote),
+        "beneficiaries": infer_impact_beneficiaries(quote),
+        "scope": None,
+    }
+
+
+def infer_impact_type(text: str) -> str:
+    lowered = (text or "").lower()
+    if any(word in lowered for word in ("backlog", "need", "needed", "needs")):
+        return "need"
+    if any(word in lowered for word in ("economic impact", "touched", "served", "reached", "helped", "created", "generated")):
+        return "accomplishment"
+    if any(word in lowered for word in ("known funding", "average grant", "funding went", "foundation funding")):
+        return "funding_summary"
+    return "impact"
+
+
+def first_impact_value(text: str) -> str | None:
+    money = MONEY_RE.search(text or "")
+    if money:
+        return clean_money_amount(money.group("amount"))
+    number = NUMBER_RE.search(text or "")
+    if number:
+        return number.group("value").strip()
+    word_number = re.search(r"\b(millions?|billions?|thousands?)\b", text or "", re.I)
+    return word_number.group(0) if word_number else None
+
+
+def infer_impact_actor(text: str, offset: int) -> str | None:
+    prefix = text[max(0, offset - 160): offset + 160]
+    candidates = entities_in_text(prefix)
+    return candidates[0] if candidates else None
+
+
+def infer_impact_beneficiaries(text: str) -> str | None:
+    match = re.search(r"\b(?:for|to|among|serving|served|reached|touched|helped)\s+(.+?)(?:[.;,]|$)", text or "", re.I)
+    return clean_quote(match.group(1), 100) if match else None
+
+
+def find_resource(text: str) -> dict[str, Any] | None:
+    text = clean_quote(text, 260)
+    if not text or len(text) < 5:
+        return None
+    if is_citation_like_text(text):
+        return None
+    label_match = LABEL_VALUE_RE.match(text)
+    if label_match and RESOURCE_HINT_RE.search(label_match.group("label")):
+        name = clean_entity_text(label_match.group("label"))
+        if not is_plausible_resource_name(name):
+            return None
+        return {
+            "resource_name": name,
+            "resource_type": infer_resource_type(name),
+            "sponsor": None,
+            "description": clean_quote(text, 220),
+        }
+    phrase = RESOURCE_PHRASE_RE.search(text)
+    if phrase:
+        name = clean_entity_text(phrase.group(0))
+        if name and name.lower() not in CALLOUT_LABELS and is_plausible_resource_name(name):
+            return {
+                "resource_name": name,
+                "resource_type": infer_resource_type(name),
+                "sponsor": None,
+                "description": sentence_containing(text, name),
+            }
+    return None
+
+
+def is_resource_name(text: str) -> bool:
+    return bool(RESOURCE_HINT_RE.search(text or ""))
+
+
+def is_resource_only_name(text: str) -> bool:
+    return bool(re.search(r"\b(survey|report|guide|toolkit|database|dataset|index|indices)\b", text or "", re.I))
+
+
+def infer_resource_type(name: str) -> str:
+    lowered = (name or "").lower()
+    for key, value in (
+        ("survey", "survey"),
+        ("report", "report"),
+        ("guide", "guide"),
+        ("toolkit", "toolkit"),
+        ("database", "database"),
+        ("dataset", "dataset"),
+        ("program", "program"),
+        ("fund", "fund"),
+        ("grant", "grant_program"),
+        ("initiative", "initiative"),
+        ("project", "project"),
+        ("academy", "academy"),
+        ("challenge", "challenge"),
+    ):
+        if key in lowered:
+            return value
+    return "resource"
+
+
+def is_plausible_resource_name(name: str) -> bool:
+    if not name or len(name) < 5 or len(name) > 120:
+        return False
+    lowered = name.lower()
+    if lowered.startswith(("this ", "these ", "that ", "about ", "co-director", "senior director", "director ")):
+        return False
+    if re.search(r"\b(director|chief executive|president|founder|author|authors?)\b", lowered):
+        return False
+    if not RESOURCE_HINT_RE.search(name):
+        return False
+    return True
+
+
+def is_chart_or_methodology_text(text: str) -> bool:
+    lowered = (text or "").strip().lower()
+    return bool(
+        lowered.startswith(("figure ", "fig. ", "chart ", "table ", "base:"))
+        or re.search(r"\b(n=\d|sample size|respondents in the survey|demographic makeup)\b", lowered)
+    )
+
+
+def is_definition_like_impact(text: str) -> bool:
+    return bool(re.search(r"\b(impact refers to|impact is|is defined as|means)\b", text or "", re.I))
+
+
+def is_citation_like_text(text: str) -> bool:
+    text = text or ""
+    lowered = text.lower()
+    if re.search(r"\b(et al\.|accessed|retrieved|doi|https?://|journal|quarterly|press|vol\.|no\.)\b", lowered):
+        return True
+    if re.search(r"\b\d+\(\d+\),\s*\d+[-–]\d+\b", text):
+        return True
+    if re.search(r"\bp\.\s*\d+\b", lowered) and "/" in text:
+        return True
+    return False
+
+
+def is_callout_label(text: str) -> bool:
+    cleaned = clean_entity_text(text).lower()
+    if cleaned in CALLOUT_LABELS:
+        return True
+    return bool(len(cleaned.split()) <= 5 and re.search(r"\b(words|deeper|spotlight|action|impact)\b", cleaned))
+
+
+def infer_callout_label_type(text: str) -> str:
+    cleaned = (text or "").lower()
+    if "own words" in cleaned:
+        return "first_person_quote"
+    if "policy" in cleaned:
+        return "policy_example"
+    if "impact" in cleaned:
+        return "impact_story"
+    return "editorial_module"
 
 
 def quote_payload_from_aside(node: dict) -> dict[str, str | None]:

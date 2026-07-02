@@ -4,7 +4,7 @@
 - title: FOIA BASICS FOR ACTIVISTS
 - pages: 22
 - irVersion: 1
-- convertedAt: 2026-07-02T19:20:53.313446+00:00
+- convertedAt: 2026-07-02T22:16:41.147616+00:00
 
 ## Inventory
 
@@ -13,6 +13,7 @@
 - definition: 8
 - entity_relationship: 1
 - geography_place: 10
+- impact_statement: 11
 - key_finding: 2
 - legal_reference: 6
 - metric_cluster: 4
@@ -21,6 +22,7 @@
 - question: 17
 - question_list: 1
 - quotation: 25
+- resource: 4
 - source_note_reference: 18
 - statistic: 25
 
@@ -31,6 +33,7 @@
 - `definition`: 8 candidate(s). Sample: It; which usually; This
 - `entity_relationship`: 1 candidate(s). Sample: Mizue Aizeki --affiliated_with--> the Immigrant Defense Project in New York City
 - `geography_place`: 10 candidate(s). Sample: United States; New York; United States
+- `impact_statement`: 11 candidate(s). Sample: impact | Will your request have an advocacy or media impact?; need | If you need documents next week, FOIA will not help you.; need | Thinking about possible uses of the information can also help you craft the request with specificity and help you stress that you need the records you are seeking.
 - `key_finding`: 2 candidate(s). Sample: Litigating your request in federal court means that if you aren’t an attorney, you will need to find one to represent you.; Finding an attorney
 - `legal_reference`: 6 candidate(s). Sample: 5 USC § 552; 5 U.S.C. Sec. 552; 5 U.S.C. Sec. 552
 - `metric_cluster`: 4 candidate(s). Sample: 5 metric(s): FOIA requires federal agencies to determine whether to respond to the request a..., FOIA permits agencies to invoke the right to extend the determination or notifi..., New regulations in most agencies also allow for “administrative closure” if an..., You have 90 days to appeal any determination made by a federal agency., An agency must respond to your appeal within 20 business days.; 11 metric(s): 30, 10, 1,, 10,, 15, 20; 3 metric(s): 20, 90, 20
@@ -39,6 +42,7 @@
 - `question`: 17 candidate(s). Sample: What is FOIA, and why are open records laws important?; What parts of government must provide information in response to a FOIA request?; Who can make a request under FOIA?
 - `question_list`: 1 candidate(s). Sample: A bigger, more comprehensive set of documents that might require a longterm process? A narrow, smaller set of documents that might lead to a quick process?
 - `quotation`: 25 candidate(s). Sample: From the Secure Communities program under Obama to ICE raids under Trump, FOIA requests and litigation have played a key role in our advocacy to challenge ICE tactics and policies.”; Anne Rolfes, director of the Louisiana Bucket Brigade, speaks on why her organization, in partnership with other grassroots groups, filed a state records request seeking more information about a new pipeline in the region:; In her landmark opinion supporting the release of documents in our case NDLON v. ICE, in which the National Day Laborer Organizing Network sought documents as part of their campaign to stop ICE’s “Secure Communities” program, Judge Shira S...
+- `resource`: 4 candidate(s). Sample: THE OPEN RECORDS PROJECT | project; THE OPEN RECORDS PROJECT | project; Immigrant Defense Project | grant_program
 - `source_note_reference`: 18 candidate(s). Sample: However, most state open records request laws are based on the same fundamentals set out by the federal FOIA statute so many of the principles discussed here also apply to state-level requests.; small, focused request It will most likely take at least a few months2 to receive any documents from a FOIA request, and usually much longer.; Each federal agency has its own FOIArelated regulations You should be able to find up-to-date agency regulations online.
 - `statistic`: 25 candidate(s). Sample: 50 has its own open records laws, we do not provide individualized guides for all; 300,000 pages n from ICE, DHS, and the FBI, and by the end of litigation we had received over; 190 ) warned of an “overuse of detention by this administration,” and was among
 
@@ -87,6 +91,8 @@
 
 ## Lower Confidence Candidates
 
+- `resource` p1 `patt_302c09a85bbe` (0.68): THE OPEN RECORDS PROJECT | project | source: THE OPEN RECORDS PROJECT: FOIA FOR THE MOVEMENT
+- `resource` p2 `patt_2e009c83daf9` (0.68): THE OPEN RECORDS PROJECT | project | source: THE OPEN RECORDS PROJECT: FOIA FOR THE MOVEMENT
 - `geography_place` p3 `patt_554bc932e272` (0.74): United States | source: The Freedom of Information Act is a federal statute (5 USC § 552) that enables anyone in the United States to request records from federal agencies such as the FBI.
 - `geography_place` p3 `patt_5b168c5b4d9e` (0.74): New York | source: Mizue Aizeki, Deputy Director of the Immigrant Defense Project in New York City
 - `named_entity` p3 `patt_3fe940bbc884` (0.66): Deputy Director of the Immigrant Defense Project | source: Mizue Aizeki, Deputy Director of the Immigrant Defense Project in New York City
@@ -113,20 +119,18 @@
 - `named_entity` p5 `patt_abeb33a0eb50` (0.66): Department of Defense | source: In contrast, the Center for Constitutional Rights filed FOIA requests in 2014 seeking a narrow set of records regarding a Department of Defense policy related to one of our Guantánamo cases.
 - `named_entity` p5 `patt_b7e4f6f13895` (0.66): Center for Constitutional Rights | source: For example, in the Center for Constitutional Rights case NDLON v.
 - `statistic` p5 `patt_f9235c880a4b` (0.72): 300,000 pages n from ICE, DHS, and the FBI, and by the end of litigation we had received over | source: The FOIA request covered a large swath of information from ICE, DHS, and the FBI, and by the end of litigation we had received over 300,000 pages of information.
+- `impact_statement` p6 `patt_425ee49a53ef` (0.64): impact | Will your request have an advocacy or media impact? | source: Will your request have an advocacy or media impact?
+- `impact_statement` p6 `patt_52556771e5f7` (0.64): need | If you need documents next week, FOIA will not help you. | source: If you need documents next week, FOIA will not help you.
+- `impact_statement` p6 `patt_639dd0a6fb5f` (0.64): need | Thinking about possible uses of the information can also help you craft the request with specificity and help you stress that you need the records you are seeking. | source: Thinking about possible uses of the information can also help you craft the request with specificity and help you stress that you need the records you are seeking.
 - `named_entity` p6 `patt_f79f77d3de68` (0.66): Center for Constitutional Rights for | source: For example, in the FOIA request that racial justice organization Color of Change did with the Center for Constitutional Rights for documents related to surveillance of Movement for Black Lives activists, we wanted to make sure that storie...
 - `callout` p7 `patt_238e03a90e9a` (0.66): Tips on narrowing what you’re looking for: Once you’ve made a list of the different items you’d like to include in your request, take a moment and put your list in order of highest priority items to lowest. Then see if there are items at t...
 - `definition` p7 `patt_12c7e12e14fd` (0.62): It | source: It means dedicating resources to managing the administrative process with each agency, waiting possibly many months before receiving documents, reviewing the documents you receive, and potentially being involved with litigation, which can....
 - `definition` p7 `patt_f673d410a91d` (0.62): which usually | source: Often, it might take months or even a year to receive all the documents you have requested, as agencies tend to produce documents on a “rolling basis,” which usually means a certain number each month.
 - `callout` p8 `patt_6d903eb68c5f` (0.66): Style and format Many agencies now have forms online that let you fill out and submit a request. We strongly recommend against using these forms unless you absolutely have to. These forms will often not give you room to add all the informa...
+- `impact_statement` p8 `patt_012cff45a0d3` (0.64): need | Citing to statutes and agency regulations You do not need to use legal language in your request. | source: Citing to statutes and agency regulations You do not need to use legal language in your request.
+- `impact_statement` p8 `patt_5db9b0e76d42` (0.64): need | You don’t need to be a lawyer to put together your request. | source: You don’t need to be a lawyer to put together your request.
+- `impact_statement` p8 `patt_ab7f1bc26a1c` (0.64): need | Introduction You don’t need a long introduction, but here are the elements we include at the beginning of many of our requests: | source: Introduction You don’t need a long introduction, but here are the elements we include at the beginning of many of our requests:
 - `named_entity` p8 `patt_06f9bd81de5b` (0.66): Center for Constitutional Rights | source: However, we have found it helpful to cite to the federal FOIA many of the Center for Constitutional Rights’ requests.
-- `named_entity` p8 `patt_3b165bf18171` (0.66): Freedom of Information Act | source: State the law – identify that the request is made pursuant to the Freedom of Information Act, 5 U.
-- `named_entity` p8 `patt_48628129bf98` (0.66): Department of Homeland Security | source: 552 (“FOIA”), on behalf of Color of Change (“COC”) and the Center for Constitutional Rights (“the Center”) (collectively “the Requesters”) for information regarding the Department of Homeland Security (“DHS”) and Federal Bureau of Investig...
-- `named_entity` p8 `patt_52f10fbc73dc` (0.66): Center for Constitutional Rights | source: 552 (“FOIA”), on behalf of Color of Change (“COC”) and the Center for Constitutional Rights (“the Center”) (collectively “the Requesters”) for information regarding the Department of Homeland Security (“DHS”) and Federal Bureau of Investig...
-- `named_entity` p8 `patt_72e0ebe0495b` (0.66): Center for Constitutional Rights | source: However, the Center for Constitutional Rights has found it useful to break down a request into several parts.
-- `named_entity` p8 `patt_c52d10331e0c` (0.66): Freedom of Information Act | source: EXAMPLE: “This is a request under the Freedom of Information Act, 5 U.
-- `quotation` p8 `patt_75da8ba6ed4a` (0.70): This is a request under the Freedom of Information Act, 5 U.S.C. Sec. 552 (“FOIA | source: “This is a request under the Freedom of Information Act, 5 U.S.C. Sec. 552 (“FOIA”
-- `geography_place` p9 `patt_3a971d0e0d6d` (0.74): Louisiana | source: Anne Rolfes, director of the Louisiana Bucket Brigade, speaks on why her organization, in partnership with other grassroots groups, filed a state records requ
-- `geography_place` p9 `patt_e6f62a6db253` (0.74): Louisiana | source: “The Bayou Bridge Pipeline is a bad project for Louisiana that will enrich a few people at the expense of our clean water, our Atchafalaya, and people’s health.
 
 ## Reviewer Questions
 
