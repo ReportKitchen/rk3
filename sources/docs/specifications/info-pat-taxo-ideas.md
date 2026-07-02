@@ -1,10 +1,20 @@
 
 # Could we identify activities related to some of our client's core concerns?
 
-- Workforce: hiring, firing, training, expansion, recruitment
-- Housing: 
-- Education:
-- Health:
+# Workforce: hiring, firing, training, expansion, recruitment
+
+Baystate Health continues to expand its pay to train programming. Zachary Makol, a graduate of an apprenticeship program for operations associates/cardiac monitor technicians, reflected on the experience in 2023: “This apprenticeship has opened more doors for me than I could have ever imagined.” Makol had completed 150 hours of educational instruction and 2,000 hours of paid, on-thejob training. “It has been empowering and life-changing for me, and I want to make sure others have the same opportunity
+
+
+
+# Housing: 
+
+
+# Education:
+
+
+
+# Health:
 
 
 ## What about specific terms/keywords
@@ -94,5 +104,36 @@ sidebar, collaborative profile card.
 partnership gives the relationship graph. Across a corpus: who works with
 whom, who convenes, who joins — sector network maps from published
 reports.
+
+## Storytelling is a DIMENSION, not a type (the Makol resolution)
+
+> "Makol had completed 150 hours of educational instruction and 2,000
+> hours of paid, on-the-job training"
+
+Not a new pattern tree — a **scope field on existing atoms**:
+`subject_scope: individual | organization | population`. The Makol
+sentence is a numeric fact whose subject is one named person; "x% of Y"
+is the same atom at population scope. Signal: named-person subject +
+completed past action.
+
+Why a field beats a type:
+- keeps the taxonomy from forking (every atom would need a story-twin);
+- it IS the Stage-D assembly key for **case_study** (already Layer 3):
+  individual-scoped atoms sharing a subject — Makol's hours + Makol's
+  two quotes + Makol's program, all in the one passage above — form the
+  case-study candidate. The plan's "paragraph + quote + place + outcome"
+  rule, made concrete;
+- it's a hard COMPONENT gate: individual-scoped numbers must never feed
+  stat cards or aggregation (a fifth statistic false-positive class:
+  anecdotal number ≠ statistic) — but they're prime story-callout /
+  profile-spotlight material.
+
+The info-design-storytelling.md questions (who's it about, the community,
+the players, the register) then decompose as: subject entity + scope +
+related entities via the event/partnership frames — plus emotional
+register, the one genuinely NEW extraction, which can wait for Stage B.
+
+So: not ahead of ourselves at field level; ahead of ourselves only if it
+becomes a parallel taxonomy.
 
 
