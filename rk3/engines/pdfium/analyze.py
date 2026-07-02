@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 135
+VERSION = 136
 
 
 # PDF font-descriptor flag bits
@@ -504,6 +504,11 @@ def run(ctx):
     # information-monotonicity guard: list construction is complete; every item
     # must now be a rich dict (a bare string would be a silent style drop)
     _assert_rich_items(nodes)
+
+    # unified container model: lists leave the passes' working shape (items:
+    # runs-dicts) and become item containers holding leaf children, so render/
+    # ops/refs/audit see one shape and any content can nest inside an item
+    nodes = _upgrade_lists(ctx, nodes)
 
     # flood guard: questionnaire-style documents raise the same per-block
     # question hundreds of times (the survey: 174 figure-or-callout, 131
@@ -3182,6 +3187,47 @@ def _slice_runs(node, a, b):
         return out
     return {"text": node.get("text", "")[a:b],
             **{k: reb(node.get(k)) for k in _RUN_KEYS}}
+
+
+def _upgrade_lists(ctx, nodes):
+    """Migration: rewrite every list from the list-passes' working shape
+    (items: runs-dicts with an optional `sub` list) to the unified container
+    shape — list > item > [paragraph leaf, nested list]. The passes keep
+    their ergonomic runs-dict internals; this single pass is where the IR
+    contract becomes one shape, so a list item can hold any node tomorrow."""
+    def upgrade(node):
+        for c in node.get("children") or []:
+            upgrade(c)
+        if node.get("type") != "list" or node.get("items") is None:
+            return
+        page, bbox, rk = node["page"], node["bbox"], node["rk"]
+        children = []
+        for it in node.pop("items"):
+            if not isinstance(it, dict):
+                it = {"text": it}
+            sub = it.pop("sub", None)
+            leaf = _leaf(ctx, "paragraph", it, page, bbox, rk)
+            for k in ("refs", "breaks"):  # never drop a field when converting
+                if it.get(k):
+                    leaf[k] = it[k]
+            kids = [leaf]
+            if sub:
+                sub_items = sub.get("items", [])
+                sub_node = {"type": "list", "items": sub_items, "page": page,
+                            "bbox": bbox, "rk": rk,
+                            "nid": _stable_id("n", ctx.nids, "list", page, bbox,
+                                              " ".join(_item_texts(sub_items)))}
+                if sub.get("ordered"):
+                    sub_node["ordered"] = sub["ordered"]
+                if sub.get("start", 1) > 1:
+                    sub_node["start"] = sub["start"]
+                upgrade(sub_node)
+                kids.append(sub_node)
+            children.append(_container(ctx, "item", kids, page, bbox, rk))
+        node["children"] = children
+    for n in nodes:
+        upgrade(n)
+    return nodes
 
 
 def _cat_runs(a, b):

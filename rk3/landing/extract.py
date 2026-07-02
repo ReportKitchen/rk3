@@ -78,13 +78,29 @@ def _esc(s: str) -> str:
     return (s or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
+def _item_texts_of(node):
+    """A list node's item texts, for both IR shapes: legacy `items`
+    (strings/runs-dicts) and the unified container shape (item nodes whose
+    first text leaf carries the item's text)."""
+    for it in node.get("items") or []:
+        yield (it.get("text", "") if isinstance(it, dict) else str(it)).strip()
+    for it in node.get("children") or []:
+        leaf = next((ch.get("text", "") for ch in (it.get("children") or [])
+                     if ch.get("text")), "")
+        yield leaf.strip()
+
+
 def _flat(body, skip=("aside", "figure", "footnotes")):
     """Reading-order walk that does NOT descend into figures/asides (their inner
-    text is caption/label noise, not part of a readable section)."""
+    text is caption/label noise, not part of a readable section). Lists and
+    tables are structured containers — yielded whole, never entered (their
+    leaf paragraphs are the container's content, not free-standing text)."""
     for node in body or []:
         if node.get("type") in skip:
             continue
         yield node
+        if node.get("type") in ("list", "table"):
+            continue
         if node.get("children"):
             yield from _flat(node["children"], skip)
 
@@ -103,8 +119,9 @@ def _section_blocks(nodes) -> list[str]:
         elif t == "heading" and text and not _SKIP_HEADING.match(text):
             lvl = min(max(n.get("level", 3), 3), 4)  # sub-headings → h3/h4
             out.append(f"<h{lvl}>{_esc(text)}</h{lvl}>")
-        elif t == "list" and n.get("items"):
-            lis = "".join(f"<li>{_esc(str(i).strip())}</li>" for i in n["items"] if str(i).strip())
+        elif t == "list":
+            lis = "".join(f"<li>{_esc(it)}</li>"
+                          for it in _item_texts_of(n) if it)
             if lis:
                 out.append(f"<ul>{lis}</ul>")
     return out

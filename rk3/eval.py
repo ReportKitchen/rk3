@@ -148,6 +148,20 @@ def _list_nodes(slug):
     return [n for n in _walk(ir.get("body", [])) if n.get("type") == "list"]
 
 
+def _list_items(node):
+    """A list's items as text-dicts, for both IR shapes: legacy `items`
+    (runs-dicts) and the unified container shape (item nodes whose first
+    text leaf carries the item's text/runs)."""
+    if node.get("items") is not None:
+        return node["items"]
+    out = []
+    for it in node.get("children") or []:
+        leaf = next((ch for ch in (it.get("children") or [])
+                     if ch.get("text")), None)
+        out.append(leaf if leaf is not None else {"text": ""})
+    return out
+
+
 def _check_list(slug, c):
     """All snippets must be items of a SINGLE list node, in order — pins missing
     list reconstruction (snippet lives in no list) and over-split lists (snippets
@@ -158,21 +172,21 @@ def _check_list(slug, c):
     lists = _list_nodes(slug)
     s0 = _norm(snippets[0])
     host = next((ln for ln in lists
-                 if any(s0 in _norm(it) for it in ln.get("items", []))), None)
+                 if any(s0 in _norm(it) for it in _list_items(ln))), None)
     if host is None:
         return False, f"first item {snippets[0]!r} is in no list — {_localize(slug, snippets[0])}"
     want_ord = c.get("ordered")
     if want_ord is not None and host.get("ordered") != want_ord:
         return False, (f"list is ordered={host.get('ordered')!r}, expected {want_ord!r}"
                        " — numbered list not emitted as <ol> (markers still in text?)")
-    items = [_norm(it) for it in host.get("items", [])]
+    items = [_norm(it) for it in _list_items(host)]
     last = -1
     for sn in snippets:
         ns = _norm(sn)
         pos = next((i for i in range(last + 1, len(items)) if ns in items[i]), -1)
         if pos < 0:
             split = any(ns in _norm(it) for o in lists
-                        if o is not host for it in o.get("items", []))
+                        if o is not host for it in _list_items(o))
             why = ("is in a different list (list split)" if split
                    else f"is not a list item — {_localize(slug, sn)}")
             return False, f"item {sn!r} {why}"
@@ -261,7 +275,7 @@ def _canonical(node):
         tag = "ol" if node.get("ordered") else "ul"
         otype = f' type="{node["ordered"]}"' if node.get("ordered") else ""
         lis = []
-        for it in node.get("items", []):
+        for it in _list_items(node):
             if isinstance(it, dict):
                 lis.append(f"<li>{_weave(it.get('text', ''), it.get('emph'), it.get('links'))}</li>")
             else:
@@ -274,7 +288,7 @@ def _anchor_of(node):
     """A text snippet that relocates a node across reconverts (nids change)."""
     if node.get("text"):
         return node["text"][:60]
-    for it in node.get("items", []):
+    for it in _list_items(node) if node.get("type") == "list" else []:
         txt = it.get("text") if isinstance(it, dict) else it
         if txt:
             return txt[:60]
@@ -371,8 +385,9 @@ def checks_with_status(slug):
             # match canonical (markup-aware) OR plain text — an anchor spanning
             # an emphasis boundary has tags inside its canonical form
             def _plain(n):
+                its = _list_items(n) if n.get("type") == "list" else []
                 return " ".join([n.get("text") or "",
-                                 *(_norm(i) for i in n.get("items") or [])])
+                                 *(_norm(i) for i in its)])
             nid = next((n.get("nid") for n in nodes
                         if na in _norm(_canonical(n)) or na in _norm(_plain(n))),
                        None)
