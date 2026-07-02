@@ -58,14 +58,24 @@ drop-lines-before-first-marker bug — advancing lost 5 label items under the
 audit threshold; fixed, all recovered. Corpus snapshot byte-identical
 otherwise). L3 SHIPPED (v154: _split_inline_ordinals + the not_list: control kind;
 fired exactly once corpus-wide — its gold target). Page-number furniture
-shipped alongside (v155). NEXT: **L4 = the gates p17 cluster** (gold
-target encoded, red): four enabler items split 2+2 at the COLUMN gutter —
-needs a column-model-aware list merge; same page also has the parent
-bullet welded into the intro paragraph (L3-glyph variant for
-_split_inline_bullets) and the Table 1 caption interleaving BETWEEN the
-two half-lists (a model-ordering defect: diagnose why the spanning
-caption's band didn't sort after both columns). Then clean-air p9
-level-3 gold.
+shipped alongside (v155). **L4 = the gates p17 cluster SHIPPED**
+(v157-158, both gold targets green, census 44/8):
+(a) the caption interleave was the `_reading_order_model` hit test
+measuring column penetration only against the ITEM's width — now
+`0.25 * min(item_w, col_w)` with a 3-gutter floor so sliver
+pseudo-columns (nff p4 map-number soup) can't promote chart titles to
+splitters; (b) new `_merge_crosscolumn_bullet_lists` pass — adjacent
+unordered lists in adjacent columns of the same band, continuation
+opening at band top, items concatenate (`list-continued-column`);
+(c) `_split_inline_bullets` now splits a SINGLE interior bullet when
+the lead ends with ":" and the segment carries ≥40 chars of prose
+(the welded parent bullet; fired at 10 gates sites, 0 elsewhere,
+p16+p51 verified vs source). Bonus from a weight guard added to
+`_join_column_wrap` (a genuine wrap never flips bold→regular):
+points-of-light pull-quotes de-welded, rock p16 kicker stays intact.
+Enabler nesting (the 4 items as children of the "Turning…" parent
+bullet, per source indent) NOT done — flat sibling lists for now.
+NEXT: clean-air p9 level-3 gold.
 
 ## Phase 0 — gold set first
 
