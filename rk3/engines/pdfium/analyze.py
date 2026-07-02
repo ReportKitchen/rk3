@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 122
+VERSION = 123
 
 
 # PDF font-descriptor flag bits
@@ -3671,11 +3671,19 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
     # RESTARTING footnotes (toolkit: 1, 2, 3 on every page) in document order
     # instead of interleaving every page's "1" together
     notes.sort(key=lambda n: (n["page"], n["n"]))
+    # Placement spec (user): footnotes go at the END of the document, or where
+    # the document ITSELF shows them. "Shows them" means an explicit notes
+    # heading (Endnotes / References / Sources) — a run we merely inferred is
+    # not the document showing us anything, so runs never anchor. The heading
+    # group must also hold most of the notes: anchoring 40 scattered page
+    # notes at a 3-note section would move them INTO the text.
     anchor = None
-    if groups and notes:
-        best = max(groups.values(), key=lambda g: g["count"])
-        if best["count"] >= 0.5 * len(notes):
-            anchor = best["start"]
+    if notes:
+        h_groups = [g for k, g in groups.items() if k and k[0] == "h"]
+        if h_groups:
+            best = max(h_groups, key=lambda g: g["count"])
+            if best["count"] >= 0.5 * len(notes):
+                anchor = best["start"]
     return notes, note_idx, anchor
 
 
