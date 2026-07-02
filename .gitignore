@@ -52,5 +52,10 @@ output/pdfium/*/qa/
 # local API-usage log
 logs/
 
+# pattern-identification worktrack: generated per-doc reports + its API log
+# (patterns/ code, registry, schemas and gold annotations ARE tracked)
+patterns/out/
+patterns/logs/
+
 # misc
 /rk1
