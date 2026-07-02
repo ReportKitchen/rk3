@@ -54,3 +54,9 @@ checks:
   - note: "p6: MethaneAIR sentence body precedes its trailing clause"
     stage: analyze
     order: ["methane-measuring jet, flew over major", "for these regions, so reductions can be tracked"]
+
+  # GOLD(col) p7 (target, owner note 2026-07-02 n91d5857073): columns ran
+  # together — "Day and evening" opens a new paragraph (and column); it sits
+  # welded at offset ~475 of the preceding node.
+  - note: "GOLD(col) p7 (target): 'Day and evening' starts its own node (column weld)"
+    split: ["through improved science, data", "Day and evening"]

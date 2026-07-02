@@ -1,0 +1,9 @@
+doc: 02--invest-in-black-led
+
+# GOLD(lists) — from the owner's review notes (plans/lists.md phase 0).
+checks:
+  # p51 (note nde7f4f623d "there's a UL in here"): the inline enumeration
+  # "1) between Black-led…; 2) among…; and 3) as an interaction…" is a list
+  # (lists plan L3: structure hiding inside a paragraph).
+  - note: "GOLD(lists) p51 (target): inline 1)/2)/3) enumeration becomes one list"
+    list: ["between Black-led and other nonprofits", "among different-sized nonprofits", "as an interaction between nonprofit type"]

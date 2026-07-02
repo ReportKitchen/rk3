@@ -1,0 +1,17 @@
+doc: 02--tenure-annual-report
+checks:
+  - note: reads before (p13)
+    stage: analyze
+    order:
+    - It is a golden moment. The new Brazilian Mini
+    - The Babassu women approached the Tenure Facil
+
+  - note: reads before (p13)
+    stage: analyze
+    order:
+    - It is a golden moment. The new Brazilian Mini
+    - The Babassu women approached the Tenure Facil
+
+  - merge:
+    - The new scheme came with its own programme ma
+    - leaders. The State Government entrusted our p
