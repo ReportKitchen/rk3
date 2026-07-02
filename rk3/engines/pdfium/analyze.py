@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 153
+VERSION = 154
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -519,6 +519,7 @@ def run(ctx):
     nodes = _merge_crosspage_bullet_lists(ctx, nodes)
     nodes = _join_list_tail(ctx, nodes)
     nodes = _absorb_bullet_stragglers(ctx, nodes)
+    nodes = _split_inline_ordinals(ctx, nodes)
     nodes = _marker_lists(ctx, nodes)
     nodes = _definition_lists(ctx, nodes)
     nodes = _floating_pullquotes(ctx, nodes, body_size)
@@ -3028,6 +3029,67 @@ def _join_list_tail(ctx, nodes):
         ctx.audit_moved[ch["page"]] += _alnum(ch["text"])
         ctx.log.entry("join-list-tail", page=ch["page"], into=prev["rk"],
                       joined=ch["text"][:60])
+    return out
+
+
+def _split_inline_ordinals(ctx, nodes):
+    """A paragraph that IS an inline enumeration — '1) between…; 2) among…;
+    and 3) as an interaction…' — becomes a list (lists plan L3, the owner's
+    invest p51 note: "there's a UL in here"). CONSERVATIVE by design, because
+    inline enumerations in mid-sentence prose must stay prose:
+      - the node must START with marker 1 ('1)' / '(1)');
+      - >=3 segments, markers strictly sequential, each segment substantial
+        (>=15 chars);
+      - segment boundaries are '; 2)' / ', and 3)' shapes only;
+      - prose after the final segment's first sentence end splits back out
+        as its own paragraph, never swallowed as item text.
+    Runs are sliced (sups ride along, so refs re-attach downstream)."""
+    out = []
+    boundary = re.compile(r"[;,]\s+(?:and\s+|or\s+)?\(?(\d{1,2})\)\s*")
+    for n in nodes:
+        text = n.get("text") or ""
+        if (n.get("type") != "paragraph" or n.get("breaks")
+                or not re.match(r"^\(?1\)\s+\S", text)):
+            out.append(n)
+            continue
+        cuts = [(m.start(), m.end(), int(m.group(1)))
+                for m in boundary.finditer(text)]
+        seq = [c for i, c in enumerate(cuts) if c[2] == i + 2]
+        if len(seq) != len(cuts) or len(seq) < 2:
+            out.append(n)   # gaps / non-sequential / <3 segments total
+            continue
+        first_end = re.match(r"^\(?1\)\s+", text).end()
+        starts = [first_end] + [e for _s, e, _v in seq]
+        ends = [s for s, _e, _v in seq]
+        # the last segment runs to its first sentence end; anything beyond
+        # is trailing prose and stays a paragraph
+        tail_from = None
+        last_start = starts[-1]
+        m_end = re.search(r"\.\s+(?=[A-Z“\"(])", text[last_start:])
+        if m_end:
+            ends.append(last_start + m_end.start() + 1)
+            tail_from = last_start + m_end.end()
+        else:
+            ends.append(len(text))
+        segs = list(zip(starts, ends))
+        if len(segs) < 3 or any(e - s < 15 for s, e in segs):
+            out.append(n)
+            continue
+        items = [_cut_item(_slice_runs(n, s, e), 0) for s, e in segs]
+        rk = ctx.log.entry("inline-ordinal-list", page=n["page"],
+                           block=n.get("rk"), items=len(items),
+                           text=text[:60])
+        lst = {"type": "list", "items": items, "ordered": "decimal",
+               "start": 1, "page": n["page"], "bbox": n["bbox"], "rk": rk,
+               "data": dict(n.get("data") or {}),
+               "nid": _stable_id("n", ctx.nids, "list", n["page"], n["bbox"],
+                                 " ".join(_item_texts(items)))}
+        out.append(lst)
+        if tail_from is not None and text[tail_from:].strip():
+            rest = _slice_runs(n, tail_from, len(text))
+            tail = _leaf(ctx, "paragraph", rest, n["page"], n["bbox"],
+                         n.get("rk"), data=dict(n.get("data") or {}))
+            out.append(tail)
     return out
 
 

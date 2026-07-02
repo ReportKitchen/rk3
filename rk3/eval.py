@@ -170,6 +170,22 @@ def _list_items(node):
     return out
 
 
+def _check_not_list(slug, c):
+    """Snippets must NOT be items of any list — the negative control for list
+    detection (lists plan L10 / L3 gating): numbered citations, street
+    addresses, and mid-sentence inline enumerations must stay prose."""
+    lists = _list_nodes(slug)
+    for sn in c["not_list"]:
+        ns = _norm(sn)
+        host = next((ln for ln in lists
+                     if any(ns in _norm(it) for it in _list_items(ln))), None)
+        if host is not None:
+            return False, f"{sn!r} became a list item — should stay prose"
+        if _find(_stage_seq(slug, "analyze"), sn) < 0:
+            return False, f"{sn!r} not found at all — {_localize(slug, sn)}"
+    return True, f"{len(c['not_list'])} snippet(s) stay prose"
+
+
 def _check_list(slug, c):
     """All snippets must be items of a SINGLE list node, in order — pins missing
     list reconstruction (snippet lives in no list) and over-split lists (snippets
@@ -356,8 +372,8 @@ def _check_freeze(slug, c):
 
 
 EVALUATORS = {"order": _check_order, "role": _check_role, "list": _check_list,
-              "merge": _check_merge, "split": _check_split,
-              "freeze": _check_freeze}
+              "not_list": _check_not_list, "merge": _check_merge,
+              "split": _check_split, "freeze": _check_freeze}
 
 
 def evaluate_check(slug, check):

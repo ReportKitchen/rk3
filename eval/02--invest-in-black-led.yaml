@@ -7,3 +7,9 @@ checks:
   # (lists plan L3: structure hiding inside a paragraph).
   - note: "GOLD(lists) p51 (target): inline 1)/2)/3) enumeration becomes one list"
     list: ["between Black-led and other nonprofits", "among different-sized nonprofits", "as an interaction between nonprofit type"]
+
+  # negative control for the same builder: the prose SENTENCE trailing the
+  # enumeration ("…nonprofit size. We followed the same procedures…") must
+  # stay a paragraph, not get swallowed as item text.
+  - note: "GOLD(lists) p51 (guard/negative-control): trailing prose stays out of the list"
+    not_list: ["We followed the same procedures as for repeated measures"]
