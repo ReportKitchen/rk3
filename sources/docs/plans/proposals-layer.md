@@ -119,6 +119,19 @@ other ops rather than an op of its own). All nid-addressed; `wrap-region`
 deferred until a concrete kind needs it. Each new op must be expressible
 without positional storage (phase contract) — all of these are.
 
+**Container-boundary ops (added 2026-07-02, from the owner's tenure review —
+the editor physically can't express these today):**
+- `unwrap` — dissolve a container (aside); its children flow into the parent
+  at its position.
+- `extract` — pull one node out of its container to sit immediately
+  before/after that container.
+- cross-boundary `merge` (an aside child into a body paragraph) composes as
+  `extract` + `merge` — no new primitive.
+Design these WITH their editor affordances as one set; until then the owner
+marks such cases as feedback notes, which double as gold evidence for the
+region-membership defect class (the ecp p4 target) — most "trapped in an
+aside" cases are region-boundary engine bugs, not per-doc corrections.
+
 ## Magic wand
 
 The wand is a **proposal generator with auto-accept**: user pops a selection,
