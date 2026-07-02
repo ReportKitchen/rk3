@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 154
+VERSION = 155
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -292,6 +292,20 @@ def run(ctx):
     for i, blk in enumerate(blocks):
         if i in skip:
             continue
+        # a page number that survived running-header stripping (clean-air
+        # prints '1 7' with tracking spaces in a rotated edge sidebar): a
+        # block whose whole text IS the page number, sitting at a page edge,
+        # is furniture — never body content
+        if texts[i].replace(" ", "").strip() == str(blk["page"]):
+            pg = pages[blk["page"]]
+            l, b_, r, t_ = blk["bbox"]
+            if (b_ > 0.88 * pg["height"] or t_ < 0.12 * pg["height"]
+                    or l > 0.9 * pg["width"] or r < 0.1 * pg["width"]):
+                skip.add(i)
+                ctx.audit_claimed[blk["page"]] += _alnum(texts[i])
+                ctx.log.entry("page-number-drop", page=blk["page"],
+                              block=blk["rk"], text=texts[i][:10])
+                continue
         role, cov = roles[i]
         if role == "Artifact" and cov > 0.5:
             # authors mis-tag whole designed pages as Artifact; trust the tag

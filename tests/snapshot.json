@@ -1921,7 +1921,7 @@
       "footnotes": 1,
       "heading": 30,
       "list": 7,
-      "paragraph": 103
+      "paragraph": 74
     },
     "asideChildren": 89,
     "notes": [
@@ -1998,8 +1998,8 @@
       61,
       62
     ],
-    "questions": 22,
-    "textChars": 77128
+    "questions": 20,
+    "textChars": 77053
   },
   "02--community-schools": {
     "status": "done",
