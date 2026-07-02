@@ -6,3 +6,4 @@ We need to extend our "info design pattern" skillz to encompass storytelling in 
 - what's the community they're part of
 - who are the other players?  experts? funders? 
 - is this a story of desperation? antagonism? optimism?
+
