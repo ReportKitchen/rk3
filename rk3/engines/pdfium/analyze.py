@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 151
+VERSION = 153
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -3638,18 +3638,56 @@ def _slice_strip(runs, a, b):
 
 
 def _bullet_items(ctx, blk):
-    """Split a bullet block into items, each carrying its own emphasis/link runs
-    (a bold lead-in sentence or an inline link survives) judged against the
-    whole block's dominant font. Unstyled items collapse to plain strings."""
+    """Split a bullet block into items, each carrying its own emphasis/link
+    runs (a bold lead-in or an inline link survives) judged against the whole
+    block's dominant font. NESTING (lists plan phase 2): a bulleted line
+    indented deeper than the item's marker level starts a SUB-item — the
+    census's indent levels (clean-air p32: markers at 115.8, nested at
+    133.3) become item > sub structure instead of flattened siblings."""
     blk_font = _block_font(ctx, blk["lines"])
-    groups = []
-    for l in blk["lines"]:
-        if l["text"][:1] in BULLETS:
-            groups.append([l])
-        elif groups:
-            groups[-1].append(l)
-    return [_strip_marker_item(_build_runs(ctx, blk, g, blk_font), BULLETS)
-            for g in groups]
+
+    def build(lines, base_x):
+        # group at THIS level: a marker within 6pt of base_x starts an item;
+        # deeper markers and unmarked wraps stay inside the current group
+        groups = []
+        seen_base = False
+        for l in lines:
+            marked = l["text"][:1] in BULLETS
+            if marked and l["bbox"][0] <= base_x + 6:
+                groups.append([l])
+                seen_base = True
+            elif marked and not seen_base:
+                # marked lines BEFORE the first base-level marker (a block
+                # opening mid-nest, stray labels above the list): each keeps
+                # its own flat item, exactly the pre-nesting behavior — never
+                # dropped (advancing lost 5 label items to that hole)
+                groups.append([l])
+            elif groups:
+                groups[-1].append(l)
+            else:
+                groups.append([l])
+        items = []
+        for g in groups:
+            deeper = [i for i, l in enumerate(g)
+                      if i > 0 and l["text"][:1] in BULLETS
+                      and l["bbox"][0] > base_x + 6]
+            if not deeper:
+                items.append(_strip_marker_item(
+                    _build_runs(ctx, blk, g, blk_font), BULLETS))
+                continue
+            head = g[:deeper[0]]
+            item = _strip_marker_item(
+                _build_runs(ctx, blk, head, blk_font), BULLETS)
+            sub_lines = g[deeper[0]:]
+            sub_base = min(l["bbox"][0] for l in sub_lines
+                           if l["text"][:1] in BULLETS)
+            item["sub"] = {"items": build(sub_lines, sub_base)}
+            items.append(item)
+        return items
+
+    marked = [l for l in blk["lines"] if l["text"][:1] in BULLETS]
+    base_x = min(l["bbox"][0] for l in marked) if marked else 0.0
+    return build(blk["lines"], base_x)
 
 
 def _block_font(ctx, lines):
