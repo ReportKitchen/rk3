@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 114
+VERSION = 115
 
 
 # PDF font-descriptor flag bits
@@ -3513,12 +3513,16 @@ def _body_note_runs(ctx, blocks, texts, skip, body_size):
         count, expected = _seq_count(blocks[i], None)
         chain = [i]
         j = k + 1
-        while j < len(idxs):
+        misses = 0  # sidebar layouts interleave body blocks between the notes
+        while j < len(idxs) and misses <= 3:
             nb = idxs[j]
             m = _line_marker(blocks[nb]["lines"][0])
             if not (m and m[0] in (expected, expected + 1)
                     and _dominant_size(blocks[nb]) <= 1.05 * body_size):
-                break
+                misses += 1  # skip the interloper; the chain may resume
+                j += 1
+                continue
+            misses = 0
             c2, expected = _seq_count(blocks[nb], expected)
             count += c2
             chain.append(nb)
@@ -3589,17 +3593,24 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
                 in_section = False
         if not in_section and marker and size <= 0.92 * body_size:
             page = pages[blk["page"]]
-            # bottom of the page, or anywhere when the marker is a leading
+            # bottom of the page; anywhere when the marker is a leading
             # superscript (unambiguous footnote form, e.g. roman markers on
-            # the last page)
-            if blk["bbox"][1] < 0.18 * page["height"] or marker[3]:
+            # the last page); or anywhere when the small block carries a
+            # citation signal (uk-local-giving's scattered sidebar notes —
+            # a small numbered block citing a year/URL is a note wherever
+            # the layout parked it)
+            if (blk["bbox"][1] < 0.18 * page["height"] or marker[3]
+                    or _CITE_RE.search(text)):
                 new, lead, expected = _parse_notes(ctx, blk, expected)
                 if lead and notes:
                     notes[-1]["text"] += " " + lead
                 notes.extend(new)
                 if new or (lead and notes):
                     note_idx.add(i)
-    notes.sort(key=lambda n: n["n"])
+    # (page, n): keeps doc-wide numbering in order AND keeps per-page
+    # RESTARTING footnotes (toolkit: 1, 2, 3 on every page) in document order
+    # instead of interleaving every page's "1" together
+    notes.sort(key=lambda n: (n["page"], n["n"]))
     return notes, note_idx, sectioned
 
 

@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 62
+VERSION = 63
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -43,10 +43,13 @@ def run(ctx):
         (ctx.outdir / "embed.css").write_text(embed_css, encoding="utf-8")
 
     pages = ir.get("pages", {})
-    # footnote numbers that actually have note text; in-text refs only become
-    # anchors when the target exists
-    state = {"fn_nums": {n["n"] for node in ir["body"] if node["type"] == "footnotes"
-                         for n in node["notes"]},
+    # footnote anchors: unique even when numbering RESTARTS per page (toolkit's
+    # 1,2,3 on every page); in-text refs only become anchors when the note
+    # exists, and resolve to the same-page (or nearest) instance of their number
+    fn_keys, fn_by_n = _fn_keys(ir)
+    state = {"fn_nums": set(fn_by_n),
+             "fn_keys": fn_keys,
+             "fn_by_n": fn_by_n,
              "ref_seq": {},
              "autolink": ctx.cfg["output"].get("autolinkUrls", True),
              "anchors": _anchor_targets(ir),
@@ -253,6 +256,36 @@ def _merge_into(a, b):
         a["breaks"] = a.get("breaks", []) + [x + off for x in b["breaks"]]
 
 
+def _fn_keys(ir):
+    """Anchor keys for every footnote: plain "n" while the number is unique
+    doc-wide, "page-n" when numbering restarts per page. Returns
+    ({(page, n): key}, {n: [(page, key), …]})."""
+    per_n = {}
+    for node in ir["body"]:
+        if node["type"] == "footnotes":
+            for note in node["notes"]:
+                per_n.setdefault(note["n"], []).append(note)
+    keys, by_n = {}, {}
+    for n, notes in per_n.items():
+        for note in notes:
+            key = str(n) if len(notes) == 1 else f"{note.get('page')}-{n}"
+            keys[(note.get("page"), n)] = key
+            by_n.setdefault(n, []).append((note.get("page"), key))
+    return keys, by_n
+
+
+def _resolve_fn(state, num, page):
+    """The anchor key for reference `num` seen on `page`: same-page note wins,
+    else the nearest instance (a bottom-of-page footnote lives on the page
+    that cites it; doc-wide numbering has exactly one candidate)."""
+    cands = state["fn_by_n"].get(num) or []
+    if not cands:
+        return None
+    if len(cands) == 1 or page is None:
+        return cands[0][1]
+    return min(cands, key=lambda pk: abs((pk[0] or 0) - page))[1]
+
+
 def _norm_anchor(text):
     return re.sub(r"[^a-z0-9]+", "", (text or "").lower())
 
@@ -335,7 +368,7 @@ def _render_node(ctx, node, pages, state):
                 body = _inline(c["text"], c.get("links"), c.get("refs"),
                                state, breaks=c.get("breaks"),
                                emph=c.get("emph"), marks=c.get("marks"),
-                               colors=c.get("colors"))
+                               colors=c.get("colors"), page=c.get("page"))
                 parts.append(f"  <dd {_attrs(c, pages)}>{body}</dd>")
         inner = "\n".join(parts)
         return f'<dl {_attrs(node, pages)}>\n{inner}\n</dl>'
@@ -397,7 +430,8 @@ def _render_node(ctx, node, pages, state):
             colors = [r for r in (colors or []) if r[0] >= lead]
         body = _inline(node["text"], node.get("links"), node.get("refs"), state,
                        breaks=node.get("breaks"), emph=emph,
-                       marks=marks, lead=lead, colors=colors)
+                       marks=marks, lead=lead, colors=colors,
+                       page=node.get("page"))
         if node.get("strong"):
             body = f"<strong>{body}</strong>"
         if node.get("quoteOpen"):
@@ -468,14 +502,15 @@ def _render_node(ctx, node, pages, state):
         items = []
         for note in node["notes"]:
             n = note["n"]
+            key = state["fn_keys"].get((note.get("page"), n), str(n))
             # alphabetic designators (a, b, c — table notes) live at 1000+;
             # display their letter ordinal, not the namespaced int
             display = n - 1000 if n > 1000 else n
-            back = (f' <a class="fn-back" href="#fnref-{n}-1" '
+            back = (f' <a class="fn-back" href="#fnref-{key}-1" '
                     f'title="Back to reference {note.get("marker", n)} in the text" '
                     f'aria-label="Back to reference {note.get("marker", n)}">↩</a>'
-                    if state["ref_seq"].get(n) else "")
-            items.append(f'  <li id="fn-{n}" value="{display}" data-rk="{note["rk"]}">'
+                    if state["ref_seq"].get(key) else "")
+            items.append(f'  <li id="fn-{key}" value="{display}" data-rk="{note["rk"]}">'
                          f'{_inline(note["text"], None, None, state)}{back}</li>')
         # documents that mark notes i/ii/iii (roman) or a/b/c (letters) keep
         # their marker style
@@ -518,7 +553,7 @@ _WRAP_RANK = {"lead": 0, "link": 1, "mark": 2, "strong": 3, "color": 3.5,
 
 
 def _inline(text, links, refs, state, breaks=None, emph=None, marks=None,
-            lead=None, colors=None):
+            lead=None, colors=None, page=None):
     """Escape text and apply inline markup with NO silent drops on overlap.
 
     Two kinds of inline markup:
@@ -604,13 +639,14 @@ def _inline(text, links, refs, state, breaks=None, emph=None, marks=None,
             mk = data
         else:  # footnote / plain superscript reference
             seg = html.escape(text[s:e])
-            if data in state["fn_nums"]:
-                k = state["ref_seq"].get(data, 0) + 1
-                state["ref_seq"][data] = k
+            key = _resolve_fn(state, data, page) if data in state["fn_nums"] else None
+            if key:
+                k = state["ref_seq"].get(key, 0) + 1
+                state["ref_seq"][key] = k
                 # spaces inside a marker are run-split artifacts ("i i" is ii)
                 marker = seg.replace(" ", "")
-                mk = (f'<sup class="fnref" id="fnref-{data}-{k}">'
-                      f'<a href="#fn-{data}">{marker}</a></sup>')
+                mk = (f'<sup class="fnref" id="fnref-{key}-{k}">'
+                      f'<a href="#fn-{key}">{marker}</a></sup>')
             else:
                 mk = f"<sup>{seg.replace(' ', '')}</sup>"
             if e < n and text[e].isalpha():
