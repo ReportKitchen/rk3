@@ -22,7 +22,7 @@ earns autopilot by its accepted/dismissed ratio in the dashboard).
 
 > *your notes:*
 
-
+agreed.
 
 ---
 
@@ -39,6 +39,7 @@ UI phrasing is the real decision.
 
 > *your notes:*
 
+Agreed. And the familiar pattern of "Stop suggesting for this document | Don't suggest this for me ever again" works fine.  Along with a setting in prefs to clear it.  I don't think this is necessarily worth learning.
 
 
 ---
@@ -55,7 +56,7 @@ container models did.
 
 > *your notes:*
 
-
+Agreed.  
 
 ---
 
@@ -68,7 +69,9 @@ flipping their org default to assist/autopilot?
 
 > *your notes:*
 
+Honestly the branding needs a lot of work and I want it all to be coherent.
 
+For now I'm happy with "Assistance Level: 0 (none) - 5 (autopilot) and we can tune the words later.
 
 ---
 
@@ -83,7 +86,7 @@ fidelity-vs-improvement distinction your whole philosophy runs on.
 
 > *your notes:*
 
-
+agreed
 
 ---
 
@@ -100,7 +103,7 @@ part and they ride inside the same file either way.
 
 > *your notes:*
 
-
+Agreed
 
 ---
 

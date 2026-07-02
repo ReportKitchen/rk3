@@ -1,8 +1,14 @@
 # Plan: The proposals layer
 
-Status: designed on paper (2026-07-02); open calls for the owner live in
-sources/docs/proposals-QA.md. Build order sits after the columns/reading-order
-sprint unless re-prioritized.
+Status: designed on paper (2026-07-02); **owner signed off on all six Q&A
+calls same day** (sources/docs/proposals-QA.md): auto-apply whitelist as
+proposed (expand per-kind as trust builds), dismissal = pid-record + per-doc
+kind toggle + org default ("Stop suggesting for this document | Don't suggest
+this for me ever again", prefs can clear), vision-QA triage board MERGES into
+the proposals store, assistance levels numeric 0-5 for now, issues and
+opportunities as two separately-sorted lists, storage in
+`proposals/<slug>.jsonl` (feedback-style dir). Build order sits after the
+columns/reading-order sprint unless re-prioritized.
 
 ## What a proposal is
 
@@ -76,14 +82,17 @@ severity-ranked **issues** AND **opportunities**):
 ## Assistance levels
 
 Per-doc (later per-org defaults), same pattern as the AI tier config. Levels
-gate which proposal kinds are *generated/shown*, and which may *auto-apply*:
+gate which proposal kinds are *generated/shown*, and which may *auto-apply*.
+**Owner decision (Q&A 2026-07-02): numeric "Assistance Level: 0–5" for now;
+the naming/branding gets a coherent pass later.** The behavioral rungs:
 
 | level | behavior |
 |---|---|
-| **faithful** | issues only; nothing auto-applies except capital-crime fixes (broken file). "As faithful as possible, but more webby." For orgs forbidden to deviate from the approved document. |
-| **suggest** (default) | issues + opportunities surfaced; nothing applies without a click. |
-| **assist** | suggest + magic buttons enabled (one click accepts a themed batch, e.g. "improve accessibility"). |
-| **autopilot** | assist + whitelisted kinds auto-apply above a confidence threshold — logged, marked, reviewable, one-click revertible (owner: auto-action OK "as long as it's logged and reviewable"). |
+| **0 (none)** | conversion only; no proposals generated. |
+| **1 (faithful)** | issues only; nothing auto-applies except capital-crime fixes (broken file). "As faithful as possible, but more webby." For orgs forbidden to deviate from the approved document. |
+| **2 (suggest — default)** | issues + opportunities surfaced; nothing applies without a click. |
+| **3–4 (assist)** | suggest + magic buttons enabled (one click accepts a themed batch, e.g. "improve accessibility"); 4 widens the kind set. |
+| **5 (autopilot)** | assist + whitelisted kinds auto-apply above a confidence threshold — logged, marked, reviewable, one-click revertible (owner: auto-action OK "as long as it's logged and reviewable"). |
 
 Per-kind toggles under the level (the owner's heading examples: shorten
 headings/nav, add headings to help readers scan, combine short sections) —
