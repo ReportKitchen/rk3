@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rk3.local/patterns/schemas/pattern-registry.schema.json",
+  "title": "RK3 Pattern Registry",
+  "type": "object",
+  "required": ["version", "patterns"],
+  "properties": {
+    "version": {"type": "integer", "minimum": 1},
+    "source": {"type": "string"},
+    "patterns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "layer", "definition", "required_fields", "evidence_requirements", "candidate_component_treatments"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+          "name": {"type": "string"},
+          "layer": {"type": "integer", "minimum": 0, "maximum": 5},
+          "definition": {"type": "string"},
+          "positive_indicators": {"type": "array", "items": {"type": "string"}},
+          "negative_indicators": {"type": "array", "items": {"type": "string"}},
+          "required_fields": {"type": "array", "items": {"type": "string"}},
+          "optional_fields": {"type": "array", "items": {"type": "string"}},
+          "evidence_requirements": {"type": "array", "items": {"type": "string"}},
+          "candidate_component_treatments": {"type": "array", "items": {"type": "string"}},
+          "common_false_positives": {"type": "array", "items": {"type": "string"}},
+          "validation_rules": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}
+

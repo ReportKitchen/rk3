@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rk3.local/patterns/schemas/pattern-report.schema.json",
+  "title": "RK3 Pattern Report",
+  "type": "object",
+  "required": ["schema", "document_id", "input", "pattern_inventory", "candidates"],
+  "properties": {
+    "schema": {"type": "integer", "minimum": 1},
+    "document_id": {"type": "string"},
+    "document": {"type": "object"},
+    "input": {
+      "type": "object",
+      "required": ["irVersion", "convertedAt"],
+      "properties": {
+        "artifact": {"type": "string"},
+        "irVersion": {"type": ["integer", "null"]},
+        "convertedAt": {"type": "string"}
+      }
+    },
+    "pattern_inventory": {
+      "type": "object",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "page_inventory": {"type": "object"},
+    "candidates": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/patternCandidate"}
+    },
+    "evaluation_notes": {"type": "array"},
+    "warnings": {"type": "array"}
+  },
+  "$defs": {
+    "sourceRef": {
+      "type": "object",
+      "required": ["nid", "page", "quote"],
+      "properties": {
+        "nid": {"type": ["string", "null"]},
+        "page": {"type": ["integer", "null"]},
+        "quote": {"type": "string"}
+      }
+    },
+    "patternCandidate": {
+      "type": "object",
+      "required": ["pattern_id", "pattern_type", "layer", "status", "confidence", "source_refs", "fields"],
+      "properties": {
+        "pattern_id": {"type": "string", "pattern": "^patt_[a-f0-9]+$"},
+        "pattern_type": {"type": "string"},
+        "pattern_name": {"type": "string"},
+        "layer": {"type": "integer", "minimum": 0},
+        "status": {"enum": ["candidate", "accepted", "rejected", "needs_review"]},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "detector": {"type": "string"},
+        "reason": {"type": "string"},
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/sourceRef"}
+        },
+        "fields": {"type": "object"},
+        "component_recommendations": {
+          "type": "array",
+          "items": {"$ref": "component-recommendation.schema.json"}
+        },
+        "missing_data_suggestions": {"type": "array"},
+        "review": {"type": "object"}
+      }
+    }
+  }
+}
+

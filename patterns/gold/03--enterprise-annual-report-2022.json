@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "document_id": "03--enterprise-annual-report-2022",
+  "annotation_scope": "Pilot seed annotations for annual-report impact patterns.",
+  "annotations": [
+    {
+      "pattern_type": "date_time_period",
+      "page": 1,
+      "source_text": "2022",
+      "expected_fields": {
+        "value": "2022"
+      },
+      "notes": "Publication year."
+    },
+    {
+      "pattern_type": "metric_cluster",
+      "page": 3,
+      "source_text": "rents have increased by 13%",
+      "expected_fields": {
+        "metrics": []
+      },
+      "notes": "Impact metric cluster surfaced from page text; $10.2B appears to be image/figure text outside current IR text extraction."
+    },
+    {
+      "pattern_type": "key_finding",
+      "page": 7,
+      "source_text": "Stories of Impact",
+      "expected_fields": {},
+      "notes": "Section/module signal."
+    },
+    {
+      "pattern_type": "quotation",
+      "page": 6,
+      "source_text": "We have to find ways to not only preserve housing",
+      "expected_fields": {},
+      "notes": "Annual-report story quote detected from quoted text."
+    },
+    {
+      "pattern_type": "named_entity",
+      "page": 1,
+      "source_text": "Enterprise Community Partners",
+      "expected_fields": {
+        "entity_text": "Enterprise Community Partners"
+      },
+      "notes": "Publisher/subject organization."
+    }
+  ]
+}

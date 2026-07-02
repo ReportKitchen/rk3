@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rk3.local/patterns/schemas/component-recommendation.schema.json",
+  "title": "RK3 Component Recommendation",
+  "type": "object",
+  "required": ["component_type", "fit_score", "reason", "safety"],
+  "properties": {
+    "component_type": {"type": "string"},
+    "fit_score": {"type": "number", "minimum": 0, "maximum": 1},
+    "reason": {"type": "string"},
+    "safety": {
+      "enum": ["safe_transform", "editorial_follow_up", "data_follow_up", "unsupported"]
+    }
+  }
+}
+

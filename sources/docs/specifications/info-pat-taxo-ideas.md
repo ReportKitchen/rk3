@@ -148,3 +148,5 @@ ACCEPT + note (the atom claim is true; rejecting muddies detector
 precision); a Layer-2 q&a_set built on one = REJECT (the compound claim —
 that answers exist — is false). Rhetorical questions gate OUT of Q&A
 promotion but IN to pull-quote / section-opener components.
+
+

@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "document_id": "02--baystate-case-study-021624",
+  "annotation_scope": "Pilot seed annotations focused on case-study structure and callouts.",
+  "annotations": [
+    {
+      "pattern_type": "named_entity",
+      "page": 1,
+      "source_text": "Baystate Health",
+      "expected_fields": {
+        "entity_text": "Baystate Health",
+        "entity_type": "organization"
+      },
+      "notes": "Primary case-study subject."
+    },
+    {
+      "pattern_type": "callout",
+      "page": 1,
+      "source_text": "KEY STRATEGIES",
+      "expected_fields": {
+        "callout_type": "strategy"
+      },
+      "notes": "Known aside per tests/expectations.json."
+    },
+    {
+      "pattern_type": "process_step_list",
+      "page": 1,
+      "source_text": "Partner with other local employers",
+      "expected_fields": {
+        "steps": []
+      },
+      "notes": "Strategy list candidate following the KEY STRATEGIES callout."
+    },
+    {
+      "pattern_type": "comparison_table",
+      "page": 12,
+      "source_text": "Apprenticeships Programs",
+      "expected_fields": {},
+      "notes": "IR table comparing apprenticeship program options."
+    },
+    {
+      "pattern_type": "statistic",
+      "page": 1,
+      "source_text": "021624",
+      "expected_fields": {},
+      "notes": "Negative seed: date-like filename strings should be rejected if surfaced as content.",
+      "expected": false
+    }
+  ]
+}

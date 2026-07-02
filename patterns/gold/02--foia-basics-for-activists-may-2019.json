@@ -1,0 +1,98 @@
+{
+  "schema": 1,
+  "document_id": "02--foia-basics-for-activists-may-2019",
+  "annotation_scope": "Pilot seed annotations across representative pages; expand during human review.",
+  "annotations": [
+    {
+      "pattern_type": "date_time_period",
+      "page": 2,
+      "source_text": "Published May 2019",
+      "expected_fields": {
+        "value": "May 2019"
+      },
+      "notes": "Publication date."
+    },
+    {
+      "pattern_type": "source_note_reference",
+      "page": 3,
+      "source_text": "most state open records request laws are based on the same fundamentals",
+      "expected_fields": {
+        "marker": "1"
+      },
+      "notes": "Inline reference run; detector reports the surrounding sentence instead of only the superscript marker."
+    },
+    {
+      "pattern_type": "question",
+      "page": 3,
+      "source_text": "What is FOIA, and why are open records laws important?",
+      "expected_fields": {
+        "question_text": "What is FOIA, and why are open records laws important?"
+      },
+      "notes": "Question-led explainer paragraph."
+    },
+    {
+      "pattern_type": "quotation",
+      "page": 3,
+      "source_text": "From the Secure Communities program under Obama to ICE raids under Trump",
+      "expected_fields": {
+        "speaker_name": "Mizue Aizeki"
+      },
+      "notes": "Pull-quote-style aside with attribution."
+    },
+    {
+      "pattern_type": "question",
+      "page": 4,
+      "source_text": "Who can make a request under FOIA?",
+      "expected_fields": {
+        "question_text": "Who can make a request under FOIA?"
+      },
+      "notes": "Guide question heading."
+    },
+    {
+      "pattern_type": "process_step_list",
+      "page": 4,
+      "source_text": "Decisions by government officials",
+      "expected_fields": {
+        "steps": []
+      },
+      "notes": "List of requestable information categories; currently surfaced as an unordered list candidate only if process/list taxonomy expands.",
+      "expected": false
+    },
+    {
+      "pattern_type": "question",
+      "page": 8,
+      "source_text": "Identify which agencies and sub-agencies you are requesting records from",
+      "expected_fields": {},
+      "notes": "Imperative request-building prompt/list item; should not be treated as a question unless the registry adds a prompt pattern.",
+      "expected": false
+    },
+    {
+      "pattern_type": "definition",
+      "page": 19,
+      "source_text": "pro bono, which means for free",
+      "expected_fields": {
+        "term": "pro bono",
+        "definition": "for free"
+      },
+      "notes": "Inline definition."
+    },
+    {
+      "pattern_type": "process_step_list",
+      "page": 20,
+      "source_text": "Negotiating with government attorneys",
+      "expected_fields": {
+        "steps": []
+      },
+      "notes": "Bullet list of litigation actions."
+    },
+    {
+      "pattern_type": "source_note_reference",
+      "page": 20,
+      "source_text": "For a good guide to more state-specific information",
+      "expected_fields": {
+        "marker": "1"
+      },
+      "notes": "Endnote record."
+    }
+  ]
+}
