@@ -63,4 +63,36 @@ per-org pattern as assistance levels). The keyword list above then becomes
 the cheapest tier of the same thing: term-watch patterns with no frame,
 just presence + context.
 
+## partnership / collaboration (Layer 2) — the relational sibling
+
+> "…a regional anchor collaborative, the Western Massachusetts Anchor
+> Collaborative (WMAC), which Baystate Health launched in 2022 in
+> partnership with the Economic Development Council and several large
+> local employers. 'Each of us has pledged to…' Keroack stated."
+
+**Frame:** [convener] launched/founded/joined [collaborative] in [period]
+in partnership with [partners…]. Signals: "in partnership with",
+"in collaboration with", "co-founded", "member of", "convened by",
+"coalition/collaborative/alliance/network" head nouns.
+
+**What makes it different from funding_event:** the payload is a
+RELATIONSHIP SET (edges among entities), not a transaction — and it often
+MINTS a new entity (WMAC is born in this sentence, with its acronym).
+Fields: collaborative_name (+acronym), convener, partners[] (incl.
+unnamed classes like "several large local employers"), period, purpose.
+
+**Specimen bonus — it's a compound of compounds:** the attached quote is a
+REAL quotation (speaker: Keroack ✓ the positive case for the quotation
+detector) whose content is a PLEDGE ("Each of us has pledged…") — the
+commitment modality again. partnership + quotation + commitment stacked in
+two sentences.
+
+**Component candidates:** partners grid/logo block, "who's involved"
+sidebar, collaborative profile card.
+
+**Market-research kicker, squared:** funding_event gives the money graph;
+partnership gives the relationship graph. Across a corpus: who works with
+whom, who convenes, who joins — sector network maps from published
+reports.
+
 
