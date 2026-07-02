@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 115
+VERSION = 118
 
 
 # PDF font-descriptor flag bits
@@ -222,11 +222,20 @@ def run(ctx):
         if role == "Artifact" and cov > 0.5:
             # authors mis-tag whole designed pages as Artifact; trust the tag
             # only where decoration lives — page edges or short snippets.
-            # Substantial mid-page text is content regardless of the tag.
+            # Substantial mid-page text is content regardless of the tag —
+            # and so are FOOTNOTES (marker + citation signal) and a notes
+            # heading: tenure tags its END NOTES page Artifact, which was
+            # silently deleting notes d and e (real content loss).
             page = pages[blk["page"]]
             edge = (blk["bbox"][1] < 0.12 * page["height"]
                     or blk["bbox"][3] > 0.88 * page["height"])
-            if edge or len(texts[i]) <= 80:
+            nm = _line_marker(blk["lines"][0])
+            # a note = leading marker + citation signal, or a leading
+            # SUPERSCRIPT marker (unambiguous even without a URL/year in this
+            # block — the citation may sit in a continuation fragment)
+            noteish = ((nm and (nm[3] or _CITE_RE.search(texts[i])))
+                       or NOTES_HEADING.fullmatch(texts[i].strip()))
+            if (edge or len(texts[i]) <= 80) and not noteish:
                 skip.add(i)
                 ctx.log.entry("strip-artifact", page=blk["page"], block=blk["rk"],
                               coverage=round(cov, 2), text=texts[i][:60])
@@ -3582,13 +3591,32 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
                     note_idx.add(i)
                     sectioned = True
                 continue
-            elif notes and size <= body_size * 1.05 and text[:1].islower():
-                # continuation = a wrap of the previous note (starts
-                # mid-sentence); anything else ends the section instead of
-                # being silently appended to the last note
-                notes[-1]["text"] += " " + text
+            elif notes and len(text.strip()) <= 4:
+                # a tiny stray fragment (a split-off subscript: the "2.5" of
+                # PM2.5) must not TERMINATE the section — keep it with the notes
+                notes[-1]["text"] += " " + text.strip()
                 note_idx.add(i)
                 continue
+            elif notes and size < body_size * 1.15:
+                # a markerless block inside the section can still HOLD notes:
+                # its first line is a wrapped continuation (a URL), with the
+                # next numbered notes as later lines — parse it, don't glue it
+                new, lead, expected = _parse_notes(ctx, blk, expected)
+                if new:
+                    if lead:
+                        notes[-1]["text"] += " " + lead
+                    notes.extend(new)
+                    note_idx.add(i)
+                    sectioned = True
+                    continue
+                if text[:1].islower():
+                    # pure continuation = a wrap of the previous note (starts
+                    # mid-sentence); anything else ends the section instead of
+                    # being silently appended to the last note
+                    notes[-1]["text"] += " " + text
+                    note_idx.add(i)
+                    continue
+                in_section = False
             else:
                 in_section = False
         if not in_section and marker and size <= 0.92 * body_size:
