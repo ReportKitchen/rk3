@@ -28,7 +28,7 @@ export default function DocToolbar({ doc, toggles, setToggles, embed, fontsCompl
         <button
           className={"mode" + (toggles.feedbackMode ? " active" : "")}
           title="When on, clicking the document or the PDF annotates instead of navigating"
-          onClick={() => setToggles((t) => ({ ...t, feedbackMode: !t.feedbackMode }))}
+          onClick={() => setToggles((t) => ({ ...t, feedbackMode: !t.feedbackMode, assertMode: false }))}
         >
           ✏ Feedback {toggles.feedbackMode ? "on" : "off"}
         </button>
@@ -44,6 +44,15 @@ export default function DocToolbar({ doc, toggles, setToggles, embed, fontsCompl
       {done && (
         <button className="mode" onClick={onEnterOrderEdit}
           title="Reorder elements into the correct reading order">⇅ Edit Reading Order</button>
+      )}
+      {done && (
+        <button
+          className={"mode" + (toggles.assertMode ? " active" : "")}
+          title="When on, clicking an element mints an eval assertion (freeze / heading level / list) — a permanent stake in the ground"
+          onClick={() => setToggles((t) => ({ ...t, assertMode: !t.assertMode, feedbackMode: false }))}
+        >
+          ⚑ Assert {toggles.assertMode ? "on" : "off"}
+        </button>
       )}
       {orderMsg && <span className="order-msg">{orderMsg}</span>}
       {doc.pages > 0 && (

@@ -774,3 +774,67 @@ pre.error {
   padding: 0;
 }
 .trash-row .trash-empty:hover { color: #c62828; }
+
+/* assert-mode popup: mint eval assertions from a click */
+.assert-pop {
+  position: fixed;
+  z-index: 60;
+  width: 340px;
+  background: #fff;
+  border: 1px solid #0a7d6b;
+  border-radius: 6px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18);
+  padding: 0.6rem 0.7rem;
+  font-size: 0.8rem;
+}
+.assert-pop .ap-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+}
+.assert-pop .ap-snippet { color: #555; font-style: italic; overflow: hidden; }
+.assert-pop .ap-close { border: none; background: none; cursor: pointer; color: #888; }
+.assert-pop .ap-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.3rem 0;
+  flex-wrap: wrap;
+}
+.assert-pop .ap-row button {
+  border: 1px solid #0a7d6b;
+  background: #eefaf7;
+  color: #0a5d50;
+  border-radius: 4px;
+  padding: 0.2rem 0.55rem;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+.assert-pop .ap-row button:hover { filter: brightness(0.95); }
+.assert-pop .ap-freeze { font-weight: 600; }
+.assert-pop .ap-role span { color: #777; }
+.assert-pop .ap-hint { color: #999; font-size: 0.72rem; margin-top: 0.25rem; }
+.assert-pop .ap-preview {
+  max-height: 90px;
+  overflow: auto;
+  background: #f7f7f7;
+  border: 1px solid #e2e2e2;
+  padding: 0.35rem;
+  font-size: 0.68rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.assert-pop .ap-msg { margin-top: 0.35rem; font-size: 0.75rem; }
+.assert-pop .ap-msg.ok { color: #2e7d32; }
+.assert-pop .ap-msg.bad { color: #b3541e; }
+.assert-pop .ap-msg button {
+  margin-left: 0.4rem;
+  border: 1px solid #b3541e;
+  background: #fdf1e7;
+  color: #8a3d10;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.72rem;
+}

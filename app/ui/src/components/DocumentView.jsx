@@ -3,7 +3,8 @@ import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panel
 import { docUrl, pageUrl } from "../api.js";
 import { setupSync } from "../syncScroll.js";
 import DocToolbar from "./DocToolbar.jsx";
-import { saveOrderAssertion, saveReorderOp, saveMergeOp, saveMergeAssertion } from "../api.js";
+import { saveOrderAssertion, saveReorderOp, saveMergeOp, saveMergeAssertion,
+         getSnapshot, saveAssertion } from "../api.js";
 import { reportError } from "../errorBus.js";
 import QuestionsPanel from "./QuestionsPanel.jsx";
 import TocCompare from "./TocCompare.jsx";
@@ -70,6 +71,7 @@ const MARKER_CSS = `
   float: left; /* see .rk-qmark: keep ::first-letter on the real first letter */
 }
 .rk-fbmark.rk-resolved { border-color: #999; background: #eee; color: #777; }
+.rk-assert-sel { outline: 2px dashed #0a7d6b !important; outline-offset: 3px; }
 `;
 
 export default function DocumentView({
@@ -122,6 +124,79 @@ export default function DocumentView({
   // refs so iframe-side handlers never see stale state
   const stateRef = useRef({});
   stateRef.current = { toggles, questions, answers, feedback, onAnnotate, onQuestion };
+
+  // assert mode: click an element -> mint an eval assertion (freeze / heading
+  // level / list). Shift-click multi-selects elements for a list assertion.
+  const [assertPop, setAssertPop] = useState(null);   // {x, y, nid, snippet}
+  const [assertSel, setAssertSel] = useState([]);     // [{nid, snippet}]
+  const [assertMsg, setAssertMsg] = useState(null);   // {ok, text, force?}
+  const [freezePrev, setFreezePrev] = useState(null); // snapshot preview html
+
+  // an element's text with viewer markers excluded — the assertion anchor
+  const elSnippet = (el) => {
+    const clone = el.cloneNode(true);
+    for (const m of clone.querySelectorAll(".rk-qmark,.rk-fbmark,.rk-order-ctl"))
+      m.remove();
+    return clone.textContent.replace(/\s+/g, " ").trim().slice(0, 60);
+  };
+
+  const clearAssertSel = useCallback(() => {
+    const idoc = iframeRef.current?.contentDocument;
+    if (idoc) for (const el of idoc.querySelectorAll(".rk-assert-sel"))
+      el.classList.remove("rk-assert-sel");
+    setAssertSel([]);
+  }, []);
+
+  const mintAssertion = async (check, allowForce = true) => {
+    try {
+      const res = await saveAssertion(doc.slug, check);
+      if (res.saved) {
+        setAssertMsg({ ok: true, text: `Saved ✓ — ${res.total} checks on this doc` });
+      } else {
+        setAssertMsg({
+          ok: false,
+          text: `Currently FAILS: ${res.detail}`,
+          force: allowForce ? async () => {
+            const r2 = await saveAssertion(doc.slug, check, true);
+            setAssertMsg({ ok: true, text: `Saved as regression target ✓ — ${r2.total} checks` });
+          } : null,
+        });
+      }
+    } catch (e) { reportError("save assertion", e); }
+  };
+
+  const doFreeze = async () => {
+    try {
+      const snap = await getSnapshot(doc.slug, assertPop.nid);
+      setFreezePrev(snap.html);
+      await mintAssertion({
+        freeze: snap, stage: "analyze",
+        note: `freeze: ${snap.anchor.slice(0, 44)}`,
+      }, false);
+    } catch (e) { reportError("freeze assertion", e); }
+  };
+
+  const doRole = (level) => mintAssertion(level
+    ? { role: { text: assertPop.snippet, is: "heading", level }, stage: "analyze",
+        note: `h${level}: ${assertPop.snippet.slice(0, 40)}` }
+    : { role: { text: assertPop.snippet, is: "not-heading" }, stage: "analyze",
+        note: `not a heading: ${assertPop.snippet.slice(0, 40)}` });
+
+  const doList = async () => {
+    // items in DOCUMENT order regardless of click order
+    const idoc = iframeRef.current?.contentDocument;
+    const ordered = [...assertSel].sort((a, b) => {
+      const ea = idoc?.querySelector(`[data-nid="${a.nid}"]`);
+      const eb = idoc?.querySelector(`[data-nid="${b.nid}"]`);
+      if (!ea || !eb) return 0;
+      return ea.compareDocumentPosition(eb) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+    });
+    await mintAssertion({
+      list: ordered.map((s) => s.snippet), stage: "analyze",
+      note: `${ordered.length} items form one list: ${ordered[0].snippet.slice(0, 30)}…`,
+    });
+    clearAssertSel();
+  };
 
   // an element's existing open note, so a second click edits instead of duplicating
   const findExisting = (nid, rk) =>
@@ -269,7 +344,7 @@ export default function DocumentView({
     }));
   };
   const enterOrderEdit = () => {
-    setToggles((t) => ({ ...t, feedbackMode: false }));  // modes are exclusive
+    setToggles((t) => ({ ...t, feedbackMode: false, assertMode: false }));  // modes are exclusive
     setOrderMsg(null);
     setOrderEdit(true);
   };
@@ -380,11 +455,45 @@ export default function DocumentView({
     return () => idoc.removeEventListener("click", onClick, true);
   }, [frameLoaded]);
 
+  // assert-mode click capture: plain click opens the assert popup, shift-click
+  // multi-selects elements for a list assertion
+  useEffect(() => {
+    if (!frameLoaded) return;
+    const idoc = iframeRef.current.contentDocument;
+    if (!idoc) return;
+    const onClick = (e) => {
+      if (!stateRef.current.toggles.assertMode) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const el = e.target.closest("[data-nid]");
+      if (!el) return;
+      const snippet = elSnippet(el);
+      if (e.shiftKey) {
+        const on = el.classList.toggle("rk-assert-sel");
+        setAssertSel((sel) => on
+          ? [...sel, { nid: el.dataset.nid, snippet }]
+          : sel.filter((s) => s.nid !== el.dataset.nid));
+        return;
+      }
+      const rect = iframeRef.current.getBoundingClientRect();
+      setFreezePrev(null);
+      setAssertMsg(null);
+      setAssertPop({
+        x: Math.min(rect.left + e.clientX, window.innerWidth - 360),
+        y: rect.top + e.clientY - (iframeRef.current.contentWindow?.scrollY ? 0 : 0),
+        nid: el.dataset.nid, snippet,
+      });
+    };
+    idoc.addEventListener("click", onClick, true);
+    return () => idoc.removeEventListener("click", onClick, true);
+  }, [frameLoaded]);
+
   useEffect(() => {
     const idoc = iframeRef.current?.contentDocument;
     if (!idoc?.body) return;
-    idoc.body.classList.toggle("rk-feedback-mode", toggles.feedbackMode);
-  }, [toggles.feedbackMode, frameLoaded]);
+    idoc.body.classList.toggle("rk-feedback-mode",
+      toggles.feedbackMode || toggles.assertMode);
+  }, [toggles.feedbackMode, toggles.assertMode, frameLoaded]);
 
   // question markers, re-injected when questions/answers change
   useEffect(() => {
@@ -587,6 +696,47 @@ export default function DocumentView({
                   src={docUrl(doc.slug) + `?v=${encodeURIComponent(bust)}`}
                   onLoad={() => setFrameLoaded(true)}
                 />
+                {assertPop && (
+                  <div className="assert-pop"
+                    style={{ left: assertPop.x, top: Math.min(assertPop.y, window.innerHeight - 260) }}>
+                    <div className="ap-head">
+                      <span className="ap-snippet">“{assertPop.snippet.slice(0, 46)}…”</span>
+                      <button className="ap-close"
+                        onClick={() => { setAssertPop(null); setAssertMsg(null); }}>✕</button>
+                    </div>
+                    <div className="ap-row">
+                      <button className="ap-freeze" onClick={doFreeze}
+                        title="Lock this element's exact content + markup (text, bold/italic, links, structure) as a permanent check">
+                        ❄ Freeze content
+                      </button>
+                    </div>
+                    <div className="ap-row ap-role">
+                      <span>heading:</span>
+                      {[1, 2, 3, 4].map((l) => (
+                        <button key={l} onClick={() => doRole(l)}>h{l}</button>
+                      ))}
+                      <button onClick={() => doRole(null)}>not one</button>
+                    </div>
+                    {assertSel.length >= 2 && (
+                      <div className="ap-row">
+                        <button onClick={doList}>☰ These {assertSel.length} are one list</button>
+                        <button onClick={clearAssertSel}>clear</button>
+                      </div>
+                    )}
+                    {assertSel.length < 2 && (
+                      <div className="ap-hint">shift-click elements to assert a list</div>
+                    )}
+                    {freezePrev && <pre className="ap-preview">{freezePrev}</pre>}
+                    {assertMsg && (
+                      <div className={"ap-msg " + (assertMsg.ok ? "ok" : "bad")}>
+                        {assertMsg.text}
+                        {assertMsg.force && (
+                          <button onClick={assertMsg.force}>Save anyway (regression target)</button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </Panel>
               {pdfPane && <Separator className="resizer" />}
               {pdfPane && (
