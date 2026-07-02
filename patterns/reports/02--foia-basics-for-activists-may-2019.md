@@ -10,7 +10,7 @@
 
 - callout: 10
 - date_time_period: 10
-- definition: 8
+- definition: 1
 - entity_relationship: 1
 - geography_place: 10
 - impact_statement: 11
@@ -31,7 +31,7 @@
 
 - `callout`: 10 candidate(s). Sample: From the Secure Communities program under Obama to ICE raids under Trump, FOIA requests and litigation have played a key role in our advocacy to challenge ICE tactics and policies.” Mizue Aizeki, Deputy Director of the Immigrant Defense Pr...; Anne Rolfes, director of the Louisiana Bucket Brigade, speaks on why her organization, in partnership with other grassroots groups, filed a state records request seeking more information about a new pipeline in the region: “The Bayou Bridg...; In her landmark opinion supporting the release of documents in our case NDLON v. ICE, in which the National Day Laborer Organizing Network sought documents as part of their campaign to stop ICE’s “Secure Communities” program, Judge Shira S...
 - `date_time_period`: 10 candidate(s). Sample: May 2019; 1966; 2014
-- `definition`: 8 candidate(s). Sample: It; which usually; This
+- `definition`: 1 candidate(s). Sample: pro bono
 - `entity_relationship`: 1 candidate(s). Sample: Mizue Aizeki --affiliated_with--> the Immigrant Defense Project in New York City
 - `geography_place`: 10 candidate(s). Sample: United States; New York; United States
 - `impact_statement`: 11 candidate(s). Sample: impact | Will your request have an advocacy or media impact?; need | If you need documents next week, FOIA will not help you.; need | Thinking about possible uses of the information can also help you craft the request with specificity and help you stress that you need the records you are seeking.
@@ -126,13 +126,13 @@
 - `impact_statement` p6 `patt_639dd0a6fb5f` (0.64): need | Thinking about possible uses of the information can also help you craft the request with specificity and help you stress that you need the records you are seeking. | source: Thinking about possible uses of the information can also help you craft the request with specificity and help you stress that you need the records you are seeking.
 - `named_entity` p6 `patt_f79f77d3de68` (0.66): Center for Constitutional Rights for | source: For example, in the FOIA request that racial justice organization Color of Change did with the Center for Constitutional Rights for documents related to surveillance of Movement for Black Lives activists, we wanted to make sure that storie...
 - `callout` p7 `patt_238e03a90e9a` (0.66): Tips on narrowing what you’re looking for: Once you’ve made a list of the different items you’d like to include in your request, take a moment and put your list in order of highest priority items to lowest. Then see if there are items at t...
-- `definition` p7 `patt_12c7e12e14fd` (0.62): It | source: It means dedicating resources to managing the administrative process with each agency, waiting possibly many months before receiving documents, reviewing the documents you receive, and potentially being involved with litigation, which can....
-- `definition` p7 `patt_f673d410a91d` (0.62): which usually | source: Often, it might take months or even a year to receive all the documents you have requested, as agencies tend to produce documents on a “rolling basis,” which usually means a certain number each month.
 - `callout` p8 `patt_6d903eb68c5f` (0.66): Style and format Many agencies now have forms online that let you fill out and submit a request. We strongly recommend against using these forms unless you absolutely have to. These forms will often not give you room to add all the informa...
 - `impact_statement` p8 `patt_012cff45a0d3` (0.64): need | Citing to statutes and agency regulations You do not need to use legal language in your request. | source: Citing to statutes and agency regulations You do not need to use legal language in your request.
 - `impact_statement` p8 `patt_5db9b0e76d42` (0.64): need | You don’t need to be a lawyer to put together your request. | source: You don’t need to be a lawyer to put together your request.
 - `impact_statement` p8 `patt_ab7f1bc26a1c` (0.64): need | Introduction You don’t need a long introduction, but here are the elements we include at the beginning of many of our requests: | source: Introduction You don’t need a long introduction, but here are the elements we include at the beginning of many of our requests:
 - `named_entity` p8 `patt_06f9bd81de5b` (0.66): Center for Constitutional Rights | source: However, we have found it helpful to cite to the federal FOIA many of the Center for Constitutional Rights’ requests.
+- `named_entity` p8 `patt_3b165bf18171` (0.66): Freedom of Information Act | source: State the law – identify that the request is made pursuant to the Freedom of Information Act, 5 U.
+- `named_entity` p8 `patt_48628129bf98` (0.66): Department of Homeland Security | source: 552 (“FOIA”), on behalf of Color of Change (“COC”) and the Center for Constitutional Rights (“the Center”) (collectively “the Requesters”) for information regarding the Department of Homeland Security (“DHS”) and Federal Bureau of Investig...
 
 ## Reviewer Questions
 

@@ -90,6 +90,12 @@ WHICH_MEANS_RE = re.compile(
     r"[\"'“‘]?(?P<term>[A-Za-z][A-Za-z -]{2,60}),?[\"'”’]?\s+which means\s+(?P<definition>[^,.;]{2,120})",
     re.I,
 )
+DEFINITION_TERM_PREFIX_RE = re.compile(r"^(?:indicator|term|definition)\s*:\s*", re.I)
+DEFINITION_TERM_QUALIFIER_RE = re.compile(r"\s+(?:typically|generally|usually|often)$", re.I)
+DEFINITION_PRONOUN_TERMS = {"it", "this", "that", "these", "those", "which", "who", "what", "there"}
+DEFINITION_GENERIC_TERMS = {
+    "approach", "concept", "method", "process", "statistical technique", "technique",
+}
 QUESTION_PROMPT_RE = re.compile(r"^(what|who|when|where|why|how|which)\b.{8,140}$", re.I)
 RECOMMENDATION_RE = re.compile(r"\b(should|must|need to|needs to|recommend|increase|fund|create|adopt|require|expand|establish|invest|coordinate|evaluate)\b", re.I)
 KEY_FINDING_RE = re.compile(r"\b(key finding|finding|we find|this shows|this demonstrates|evidence suggests)\b", re.I)
@@ -706,24 +712,70 @@ def normalize_marker_context(text: str) -> str:
 def find_definition(text: str) -> dict[str, Any] | None:
     which = WHICH_MEANS_RE.search(text or "")
     if which:
-        term = which.group("term").strip(" \"'“”‘’")
-        if len(term.split()) > 6:
-            term = " ".join(term.split()[-6:])
+        term = normalize_definition_term(which.group("term"))
+        if not is_definition_term(term):
+            return None
+        definition = which.group("definition").strip()
+        if should_skip_definition_text(definition):
+            return None
         return {
             "term": term,
-            "definition": which.group("definition").strip(),
+            "definition": definition,
             "start": which.start(),
             "end": which.end(),
         }
     generic = DEFINITION_RE.search(text or "")
     if generic:
+        term = normalize_definition_term(generic.group("term"))
+        if not is_definition_term(term):
+            return None
+        definition = generic.group("definition").strip()
+        if should_skip_definition_text(definition):
+            return None
         return {
-            "term": generic.group("term").strip(),
-            "definition": generic.group("definition").strip(),
+            "term": term,
+            "definition": definition,
             "start": generic.start(),
             "end": generic.end(),
         }
     return None
+
+
+def normalize_definition_term(term: str) -> str:
+    term = clean_entity_text((term or "").strip(" \"'“”‘’"))
+    term = DEFINITION_TERM_PREFIX_RE.sub("", term)
+    term = re.sub(r"^(?:a|an|the)\s+", "", term, flags=re.I)
+    term = DEFINITION_TERM_QUALIFIER_RE.sub("", term)
+    return clean_entity_text(term)
+
+
+def is_definition_term(term: str) -> bool:
+    if not term:
+        return False
+    lowered = term.lower()
+    words = term.split()
+    if lowered in DEFINITION_PRONOUN_TERMS or lowered in DEFINITION_GENERIC_TERMS:
+        return False
+    if words and words[0].lower() in DEFINITION_PRONOUN_TERMS:
+        return False
+    if len(words) > 8:
+        return False
+    is_all_caps_term = term.upper() == term and any(ch.isalpha() for ch in term)
+    has_upper = any(ch.isupper() for ch in term)
+    if not has_upper and len(words) > 3:
+        return False
+    if not has_upper and re.search(r"\b(is|are|was|were|does|do|did|has|have|had|not|in|as|by|to)\b", lowered):
+        return False
+    if not is_all_caps_term and re.search(r"\b(is|are|was|were|does|do|did|has|have|had|represent|represents)\b", lowered):
+        return False
+    return True
+
+
+def should_skip_definition_text(definition: str) -> bool:
+    lowered = (definition or "").strip().lower()
+    if lowered.startswith(("that ", "to both ", "we ", "they ", "from ")):
+        return True
+    return False
 
 
 def infer_unit(text: str, offset: int) -> str | None:

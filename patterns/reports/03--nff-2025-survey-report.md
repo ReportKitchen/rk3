@@ -11,7 +11,6 @@
 - callout: 19
 - comparison_table: 1
 - date_time_period: 74
-- definition: 2
 - geography_place: 29
 - impact_statement: 17
 - key_finding: 4
@@ -29,7 +28,6 @@
 - `callout`: 19 candidate(s). Sample: We are building, not breaking. We are healing, not hiding. We are fighting, but not falling. Human services survey respondent in California; ABOUT THE 2025 SURVEY The State of the Nonprofit Sector Survey – Nonprofit Finance Fund’s tenth – collects data about US nonprofits’ health, including their collective challenges, successes, and the required investments to continue enrichi...; When a colleague’s nonprofit organization became insolvent and ceased operations after 102 years of existence, our organization quickly filled the void left in their community by moving to expand and open a new center in its place. This sa...
 - `comparison_table`: 1 candidate(s). Sample: NONPROFITS ARE ALL AROUND US. YOU LIKELY INTERACTED WITH ONE IF YOU: Entered the world born in a nonprofit hospital— nearly half of America’s hospitals are nonprofit. Developed life skills like conflict resolution and teamwork through Girl...
 - `date_time_period`: 74 candidate(s). Sample: 2025; 2024; 2025
-- `definition`: 2 candidate(s). Sample: that; That
 - `geography_place`: 29 candidate(s). Sample: Georgia; California; Washington
 - `impact_statement`: 17 candidate(s). Sample: accomplishment | $10 | Every dollar invested in our organization results in $10 in economic impact on multiple fronts.; accomplishment | $1 billion | Since we’ve existed, we have generated over $350 million in investment to create permanent affordable housing, which has created over $1 billion in economic impact across our three-state footprint.; accomplishment | $350 million | Since we’ve existed, we have generated over $350 million in investment to create permanent affordable housing, which has created over $1 billion in economic impact across our three-state footprint.
 - `key_finding`: 4 candidate(s). Sample: [A challenge is] finding adequate, sustainable, unrestricted funding sources to support staff.; FINDING STAFF WITH THE RIGHT SKILL SETS; More than two-thirds of respondents reported difficulty employing enough staff for both program and administrative needs and finding workers with the right skill sets.

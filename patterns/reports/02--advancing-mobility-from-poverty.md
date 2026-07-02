@@ -11,7 +11,7 @@
 - callout: 46
 - comparison_table: 25
 - date_time_period: 47
-- definition: 34
+- definition: 26
 - geography_place: 93
 - impact_statement: 65
 - key_finding: 2
@@ -31,7 +31,7 @@
 - `callout`: 46 candidate(s). Sample: ADVANCING MOBILITY FROM POVERTY A TOOLKIT FOR HOUSING AND EDUCATION PARTNERSHIPS; ii; KEY PARTNERS Ballmer Group supports efforts to improve economic mobility for children and families in the United States who are disproportionately likely to remain in poverty. Through philanthropy and civic activism, Ballmer Group supports...
 - `comparison_table`: 25 candidate(s). Sample: Case Study: Early Childhood Initiative (ECI) Lead Organization: Akron Metropolitan Housing Authority StriveTogether Network Representation: Summit Education Initiative Location: Summit County, OH After hearing Geoffrey Canada from the reno...; Case Study: College Housing Assistance Program Lead Organization: Tacoma Housing Authority StriveTogether Network Representation: Graduate Tacoma Location: Tacoma, Washington The College Housing Assistance Program (CHAP) at the Tacoma Hous...; Case Study: Impact KCK Lead Organization: Avenue of Life Location: Kansas City, Kansas In 2014, the Kansas Department of Children and Families convened leaders of 80 different agencies across Wyandotte County, home to Kansas City, to discu...
 - `date_time_period`: 47 candidate(s). Sample: 2020; 2018; 2020
-- `definition`: 34 candidate(s). Sample: Collective impact; Equity; Systems change
+- `definition`: 26 candidate(s). Sample: Collective impact; Equity; Systems change
 - `geography_place`: 93 candidate(s). Sample: Tennessee; Wisconsin; Ohio
 - `impact_statement`: 65 candidate(s). Sample: accomplishment | $53 billion | Over more than 35 years, Enterprise has created 662,000 homes, invested nearly $53 billion and touched millions of lives.; need | $3.4 billion | Estimates place the current capital backlog of needed physical repairs and renovations at close to $70 billion,39 increasing by approximately $3.4 billion annually.; need | $70 billion | Estimates place the current capital backlog of needed physical repairs and renovations at close to $70 billion,39 increasing by approximately $3.
 - `key_finding`: 2 candidate(s). Sample: The availability and accessibility of TBVs relies on working directly with landlords in the private rental market, which can be challenging.; Education research has produced competing evidence about the aspects of education that are most important for achievement and attainment.

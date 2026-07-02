@@ -11,7 +11,7 @@
 - callout: 18
 - callout_label: 1
 - date_time_period: 140
-- definition: 4
+- definition: 2
 - funding_event: 14
 - geography_place: 3
 - impact_statement: 28
@@ -31,7 +31,7 @@
 - `callout`: 18 candidate(s). Sample: BOX 5: PROJECT TYPES REQUIRED FOR EFFECTIVE ACTION ON AIR POLLUTION (AS IDENTIFIED IN OUR ANALYSIS) Data: to improve the quality, quantity or transparency of, or access to, information Impacts and research: to increase research into and en...; BOX 1: ABOUT THIS REPORT This report provides data and analysis on philanthropic foundation funding to air quality globally. It is a sister publication to The State of Global Air Quality Funding, covering funding from international develop...; 8.3 million premature deaths annually25 570,000 deaths of children under 5 per yeara,28 4th most deadly health risk worldwide26 $8.1 trillion in annual global 9 out of 10 outdoor air-pollution deaths are in low and middleincome countries27...
 - `callout_label`: 1 candidate(s). Sample: Maximising impact through collaboration
 - `date_time_period`: 140 candidate(s). Sample: 2008; 2015; 2022
-- `definition`: 4 candidate(s). Sample: PM10; The funder focus area; That
+- `definition`: 2 candidate(s). Sample: PM10; funder focus area
 - `funding_event`: 14 candidate(s). Sample: $1.3 billion; $30 million; $10 billion -> Bezos Earth Fund
 - `geography_place`: 3 candidate(s). Sample: New York; Texas; United States
 - `impact_statement`: 28 candidate(s). Sample: impact | $71.3 million | However, the level of funding from foundations to air quality in 2022, estimated at $71.3 million, has increased only slightly since 2021, suggesting a slowdown in year-on-year growth.; funding_summary | $330 million | A total of $330 million of known funding went to air-quality projects between 2015 and 2022.; funding_summary | $30 million | In 2021 and 2022, more than $30 million of philanthropic foundation funding was invested through re-granters.

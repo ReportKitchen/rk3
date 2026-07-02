@@ -12,7 +12,7 @@
 - callout_label: 1
 - comparison_table: 1
 - date_time_period: 24
-- definition: 2
+- definition: 1
 - entity_relationship: 1
 - impact_statement: 13
 - key_finding: 1
@@ -31,7 +31,7 @@
 - `callout_label`: 1 candidate(s). Sample: Charity impact
 - `comparison_table`: 1 candidate(s). Sample: Constituencies County% would like opportunities Birmingham Ladywood Birmingham 27% Manchester Rusholme Central Manchester 26% Liverpool Riverside Merseyside 26% Bradford West West Yorkshire 26% Leeds Central and Headingley West Yorkshire 2...
 - `date_time_period`: 24 candidate(s). Sample: 2026; 2024; 2025
-- `definition`: 2 candidate(s). Sample: Strengthening place-based giving; A statistical technique
+- `definition`: 1 candidate(s). Sample: Strengthening place-based giving
 - `entity_relationship`: 1 candidate(s). Sample: Ann-Marie Kelly Chief Executive --affiliated_with--> Kent Hospice
 - `impact_statement`: 13 candidate(s). Sample: impact | Where people see a positive impact of charities in their local community, they are twice as likely to donate locally and three times as likely to volunteer.; impact | Where people can see the impact of charities, they often give more.; impact | 10 | Seven of the top 10 places where people were most likely to see the positive impact of charities locally are in London.
 - `key_finding`: 1 candidate(s). Sample: Key findings

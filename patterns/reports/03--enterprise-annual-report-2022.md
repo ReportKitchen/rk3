@@ -11,7 +11,6 @@
 - callout: 6
 - callout_label: 1
 - date_time_period: 17
-- definition: 1
 - entity_relationship: 4
 - funding_event: 4
 - geography_place: 13
@@ -29,7 +28,6 @@
 - `callout`: 6 candidate(s). Sample: We have to find ways to not only preserve housing but to preserve the people who live in that housing. We have to build neighborhoods. MARCIA FUDGE HUD Secretary “ It isn’t just that housing’s not affordable, it’s especially unaffordable i...; Our partners came away with a deeper understanding of Alaska, our dynamic delivery system and housing community, and an energy to invest in the phenomenal work happening in our communities. COLLEEN DUSHKIN Executive Director, Association o...; Preservation Next is helping us build our real estate muscle – from learning the nuts and bolts of the preservation process, to supporting policies that enable preservation, to connecting with like-minded community-based organizations who...
 - `callout_label`: 1 candidate(s). Sample: Stories of Impact
 - `date_time_period`: 17 candidate(s). Sample: 2022; 2001; October 20, 2022
-- `definition`: 1 candidate(s). Sample: we shine a light on what it truly
 - `entity_relationship`: 4 candidate(s). Sample: COLLEEN DUSHKIN --affiliated_with--> Association of Alaska Housing Authorities; MONICA MEJIA --affiliated_with--> East LA Community Corporation; TOM MIHALJEVIC --affiliated_with--> Cleveland Clinic
 - `funding_event`: 4 candidate(s). Sample: $20 million -> Detroit Home Repair Fund; $52.5 million -> Cleveland Clinic; $2.5 million
 - `geography_place`: 13 candidate(s). Sample: Alaska; Alaska; Alaska
