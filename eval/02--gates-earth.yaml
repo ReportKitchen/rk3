@@ -37,3 +37,11 @@ checks:
   # half-lists (ordering defect) — same fix cluster.
   - note: "GOLD(lists) p17 (target): four enabler items form one list across the column gutter"
     list: ["Pricing resilience risks and returns", "Developing a shared risk typology", "Improving access to physical risk data", "Tracking progress and positive outcomes"]
+
+  # GOLD(lists) p17 (target): defect 3 of the ned1aa08175 cluster — the
+  # parent bullet "• Turning the resilience opportunity…" arrives WELDED
+  # onto the colon-terminated lead-in "Getting key enablers in place:".
+  # Verified red at v157 (welded in IR + rendered page) before the
+  # single-interior-bullet split landed.
+  - note: "GOLD(lists) p17 (target): parent bullet 'Turning…' splits from its lead-in"
+    split: ["Getting key enablers in place:", "Turning the resilience opportunity into reality"]

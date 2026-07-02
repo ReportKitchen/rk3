@@ -7391,7 +7391,7 @@
       "flag": 1,
       "footnotes": 1,
       "heading": 209,
-      "list": 50,
+      "list": 59,
       "paragraph": 555,
       "table": 10
     },
@@ -7821,7 +7821,7 @@
       426
     ],
     "questions": 43,
-    "textChars": 404218
+    "textChars": 404185
   },
   "02--rwjf-futures": {
     "status": "done",

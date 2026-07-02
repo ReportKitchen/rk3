@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 157
+VERSION = 158
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -2685,7 +2685,15 @@ def _split_inline_bullets(ctx, nodes):
         # interior bullets: a TRUE bullet glyph (not a hyphen/dash) with real
         # text before it
         pts = [i for i, c in enumerate(t) if c in INLINE_BULLETS and t[:i].strip()]
-        if len(pts) < 2:               # need >=2 to read as a list, not a stray glyph
+        # >=2 interior bullets read as a list; a SINGLE one still does when the
+        # lead is a colon-terminated lead-in and the bullet carries real prose —
+        # the welded parent bullet ("Getting key enablers in place: • Turning
+        # the resilience opportunity…", gates p17). One stray glyph mid-sentence
+        # never has both.
+        single_ok = (len(pts) == 1
+                     and t[:pts[0]].strip().endswith(":")
+                     and len(t[pts[0]:].strip()) >= 40)
+        if len(pts) < 2 and not single_ok:
             out.append(n)
             continue
         bounds = pts + [len(t)]
