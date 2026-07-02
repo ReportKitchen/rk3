@@ -75,7 +75,18 @@ p16+p51 verified vs source). Bonus from a weight guard added to
 points-of-light pull-quotes de-welded, rock p16 kicker stays intact.
 Enabler nesting (the 4 items as children of the "Turning…" parent
 bullet, per source indent) NOT done — flat sibling lists for now.
-NEXT: clean-air p9 level-3 gold.
+**L2 level-3 nesting SHIPPED** (v163, census 46/8): the "p9 level-3 UL"
+note (77bbd84c) was GOOD-FOOD's, not clean-air's (second mis-filed
+attribution — feedback jsonl decides). `_group_bullet_paragraphs` now
+captures a deeper-indented x-overlapping list as the preceding bullet's
+sub-list and keeps the run open (good-food p9 ●/○, oxfam p54 Box 10 —
+the only 2 fire sites, both verified vs source); `_absorb_bullet_stragglers`
+gained the one decidable guard (same-page shallower straggler = parent
+level). New eval kind `nested:` pins it; the cross-column-sibling trap
+(gates p65) and the cross-page trap (gates p54→55) are both comment-
+documented in the conditions. Remaining L2 residue: enabler nesting
+under a SPLIT-OFF parent bullet (gates p17) — the sub-list arrives
+BEFORE the parent's own list exists; different shape.
 
 ## Phase 0 — gold set first
 
