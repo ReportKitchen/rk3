@@ -727,6 +727,10 @@ pre.error {
 .pat-actions select { font-size: 0.7rem; max-width: 2.2rem; border: 1px solid #ccc;
   border-radius: 4px; background: #fff; height: 1.4rem; }
 .pat-quote { margin: 0.25rem 0 0 2rem; font-size: 0.78rem; color: #444; }
+.pat-note { margin: 0.3rem 0 0.1rem 2rem; width: calc(100% - 2.5rem);
+  font-size: 0.75rem; padding: 0.2rem 0.4rem; border: 1px solid #c9b8e8;
+  border-radius: 4px; }
+.pat-note-saved { margin: 0.2rem 0 0 2rem; font-size: 0.72rem; }
 .pat-rec { margin: 0.15rem 0 0 2rem; font-size: 0.72rem; }
 .pat-agg h1 { font-size: 1.15rem; }
 .pat-matrix { border-collapse: collapse; font-size: 0.82rem; margin-top: 0.8rem; }

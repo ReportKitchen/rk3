@@ -80,6 +80,7 @@ export default function PatternsPanel({ doc }) {
     setTimeout(() => el.classList.remove("rk-pat-flash"), 1200);
   };
 
+  const [noteFor, setNoteFor] = useState(null);  // pattern_id with note box open
   const decide = (c, decision, notes = null) => {
     postPatternDecision(doc.slug, {
       pattern_id: c.pattern_id, decision,
@@ -87,9 +88,16 @@ export default function PatternsPanel({ doc }) {
     }).then(() => {
       setReport((r) => ({
         ...r,
-        decisions: { ...r.decisions, [c.pattern_id]: { decision } },
+        decisions: { ...r.decisions, [c.pattern_id]: { decision, notes } },
       }));
     }).catch((e) => reportError("save pattern decision", e));
+  };
+  // the qualitative WHY behind a decision is the registry's food (negative
+  // indicators, false-positive classes) — capture it at the click, not in chat
+  const addNote = (c, text) => {
+    const d = decisions[c.pattern_id];
+    decide(c, d?.decision || "needs_more_context", text);
+    setNoteFor(null);
   };
 
   if (err) {
@@ -152,9 +160,20 @@ export default function PatternsPanel({ doc }) {
                         <option value="">…</option>
                         {MORE_DECISIONS.map((m) => <option key={m} value={m}>{m.replaceAll("_", " ")}</option>)}
                       </select>
+                      <button className="pat-btn" title="Add a why-note to this decision"
+                              onClick={() => setNoteFor(noteFor === c.pattern_id ? null : c.pattern_id)}>✎</button>
                     </span>
                   </div>
                   <p className="pat-quote">“{(ref.quote || "").slice(0, 140)}”</p>
+                  {noteFor === c.pattern_id && (
+                    <input className="pat-note" autoFocus
+                           placeholder="why? (feeds the pattern registry — e.g. 'scare quotes, not a quotation')"
+                           onKeyDown={(e) => {
+                             if (e.key === "Enter" && e.target.value.trim()) addNote(c, e.target.value.trim());
+                             if (e.key === "Escape") setNoteFor(null);
+                           }} />
+                  )}
+                  {d?.notes && <p className="pat-note-saved hint">✎ {d.notes}</p>}
                   {c.component_recommendations?.length > 0 && (
                     <p className="pat-rec hint">
                       → {c.component_recommendations.map((r) => r.component_type).join(", ")}
