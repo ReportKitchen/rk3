@@ -48,6 +48,19 @@ systematically instead of per-heuristic.
 | L10 | list-like FALSE POSITIVES | foia "#666 is a street address, not note 666"; survey questions (respond-to-crisis) that number sequentially but list nothing | citation gates exist for notes; lists need the same skepticism |
 | L11 | TOC-list residue (drop the header with the list) | advancing p5, design-principles p6 | list dropped, header orphaned |
 
+**PROGRESS (2026-07-02):** Phase 0 partial (invest p51 L3 target + the
+owner's self-minted assertions; negative controls for L10 still to encode).
+Phase 1 SHIPPED (analyze v151: `_list_census` log-only; L1 compound-marker
+strip rode along — clean-air's '•-' items start clean). Phase 2 SHIPPED
+(v153: indent-driven nesting in `_bullet_items`, recursive; clean-air p32
+renders a real second level. The A/B snapshot review caught a real
+drop-lines-before-first-marker bug — advancing lost 5 label items under the
+audit threshold; fixed, all recovered. Corpus snapshot byte-identical
+otherwise). NEXT: L3 (hidden ULs / inline enumerations) — REQUIRES its
+negative controls first: inline '1) x and 2) y' mid-sentence must stay
+prose; only marker-led, segment-substantial, node-spanning enumerations
+convert. Then L4 same-page merges, clean-air p9 level-3 gold.
+
 ## Phase 0 — gold set first
 
 Encode targets + guards before touching the engine (the columns lesson: the
