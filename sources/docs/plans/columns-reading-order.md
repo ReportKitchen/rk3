@@ -88,7 +88,32 @@ Distinguishers the detector must respect (owner answers, open-questions 2d):
   style later.
 - **Sidebar** (aside width thresholds; already extracted as asides).
 
+**Phase 1 SHIPPED (2026-07-02, analyze v141).** `_column_model` computes
+band-first (spanning blocks bound bands; XY-Cut++ median-adaptive span
+threshold), then LINE-level x-projection with bridge tolerance inside each
+band — one fused cross-gutter line cannot hide a gutter, but many lines veto
+it. Logged per page (`column-model` events: bands, cols, gutter widths,
+bridged/lines) + `ctx.column_model`; consumed by nothing yet. Eyeballed
+**10/10** on the known pages: 2-col detected on gates p8 (under 3 spanning
+lede bands), oxfam p5/p10/**p11** (p11 was invisible to block-level
+projection — 2 fused lines bridged the gutter; the model now both finds the
+gutter AND counts the bridges, quantifying the fusion pathology per page),
+ecp p4/p6, advancing p12 (the weld page: g=22pt, 0 bridges — the model knows
+two columns exist where the join pass fused them), covid p4; and clean 1-col
+conf=1.0 on both negative controls. Eval census unchanged (32/12), pytest
+33/33.
+
 ## Phase 2 — topological order replaces the XY-cut
+
+**Why the parked `_reading_order_topo` regressed, and why the column model
+fixes it** (assessed 2026-07-02): (a) its cross-column `left_of` edges ignore
+bands — a left-column block LOWER on the page asserts "before" a right block
+in the band ABOVE it; (b) its same-column test is raw x-overlap, so a fused
+cross-gutter line x-overlaps both columns and radiates wrong "higher→before"
+edges into each. Both die when constraints come from the model: same-column
+edges only within a model column, left→right edges only within a band,
+band→band strictly top-down. That is the phase-2 rewrite — the topo machinery
+itself (DAG + stable tie-break + cycle fallback) is sound and stays.
 
 Per the research (Breuel/OCRopus): pairwise before-after constraints from the
 column model —

@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 139
+VERSION = 141
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -270,6 +270,9 @@ def run(ctx):
     rich = [_join_block(ctx, blk, link_colors) for blk in blocks]
     texts = [r["text"] for r in rich]
     body_size = _body_size(ctx, blocks)
+    # explicit per-page column evidence (log-only in phase 1; the phase-2
+    # ordering rewrite consumes it as its constraint source)
+    _column_model(ctx, pages, blocks)
     roles = _block_roles(pages, blocks)  # (role, coverage) per block, tag docs only
     tag_levels = _tag_heading_levels(ctx, roles)
 
@@ -2981,6 +2984,112 @@ def _join_broken_paragraphs(ctx, nodes):
         ctx.log.entry("join-broken-para", page=ch["page"], into=prev["rk"],
                       joined=ch["text"][:60])
     return out
+
+
+_MIN_GUTTER = 10.0   # pt — narrower x-gaps are intra-column raggedness
+
+
+def _column_model(ctx, pages, blocks):
+    """Phase 1 of the columns plan (plans/columns-reading-order.md): an
+    EXPLICIT, logged, per-page column model — band-first, computed on the
+    assemble blocks. Full-width blocks partition the page into horizontal
+    bands; within each band the x-projection whitespace profile yields the
+    column ranges and the gutter widths that back them.
+
+    LOG-ONLY for now: `column-model` log events + ctx.column_model. Nothing
+    consumes it until the logged models have been eyeballed against the
+    gold-set pages (phase 2 wires it into ordering as the constraint
+    source)."""
+    model = {}
+    by_page = {}
+    for blk in blocks:
+        by_page.setdefault(blk["page"], []).append(blk)
+    for page_n, blks in sorted(by_page.items()):
+        boxes = [b["bbox"] for b in blks]
+        left = min(b[0] for b in boxes)
+        right = max(b[2] for b in boxes)
+        content_w = right - left
+        if content_w <= 0 or len(boxes) < 2:
+            continue
+        widths = sorted(b[2] - b[0] for b in boxes)
+        median_w = widths[len(widths) // 2]
+        # spanning = wide against BOTH the page content and its peers
+        # (XY-Cut++ median-adaptive idea): these bound the bands
+        span_w = max(0.6 * content_w, 1.3 * median_w)
+        spanning = [b["bbox"] for b in blks if b["bbox"][2] - b["bbox"][0] >= span_w]
+        rest = [b for b in blks if b["bbox"][2] - b["bbox"][0] < span_w]
+
+        # bands: y-intervals between spanning blocks (top-down)
+        cuts = sorted({round(v, 1) for b in spanning for v in (b[1], b[3])},
+                      reverse=True)
+        top = max(b[3] for b in boxes)
+        bot = min(b[1] for b in boxes)
+        edges = [top, *[c for c in cuts if bot < c < top], bot]
+        bands = []
+        for y1, y0 in zip(edges, edges[1:]):   # y1 = band top, y0 = bottom
+            if y1 - y0 < 4:
+                continue
+            members = [b for b in rest
+                       if min(y1, b["bbox"][3]) - max(y0, b["bbox"][1])
+                       > 0.5 * (b["bbox"][3] - b["bbox"][1])]
+            band = {"y": [round(y0, 1), round(y1, 1)]}
+            # project member LINES, not blocks: one line fused across the
+            # gutter (the oxfam p11 pathology) must not hide it — a gutter
+            # tolerates a few bridging lines, never many
+            lines = [l["bbox"] for b in members for l in b["lines"]]
+            if len(lines) < 4:
+                band["cols"] = [[round(left, 1), round(right, 1)]]
+                band["spanning"] = True
+                bands.append(band)
+                continue
+            lo = min(l[0] for l in lines)
+            hi = max(l[2] for l in lines)
+            n = len(lines)
+            tol = max(1 if n >= 12 else 0, round(0.06 * n))
+            step = 2.0
+            gutters = []          # [x0, x1, crossing]
+            run = None
+            x = lo + step
+            while x < hi - step:
+                crossing = sum(1 for l in lines if l[0] < x < l[2])
+                if crossing <= tol:
+                    if run is None:
+                        run = [x, x, crossing]
+                    else:
+                        run[1], run[2] = x, max(run[2], crossing)
+                else:
+                    if run and run[1] - run[0] >= _MIN_GUTTER:
+                        gutters.append(run)
+                    run = None
+                x += step
+            if run and run[1] - run[0] >= _MIN_GUTTER:
+                gutters.append(run)
+            # a gutter needs real columns on BOTH sides
+            gutters = [g for g in gutters
+                       if sum(1 for l in lines if l[2] <= g[0]) >= 2
+                       and sum(1 for l in lines if l[0] >= g[1]) >= 2]
+            xs = [lo, *[v for g in gutters for v in (g[0], g[1])], hi]
+            band["cols"] = [[round(a, 1), round(b, 1)]
+                            for a, b in zip(xs[::2], xs[1::2])]
+            if gutters:
+                band["gutters"] = [round(g[1] - g[0], 1) for g in gutters]
+                band["bridged"] = max(g[2] for g in gutters)
+                band["lines"] = n
+            bands.append(band)
+        ncols = max((len(b["cols"]) for b in bands), default=1)
+        # confidence: narrowest gutter vs a comfortable 18pt, discounted by
+        # the worst bridging fraction; single-column pages are fully confident
+        conf = 1.0
+        for b in bands:
+            for g in b.get("gutters", []):
+                c = min(g / 18, 1.0) * (1 - b["bridged"] / b["lines"])
+                conf = min(conf, c)
+        conf = round(conf, 2)
+        model[page_n] = {"bands": bands, "ncols": ncols, "conf": conf}
+        ctx.log.entry("column-model", page=page_n, ncols=ncols, conf=conf,
+                      bands=bands)
+    ctx.column_model = model
+    return model
 
 
 def _dominant_size(blk):
