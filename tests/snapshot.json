@@ -3357,7 +3357,7 @@
       "footnotes": 1,
       "heading": 42,
       "list": 16,
-      "paragraph": 355
+      "paragraph": 358
     },
     "asideChildren": 117,
     "notes": [
@@ -3368,7 +3368,7 @@
       5
     ],
     "questions": 10,
-    "textChars": 131510
+    "textChars": 131507
   },
   "02--oxfam-davos-2024-report": {
     "status": "done",
@@ -4337,7 +4337,7 @@
       "footnotes": 1,
       "heading": 39,
       "list": 18,
-      "paragraph": 158
+      "paragraph": 160
     },
     "asideChildren": 21,
     "notes": [
@@ -4393,7 +4393,7 @@
       46
     ],
     "questions": 10,
-    "textChars": 89329
+    "textChars": 89327
   },
   "02--race-to-lead": {
     "status": "done",
@@ -7391,7 +7391,7 @@
       "flag": 1,
       "footnotes": 1,
       "heading": 209,
-      "list": 51,
+      "list": 50,
       "paragraph": 555,
       "table": 10
     },

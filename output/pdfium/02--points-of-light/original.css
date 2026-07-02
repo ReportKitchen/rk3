@@ -50,13 +50,13 @@ strong.c-4280c2 { color: #4280c2; font-weight: inherit; }
   font-weight: 700;
 }
 
-.fine {
-  font-size: 0.81em;
-}
-
 .medium-alt {
   font-family: "gotham", sans-serif;
   font-weight: 500;
+}
+
+.fine {
+  font-size: 0.81em;
 }
 
 .lg-medium-italic-alt {

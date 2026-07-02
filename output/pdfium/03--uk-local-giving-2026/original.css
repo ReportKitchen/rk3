@@ -396,11 +396,6 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   padding: 0.4em 0.6em;
 }
 
-[data-nid="n097022daf3"] {
-  background: #1a3796;
-  padding: 0.4em 0.6em;
-}
-
 [data-nid="nc93dffbe78"] {
   background: #215e9e;
   border: none;
@@ -411,6 +406,11 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   float: right;
   width: 47%;
   margin: 0 0 1rem 1.5rem;
+}
+
+[data-nid="n097022daf3"] {
+  background: #1a3796;
+  padding: 0.4em 0.6em;
 }
 
 [data-nid="n5e39af3140"] {

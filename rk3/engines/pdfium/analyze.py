@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 155
+VERSION = 157
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -531,6 +531,7 @@ def run(ctx):
     nodes = _join_broken_paragraphs(ctx, nodes)
     nodes = _merge_crosspage_lists(ctx, nodes)
     nodes = _merge_crosspage_bullet_lists(ctx, nodes)
+    nodes = _merge_crosscolumn_bullet_lists(ctx, nodes)
     nodes = _join_list_tail(ctx, nodes)
     nodes = _absorb_bullet_stragglers(ctx, nodes)
     nodes = _split_inline_ordinals(ctx, nodes)
@@ -1503,6 +1504,55 @@ def _merge_crosspage_bullet_lists(ctx, nodes):
     return out
 
 
+def _merge_crosscolumn_bullet_lists(ctx, nodes):
+    """An unordered list whose items continue across a column gutter arrives
+    as two list nodes: the first ends the left column, the continuation opens
+    at the TOP of the next column of the same band, adjacent in model reading
+    order (an intervening heading/lead-in would sit between them in the flow
+    and break the adjacency, so this can't fuse a genuinely new list).
+    Concatenate the continuation's items into the first (gates p17: four
+    enabler items split 2+2 at the gutter)."""
+    def band_col(page, bb):
+        m = (getattr(ctx, "column_model", None) or {}).get(page)
+        if not m:
+            return None
+        bands = m["bands"]
+
+        def yov(band):
+            y0, y1 = band["y"]
+            return max(0.0, min(bb[3], y1) - max(bb[1], y0))
+
+        bi = max(range(len(bands)), key=lambda i: yov(bands[i]))
+        if yov(bands[bi]) <= 0:
+            return None
+        cols = bands[bi]["cols"]
+        if len(cols) < 2:
+            return None
+        ci = max(range(len(cols)),
+                 key=lambda i: max(0.0, min(bb[2], cols[i][1])
+                                   - max(bb[0], cols[i][0])))
+        return bi, ci, bands[bi]["y"][1]
+
+    out = []
+    for n in nodes:
+        prev = out[-1] if out else None
+        if (prev is not None and prev["type"] == "list" and n["type"] == "list"
+                and not prev.get("ordered") and not n.get("ordered")
+                and n["page"] == prev["page"]):
+            a = band_col(prev["page"], prev["bbox"])
+            b = band_col(n["page"], n["bbox"])
+            if (a is not None and b is not None and a[0] == b[0]
+                    and b[1] == a[1] + 1 and n["bbox"][3] >= b[2] - 15.0):
+                prev["items"] = list(prev.get("items", [])) + list(n.get("items", []))
+                prev["bbox"] = _union(prev["bbox"], n["bbox"])
+                ctx.log.entry("list-continued-column", page=n["page"],
+                              into=prev["rk"], added=len(n.get("items", [])),
+                              text=next(_item_texts(n.get("items", [])), "")[:50])
+                continue
+        out.append(n)
+    return out
+
+
 def _parse_list_continuation(lst, node):
     items = lst["items"]
     if not items or not isinstance(items[-1], dict):
@@ -2450,8 +2500,18 @@ def _reading_order_model(bboxes, page_model):
     for k, bb in enumerate(bboxes):
         bi = max(range(len(bands)), key=lambda i: yov(bb, bands[i]))
         cols = bands[bi]["cols"]
+        # a column is "hit" when the item meaningfully occupies it — measured
+        # against the NARROWER of item and column, so a wide caption that
+        # covers 40% of a column registers even though that's <25% of the
+        # caption itself (gates p17: "Table 1 …" spans the gutter but was
+        # bucketed into the left column and interleaved mid-columns). The
+        # floor keeps sliver pseudo-columns (chart-label soup: nff p4 grows
+        # six "columns" from map numbers) from turning every wide chart
+        # title into a band splitter: penetration under a few gutter-widths
+        # is a graze, not occupancy.
         hit = [ci for ci, c in enumerate(cols)
-               if xov(bb, c) > 0.25 * max(bb[2] - bb[0], 1.0)]
+               if xov(bb, c) > max(0.25 * min(bb[2] - bb[0], c[1] - c[0]),
+                                   3 * _MIN_GUTTER)]
         spanning = len(cols) > 1 and len(hit) >= 2
         ci = max(range(len(cols)), key=lambda i: xov(bb, cols[i])) \
             if not spanning else -1
@@ -3168,11 +3228,17 @@ def _join_column_wrap(ctx, nodes):
         mid_sentence = last.isalnum() or last in ",-–­"
         ps = (prev.get("data") or {}).get("size", 0)
         cs = (ch.get("data") or {}).get("size", 0)
+        # weight must match too: a genuine wrap keeps its font mid-sentence,
+        # while a bold kicker followed by regular body ("Example state:
+        # Oklahoma" + intro paragraph, rock p16) is two different text roles
+        # that merely sit at a column boundary
+        pw = (prev.get("data") or {}).get("weight", 400)
+        cw = (ch.get("data") or {}).get("weight", 400)
         next_column = (ch["bbox"][3] > prev["bbox"][3] + 2 and
                        (ch["bbox"][0] + ch["bbox"][2]) / 2
                        > (prev["bbox"][0] + prev["bbox"][2]) / 2 + 2)
         if not (mid_sentence and ch["text"][:1].isalpha() and next_column
-                and abs(ps - cs) < 0.6):
+                and abs(ps - cs) < 0.6 and abs(pw - cw) < 150):
             out.append(ch)
             continue
         ptext = prev["text"].rstrip()
