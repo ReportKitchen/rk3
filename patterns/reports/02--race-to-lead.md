@@ -9,32 +9,30 @@
 ## Inventory
 
 - callout: 24
-- date_time_period: 134
+- date_time_period: 125
 - geography_place: 6
 - impact_statement: 14
 - key_finding: 5
 - metric_cluster: 33
 - named_entity: 16
-- question: 2
-- quotation: 23
+- quotation: 20
 - resource: 5
 - source_note_reference: 84
-- statistic: 480
+- statistic: 450
 
 ## Review Focus
 
 - `callout`: 24 candidate(s). Sample: Hundreds of write-in responses and focus group in their own words observations indicate an exhaustion experienced by people of color in the nonprofit sector.8 People of color shared reflections about the constant demands of both job respon...; 27% 29%; 21%
-- `date_time_period`: 134 candidate(s). Sample: 2016; 2019; 2020
+- `date_time_period`: 125 candidate(s). Sample: 2016; 2019; 2020
 - `geography_place`: 6 candidate(s). Sample: United States; United States; United States
 - `impact_statement`: 14 candidate(s). Sample: impact | 2019 | Although the 2019 data shows more support and fewer challenges for both people of color and white respondents, other responses indicate increased inequality in the sector.; impact | 42% | Lack of role models was the only challenge that increased for people of color, with 42% of respondents in 2019 (compared to 39% in 2016) reporting they often or always experienced this career challenge; white respondent...; need | As a working-class Hispanic in a majority upper- and middle-class white work environment … I probably need coaching and mentoring, but I feel that being Hispanic has prevented me from finding mentors or others who want...
 - `key_finding`: 5 candidate(s). Sample: key finding 1: The Same Story; As a working-class Hispanic in a majority upper- and middle-class white work environment … I probably need coaching and mentoring, but I feel that being Hispanic has prevented me from finding mentors or others who want...; key finding 2: The White Advantage
 - `metric_cluster`: 33 candidate(s). Sample: 2 metric(s): 75%, 50%; 2 metric(s): 0%, 10%; 12 metric(s): 41%, 14%, 10%, 7%, 1%, 8%
 - `named_entity`: 16 candidate(s). Sample: About the Building Movement Project; About the Building Movement Project; The Building Movement Project
-- `question`: 2 candidate(s). Sample: If your leadership is all white, how can they ever relate or understand how much effort you make for people to look past your race?; figure 23 | do you provide regular financial support to your family?
-- `quotation`: 23 candidate(s). Sample: trans, gender non-conforming, non-binary, et. al.; Peer support group meetings.; Peer support/affinity group meetings or online discussions.
+- `quotation`: 20 candidate(s). Sample: trans, gender non-conforming, non-binary, et. al.; Peer support group meetings.; Peer support/affinity group meetings or online discussions.
 - `resource`: 5 candidate(s). Sample: The Building Movement Project | project; The Building Movement Project | project; Building Movement Project | project
 - `source_note_reference`: 84 candidate(s). Sample: To increase the diversity of nonprofit leaders, the report recommended that the sector shift its focus away from the individual qualifications or goals of emerging leaders of color and toward addressing the systemic bias in the sector that...; 3 The lack of diversity in nonprofit sector leadership was not a reflection of the qualifications or ambition of people of color, but the result of racialized barriers that inhibited their leadership ambitions, from lack of support by whit...; 2 The data and analysis presented here offer insight on how to support organizations that embrace racial equity internally as they work toward a society in which all people have equal voice, opportunity, and power.
-- `statistic`: 480 candidate(s). Sample: 5,000 people ryone who has supported the Race to Lead initiative, particularly the more than; 5,000 nprofit Racial Leadership Gap presents findings from a 2019 survey of more than; 75% s: White-run organizations in which the board and staff leadership is more than
+- `statistic`: 450 candidate(s). Sample: 5,000 people ryone who has supported the Race to Lead initiative, particularly the more than; 5,000 nprofit Racial Leadership Gap presents findings from a 2019 survey of more than; 75% s: White-run organizations in which the board and staff leadership is more than
 
 ## High Confidence Candidates
 

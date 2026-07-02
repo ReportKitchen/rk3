@@ -18,10 +18,11 @@
 - metric_cluster: 18
 - named_entity: 15
 - process_step_list: 2
+- purpose_statement: 2
 - question: 9
 - resource: 8
 - source_note_reference: 2
-- statistic: 279
+- statistic: 277
 
 ## Review Focus
 
@@ -35,10 +36,11 @@
 - `metric_cluster`: 18 candidate(s). Sample: 12 metric(s): 41 %, 18%, 0%, 2%, 4%, 6%; 11 metric(s): 46%, 70%, 37%, 40%, 8%, 67%; 2 metric(s): 32%, 51 %
 - `named_entity`: 15 candidate(s). Sample: Betty and Davis Fitzgerald Foundation; Nonprofit Finance Fund; Nonprofit Finance Fund
 - `process_step_list`: 2 candidate(s). Sample: 3 step(s): Elise Miller, Nonprofit Finance Fund; Jennifer Talansky, Nonprofit Finance Fund; Anjali Deshmukh, Co-Founder of Make Justice Normal; 5 step(s): Annie Chang, Nonprofit Finance Fund; Larry McGill, Ambit 360 Consulting, LLC; Tessa Borelli, Nonprofit Finance Fund
+- `purpose_statement`: 2 candidate(s). Sample: We’re looking at 2025 with urgency – not just because of this year’s data, but because we’ve seen the consequences of this kind of interconnected strain before.; For too long, chronic underfunding has been treated as a problem for nonprofits to solve with a “smarter” business model or “more strategic” plan.
 - `question`: 9 candidate(s). Sample: WHO RESPONDED TO THE SURVEY?; For example, if a crisis hits, how long can the organization keep running?; HOW MUCH OF YOUR FULL-TIME STAFF IS YOUR ORGANIZATION ABLE TO PAY A LIVING WAGE?
 - `resource`: 8 candidate(s). Sample: Nonprofit Finance Fund | fund; Nonprofit Finance Fund | fund; The State of the Nonprofit Sector Survey | survey
 - `source_note_reference`: 2 candidate(s). Sample: respondents to NFF’s 2025 State of the Nonprofit Sector Survey also took our 2022 State of the Nonprofit Sector Survey. Whereas only 13% of these repeat respondents operated at a deficit in 2021, 37% operated at a deficit in 2024. During t...; respondents to NFF’s 2025 State of the Nonprofit Sector Survey also took our 2022 State of the Nonprofit Sector Survey. Whereas only 13% of these repeat respondents operated at a deficit in 2021, 37% operated at a deficit in 2024. During t...
-- `statistic`: 279 candidate(s). Sample: 2,206 In our 2025 survey; 14, From January 30 to March; 360 Larry McGill, Ambit
+- `statistic`: 277 candidate(s). Sample: 2,206 In our 2025 survey; 360 Larry McGill, Ambit; 40 years For more than
 
 ## High Confidence Candidates
 
@@ -110,7 +112,6 @@
 - `resource` p2 `patt_9fc092cb840a` (0.68): Nonprofit Finance Fund | fund | source: Tessa Borelli, Nonprofit Finance Fund
 - `resource` p2 `patt_d5ea71e55c9a` (0.68): Nonprofit Finance Fund | fund | source: Nonprofit Finance Fund® (NFF®) is a nonprofit lender, consultant, and advocate.
 - `resource` p2 `patt_e5ace256bd6f` (0.68): State of the Nonprofit Sector Survey | survey | source: The 2025 State of the Nonprofit Sector Survey was made possible through the generous support of our sponsors:
-- `statistic` p2 `patt_2d64cb757f58` (0.72): 14, From January 30 to March | source: From January 30 to March 14, 2025, we asked US nonprofit leaders a series of closed- and open-ended questions to understand the management, operational, and financial picture they navigated in 2024 and anticipated in 2025.
 - `statistic` p2 `patt_3dc9bb773f82` (0.72): 360 Larry McGill, Ambit | source: Larry McGill, Ambit 360 Consulting, LLC
 - `statistic` p2 `patt_616ba7f884ac` (0.72): 40 years For more than | source: For more than 40 years, we’ve helped organizations access the money and resources they need to realize their communities’ aspirations.
 - `statistic` p2 `patt_65080a18c65f` (0.72): 2,200 NFF is deeply grateful to the | source: NFF is deeply grateful to the 2,200+ survey respondents for all of the important work they do every day, and for entrusting us with their stories.
@@ -125,6 +126,7 @@
 - `statistic` p3 `patt_2564fdc6efb5` (0.72): 6% 0% 2% 4% | source: 0% 2% 4% 6% 8% 10% 12% 14% 16% 18%
 - `statistic` p3 `patt_2738d0b1d624` (0.72): 8% 0% 2% 4% 6% | source: 0% 2% 4% 6% 8% 10% 12% 14% 16% 18%
 - `statistic` p3 `patt_58f9753def57` (0.72): 14% 0% 2% 4% 6% 8% 10% 12% | source: 0% 2% 4% 6% 8% 10% 12% 14% 16% 18%
+- `statistic` p3 `patt_5ff135cbddbc` (0.72): 18%
 
 ## Reviewer Questions
 

@@ -45,6 +45,20 @@
       "validation_rules": ["must describe an accomplishment, need, outcome, or impact claim"]
     },
     {
+      "id": "purpose_statement",
+      "name": "Purpose Statement",
+      "layer": 1,
+      "definition": "A problem-framing statement that explains why an organization, initiative, or intervention exists or why its work matters.",
+      "positive_indicators": ["the need to", "urgent", "exists to solve", "problem statement", "why this matters"],
+      "negative_indicators": ["mission slogan", "vision statement", "raw impact outcome"],
+      "required_fields": ["statement_text"],
+      "optional_fields": ["problem", "audience", "stakes"],
+      "evidence_requirements": ["statement_text appears in source_refs"],
+      "candidate_component_treatments": ["purpose_callout", "problem_statement"],
+      "common_false_positives": ["recommendations", "ordinary topic sentences"],
+      "validation_rules": ["must explain why the work is needed, not only what happened"]
+    },
+    {
       "id": "legal_reference",
       "name": "Legal Reference",
       "layer": 0,

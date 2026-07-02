@@ -46,6 +46,10 @@ IMPACT_STATEMENT_RE = re.compile(
     r"\b(created|generated|helped|served|reached|touched|built|produced|preserved|provided|invested|awarded|funded|reduced|increased|improved|needed|needs|need|backlog|impact)\b",
     re.I,
 )
+PURPOSE_STATEMENT_RE = re.compile(
+    r"\b(the need to|urgent|urgency|why\b.+\bmatters|problem\b.+\bsolve|exists to|mission is to|purpose is to)\b",
+    re.I,
+)
 RESOURCE_HINT_RE = re.compile(
     r"\b(programs?|resources?|guides?|toolkits?|surveys?|reports?|databases?|datasets?|index|indices|initiative|initiatives|project|projects|fund|funds|grant|grants|academy|challenge)\b",
     re.I,
@@ -162,8 +166,11 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
         text = node.get("text") or ""
         if is_citation_like_text(text):
             continue
+        if is_chart_or_methodology_text(text):
+            continue
         legal_spans: list[tuple[int, int]] = []
         money_spans: list[tuple[int, int]] = []
+        date_spans = [match.span() for match in DATE_RE.finditer(text)]
 
         for match in LEGAL_REFERENCE_RE.finditer(text):
             reference = clean_legal_reference(match.group(0))
@@ -242,7 +249,18 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
                     quote,
                 )
 
-        impact = None if money_spans and is_funding_context(text) else find_impact_statement(text)
+        purpose = find_purpose_statement(text)
+        if purpose:
+            add(
+                "purpose_statement",
+                node,
+                purpose,
+                0.66,
+                "Problem-framing statement explaining why work is needed.",
+                purpose["statement_text"],
+            )
+
+        impact = None if purpose or (money_spans and is_funding_context(text)) else find_impact_statement(text)
         if impact:
             add(
                 "impact_statement",
@@ -266,7 +284,7 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
 
         for match in NUMBER_RE.finditer(text):
             value = match.group("value").strip()
-            if overlaps(match.span(), legal_spans) or overlaps(match.span(), money_spans):
+            if overlaps(match.span(), legal_spans) or overlaps(match.span(), money_spans) or overlaps(match.span(), date_spans):
                 continue
             if should_skip_number(value, text, match.start(), node):
                 continue
@@ -330,10 +348,13 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
 
         if node.get("quoteOpen") or "“" in text or '"' in text:
             for match in QUOTE_RE.finditer(text):
+                quote_text = match.group("quote").strip()
+                if should_skip_quote_candidate(quote_text, text):
+                    continue
                 add(
                     "quotation",
                     node,
-                    {"quote_text": match.group("quote").strip(), "speaker_name": None},
+                    {"quote_text": quote_text, "speaker_name": None},
                     0.7,
                     "Quotation marks in text leaf.",
                     match.group(0),
@@ -350,8 +371,10 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
 
         found_question = False
         for match in QUESTION_RE.finditer(text):
-            found_question = True
             question = match.group("question").strip()
+            if should_skip_question_candidate(question, text):
+                continue
+            found_question = True
             add(
                 "question",
                 node,
@@ -774,6 +797,31 @@ def following_answer(text: str, question: str) -> str | None:
     return clean_quote(answer, 180) if answer else None
 
 
+def should_skip_question_candidate(question: str, text: str) -> bool:
+    if is_chart_or_methodology_text(question):
+        return True
+    lowered = (text or "").lower()
+    if lowered.startswith(("figure ", "fig. ", "chart ", "table ")):
+        return True
+    idx = (text or "").find(question)
+    after = (text or "")[idx + len(question): idx + len(question) + 8] if idx != -1 else ""
+    if after.strip().startswith(("”", '"')):
+        return True
+    return False
+
+
+def should_skip_quote_candidate(quote_text: str, full_text: str) -> bool:
+    lowered_full = (full_text or "").lower()
+    lowered_quote = (quote_text or "").lower()
+    if "example:" in lowered_full or lowered_full.strip().startswith(("example", "sample")):
+        return True
+    if re.search(r"\b(this is a request under|please provide|requester certifies|may i|dear\b)", lowered_quote):
+        return True
+    if len((quote_text or "").split()) <= 4 and is_resource_name(quote_text):
+        return True
+    return False
+
+
 def sentence_containing(text: str, needle: str) -> str:
     idx = text.find(needle)
     if idx == -1:
@@ -957,6 +1005,34 @@ def infer_recipient(text: str, amount_end: int) -> str | None:
 
 def infer_funding_purpose(quote: str) -> str | None:
     match = re.search(r"\b(?:to|for|supporting|toward)\s+(.+?)(?:[.;]|$)", quote or "", re.I)
+    return clean_quote(match.group(1), 140) if match else None
+
+
+def find_purpose_statement(text: str) -> dict[str, Any] | None:
+    quote = first_sentence(text)
+    if not quote or len(quote) < 40:
+        return None
+    if is_chart_or_methodology_text(quote) or is_citation_like_text(quote):
+        return None
+    if not PURPOSE_STATEMENT_RE.search(quote):
+        return None
+    if re.search(r"\b(should|recommend|must)\b", quote, re.I):
+        return None
+    return {
+        "statement_text": quote,
+        "problem": infer_purpose_problem(quote),
+        "audience": infer_impact_beneficiaries(quote),
+        "stakes": infer_purpose_stakes(quote),
+    }
+
+
+def infer_purpose_problem(text: str) -> str | None:
+    match = re.search(r"\b(?:need to|urgent(?:ly)?(?: need)? to|problem(?: is| of)?|solve)\s+(.+?)(?:[.;]|$)", text or "", re.I)
+    return clean_quote(match.group(1), 140) if match else None
+
+
+def infer_purpose_stakes(text: str) -> str | None:
+    match = re.search(r"\b(?:because|so that|in order to)\s+(.+?)(?:[.;]|$)", text or "", re.I)
     return clean_quote(match.group(1), 140) if match else None
 
 

@@ -19,9 +19,10 @@
 - key_finding: 1
 - metric_cluster: 6
 - named_entity: 44
+- purpose_statement: 2
 - quotation: 16
 - resource: 14
-- statistic: 25
+- statistic: 24
 
 ## Review Focus
 
@@ -34,11 +35,12 @@
 - `geography_place`: 13 candidate(s). Sample: Alaska; Alaska; Alaska
 - `impact_statement`: 7 candidate(s). Sample: need | Together with our partners, we focus on the greatest need – the massive shortage of affordable rental homes – to achieve three critical goals:; impact | 2001, | Since 2001, rents have increased by 13% while renter incomes only rose 0.5%.; impact | 40 | During the event, we were excited to honor 40 individuals who have made an enormous impact in housing over the last four decades.
 - `key_finding`: 1 candidate(s). Sample: Stories of Impact
-- `metric_cluster`: 6 candidate(s). Sample: 2 metric(s): 40, 40; 4 metric(s): 13%, 0.5%, 62%, 6%; 8 metric(s): 40, 20,, 1,000, 40, 40, 40
+- `metric_cluster`: 6 candidate(s). Sample: 2 metric(s): 40, 40; 4 metric(s): 13%, 0.5%, 62%, 6%; 7 metric(s): 40, 1,000, 40, 40, 40, 40
 - `named_entity`: 44 candidate(s). Sample: Annual Report from Enterprise Community Partners; MARCIA FUDGE; COLLEEN DUSHKIN
+- `purpose_statement`: 2 candidate(s). Sample: I want Cleveland to be safe for all children, and I know this is a problem we can solve.; Our mission is to make home and community places of pride, power and belonging, and platforms for resilience and upward mobility for all.
 - `quotation`: 16 candidate(s). Sample: We have to find ways to not only preserve housing but to preserve the people who live in that housing. We have to build neighborhoods.; Our partners came away with a deeper understanding of Alaska, our dynamic delivery system and housing community, and an energy to invest in the phenomenal work happening in our communities.; To meet my administration’s ambitious goal of creating or preserving 20,000 units of affordable housing, we will need the assistance of all facets of our community using all tools at our disposal. Thank you to Wells Fargo and Enterprise Co...
 - `resource`: 14 candidate(s). Sample: Annual Report | report; The Challenge | challenge; Department of Housing and Urban Development’s American Housing Survey | survey
-- `statistic`: 25 candidate(s). Sample: 40 years For; 40 years To the next; 6%
+- `statistic`: 24 candidate(s). Sample: 40 years For; 40 years To the next; 6%
 
 ## High Confidence Candidates
 
@@ -103,7 +105,7 @@
 - `statistic` p3 `patt_dc3116c55905` (0.72): 13% Since 2001, rents have increased by | source: Since 2001, rents have increased by 13% while renter incomes only rose 0.
 - `statistic` p3 `patt_fd51ff02665d` (0.72): 0.5% Since 2001, rents have increased by 13% while renter incomes only rose | source: Since 2001, rents have increased by 13% while renter incomes only rose 0.5%.
 - `impact_statement` p6 `patt_80fd2f0d7e75` (0.64): impact | 40 | During the event, we were excited to honor 40 individuals who have made an enormous impact in housing over the last four decades. | source: During the event, we were excited to honor 40 individuals who have made an enormous impact in housing over the last four decades.
-- `metric_cluster` p6 `patt_b754bf2e10a7` (0.68): 8 metric(s): 40, 20,, 1,000, 40, 40, 40 | source: Celebrating 40 Years of Breaking Barriers and Building Communities On October 20, 2022, we brought together nearly 1,000 housing leaders from across the country to discuss solutions to our most pressing challenges. Our 40 panelists, includ...
+- `metric_cluster` p6 `patt_73142a4b4bbb` (0.68): 7 metric(s): 40, 1,000, 40, 40, 40, 40 | source: Celebrating 40 Years of Breaking Barriers and Building Communities On October 20, 2022, we brought together nearly 1,000 housing leaders from across the country to discuss solutions to our most pressing challenges. Our 40 panelists, includ...
 - `named_entity` p6 `patt_7df66e47e9ef` (0.66): Community Development | source: President, Community Development, Enterprise
 - `named_entity` p6 `patt_870b82babc23` (0.66): Native American Advisory Council | source: We were also proud to launch our Native American Advisory Council, a cohort of native-led organizations that will help us better serve the country’s oldest sovereigns and land trust areas.
 - `quotation` p6 `patt_d5c032b83c45` (0.70): When we talk about equity, we | source: “ When we talk about equity, we’
@@ -113,7 +115,6 @@
 - `statistic` p6 `patt_20b16d5aaaff` (0.72): 40 While our | source: While our 40th Anniversary National Conference was a celebration of what we’ve achieved, it was more importantly an invaluable opportunity to chart our course for the next 40 years.
 - `statistic` p6 `patt_2215ec443124` (0.72): 40 years Two of our honorees, Barbara Morre and Terry Flood inspired Jim Rouse more than | source: Two of our honorees, Barbara Morre and Terry Flood inspired Jim Rouse more than 40 years ago.
 - `statistic` p6 `patt_52122aa2cd08` (0.72): 40 years Celebrating | source: Celebrating 40 Years of Breaking Barriers and Building Communities
-- `statistic` p6 `patt_a037dfeedf6e` (0.72): 20, On October | source: On October 20, 2022, we brought together nearly 1,000 housing leaders from across the country to discuss solutions to our most pressing challenges.
 - `statistic` p6 `patt_a90d38e27878` (0.72): 40 During the event, we were excited to honor | source: During the event, we were excited to honor 40 individuals who have made an enormous impact in housing over the last four decades.
 - `statistic` p6 `patt_c63bfa329a66` (0.72): 40 Our | source: Our 40 panelists, including innovative thinkers like current HUD Secretary Marcia Fudge, covered every aspect of our industry.
 - `statistic` p6 `patt_f29d4b3fdaef` (0.72): 40 years was more importantly an invaluable opportunity to chart our course for the next | source: While our 40th Anniversary National Conference was a celebration of what we’ve achieved, it was more importantly an invaluable opportunity to chart our course for the next 40 years.
@@ -125,6 +126,7 @@
 - `geography_place` p7 `patt_e1ce18241f5c` (0.74): Alaska | source: We partnered with the Association of Alaska Housing Authorities to bring together 200+ participants from across Alaska and the nation to strategize innovations to address Alaska’s unique affordable housing challenges.
 - `geography_place` p7 `patt_f77a01a9c1ac` (0.74): Alaska | source: According to a 2018 Alaska Housing Finance Corporation report, overall home construction needs to increase by 90 percent to meet the state’s needs.
 - `key_finding` p7 `patt_4d1954b2dae8` (0.62): Stories of Impact
+- `metric_cluster` p7 `patt_85bf1a8b8eaf` (0.60): 1 metric(s): 90 percent | source: According to a 2018 Alaska Housing Finance Corporation report, overall home construction needs to increase by 90 percent to meet the state’s needs.
 
 ## Reviewer Questions
 

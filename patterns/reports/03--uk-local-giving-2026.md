@@ -11,36 +11,38 @@
 - callout: 22
 - callout_label: 1
 - comparison_table: 1
-- date_time_period: 26
+- date_time_period: 24
 - definition: 2
 - entity_relationship: 1
 - impact_statement: 13
 - key_finding: 1
 - metric_cluster: 15
 - named_entity: 13
+- purpose_statement: 1
 - question: 7
 - quotation: 2
 - resource: 5
 - source_note_reference: 9
-- statistic: 118
+- statistic: 111
 
 ## Review Focus
 
 - `callout`: 22 candidate(s). Sample: “The joy with Bath Women’s Fund is that it brings together local women who care and connects them to each other and the local groups who are working hard to make the world a little bit better and fairer. As everyday givers, it is easy to f...; “Like many charities, we recognise that people are facing real financial pressures and that the value of donations is under strain. What continues to inspire us, however, is the extraordinary generosity of our local community. Even during...; Figure 2. Adults who donated or sponsored in the past 12 months (%), by Westminster constituency. North-East Hampshire People in North East Hampshire are the most likely to donate (69%). People in Easington are the least likely to donate (...
 - `callout_label`: 1 candidate(s). Sample: Charity impact
 - `comparison_table`: 1 candidate(s). Sample: Constituencies County% would like opportunities Birmingham Ladywood Birmingham 27% Manchester Rusholme Central Manchester 26% Liverpool Riverside Merseyside 26% Bradford West West Yorkshire 26% Leeds Central and Headingley West Yorkshire 2...
-- `date_time_period`: 26 candidate(s). Sample: 2026; 2024; 2025
+- `date_time_period`: 24 candidate(s). Sample: 2026; 2024; 2025
 - `definition`: 2 candidate(s). Sample: Strengthening place-based giving; A statistical technique
 - `entity_relationship`: 1 candidate(s). Sample: Ann-Marie Kelly Chief Executive --affiliated_with--> Kent Hospice
 - `impact_statement`: 13 candidate(s). Sample: impact | Where people see a positive impact of charities in their local community, they are twice as likely to donate locally and three times as likely to volunteer.; impact | Where people can see the impact of charities, they often give more.; impact | 10 | Seven of the top 10 places where people were most likely to see the positive impact of charities locally are in London.
 - `key_finding`: 1 candidate(s). Sample: Key findings
 - `metric_cluster`: 15 candidate(s). Sample: 4 metric(s): 0.9%, 1.1%, 0.3%, 1.6%; 5 metric(s): 55%, 69%, 33%, 69%, 33%; 7 metric(s): 14 billion, 379 million, 31%, 1 million, 8 billion, 41.7 million
 - `named_entity`: 13 candidate(s). Sample: Ann-Marie Kelly Chief Executive; Kent Hospice; Giving money Community connection
+- `purpose_statement`: 1 candidate(s). Sample: CAF exists to accelerate progress in society towards a fair and sustainable future for all.
 - `question`: 7 candidate(s). Sample: Where there is a stronger sense of local pride, people are more generous and more engaged.; Where people are most likely to donate.; Where people give the most money.
 - `quotation`: 2 candidate(s). Sample: “Like many charities, we recognise that people are facing real financial pressures and that the value of donations is under strain. What continues to inspire us, however, is the extraordinary generosity of our local community. Even during...; “The joy with Bath Women’s Fund is that it brings together local women who care and connects them to each other and the local groups who are working hard to make the world a little bit better and fairer.
 - `resource`: 5 candidate(s). Sample: High Value Giving Report | report; UK Giving Report | report; Bath Women’s Fund | fund
 - `source_note_reference`: 9 candidate(s). Sample: 1 High Value Giving Report CAF 2025; Previous research by the Charities Aid Foundation (CAF) found that high-net-worth individuals across the UK (those with investable assets of over £1 million) are donating around £8 billion a year in addition to the sums discussed in this L...; 4 billion in 2024).
-- `statistic`: 118 candidate(s). Sample: 0.3% Levels of generosity vary greatly across the country — ranging from; 0.9% On average, people donate; 1.6% 3% of income donated in Kensington and Bayswater, to a high of
+- `statistic`: 111 candidate(s). Sample: 0.3% Levels of generosity vary greatly across the country — ranging from; 0.9% On average, people donate; 1.6% 3% of income donated in Kensington and Bayswater, to a high of
 
 ## High Confidence Candidates
 
@@ -49,7 +51,6 @@
 - `date_time_period` p5 `patt_277c2c39eb43` (0.78): 2025 | source: Just over half (55%) of people across the UK gave to charity in 2025, ranging from a high of 69% of people in North East Hampshire to a low of 33% in Easington, County Durham.
 - `date_time_period` p5 `patt_6b037ee017bb` (0.78): 2026 | source: A similar principle applies to the other maps in our Local Giving 2026 report.
 - `date_time_period` p6 `patt_16a49a3ddc8a` (0.78): 2026 | source: Previous research by the Charities Aid Foundation (CAF) found that high-net-worth individuals across the UK (those with investable assets of over £1 million) are donating around £8 billion a year in addition to the sums discussed in this L...
-- `date_time_period` p6 `patt_3fd05b547112` (0.78): 2025 | source: Total donated in 2025 (£), by Westminster constituency.
 - `date_time_period` p6 `patt_74aa489bf8fe` (0.78): 2026 | source: Our recent UK Giving 2026 report found that the British public donated £14 billion in 2025.
 - `date_time_period` p6 `patt_9d2bac6dcbc7` (0.78): 2025 | source: 1 High Value Giving Report CAF 2025
 - `date_time_period` p6 `patt_edee3e61b037` (0.78): 2025 | source: Our recent UK Giving 2026 report found that the British public donated £14 billion in 2025.
@@ -59,7 +60,6 @@
 - `source_note_reference` p6 `patt_e3bf8137fa07` (0.92): Previous research by the Charities Aid Foundation (CAF) found that high-net-worth individuals across the UK (those with investable assets of over £1 million) are donating around £8 billion a year in addition to the sums discussed in this L...
 - `date_time_period` p7 `patt_202e9befdf26` (0.78): 2026 | source: 2 UK Giving Report 2026, CAF
 - `date_time_period` p7 `patt_24f46dd81d99` (0.78): 2025 | source: People donated less of their incomes to charity in 2025.
-- `date_time_period` p7 `patt_4448e796733b` (0.78): 2025 | source: Average proportion of income donated in 2025 (%), by Westminster constituency.
 - `date_time_period` p7 `patt_54bfdef8bdc0` (0.78): 2025 | source: In 2025, people donated an average of 0.
 - `date_time_period` p7 `patt_e31662e3789e` (0.78): 2024 | source: 4 billion in 2024).
 - `date_time_period` p7 `patt_e8f483986479` (0.78): 2024 | source: 1% in 2024.
@@ -84,6 +84,8 @@
 - `date_time_period` p17 `patt_3aefdf5f66e3` (0.78): 2025 | source: £910M donated by people in Scotland in 2025.
 - `date_time_period` p18 `patt_e7211e4e39df` (0.78): 2025 | source: donated by people in Northern Ireland in 2025.
 - `date_time_period` p19 `patt_56efb0c7f97c` (0.78): 2025 | source: 24 billion to charity in 2025.
+- `date_time_period` p19 `patt_dfe4e5c350e7` (0.78): 2025 | source: 19 billion in 2025.
+- `date_time_period` p21 `patt_a8334a9ff66c` (0.78): 2026 | source: Through delivery of this strategy, we hope government, in partnership with the philanthropic and charitable sectors, will drive a step change in giving and help to address the challenges set out in our Local Giving 2026 report.
 
 ## Lower Confidence Candidates
 
@@ -104,7 +106,6 @@
 - `statistic` p5 `patt_46eef71a55ac` (0.72): 69% th-East Hampshire People in North East Hampshire are the most likely to donate ( | source: North-East Hampshire People in North East Hampshire are the most likely to donate (69%).
 - `statistic` p5 `patt_cfbc4919809e` (0.72): 69% f (55%) of people across the UK gave to charity in 2025, ranging from a high of | source: Just over half (55%) of people across the UK gave to charity in 2025, ranging from a high of 69% of people in North East Hampshire to a low of 33% in Easington, County Durham.
 - `statistic` p5 `patt_d9ab4051dcb5` (0.72): 33% 2025, ranging from a high of 69% of people in North East Hampshire to a low of | source: Just over half (55%) of people across the UK gave to charity in 2025, ranging from a high of 69% of people in North East Hampshire to a low of 33% in Easington, County Durham.
-- `statistic` p5 `patt_e91026ac5e85` (0.72): 12 months Adults who donated or sponsored in the past | source: Adults who donated or sponsored in the past 12 months (%), by Westminster constituency.
 - `callout` p6 `patt_d47d1e6f72ac` (0.66): Figure 4. Total donated in 2025 (£), by Westminster constituency. Kensington and Bayswater People in Kensington and Bayswater donated the most as a constituency (£41.7M). 1 High Value Giving Report CAF 2025 £5,925,790 - 17,147,447 £17,147,...
 - `metric_cluster` p6 `patt_6c5df18312e1` (0.68): 7 metric(s): 14 billion, 379 million, 31%, 1 million, 8 billion, 41.7 million | source: Our recent UK Giving 2026 report found that the British public donated £14 billion in 2025. In the ten places that gave the most money, people donated an estimated £379 million (shown in Figure 3). All of these giving hotspots are located...
 - `named_entity` p6 `patt_06ad846d5292` (0.66): Charities Aid Foundation | source: Previous research by the Charities Aid Foundation (CAF) found that high-net-worth individuals across the UK (those with investable assets of over £1 million) are donating around £8 billion a year in addition to the sums discussed in this L...
@@ -127,6 +128,7 @@
 - `statistic` p6 `patt_bc67ce5e4fc1` (0.72): 22,750,279 £ | source: £22,750,279 - 26,141,899
 - `statistic` p6 `patt_c18bc1026d8b` (0.72): 5,925,790 £ | source: £5,925,790 - 17,147,447
 - `statistic` p6 `patt_c983579290db` (0.72): 272 9 million (or around £ | source: 9 million (or around £272 per adult).
+- `statistic` p6 `patt_cd6794ffb21c` (0.72): 41,656,219 £26,141,899 | source: £26,141,899 - 41,656,219
 
 ## Reviewer Questions
 
