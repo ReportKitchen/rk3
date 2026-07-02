@@ -1053,7 +1053,18 @@ Two smaller conventions, matching the main repo's practice:
      Record the active profile in the report's `input` stamp so the review
      UI can display it.
 
-2. The owner's ideas doc (sources/docs/specifications/info-pat-taxo-ideas.md)
+2. **Zone-gate the content detectors.** The owner bulk-rejected 24
+   candidates (dates, geographies, statistics, metric clusters,
+   recommendations) that were all correctly detected INSIDE citation/
+   source-note text — worthless as content patterns. Content-pattern mining
+   must skip footnote/citation zones; on our IR those zones are explicit
+   (footnotes nodes, notes-section headings). The 24 rejects are batch-
+   annotated "CITATION-ZONE" in the decisions file — segment acceptance
+   stats by zone or exclude them, or the detector precision numbers will
+   read far worse than they are. (Zone is another cross-cutting dimension:
+   body | footnote | caption | heading.)
+
+3. The owner's ideas doc (sources/docs/specifications/info-pat-taxo-ideas.md)
    now carries registry-ready sketches from the review session: funding_event,
    partnership/collaboration, domain event frames, subject_scope and
    question-function DIMENSIONS, mission_statement — plus five named
