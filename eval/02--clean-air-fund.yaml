@@ -1,0 +1,14 @@
+doc: 02--clean-air-fund
+
+# Clean Air Fund annual funding report. First stakes: the L6 class (initial
+# bolds in list items — owner note "missing initial bolds", p4) verified
+# FIXED by the container/first-class-content work, pinned here as a guard.
+checks:
+  # GOLD(lists L6) p4 (guard): all six KEY FINDINGS items keep their bold
+  # lead sentences. Verified against the source page and the rendered HTML
+  # (v163) before freezing.
+  - note: "GOLD(lists) p4 (guard): KEY FINDINGS items render with bold leads"
+    stage: analyze
+    freeze:
+      anchor: "A total of $330 million of known funding went to air-quality"
+      html: "<ul><li><strong>A total of $330 million of known funding went to air-quality projects between 2015 and 2022.</strong> Since 2015, the level of investment to air-quality projects has more than quadrupled, indicating funders’ growing commitment. However, the level of funding from foundations to air quality in 2022, estimated at $71.3 million, has increased only slightly since 2021, suggesting a slowdown in year-on-year growth.</li><li><strong>Outdoor air-quality funding continues to account for less than 0.1% of all foundation funding</strong>; this comparative underfunding of air quality is a consistent trend between 2015 and 2022.</li><li><strong>Newcomers to air-quality funding and an increase in funding channelled to regranters are spurring growth.</strong> In 2021 and 2022, more than $30 million of philanthropic foundation funding was invested through re-granters.</li><li><strong>Foundations focusing on climate, energy and environment (CEE) provide the highest amount of funding to air-quality initiatives</strong>, accounting for 77% of overall funding between 2015 and 2022. Foundations motivated by enhancing social equity, and those focused on health provide the second and third highest funding for tackling air pollution.</li><li><strong>Some of the regions with the highest air pollution receive the lowest funding,</strong> with Africa and Latin America received only 1% and 2% of the total funding (2015-2022).</li><li><strong>Compared to other clean-air initiatives, air-quality data projects receive comparably less funding</strong> and the lowest level of the total funding observed in 2022. Air-quality data underpins action on clean air, yet major data gaps exist at both neighbourhood and global scales.</li></ul>"

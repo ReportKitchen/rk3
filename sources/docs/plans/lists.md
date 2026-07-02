@@ -41,7 +41,7 @@ systematically instead of per-heuristic.
 | L3 | ULs hiding inside paragraphs | clean-air p15 "there's UL hiding in here", p17 "UL starts within the paragraph", p16 | `_split_inline_bullets` catches some; misses block-interior starts |
 | L4 | over-split lists (adjacent same-style ULs) | **GATES** p17 "should be one UL with 4 LIs; instead 2 ULs of 2" (mis-attributed to clean-air in v1 of this table — owner correction; clean-air p17 has no lists at all) | cross-PAGE merges exist; column-gutter splits don't merge |
 | L5 | broken items | chep p105 "each li is broken multiple times", chep p51 | `_join_list_tail` fixed the tail case; interior breaks remain |
-| L6 | missing initial bolds in items | ecp p4, clean-air p4 | possibly fixed by container work — VERIFY, then pin |
+| L6 | missing initial bolds in items | ecp p4, clean-air p4 | VERIFIED fixed by container work; PINNED (freeze guards, census 48/8). Discovered alongside: missing spaces at bold boundaries (ecp "AfterArrears/Pre-Filing" vs source "After Arrears/Pre-Filing") — new defect class, not yet targeted |
 | L7 | marker spacing | chep p51 "significant space after the bullet points" | unhandled (style-layer) |
 | L8 | bold-lede list pattern (2-level design: prominent first phrase) | design-principles p14/p72, clean-air p36 | renders flat; the PATTERN isn't recognized |
 | L9 | lists-in-columns | advancing p53, owner 2d answer (name/funder columns) | unhandled (offer as style option) |

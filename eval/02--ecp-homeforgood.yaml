@@ -31,3 +31,16 @@ checks:
   # the court has determined that an" list item (note nb37cb63343).
   - note: "GOLD(col) p10 (target): 'eviction can proceed' rejoins its list item"
     list: ["Upstream: to avoid housing instability", "Post-Eviction: after the court has determined that an eviction can proceed"]
+
+  # GOLD(lists L6) p4 (guard): the eviction-cycle items keep their bold
+  # leads ("Upstream:" etc. — owner note "missing initial bolds"), verified
+  # fixed by the container work; frozen on the FIRST item only because the
+  # later items carry a separate open defect (missing spaces at bold
+  # boundaries: "AfterArrears/Pre-Filing" — source shows "After Arrears/
+  # Pre-Filing"). NOTE: "increase housing instability" is the SOURCE's own
+  # wording (verified on the page) — fidelity-first keeps it.
+  - note: "GOLD(lists) p4 (guard): 'Upstream:' item renders with its bold lead"
+    stage: analyze
+    freeze:
+      anchor: "Prevention strategies that increase housing"
+      html: "<strong>Upstream:</strong> Prevention strategies that increase housing instability and reduce or eliminate the prospect of eviction."
