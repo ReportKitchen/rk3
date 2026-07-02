@@ -15,7 +15,7 @@
 - geography_place: 3
 - impact_statement: 32
 - key_finding: 2
-- metric_cluster: 30
+- metric_cluster: 27
 - named_entity: 10
 - process_step_list: 3
 - purpose_statement: 2
@@ -23,7 +23,7 @@
 - question_list: 6
 - quotation: 108
 - source_note_reference: 10
-- statistic: 245
+- statistic: 227
 
 ## Review Focus
 
@@ -34,7 +34,7 @@
 - `geography_place`: 3 candidate(s). Sample: United States; United States; United States
 - `impact_statement`: 32 candidate(s). Sample: impact | $7,214,399,690 | Grant funding awarded $979,979,199 $7,214,399,690; impact | $1 million | , total annual grantmaking greater than $1 million) than foundations that did not fund Black-led nonprofits.; impact | $979,979,199 | Grant funding awarded $979,979,199 $7,214,399,690
 - `key_finding`: 2 candidate(s). Sample: Key findings; Small Black-led nonprofits experienced a different reality.
-- `metric_cluster`: 30 candidate(s). Sample: 2 metric(s): 4.0, 4.0; 4 metric(s): 627, 246, 24, 3,642; 3 metric(s): 70%, 54%, 34%
+- `metric_cluster`: 27 candidate(s). Sample: 2 metric(s): 4.0, 4.0; 4 metric(s): 627, 246, 24, 3,642; 3 metric(s): 70%, 54%, 34%
 - `named_entity`: 10 candidate(s). Sample: Interview and focus group methodology: Foundation representatives; GuideStar and Foundation Center; Association of Black Foundation Executives
 - `process_step_list`: 3 candidate(s). Sample: 3 step(s): Financial support: the money that nonprofits need to accomplish their work; Social support: the relationships that help nonprofits thrive; Human-centered support: the resources that nonprofit staff need to be healthy and carry out mission-driven work at full capacity; 3 step(s): Financial support: the money that nonprofits need to accomplish their work; Social support: the relationships that help nonprofits thrive; Human-centered support: the resources that nonprofit staff need to be healthy and carry out mission-driven work at full capacity; 3 step(s): between Black-led and other nonprofits; among different-sized nonprofits; as an interaction between nonprofit type and nonprofit size.
 - `purpose_statement`: 2 candidate(s). Sample: Following George Floyd’s murder and heightened focus on racial equity in 2020, many foundations pledged support for Black communities; similarly, many also increased giving to address pandemic-related urgent needs.; Current challenges in the philanthropic landscape inevitably make systemic change more difficult, but also more urgent.
@@ -42,7 +42,7 @@
 - `question_list`: 6 candidate(s). Sample: How many Black-led nonprofits have received grants from foundations? How much financial support have Black-led nonprofits received from foundations? How many foundations award grants to Black-led nonprofits? What proportion of Black-led no...; What percentage of Black-led nonprofits’ funding comes from existing foundation partners (as opposed to new funders)? How many funders do Black-led nonprofits typically have in a given year? How many Black-led nonprofits are supported by o...; What burdens do funder practices impose on Black-led nonprofits? What can foundations do to support the well-being of Black-led nonprofit leader and staff?
 - `quotation`: 108 candidate(s). Sample: I don’t want to just get a grant. I want to sustain the grant... but if I don’t get the support I need, that i s j u st n ot go i n g to happen.; When funders want to support your work and they truly believe in what you’re doing, they work very diligently and explicitly to eliminate barriers.; There is something about trusting us to be able to do the work that we have already determined in partnership with community. This is what community wants and needs.
 - `source_note_reference`: 10 candidate(s). Sample: In total, we analyzed:1; Compared to other nonprofits, Black-led nonprofits in our sample were more likely to be in the human services subsector, located in the South, founded in 2010 or later, and have smaller operating budgets.; 3 Mirroring the sector, over three-quarters (76%) of Black-led nonprofits in our sample were small organizations.
-- `statistic`: 245 candidate(s). Sample: 4.0 This work is licensed under a Creative Commons Attribution NoDerivatives; 4.0 org/licenses/by-nd/; 24 Interviews with
+- `statistic`: 227 candidate(s). Sample: 4.0 This work is licensed under a Creative Commons Attribution NoDerivatives; 4.0 org/licenses/by-nd/; 24 Interviews with
 
 ## High Confidence Candidates
 

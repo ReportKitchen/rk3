@@ -21,7 +21,7 @@
 - purpose_statement: 2
 - quotation: 16
 - resource: 14
-- statistic: 24
+- statistic: 22
 
 ## Review Focus
 
@@ -31,14 +31,14 @@
 - `entity_relationship`: 4 candidate(s). Sample: COLLEEN DUSHKIN --affiliated_with--> Association of Alaska Housing Authorities; MONICA MEJIA --affiliated_with--> East LA Community Corporation; TOM MIHALJEVIC --affiliated_with--> Cleveland Clinic
 - `funding_event`: 4 candidate(s). Sample: $20 million -> Detroit Home Repair Fund; $52.5 million -> Cleveland Clinic; $2.5 million
 - `geography_place`: 13 candidate(s). Sample: Alaska; Alaska; Alaska
-- `impact_statement`: 7 candidate(s). Sample: need | Together with our partners, we focus on the greatest need – the massive shortage of affordable rental homes – to achieve three critical goals:; impact | 2001, | Since 2001, rents have increased by 13% while renter incomes only rose 0.5%.; impact | 40 | During the event, we were excited to honor 40 individuals who have made an enormous impact in housing over the last four decades.
+- `impact_statement`: 7 candidate(s). Sample: need | Together with our partners, we focus on the greatest need – the massive shortage of affordable rental homes – to achieve three critical goals:; impact | 2001 | Since 2001, rents have increased by 13% while renter incomes only rose 0.5%.; impact | 40 | During the event, we were excited to honor 40 individuals who have made an enormous impact in housing over the last four decades.
 - `key_finding`: 1 candidate(s). Sample: Stories of Impact
 - `metric_cluster`: 6 candidate(s). Sample: 2 metric(s): 40, 40; 4 metric(s): 13%, 0.5%, 62%, 6%; 7 metric(s): 40, 1,000, 40, 40, 40, 40
 - `named_entity`: 44 candidate(s). Sample: Annual Report from Enterprise Community Partners; MARCIA FUDGE; COLLEEN DUSHKIN
 - `purpose_statement`: 2 candidate(s). Sample: I want Cleveland to be safe for all children, and I know this is a problem we can solve.; Our mission is to make home and community places of pride, power and belonging, and platforms for resilience and upward mobility for all.
 - `quotation`: 16 candidate(s). Sample: We have to find ways to not only preserve housing but to preserve the people who live in that housing. We have to build neighborhoods.; Our partners came away with a deeper understanding of Alaska, our dynamic delivery system and housing community, and an energy to invest in the phenomenal work happening in our communities.; To meet my administration’s ambitious goal of creating or preserving 20,000 units of affordable housing, we will need the assistance of all facets of our community using all tools at our disposal. Thank you to Wells Fargo and Enterprise Co...
 - `resource`: 14 candidate(s). Sample: Annual Report | report; The Challenge | challenge; Department of Housing and Urban Development’s American Housing Survey | survey
-- `statistic`: 24 candidate(s). Sample: 40 years For; 40 years To the next; 6%
+- `statistic`: 22 candidate(s). Sample: 40 years For; 40 years To the next; 6%
 
 ## High Confidence Candidates
 
@@ -95,7 +95,7 @@
 - `statistic` p2 `patt_754324f30f41` (0.72): 40 years For | source: For 40 years, Enterprise Community Partners has been devoted to a single mission: to make home a place of pride, power and belonging.
 - `statistic` p2 `patt_9324d0152c0f` (0.72): 40 years To the next | source: To the next 40 years!
 - `impact_statement` p3 `patt_3efa3932b3bb` (0.64): need | Together with our partners, we focus on the greatest need – the massive shortage of affordable rental homes – to achieve three critical goals: | source: Together with our partners, we focus on the greatest need – the massive shortage of affordable rental homes – to achieve three critical goals:
-- `impact_statement` p3 `patt_e0c7d196666f` (0.64): impact | 2001, | Since 2001, rents have increased by 13% while renter incomes only rose 0.5%. | source: Since 2001, rents have increased by 13% while renter incomes only rose 0.5%.
+- `impact_statement` p3 `patt_4ecded3af6b0` (0.64): impact | 2001 | Since 2001, rents have increased by 13% while renter incomes only rose 0.5%. | source: Since 2001, rents have increased by 13% while renter incomes only rose 0.5%.
 - `metric_cluster` p3 `patt_cedcc8723b65` (0.68): 4 metric(s): 13%, 0.5%, 62%, 6% | source: Since 2001, rents have increased by 13% while renter incomes only rose 0. Since 2001, rents have increased by 13% while renter incomes only rose 0.5%. 62% of extremely low-income renters are people of color vs. 6% of white households.
 - `resource` p3 `patt_ebd2def61c4e` (0.68): The Challenge | challenge | source: The Challenge
 - `statistic` p3 `patt_046f50f03302` (0.72): 6% | source: 6% of white households.
@@ -124,7 +124,7 @@
 - `geography_place` p7 `patt_e1ce18241f5c` (0.74): Alaska | source: We partnered with the Association of Alaska Housing Authorities to bring together 200+ participants from across Alaska and the nation to strategize innovations to address Alaska’s unique affordable housing challenges.
 - `geography_place` p7 `patt_f77a01a9c1ac` (0.74): Alaska | source: According to a 2018 Alaska Housing Finance Corporation report, overall home construction needs to increase by 90 percent to meet the state’s needs.
 - `key_finding` p7 `patt_4d1954b2dae8` (0.62): Stories of Impact
-- `metric_cluster` p7 `patt_85bf1a8b8eaf` (0.60): 1 metric(s): 90 percent | source: According to a 2018 Alaska Housing Finance Corporation report, overall home construction needs to increase by 90 percent to meet the state’s needs.
+- `metric_cluster` p7 `patt_62ffb723a689` (0.68): 3 metric(s): 8,500, 200, 90 percent | source: Nearly 8,500 owner-occupied homes in Detroit are defined as “inadequate or severely inadequate,” by the Department of Housing and Urban Development’s American Housing Survey. We partnered with the Association of Alaska Housing Authorities...
 
 ## Reviewer Questions
 

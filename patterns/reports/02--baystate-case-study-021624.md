@@ -17,14 +17,14 @@
 - funding_event: 1
 - geography_place: 9
 - impact_statement: 2
-- metric_cluster: 3
+- metric_cluster: 2
 - named_entity: 53
 - process_step_list: 2
 - purpose_statement: 1
 - quotation: 31
 - resource: 4
 - source_note_reference: 15
-- statistic: 11
+- statistic: 8
 
 ## Review Focus
 
@@ -37,14 +37,14 @@
 - `funding_event`: 1 candidate(s). Sample: $125,000 -> Aspen Institute -> Baystate Health
 - `geography_place`: 9 candidate(s). Sample: Massachusetts; Massachusetts; Massachusetts
 - `impact_statement`: 2 candidate(s). Sample: impact | Amplify impact through place-based collaboratives and leadership commitments.; impact | 2022 | To demonstrate its commitment to economic opportunity for all, Baystate Health signed an Impact Workforce Commitment (IWC) in 2022.
-- `metric_cluster`: 3 candidate(s). Sample: 2 metric(s): 800,000, 13,000; 2 metric(s): 90%, 75%; 1 metric(s): 60%
+- `metric_cluster`: 2 candidate(s). Sample: 2 metric(s): 800,000, 13,000; 2 metric(s): 90%, 75%
 - `named_entity`: 53 candidate(s). Sample: Baystate Health; Baystate Health; Baystate Health
 - `process_step_list`: 2 candidate(s). Sample: 5 step(s): Partner with other local employers, communitybased organizations, and educational partners to support an effective workforce ecosystem.; Connect unsuccessful applicants with career development opportunities.; Collaborate with community-based organizations and other community partners on initiatives such as cohort training programs.; 3 step(s): Increase retention rates with an inside-up workforce strategy that includes apprenticeships, internships, earn-andlearns, and “pay to train” models.; Develop a strategy to help employees overcome financial instability.; Enlist workforce planners to build programming to support incumbent employees’ career advancement.
 - `purpose_statement`: 1 candidate(s). Sample: Samra emphasized the need to sustainably integrate initiatives into their operations so that they are not just one-time pilot programs, but rather part of a long-term, cohesive strategy.
 - `quotation`: 31 candidate(s). Sample: to improve the health of the people in our communities every day, with quality and compassion.; this is the key to survival: having a healthy, sustainable pipeline of workers.; We had been struggling the most with identifying the underesourced neighborhoods that we want to be targeting,
 - `resource`: 4 candidate(s). Sample: Human Resources | resource; Recompete Finalist and Strategy Development Grant | grant_program; Apprenticeships Programs | program
 - `source_note_reference`: 15 candidate(s). Sample: To help build buy-in with internal stakeholders, Samra and Pacheco leveraged existing case studies from the Healthcare Anchor Network that highlighted how leading healthcare institutions across the country were working to address zip code-...; ”; ”
-- `statistic`: 11 candidate(s). Sample: 800,000 people Baystate Health is a nonprofit, integrated health system serving over; 13,000 gest healthcare organization in western Massachusetts, with a workforce of over; 60% is to be accountable to the health and wellness of our community, and more than
+- `statistic`: 8 candidate(s). Sample: 800,000 people Baystate Health is a nonprofit, integrated health system serving over; 13,000 gest healthcare organization in western Massachusetts, with a workforce of over; 60% is to be accountable to the health and wellness of our community, and more than
 
 ## High Confidence Candidates
 
@@ -96,7 +96,6 @@
 - `statistic` p1 `patt_a2fa711d0e82` (0.72): 800,000 people Baystate Health is a nonprofit, integrated health system serving over | source: Baystate Health is a nonprofit, integrated health system serving over 800,000 people across western New England.
 - `statistic` p1 `patt_e7cc4147b996` (0.72): 13,000 gest healthcare organization in western Massachusetts, with a workforce of over | source: Based in Springfield, Massachusetts, it is the largest healthcare organization in western Massachusetts, with a workforce of over 13,000 employees across its four hospitals.
 - `callout` p2 `patt_6a391e3e3c62` (0.66): KEY STRATEGIES Inside-up Increase retention rates with an inside-up workforce strategy that includes apprenticeships, internships, earn-andlearns, and “pay to train” models. Develop a strategy to help employees overcome financial instabili...
-- `metric_cluster` p2 `patt_ea6bd92fbf61` (0.60): 1 metric(s): 60% | source: ” Samra also added, “At the end of the day, the mission of our business is to be accountable to the health and wellness of our community, and more than 60% of that [is influenced by] the social determinants .
 - `named_entity` p2 `patt_0e1f9ce6d3e8` (0.66): Baystate Health | source: As Patricia Samra, vice president of human resources, operations and total rewards at Baystate Health, put it, “this is the key to survival: having a healthy, sustainable pipeline of workers.
 - `named_entity` p2 `patt_7a59b654ed5a` (0.66): Baystate Health | source: In 2020, Baystate Health established goals to increase local hiring between five to ten percent annually.
 - `named_entity` p2 `patt_c11ae6448f0d` (0.66): Healthcare Anchor Network | source: To help build buy-in with internal stakeholders, Samra and Pacheco leveraged existing case studies from the Healthcare Anchor Network that highlighted how leading healthcare institutions across the country were working to address zip code-...
@@ -122,6 +121,7 @@
 - `named_entity` p5 `patt_65ac146c0afd` (0.66): Baystate Health | source: Baystate Health has expanded its partnerships with CBOs and developed cohort hiring initiatives to reach its local hiring goals.
 - `named_entity` p5 `patt_7b0edce43a20` (0.66): Baystate Health | source: In addition to supporting these candidates’ career development, the initiative has helped to improve the community’s perception of Baystate Health by signaling the health system’s interest in these candidates and commitment to supporting t...
 - `named_entity` p5 `patt_87fcee0b67cc` (0.66): Springfield Technical Community College and Holyoke Community College | source: Upon completion, participants receive a training certificate from Training & Workforce Options, a collaboration between Springfield Technical Community College and Holyoke Community College, as well as a National Career Readiness Certifica...
+- `named_entity` p5 `patt_c2575aea83aa` (0.66): Baystate Health | source: For instance, Baystate Health partnered with Dress for Success of Western Massachusetts (DFSWM)—a local nonprofit organization that provides women with professional support and development tools to achieve economic independence—to support....
 
 ## Reviewer Questions
 

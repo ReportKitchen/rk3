@@ -15,7 +15,7 @@ from rk3 import irwalk
 
 
 NUMBER_RE = re.compile(
-    r"(?P<value>(?:[$][ ]?)?\d[\d,]*(?:\.\d+)?(?:[ ]?(?:%|percent|percentage points|million|billion|thousand))?)",
+    r"(?P<value>(?:[$][ ]?)?\d(?:[\d,]*\d)?(?:\.\d+)?(?:[ ]?(?:%|percent|percentage points|million|billion|thousand))?)",
     re.I,
 )
 MONEY_RE = re.compile(
@@ -479,8 +479,8 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
     for page, stats in stats_by_page.items():
         usable = dedupe_stats([s for s in stats if s.get("value")])
         strong = [s for s in usable if is_strong_metric_value(s.get("value", ""))]
-        if len(usable) >= 2 or strong:
-            basis = strong if strong else usable
+        if len(usable) >= 2:
+            basis = strong if len(strong) >= 2 else usable
             first = basis[0]["node"]
             quote = " ".join(unique_texts(s["quote"] for s in basis[:8]))
             add(
@@ -786,11 +786,16 @@ def infer_unit(text: str, offset: int) -> str | None:
 
 def should_skip_number(value: str, text: str, start: int, node: dict) -> bool:
     normalized_value = (value or "").strip(" ,.;:")
+    end = start + len(value or "")
     if value.isdigit() and len(value) < 2:
         return True
     if is_money_value(value):
         return True
     if re.fullmatch(r"(?:19|20)\d{2}", normalized_value):
+        return True
+    if is_embedded_number_token(text, start, end):
+        return True
+    if month_day_fragment_near(text, start):
         return True
     if legal_reference_near(text, start):
         return True
@@ -798,9 +803,38 @@ def should_skip_number(value: str, text: str, start: int, node: dict) -> bool:
         if len(ref) >= 2 and ref[0] <= start < ref[1]:
             return True
     prefix = text[max(0, start - 16):start].lower()
+    suffix = text[end:end + 16].lower()
     if re.search(r"\b(page|p\.|section|§|usc|c\.f\.r\.)\s*\Z", prefix):
         return True
+    if re.match(r"\s*(?:u\.?s\.?c\.?|c\.?f\.?r\.?|usc|cfr)\b", suffix):
+        return True
     return False
+
+
+def is_embedded_number_token(text: str, start: int, end: int) -> bool:
+    text = text or ""
+    before = text[start - 1] if start > 0 else ""
+    after = text[end] if end < len(text) else ""
+    if (before and before in "-–‑") or (after and after in "-–‑"):
+        return True
+    prefix = text[max(0, start - 12):start]
+    suffix = text[end:end + 12]
+    if re.search(r"[A-Z]{2,}[-–‑]?$", prefix) or re.match(r"[-–‑]?[A-Z]{2,}", suffix):
+        return True
+    return False
+
+
+def month_day_fragment_near(text: str, start: int) -> bool:
+    prefix = text[max(0, start - 16):start]
+    return bool(
+        re.search(
+            r"\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|"
+            r"Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)"
+            r"\s*$",
+            prefix,
+            re.I,
+        )
+    )
 
 
 def is_strong_metric_value(value: str) -> bool:

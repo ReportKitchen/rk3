@@ -14,14 +14,14 @@
 - geography_place: 29
 - impact_statement: 17
 - key_finding: 4
-- metric_cluster: 18
+- metric_cluster: 17
 - named_entity: 15
 - process_step_list: 2
 - purpose_statement: 2
 - question: 9
 - resource: 8
 - source_note_reference: 2
-- statistic: 277
+- statistic: 263
 
 ## Review Focus
 
@@ -31,14 +31,14 @@
 - `geography_place`: 29 candidate(s). Sample: Georgia; California; Washington
 - `impact_statement`: 17 candidate(s). Sample: accomplishment | $10 | Every dollar invested in our organization results in $10 in economic impact on multiple fronts.; accomplishment | $1 billion | Since we’ve existed, we have generated over $350 million in investment to create permanent affordable housing, which has created over $1 billion in economic impact across our three-state footprint.; accomplishment | $350 million | Since we’ve existed, we have generated over $350 million in investment to create permanent affordable housing, which has created over $1 billion in economic impact across our three-state footprint.
 - `key_finding`: 4 candidate(s). Sample: [A challenge is] finding adequate, sustainable, unrestricted funding sources to support staff.; FINDING STAFF WITH THE RIGHT SKILL SETS; More than two-thirds of respondents reported difficulty employing enough staff for both program and administrative needs and finding workers with the right skill sets.
-- `metric_cluster`: 18 candidate(s). Sample: 12 metric(s): 41 %, 18%, 0%, 2%, 4%, 6%; 11 metric(s): 46%, 70%, 37%, 40%, 8%, 67%; 2 metric(s): 32%, 51 %
+- `metric_cluster`: 17 candidate(s). Sample: 5 metric(s): 360, 40, 360, 2,200, 100%; 12 metric(s): 41 %, 18%, 0%, 2%, 4%, 6%; 11 metric(s): 46%, 70%, 37%, 40%, 8%, 67%
 - `named_entity`: 15 candidate(s). Sample: Betty and Davis Fitzgerald Foundation; Nonprofit Finance Fund; Nonprofit Finance Fund
 - `process_step_list`: 2 candidate(s). Sample: 3 step(s): Elise Miller, Nonprofit Finance Fund; Jennifer Talansky, Nonprofit Finance Fund; Anjali Deshmukh, Co-Founder of Make Justice Normal; 5 step(s): Annie Chang, Nonprofit Finance Fund; Larry McGill, Ambit 360 Consulting, LLC; Tessa Borelli, Nonprofit Finance Fund
 - `purpose_statement`: 2 candidate(s). Sample: We’re looking at 2025 with urgency – not just because of this year’s data, but because we’ve seen the consequences of this kind of interconnected strain before.; For too long, chronic underfunding has been treated as a problem for nonprofits to solve with a “smarter” business model or “more strategic” plan.
 - `question`: 9 candidate(s). Sample: WHO RESPONDED TO THE SURVEY?; For example, if a crisis hits, how long can the organization keep running?; HOW MUCH OF YOUR FULL-TIME STAFF IS YOUR ORGANIZATION ABLE TO PAY A LIVING WAGE?
 - `resource`: 8 candidate(s). Sample: Nonprofit Finance Fund | fund; Nonprofit Finance Fund | fund; The State of the Nonprofit Sector Survey | survey
 - `source_note_reference`: 2 candidate(s). Sample: respondents to NFF’s 2025 State of the Nonprofit Sector Survey also took our 2022 State of the Nonprofit Sector Survey. Whereas only 13% of these repeat respondents operated at a deficit in 2021, 37% operated at a deficit in 2024. During t...; respondents to NFF’s 2025 State of the Nonprofit Sector Survey also took our 2022 State of the Nonprofit Sector Survey. Whereas only 13% of these repeat respondents operated at a deficit in 2021, 37% operated at a deficit in 2024. During t...
-- `statistic`: 277 candidate(s). Sample: 2,206 In our 2025 survey; 360 Larry McGill, Ambit; 40 years For more than
+- `statistic`: 263 candidate(s). Sample: 2,206 In our 2025 survey; 360 Larry McGill, Ambit; 40 years For more than
 
 ## High Confidence Candidates
 
@@ -91,7 +91,7 @@
 - `geography_place` p2 `patt_23197c3af0fc` (0.74): Georgia | source: Hawai’i Alliance of Nonprofit Organizations, and sponsor collectives from Georgia (Betty and Davis Fitzgerald Foundation, Community Foundation for Greater Atlanta, The Imlay Foundation, Tull Charitable Foundation, United Way of Greater Atl...
 - `geography_place` p2 `patt_62b111a4c07f` (0.74): California | source: Human services survey respondent in California
 - `impact_statement` p2 `patt_5e4913ac9721` (0.64): need | 2025 | The 2025 Survey, conducted in collaboration with EVITARUS and Ambit 360 Consulting, explored how nonprofits are faring in today’s changing environment and the investments needed to secure their long-term futures. | source: The 2025 Survey, conducted in collaboration with EVITARUS and Ambit 360 Consulting, explored how nonprofits are faring in today’s changing environment and the investments needed to secure their long-term futures.
-- `metric_cluster` p2 `patt_cf3e36d84233` (0.60): 1 metric(s): 100% | source: Note: Due to rounding and to questions that allowed respondents to select multiple answer choices, not all numbers in this report may appear to add up to exactly 100%.
+- `metric_cluster` p2 `patt_9001c678fd3c` (0.68): 5 metric(s): 360, 40, 360, 2,200, 100% | source: Larry McGill, Ambit 360 Consulting, LLC For more than 40 years, we’ve helped organizations access the money and resources they need to realize their communities’ aspirations. The 2025 Survey, conducted in collaboration with EVITARUS and Am...
 - `named_entity` p2 `patt_0c95f44e26a4` (0.66): Betty and Davis Fitzgerald Foundation | source: Hawai’i Alliance of Nonprofit Organizations, and sponsor collectives from Georgia (Betty and Davis Fitzgerald Foundation, Community Foundation for Greater Atlanta, The Imlay Foundation, Tull Charitable Foundation, United Way of Greater Atl...
 - `named_entity` p2 `patt_13854a9d8682` (0.66): Nonprofit Finance Fund | source: Nonprofit Finance Fund® (NFF®) is a nonprofit lender, consultant, and advocate.
 - `named_entity` p2 `patt_5a5fb070bf8c` (0.66): Nonprofit Finance Fund | source: Tessa Borelli, Nonprofit Finance Fund
@@ -114,7 +114,6 @@
 - `statistic` p2 `patt_616ba7f884ac` (0.72): 40 years For more than | source: For more than 40 years, we’ve helped organizations access the money and resources they need to realize their communities’ aspirations.
 - `statistic` p2 `patt_65080a18c65f` (0.72): 2,200 NFF is deeply grateful to the | source: NFF is deeply grateful to the 2,200+ survey respondents for all of the important work they do every day, and for entrusting us with their stories.
 - `statistic` p2 `patt_88082e7d54ee` (0.72): 100% answer choices, not all numbers in this report may appear to add up to exactly | source: Note: Due to rounding and to questions that allowed respondents to select multiple answer choices, not all numbers in this report may appear to add up to exactly 100%.
-- `statistic` p2 `patt_8ad4ef2f332a` (0.72): 30 From January | source: From January 30 to March 14, 2025, we asked US nonprofit leaders a series of closed- and open-ended questions to understand the management, operational, and financial picture they navigated in 2024 and anticipated in 2025.
 - `statistic` p2 `patt_c0d28f666918` (0.72): 360 The 2025 Survey, conducted in collaboration with EVITARUS and Ambit | source: The 2025 Survey, conducted in collaboration with EVITARUS and Ambit 360 Consulting, explored how nonprofits are faring in today’s changing environment and the investments needed to secure their long-term futures.
 - `metric_cluster` p3 `patt_b0601fcddacb` (0.68): 12 metric(s): 41 %, 18%, 0%, 2%, 4%, 6% | source: 4 in 10 (41 %) were founded before 1990, while nearly 1 in 5 (18%) were founded since 2015. 0% 2% 4% 6% 8% 10% 12% 14% 16% 18%
 - `named_entity` p3 `patt_3579383f774d` (0.66): Community Development | source: Immigration, Philanthropy or Grantmaking, Religion, Reproductive Health, Community Development, Healthcare, Environment/Environmental Justice, Mental Health/Crisis Intervention, Education (Early Childhood)
@@ -125,6 +124,7 @@
 - `statistic` p3 `patt_2738d0b1d624` (0.72): 8% 0% 2% 4% 6% | source: 0% 2% 4% 6% 8% 10% 12% 14% 16% 18%
 - `statistic` p3 `patt_58f9753def57` (0.72): 14% 0% 2% 4% 6% 8% 10% 12% | source: 0% 2% 4% 6% 8% 10% 12% 14% 16% 18%
 - `statistic` p3 `patt_5ff135cbddbc` (0.72): 18%
+- `statistic` p3 `patt_61b7763172bd` (0.72): 0% | source: 0% 2% 4% 6% 8% 10% 12% 14% 16% 18%
 
 ## Reviewer Questions
 

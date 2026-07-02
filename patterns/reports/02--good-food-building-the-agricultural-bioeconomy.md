@@ -20,7 +20,7 @@
 - question: 2
 - quotation: 25
 - resource: 6
-- statistic: 11
+- statistic: 6
 
 ## Review Focus
 
@@ -30,13 +30,13 @@
 - `geography_place`: 37 candidate(s). Sample: United States; United States; United States
 - `impact_statement`: 10 candidate(s). Sample: impact | $50 million | The agency can facilitate groundbreaking academic research by identifying food biomanufacturing as a research priority within NIFA, increasing funding for innovative products within ARS to $50 million annually, and establishing Sustainable...; impact | $1 million | Build on successes in blue-sky research conducted within the Agricultural Research Service, after a bipartisan congressional action first directed the agency to invest nearly $5 million into protein processing with increased investment of...; impact | $5 million | Build on successes in blue-sky research conducted within the Agricultural Research Service, after a bipartisan congressional action first directed the agency to invest nearly $5 million into protein processing with increased investment of...
 - `key_finding`: 1 candidate(s). Sample: In the global race to develop new food technologies, the People’s Republic of China has ramped up support for alternative proteins.
-- `metric_cluster`: 2 candidate(s). Sample: 2 metric(s): 501, 21; 5 metric(s): 9%, 22%, 100%, 99 percent, 70%
+- `metric_cluster`: 2 candidate(s). Sample: 2 metric(s): 501, 21; 3 metric(s): 22%, 100%, 70%
 - `named_entity`: 30 candidate(s). Sample: Department of Agriculture; Department of Energy; Department of Commerce
 - `process_step_list`: 3 candidate(s). Sample: 4 step(s): To ensure that U.S. researchers remain the best in the world, your new administration should invest in research excellence, including increasing support for research programs that have helped spur innovation.; To reap the benefits of private innovation in the U.S. bioeconomy, your new administration should invest in domestic biomanufacturing capabilities.; To create jobs and new economic opportunities, your new administration should prioritize workforce development alongside financial support for small businesses.; 3 step(s): Drive the United States to global leadership in protein innovation by providing research and manufacturing grants.; Increase applied research efforts and coordination regarding food biomanufacturing and innovation at the National Laboratories.; Create new markets for America’s biological resources, bringing economic opportunities to producers all across the country.; 3 step(s): Build on the success of bipartisan innovation proposals, and continue to invest in and grow the Regional Innovation Engine program.; Continue to prioritize biotechnology as a critical technology in the Regional Innovation Engine program, with food biomanufacturing being an example of such a biotechnology.; Hold additional rounds of the BioFoundries program and elevate food biomanufacturing as a potential area of interest for such BioFoundries.
 - `question`: 2 candidate(s). Sample: Researchers at Purdue University are chewing on a tough problem—what to do with corn zein, a protein-rich byproduct of ethanol production?; Shouldn’t we in the United States be about how we can grow and feed people more efficiently and more effectively?
 - `quotation`: 25 candidate(s). Sample: Antibiotic sales data suggest that about 70% of medically important antibiotics are used for animal agriculture…so strategies for producing meat without antibiotics will be essential to meet the growing demand for protein.”; If [the United States doesn’t] facilitate the invention of these ideas, we’re going to see these technologies go to places around the world that are more conducive to their development, and frankly China may be one of those.; This issue is far more than just about meat and plant-based alternatives. It’s about allowing innovation in the food industry without the government hindering this innovation. It’s also about allowing consumers to freely choose what produc...
 - `resource`: 6 candidate(s). Sample: NIFA Programs | program; National Programs | program; Plant Protein Enhancement Project | project
-- `statistic`: 11 candidate(s). Sample: 21 portunities for our farmers, and deliver American scientific excellence for the; 501 As the CEO of the Good Food Institute, a nonpartisan; 22% +
+- `statistic`: 6 candidate(s). Sample: 21 portunities for our farmers, and deliver American scientific excellence for the; 501 As the CEO of the Good Food Institute, a nonpartisan; 22% +
 
 ## High Confidence Candidates
 
@@ -105,15 +105,15 @@
 - `key_finding` p6 `patt_c5afbdd7fb4f` (0.58): In the global race to develop new food technologies, the People’s Republic of China has ramped up support for alternative proteins.
 - `geography_place` p7 `patt_066d2a51c50a` (0.74): Florida | source: Similarly, because there is no animal waste to discharge and less fertilizer, these products reduce the discharge of nitrogen and phosphorus, which stimulate the growth of algal blooms that impair water quality in communities like those in...
 - `impact_statement` p7 `patt_18088117229f` (0.64): impact | 69 | These foods can reduce air pollution of particulate materials by 69–99 percent compared to similar foods conventionally produced. | source: These foods can reduce air pollution of particulate materials by 69–99 percent compared to similar foods conventionally produced.
-- `metric_cluster` p7 `patt_57dfcd3ec744` (0.68): 5 metric(s): 9%, 22%, 100%, 99 percent, 70% | source: -9% +22% +100% These foods can reduce air pollution of particulate materials by 69–99 percent compared to similar foods conventionally produced. Antibiotic sales data suggest that about 70% of medically important antibiotics are used for a...
+- `metric_cluster` p7 `patt_da22cccbe6cd` (0.68): 3 metric(s): 22%, 100%, 70% | source: +22% +100% Antibiotic sales data suggest that about 70% of medically important antibiotics are used for animal agriculture…so strategies for producing meat without antibiotics will be essential to meet the growing demand for protein.
 - `named_entity` p7 `patt_bcbe1567dbf3` (0.66): The Center for Strategic and International Studies | source: The Center for Strategic and International Studies identified new food production as having significant benefits: “Alternative protein supply chains may be less susceptible to bioterrorist threats than those of the current animal agricultu...
 - `quotation` p7 `patt_89d708f9acd7` (0.70): Alternative protein supply chains may be less susceptible to bioterrorist threats than those of the current animal agriculture sector. | source: “Alternative protein supply chains may be less susceptible to bioterrorist threats than those of the current animal agriculture sector.”
 - `quotation` p7 `patt_f6e08c114359` (0.68): Antibiotic sales data suggest that about 70% of medically important antibiotics are used for animal agriculture…so strategies for producing meat without antibiotics will be essential to meet the growing demand for protein.”
 - `statistic` p7 `patt_0537733d9d79` (0.72): 22% + | source: +22%
 - `statistic` p7 `patt_0b66d977f87e` (0.72): 100% + | source: +100%
 - `statistic` p7 `patt_1a33e78e2aff` (0.72): 70% Antibiotic sales data suggest that about | source: Antibiotic sales data suggest that about 70% of medically important antibiotics are used for animal agriculture…so strategies for producing meat without antibiotics will be essential to meet the growing demand for protein.
-- `statistic` p7 `patt_32f39876067d` (0.72): 69 These foods can reduce air pollution of particulate materials by | source: These foods can reduce air pollution of particulate materials by 69–99 percent compared to similar foods conventionally produced.
-- `statistic` p7 `patt_84fc051f340a` (0.72): 99 percent These foods can reduce air pollution of particulate materials by 69– | source: These foods can reduce air pollution of particulate materials by 69–99 percent compared to similar foods conventionally produced.
+- `callout` p8 `patt_a3395effbfe3` (0.66): American agricultural innovation To restore America’s role as the leader in food innovation, the following actions are essential. To ensure that U.S. researchers remain the best in the world, your new administration should invest in resear...
+- `named_entity` p8 `patt_19819a02d8cd` (0.70): Department of Agriculture
 
 ## Reviewer Questions
 
