@@ -19,7 +19,6 @@
 - metric_cluster: 15
 - named_entity: 13
 - purpose_statement: 1
-- question: 7
 - quotation: 2
 - resource: 5
 - source_note_reference: 9
@@ -38,7 +37,6 @@
 - `metric_cluster`: 15 candidate(s). Sample: 4 metric(s): 0.9%, 1.1%, 0.3%, 1.6%; 5 metric(s): 55%, 69%, 33%, 69%, 33%; 7 metric(s): 14 billion, 379 million, 31%, 1 million, 8 billion, 41.7 million
 - `named_entity`: 13 candidate(s). Sample: Ann-Marie Kelly Chief Executive; Kent Hospice; Giving money Community connection
 - `purpose_statement`: 1 candidate(s). Sample: CAF exists to accelerate progress in society towards a fair and sustainable future for all.
-- `question`: 7 candidate(s). Sample: Where there is a stronger sense of local pride, people are more generous and more engaged.; Where people are most likely to donate.; Where people give the most money.
 - `quotation`: 2 candidate(s). Sample: “Like many charities, we recognise that people are facing real financial pressures and that the value of donations is under strain. What continues to inspire us, however, is the extraordinary generosity of our local community. Even during...; “The joy with Bath Women’s Fund is that it brings together local women who care and connects them to each other and the local groups who are working hard to make the world a little bit better and fairer.
 - `resource`: 5 candidate(s). Sample: High Value Giving Report | report; UK Giving Report | report; Bath Women’s Fund | fund
 - `source_note_reference`: 9 candidate(s). Sample: 1 High Value Giving Report CAF 2025; Previous research by the Charities Aid Foundation (CAF) found that high-net-worth individuals across the UK (those with investable assets of over £1 million) are donating around £8 billion a year in addition to the sums discussed in this L...; 4 billion in 2024).
@@ -93,14 +91,12 @@
 - `key_finding` p3 `patt_47b7dd11481a` (0.62): Key findings
 - `metric_cluster` p3 `patt_4fc69e43e9e0` (0.68): 4 metric(s): 0.9%, 1.1%, 0.3%, 1.6% | source: On average, people donate 0.9% of their incomes to charity, a decline from 1. 9% of their incomes to charity, a decline from 1.1% in 2024. Levels of generosity vary greatly across the country — ranging from 0.3% of income donated in Kensin...
 - `named_entity` p3 `patt_9728bafb0aac` (0.70): Giving money Community connection
-- `question` p3 `patt_0074f5126011` (0.66): Where there is a stronger sense of local pride, people are more generous and more engaged.
 - `statistic` p3 `patt_50e2a7025d24` (0.72): 0.3% Levels of generosity vary greatly across the country — ranging from | source: Levels of generosity vary greatly across the country — ranging from 0.3% of income donated in Kensington and Bayswater, to a high of 1.
 - `statistic` p3 `patt_a31bc3524a7a` (0.72): 0.9% On average, people donate | source: On average, people donate 0.9% of their incomes to charity, a decline from 1.
 - `statistic` p3 `patt_e27e18b9ef41` (0.72): 1.6% 3% of income donated in Kensington and Bayswater, to a high of | source: 3% of income donated in Kensington and Bayswater, to a high of 1.6% in Sheffield Hallam.
 - `statistic` p3 `patt_ff502fda121e` (0.72): 1.1% 9% of their incomes to charity, a decline from | source: 9% of their incomes to charity, a decline from 1.1% in 2024.
 - `callout` p5 `patt_bce8d5ddb11d` (0.66): Figure 2. Adults who donated or sponsored in the past 12 months (%), by Westminster constituency. North-East Hampshire People in North East Hampshire are the most likely to donate (69%). People in Easington are the least likely to donate (...
 - `metric_cluster` p5 `patt_520ee0ff9fb4` (0.68): 5 metric(s): 55%, 69%, 33%, 69%, 33% | source: Just over half (55%) of people across the UK gave to charity in 2025, ranging from a high of 69% of people in North East Hampshire to a low of 33% in Easington, County Durham. North-East Hampshire People in North East Hampshire are the mos...
-- `question` p5 `patt_e2737ab3295f` (0.66): Where people are most likely to donate.
 - `statistic` p5 `patt_3bc23190df7e` (0.72): 55% Just over half ( | source: Just over half (55%) of people across the UK gave to charity in 2025, ranging from a high of 69% of people in North East Hampshire to a low of 33% in Easington, County Durham.
 - `statistic` p5 `patt_458bf7affc2a` (0.72): 33% People in Easington are the least likely to donate ( | source: People in Easington are the least likely to donate (33%).
 - `statistic` p5 `patt_46eef71a55ac` (0.72): 69% th-East Hampshire People in North East Hampshire are the most likely to donate ( | source: North-East Hampshire People in North East Hampshire are the most likely to donate (69%).
@@ -109,7 +105,6 @@
 - `callout` p6 `patt_d47d1e6f72ac` (0.66): Figure 4. Total donated in 2025 (£), by Westminster constituency. Kensington and Bayswater People in Kensington and Bayswater donated the most as a constituency (£41.7M). 1 High Value Giving Report CAF 2025 £5,925,790 - 17,147,447 £17,147,...
 - `metric_cluster` p6 `patt_6c5df18312e1` (0.68): 7 metric(s): 14 billion, 379 million, 31%, 1 million, 8 billion, 41.7 million | source: Our recent UK Giving 2026 report found that the British public donated £14 billion in 2025. In the ten places that gave the most money, people donated an estimated £379 million (shown in Figure 3). All of these giving hotspots are located...
 - `named_entity` p6 `patt_06ad846d5292` (0.66): Charities Aid Foundation | source: Previous research by the Charities Aid Foundation (CAF) found that high-net-worth individuals across the UK (those with investable assets of over £1 million) are donating around £8 billion a year in addition to the sums discussed in this L...
-- `question` p6 `patt_54bf0879b44e` (0.66): Where people give the most money.
 - `resource` p6 `patt_541607e4cfb0` (0.68): High Value Giving Report | report | source: 1 High Value Giving Report CAF 2025
 - `statistic` p6 `patt_01ae14857462` (0.72): 26,141,899 £22,750,279 | source: £22,750,279 - 26,141,899
 - `statistic` p6 `patt_0bd72a247273` (0.72): 19,718,833 £ | source: £19,718,833 - 22,750,279
@@ -129,6 +124,9 @@
 - `statistic` p6 `patt_c18bc1026d8b` (0.72): 5,925,790 £ | source: £5,925,790 - 17,147,447
 - `statistic` p6 `patt_c983579290db` (0.72): 272 9 million (or around £ | source: 9 million (or around £272 per adult).
 - `statistic` p6 `patt_cd6794ffb21c` (0.72): 41,656,219 £26,141,899 | source: £26,141,899 - 41,656,219
+- `statistic` p6 `patt_da7a09da72a7` (0.72): 17,147,447 £ | source: £17,147,447 - 19,718,833
+- `statistic` p6 `patt_f505685921f8` (0.72): 5.9 million idents of Na h-Eileanan An Iar donated the least between them, at an estimated £ | source: By contrast, as one of the most sparsely populated constituencies, residents of Na h-Eileanan An Iar donated the least between them, at an estimated £5.9 million (or around £272 per adult).
+- `callout` p7 `patt_398824d92a7c` (0.66): Figure 6. Average proportion of income donated in 2025 (%), by Westminster constituency. Kensington and Bayswater People in Kensington and Bayswater are the least generous, relative to their income (0.3%). Although the small population of...
 
 ## Reviewer Questions
 

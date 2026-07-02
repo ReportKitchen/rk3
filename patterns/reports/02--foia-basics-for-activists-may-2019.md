@@ -20,8 +20,7 @@
 - named_entity: 42
 - process_step_list: 4
 - purpose_statement: 2
-- question: 17
-- question_list: 1
+- question: 12
 - quotation: 17
 - resource: 4
 - source_note_reference: 18
@@ -41,8 +40,7 @@
 - `named_entity`: 42 candidate(s). Sample: Mizue Aizeki; the Immigrant Defense Project in New York City; Deputy Director of the Immigrant Defense Project
 - `process_step_list`: 4 candidate(s). Sample: 5 step(s): 20 business days for response: FOIA requires federal agencies to determine whether to respond to the request and to notify requester of their determination within 20 business days.; 10-day extension: FOIA permits agencies to invoke the right to extend the determination or notification by 10 business days “in unusual circumstances.”; 30 days for “administrative closure”: New regulations in most agencies also allow for “administrative closure” if an agency requests clarification or narrowing and the requester fails to respond. This is often 30 business days, but can vary by agency, so be sure to check the agency regulations.; 5 step(s): They might tell you they don’t have the documents you are requesting.; They might tell you they are searching for the documents you are requesting and will follow up.; They might tell you they have forwarded your request to another agency or other offices or components of their own agency.; 5 step(s): You should include all the issues you want to appeal in your appeal letter. For example, if you were denied a fee waiver and also told that DHS does not have the documents you are requesting, write one letter with both appeals. However, you will have to appeal individually to each agency – i.e., you cannot make one appeal to both the FBI and ICE.; If there is new information that further shows the urgency of your request – recently published articles, for example – include it in your appeal.; You have 90 days from an agency’s substantive response to appeal to the agency in writing. We recommend you make your appeal as soon as possible, especially if you have requested expedited processing of your request.
 - `purpose_statement`: 2 candidate(s). Sample: One common way to do this is to show that, as an individual or organization “primarily engaged in disseminating information,” the records you are seeking show an “urgency to inform the public” of government activity.; If there is new information that further shows the urgency of your request – recently published articles, for example – include it in your appeal.
-- `question`: 17 candidate(s). Sample: What is FOIA, and why are open records laws important?; What parts of government must provide information in response to a FOIA request?; Who can make a request under FOIA?
-- `question_list`: 1 candidate(s). Sample: A bigger, more comprehensive set of documents that might require a longterm process? A narrow, smaller set of documents that might lead to a quick process?
+- `question`: 12 candidate(s). Sample: What is FOIA, and why are open records laws important?; What parts of government must provide information in response to a FOIA request?; Who can make a request under FOIA?
 - `quotation`: 17 candidate(s). Sample: From the Secure Communities program under Obama to ICE raids under Trump, FOIA requests and litigation have played a key role in our advocacy to challenge ICE tactics and policies.”; Anne Rolfes, director of the Louisiana Bucket Brigade, speaks on why her organization, in partnership with other grassroots groups, filed a state records request seeking more information about a new pipeline in the region:; In her landmark opinion supporting the release of documents in our case NDLON v. ICE, in which the National Day Laborer Organizing Network sought documents as part of their campaign to stop ICE’s “Secure Communities” program, Judge Shira S...
 - `resource`: 4 candidate(s). Sample: THE OPEN RECORDS PROJECT | project; THE OPEN RECORDS PROJECT | project; Immigrant Defense Project | grant_program
 - `source_note_reference`: 18 candidate(s). Sample: However, most state open records request laws are based on the same fundamentals set out by the federal FOIA statute so many of the principles discussed here also apply to state-level requests.; small, focused request It will most likely take at least a few months2 to receive any documents from a FOIA request, and usually much longer.; Each federal agency has its own FOIArelated regulations You should be able to find up-to-date agency regulations online.
@@ -66,16 +64,10 @@
 - `date_time_period` p5 `patt_05451dde52d1` (0.78): 2014 | source: In contrast, the Center for Constitutional Rights filed FOIA requests in 2014 seeking a narrow set of records regarding a Department of Defense policy related to one of our Guantánamo cases.
 - `date_time_period` p5 `patt_4050f02d07a5` (0.78): 2016 | source: Charles Parish Sheriff’s Office in Louisiana for records concerning the sheriff’s trip to North Dakota in 2016 to observe the protests against the Dakota Access Pipeline.
 - `date_time_period` p5 `patt_c3c7db224262` (0.78): 2017 | source: Similarly, in 2017, the Center for Constitutional Rights filed a narrowly-focused state open records request to the St.
-- `question` p5 `patt_09990b062c75` (0.82): A bigger, more comprehensive set of documents that might require a longterm process?
-- `question` p5 `patt_173ab9b67d26` (0.82): A narrow, smaller set of documents that might lead to a quick process?
 - `question` p5 `patt_b461134365c4` (0.82): Is the information you are seeking already in the public domain?
-- `question_list` p5 `patt_f6571f24f0a6` (0.84): A bigger, more comprehensive set of documents that might require a longterm process? A narrow, smaller set of documents that might lead to a quick process?
 - `source_note_reference` p5 `patt_f679368cb5e3` (0.92): small, focused request It will most likely take at least a few months2 to receive any documents from a FOIA request, and usually much longer.
-- `question` p6 `patt_4634f3faee4f` (0.82): Will your request have an advocacy or media impact?
-- `question` p6 `patt_613e48537668` (0.82): If you’re asking for data, do you have people ready to analyze that data and write reports?
 - `question` p6 `patt_9001f5ef91e8` (0.82): How will you use the documents you receive?
 - `question` p6 `patt_a5f06af36893` (0.82): Am I entitled to get documents you request quickly?
-- `question` p6 `patt_d4e491070aa4` (0.82): Will they be used in “Know Your Rights” trainings for community members?
 - `question` p7 `patt_71cadaefa28a` (0.82): What about fees – don’t you have to pay for any records you receive?
 - `question` p7 `patt_c2f1b16aa4b1` (0.82): Do you have the resources for a longer process, including litigation?
 - `question` p7 `patt_e7efbd50fbdc` (0.82): Are there documents that won’t be relevant if you receive them a year from now?
@@ -90,6 +82,12 @@
 - `date_time_period` p10 `patt_f921c106c16b` (0.78): 2015 | source: ” An example of a more specific request might be: “We seek any and all records related to detention facilities’ compliance with ICE’s Performance- Based National Detention Standards between the years 2013 and 2015.
 - `legal_reference` p11 `patt_086502dcd0fc` (0.82): 5 U.S.C. § 552(a)(4)(A)(iii) | source: It is a good idea to take a look not only at the specific provision of the federal law that provides for fee waivers, 5 U.S.C. § 552(a)(4)(A)(iii), but also at the federal regulation regarding fee waivers of the agency whose records you ar...
 - `source_note_reference` p11 `patt_bf21dc0a986a` (0.92): 3 Make sure that the explanation you provide about why you are entitled to a fee waiver matches the requirements in the agency’s regulation, and cite the regulation.
+- `date_time_period` p12 `patt_aaee517c2671` (0.78): March 2013 | source: For example, during a March 2013 House Judiciary Committee Hearing, Representative Bachus (R-Ala.
+- `legal_reference` p12 `patt_47f2daeb6131` (0.82): 5 U.S.C. § 552(a)(6)(E) | source: 5 U.S.C. § 552(a)(6)(E) (i)(I)…There is an urgent need to inform the public of the policies and decisionmaking regarding the ICE detention bed quotas or detention bed mandate.
+- `source_note_reference` p12 `patt_4291068ab710` (0.92): ”4 When making this request, explain why the public needs to know about the information you are requesting right away – cite news articles, recent events, or reports that help demonstrate the urgency of your request.
+- `source_note_reference` p12 `patt_8a5196cb08ca` (0.92): ”5 Make sure that the explanation you provide about why you are entitled to expedited processing matches the requirements in the agency’s regulation, and if possible, cite the regulation.
+- `callout` p13 `patt_6fed140b2cce` (0.82): In her landmark opinion supporting the release of documents in our case NDLON v. ICE, in which the National Day Laborer Organizing Network sought documents as part of their campaign to stop ICE’s “Secure Communities” program, Judge Shira S...
+- `quotation` p13 `patt_2ac6d3e1276f` (0.76): In her landmark opinion supporting the release of documents in our case NDLON v. ICE, in which the National Day Laborer Organizing Network sought documents as part of their campaign to stop ICE’s “Secure Communities” program, Judge Shira S...
 
 ## Lower Confidence Candidates
 

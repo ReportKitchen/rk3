@@ -17,7 +17,7 @@
 - metric_cluster: 2
 - named_entity: 30
 - process_step_list: 3
-- question: 2
+- question: 1
 - quotation: 25
 - resource: 6
 - statistic: 6
@@ -33,7 +33,7 @@
 - `metric_cluster`: 2 candidate(s). Sample: 2 metric(s): 501, 21; 3 metric(s): 22%, 100%, 70%
 - `named_entity`: 30 candidate(s). Sample: Department of Agriculture; Department of Energy; Department of Commerce
 - `process_step_list`: 3 candidate(s). Sample: 4 step(s): To ensure that U.S. researchers remain the best in the world, your new administration should invest in research excellence, including increasing support for research programs that have helped spur innovation.; To reap the benefits of private innovation in the U.S. bioeconomy, your new administration should invest in domestic biomanufacturing capabilities.; To create jobs and new economic opportunities, your new administration should prioritize workforce development alongside financial support for small businesses.; 3 step(s): Drive the United States to global leadership in protein innovation by providing research and manufacturing grants.; Increase applied research efforts and coordination regarding food biomanufacturing and innovation at the National Laboratories.; Create new markets for America’s biological resources, bringing economic opportunities to producers all across the country.; 3 step(s): Build on the success of bipartisan innovation proposals, and continue to invest in and grow the Regional Innovation Engine program.; Continue to prioritize biotechnology as a critical technology in the Regional Innovation Engine program, with food biomanufacturing being an example of such a biotechnology.; Hold additional rounds of the BioFoundries program and elevate food biomanufacturing as a potential area of interest for such BioFoundries.
-- `question`: 2 candidate(s). Sample: Researchers at Purdue University are chewing on a tough problem—what to do with corn zein, a protein-rich byproduct of ethanol production?; Shouldn’t we in the United States be about how we can grow and feed people more efficiently and more effectively?
+- `question`: 1 candidate(s). Sample: Researchers at Purdue University are chewing on a tough problem—what to do with corn zein, a protein-rich byproduct of ethanol production?
 - `quotation`: 25 candidate(s). Sample: Antibiotic sales data suggest that about 70% of medically important antibiotics are used for animal agriculture…so strategies for producing meat without antibiotics will be essential to meet the growing demand for protein.”; If [the United States doesn’t] facilitate the invention of these ideas, we’re going to see these technologies go to places around the world that are more conducive to their development, and frankly China may be one of those.; This issue is far more than just about meat and plant-based alternatives. It’s about allowing innovation in the food industry without the government hindering this innovation. It’s also about allowing consumers to freely choose what produc...
 - `resource`: 6 candidate(s). Sample: NIFA Programs | program; National Programs | program; Plant Protein Enhancement Project | project
 - `statistic`: 6 candidate(s). Sample: 21 portunities for our farmers, and deliver American scientific excellence for the; 501 As the CEO of the Good Food Institute, a nonpartisan; 22% +
@@ -52,7 +52,6 @@
 - `date_time_period` p9 `patt_20f6d59e96c5` (0.78): 2023 | source: Build on successes in blue-sky research conducted within the Agricultural Research Service, after a bipartisan congressional action first directed the agency to invest nearly $5 million into protein processing with increased investment of....
 - `question` p10 `patt_c7d86968596c` (0.82): Researchers at Purdue University are chewing on a tough problem—what to do with corn zein, a protein-rich byproduct of ethanol production?
 - `callout` p11 `patt_e63c55865b8b` (0.82): If [the United States doesn’t] facilitate the invention of these ideas, we’re going to see these technologies go to places around the world that are more conducive to their development, and frankly China may be one of those. We’ve got new...
-- `question` p11 `patt_06d978a1f44f` (0.82): Shouldn’t we in the United States be about how we can grow and feed people more efficiently and more effectively?
 - `quotation` p11 `patt_02a5bd6baa8c` (0.76): If [the United States doesn’t] facilitate the invention of these ideas, we’re going to see these technologies go to places around the world that are more conducive to their development, and frankly China may be one of those.
 - `callout` p12 `patt_9dc03e4da4ae` (0.82): This issue is far more than just about meat and plant-based alternatives. It’s about allowing innovation in the food industry without the government hindering this innovation. It’s also about allowing consumers to freely choose what produc...
 - `date_time_period` p12 `patt_1951936c522b` (0.78): 2020 | source: Restore the United States as the leader in food and agricultural manufacturing, as it was under the Trump administration in 2020, by ensuring the following USDA loan programs can support new products, creating good manufacturing jobs in th...

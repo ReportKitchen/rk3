@@ -609,16 +609,17 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
 
     for node in irwalk.of_type(body, "list"):
         item_texts = [irwalk.subtree_text(item) for item in node.get("children") or [] if item.get("type") == "item"]
-        question_count = sum(1 for t in item_texts if "?" in t)
+        question_items = [t for t in item_texts if "?" in t and not should_skip_question_candidate(t, t)]
+        question_count = len(question_items)
         action_count = sum(1 for t in item_texts if is_action_item(t))
         if len(item_texts) >= 2 and question_count >= max(2, len(item_texts) // 2):
             add(
                 "question_list",
                 node,
-                {"questions": item_texts[:20]},
+                {"questions": question_items[:20]},
                 0.84,
                 "Multiple question-like items in an IR list.",
-                "\n".join(item_texts),
+                "\n".join(question_items),
             )
         elif len(item_texts) >= 3 and (node.get("ordered") or action_count >= 2):
             add(
@@ -863,12 +864,16 @@ def infer_label(text: str, start: int) -> str | None:
 
 def question_like_prompt(node: dict, text: str) -> str | None:
     text = clean_quote(text, 220)
+    if text.endswith(":"):
+        return None
     lead = node.get("lead")
     if isinstance(lead, int) and lead > 8:
         prompt = text[:lead].strip(" :")
     else:
         prompt = text.strip(" :")
     if not prompt or "?" in prompt or len(prompt) > 150:
+        return None
+    if prompt.endswith("."):
         return None
     if QUESTION_PROMPT_RE.match(prompt):
         return prompt
@@ -886,8 +891,15 @@ def following_answer(text: str, question: str) -> str | None:
 def should_skip_question_candidate(question: str, text: str) -> bool:
     if is_chart_or_methodology_text(question):
         return True
+    lowered_question = (question or "").lower()
+    if lowered_question.startswith(("a bigger,", "a narrow,", "shouldn’t we", "shouldn't we")):
+        return True
     lowered = (text or "").lower()
     if lowered.startswith(("figure ", "fig. ", "chart ", "table ")):
+        return True
+    if "ask yourself" in lowered or "think ahead of time" in lowered or "what you plan to do" in lowered:
+        return True
+    if lowered_question.startswith("will your request have an advocacy or media impact"):
         return True
     idx = (text or "").find(question)
     after = (text or "")[idx + len(question): idx + len(question) + 8] if idx != -1 else ""
