@@ -1,65 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { getSnapshot, saveAssertion } from "../api.js";
-import { reportError } from "../errorBus.js";
-
-// The general "this bit is correct — don't let it change" tool: freeze an
-// element's semantic content (text + em/strong/a + list/heading structure),
-// derived from the IR so data-*, generated classes and CSS are ignored.
-function AssertionForm({ slug, target }) {
-  const [snap, setSnap] = useState(null);   // {anchor, html}
-  const [loadErr, setLoadErr] = useState(null);
-  const [note, setNote] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState(null);
-
-  useEffect(() => {
-    let alive = true;
-    setSnap(null); setLoadErr(null); setResult(null);
-    getSnapshot(slug, target.nid)
-      .then((s) => alive && setSnap(s))
-      .catch((e) => { reportError("read element to freeze", e); if (alive) setLoadErr(e.message); });
-    return () => { alive = false; };
-  }, [slug, target.nid]);
-
-  const freeze = async () => {
-    if (!snap) return;
-    setBusy(true); setResult(null);
-    try {
-      const check = { freeze: { anchor: snap.anchor, html: snap.html } };
-      if (note.trim()) check.note = note.trim();
-      setResult(await saveAssertion(slug, check, false));
-    } catch (e) {
-      reportError("freeze element", e);
-      setResult({ ok: false, saved: false, detail: e.message || "request failed" });
-    } finally { setBusy(false); }
-  };
-
-  return (
-    <div className="assert-form">
-      <p className="assert-intro">
-        Freeze this element’s content — its text, <b>bold</b>/<i>italic</i>, links and
-        list/heading structure must stay exactly as shown. Styling, ids and
-        <code>data-</code> attributes are ignored.
-      </p>
-      {loadErr && <div className="assert-result bad">couldn’t read element: {loadErr}</div>}
-      {!snap && !loadErr && <div className="assert-spin">⏳ reading element…</div>}
-      {snap && <pre className="assert-snapshot">{snap.html}</pre>}
-      <input className="assert-note" value={note} placeholder="note (optional, shown in eval output)"
-             onChange={(e) => setNote(e.target.value)} />
-      {result && (
-        <div className={"assert-result " + (result.ok ? "ok" : "bad")}>
-          {result.saved ? "✓ frozen — saved" : "✗ not saved"}
-          {result.total != null ? ` (${result.total} checks)` : ""}
-          {!result.ok && <div className="assert-detail">{result.detail}</div>}
-        </div>
-      )}
-      <div className="popover-actions">
-        {busy && <span className="assert-spin">⏳…</span>}
-        <button className="primary" disabled={!snap || busy} onClick={freeze}>Freeze it</button>
-      </div>
-    </div>
-  );
-}
 
 export default function FeedbackPopover({ popover, slug, onSubmit, onDelete, onClose,
                                           onApplyOp, nodeInfo }) {
@@ -70,7 +9,6 @@ export default function FeedbackPopover({ popover, slug, onSubmit, onDelete, onC
   const [armed, setArmed] = useState(false); // delete asks for a second click
   const [editText, setEditText] = useState(null); // non-null => editing element text
   const [opArmed, setOpArmed] = useState(false);
-  const [tab, setTab] = useState("feedback");
   const boxRef = useRef(null);
 
   useEffect(() => {
@@ -88,14 +26,11 @@ export default function FeedbackPopover({ popover, slug, onSubmit, onDelete, onC
       ? `page ${target.page} @ (${Math.round(target.xf * 100)}%, ${Math.round(target.yf * 100)}%)`
       : "document";
 
-  // assertions are element-anchored — only offered on a real node, not a page spot / question
-  const canAssert = !question && !!target.nid;
-
   return (
     <>
       <div className="popover-backdrop" onClick={onClose} />
       <div
-        className={"popover" + (canAssert && tab === "assert" ? " wide" : "")}
+        className="popover"
         ref={boxRef}
         style={{ left: x, top: y }}
         onMouseDown={(e) => {
@@ -105,17 +40,6 @@ export default function FeedbackPopover({ popover, slug, onSubmit, onDelete, onC
         {!question && (
           <div className="popover-title">{where}</div>
         )}
-        {canAssert && (
-          <div className="popover-tabs">
-            <button className={tab === "feedback" ? "active" : ""} onClick={() => setTab("feedback")}>Feedback</button>
-            <button className={tab === "assert" ? "active" : ""} onClick={() => setTab("assert")}>Assertion</button>
-          </div>
-        )}
-
-        {canAssert && tab === "assert" ? (
-          <AssertionForm slug={slug} target={target} />
-        ) : (
-        <>
         {question ? (
           <>
             <p className="q-prompt">{question.prompt}</p>
@@ -224,8 +148,6 @@ export default function FeedbackPopover({ popover, slug, onSubmit, onDelete, onC
               </button>
             </div>
           </>
-        )}
-        </>
         )}
       </div>
     </>

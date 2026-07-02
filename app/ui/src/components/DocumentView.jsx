@@ -44,16 +44,18 @@ const ORDER_CSS = `
 `;
 
 const MARKER_CSS = `
+/* markers hang in the left margin, absolutely positioned: they never bump
+   content around, and (being out of flow) never steal ::first-letter from
+   the element's real first letter (drop caps vanished on noted paras) */
+.rk-marked { position: relative; }
 .rk-qmark {
+  position: absolute; left: -1.6rem; top: 0.1em; z-index: 30;
   display: inline-flex; align-items: center; justify-content: center;
-  width: 1.1rem; height: 1.1rem; margin-right: 0.4rem;
+  width: 1.1rem; height: 1.1rem;
   border-radius: 50%; border: 1px solid #b58900; background: #fdf3d7;
   color: #8a6d00; font: 700 0.75rem/1 sans-serif; cursor: pointer;
-  vertical-align: text-top;
-  /* out of flow so the marker's glyph doesn't steal ::first-letter from
-     the element's real first letter (drop caps vanished on noted paras) */
-  float: left;
 }
+.rk-qmark + .rk-fbmark, .rk-fbmark + .rk-qmark { top: 1.5em; }
 .rk-qmark.rk-resolved { border-color: #2e7d32; background: #e6f2e6; color: #2e7d32; }
 .rk-feedback-mode, .rk-feedback-mode * { cursor: crosshair !important; }
 .rk-flash { outline: 2px solid #d99a06; transition: outline 0.8s; }
@@ -63,12 +65,11 @@ const MARKER_CSS = `
   background: rgba(253, 243, 215, 0.35);
 }
 .rk-fbmark {
+  position: absolute; left: -1.6rem; top: 0.1em; z-index: 30;
   display: inline-flex; align-items: center; justify-content: center;
-  width: 1.1rem; height: 1.1rem; margin-right: 0.4rem;
+  width: 1.1rem; height: 1.1rem;
   border-radius: 3px; border: 1px solid #5b7fb5; background: #e2ecf8;
   color: #2c4a75; font: 700 0.7rem/1 sans-serif; cursor: help;
-  vertical-align: text-top;
-  float: left; /* see .rk-qmark: keep ::first-letter on the real first letter */
 }
 .rk-fbmark.rk-resolved { border-color: #999; background: #eee; color: #777; }
 .rk-assert-sel { outline: 2px dashed #0a7d6b !important; outline-offset: 3px; }
@@ -521,6 +522,7 @@ export default function DocumentView({
         const r = btn.getBoundingClientRect();
         stateRef.current.onQuestion(q, { x: rect.left + r.left, y: rect.top + r.bottom + 4 });
       };
+      el.classList.add("rk-marked");  // positioning context for the margin marker
       el.prepend(btn);
     }
   }, [frameLoaded, questions, answers]);
@@ -552,6 +554,7 @@ export default function DocumentView({
             { x: rect.left + r.left, y: rect.top + r.bottom + 4 }, f);
         };
       }
+      target.classList.add("rk-marked");  // positioning context for the marker
       target.prepend(mark);
     }
   }, [frameLoaded, feedback]);
@@ -566,6 +569,16 @@ export default function DocumentView({
     el.classList.add("rk-active");
     return () => el.classList.remove("rk-active");
   }, [frameLoaded, highlightNid]);
+
+  // same outline while the assert popup is open: what you're covering is clear
+  useEffect(() => {
+    if (!frameLoaded || !assertPop) return;
+    const el = iframeRef.current.contentDocument
+      ?.querySelector(`[data-nid="${assertPop.nid}"]`);
+    if (!el) return;
+    el.classList.add("rk-active");
+    return () => el.classList.remove("rk-active");
+  }, [frameLoaded, assertPop]);
 
   // deep link (new window from the All Feedback table): once the frame is up,
   // scroll to the linked element — reusing the questions-panel jump path
