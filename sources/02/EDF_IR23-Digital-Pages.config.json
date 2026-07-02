@@ -1,6 +1,6 @@
 {
   "output": {
-    "embedFonts": false,
+    "embedFonts": true,
     "fonts": {
       "map": {
         "anton": "Anton",

@@ -6,6 +6,7 @@
         "gtpressura": "Karla",
         "segoeui": "Open Sans"
       }
-    }
+    },
+    "embedFonts": true
   }
 }

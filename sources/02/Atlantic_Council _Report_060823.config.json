@@ -11,6 +11,7 @@
       "load": [
         "https://use.typekit.net/qmh3dop.css"
       ]
-    }
+    },
+    "embedFonts": true
   }
 }

@@ -123,11 +123,6 @@ strong.c-231f20 { color: #231f20; font-weight: inherit; }
   font-size: 0.67em;
 }
 
-.center-alt {
-  font-family: var(--rkf-lato, "Lato", sans-serif);
-  text-align: center;
-}
-
 .alt {
   font-family: var(--rkf-lato, "Lato", sans-serif);
 }

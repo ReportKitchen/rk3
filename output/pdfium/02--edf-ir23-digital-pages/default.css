@@ -72,6 +72,32 @@ sup.fnref a {
 
 .fn-back { text-decoration: none; }
 
+/* QA-visible footnote data layer (future tooltip source). Deliberately plain
+   so it's obvious this is not the document's own styling. */
+.fn-data {
+  margin-top: 2rem;
+  background: #ffe6ef;
+  padding: 0.75rem 1rem;
+}
+.fn-data-title {
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* QA flag banner at the top of the document (no flags panel yet) */
+.rk-flags {
+  background: #fff3cd;
+  border: 1px solid #e0a800;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+.rk-flags-title { margin: 0 0 0.25rem; font-weight: 700; }
+.rk-flags ul { margin: 0; padding-left: 1.2rem; }
+
 /* design-element section numbers (layer 3 may badge/circle these) */
 .section-number {
   font-weight: 700;

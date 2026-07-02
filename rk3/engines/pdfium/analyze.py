@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 123
+VERSION = 130
 
 
 # PDF font-descriptor flag bits
@@ -90,6 +90,11 @@ for _n, _r in enumerate(
 # their own namespace above any realistic numeric note count, so a doc using
 # BOTH numbered endnotes and lettered table-notes can't cross-wire refs
 _ALPHA_NOTE_BASE = 1000
+# a forward gap this small is accepted outright (a note or two genuinely
+# missing). BIGGER jumps are accepted only if a one-step lookahead shows the
+# sequence continuing FROM the jump — otherwise the jump is a misread outlier
+# and the true next note resumes near where we were. See _accept_marker.
+_NOTE_SMALLGAP = 3
 
 
 def _marker_value(raw):
@@ -260,8 +265,8 @@ def run(ctx):
     _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles)
     absorbed.update(dict.fromkeys(skip))
 
-    notes, note_idx, notes_anchor = _find_notes(ctx, pages, blocks, texts,
-                                                   absorbed, body_size)
+    notes, note_idx, notes_place = _find_notes(ctx, pages, blocks, texts,
+                                                 absorbed, body_size)
     absorbed.update(dict.fromkeys(note_idx))
 
     main_idx = [i for i in range(len(blocks)) if i not in absorbed]
@@ -463,23 +468,38 @@ def run(ctx):
         last = blocks[max(note_idx)]
         rk = ctx.log.entry("footnotes", count=len(notes),
                            numbers=[n["n"] for n in notes][:20],
-                           anchored=notes_anchor is not None)
-        node = {"type": "footnotes", "notes": notes, "page": last["page"],
-                "bbox": last["bbox"], "rk": rk, "data": {}}
-        node["nid"] = _stable_id("n", ctx.nids, "footnotes", node["page"],
-                                 node["bbox"], "footnotes")
-        if notes_anchor is not None:
-            # the MAJORITY note group (a real Endnotes/References section)
-            # renders at its own position — it may be followed by Sources,
-            # appendices etc. Scattered page-notes and minority runs never
-            # anchor; without a majority group the notes collect at the end.
-            first = notes_anchor
+                           placed=notes_place is not None)
+        # Two copies (user spec): an IN-PLACE styled copy at the notes' own
+        # location (where the content was found), and a DATA copy at the very
+        # end — plain, QA-visible, carrying the ref<->note linkage attributes.
+        if notes_place is not None:
+            first = notes_place
+            inline = {"type": "footnotes", "variant": "inline", "notes": notes,
+                      "page": blocks[first]["page"], "bbox": blocks[first]["bbox"],
+                      "rk": rk, "data": {}}
+            inline["nid"] = _stable_id("n", ctx.nids, "footnotes",
+                                       inline["page"], inline["bbox"], "footnotes")
             key = (blocks[first]["page"], -blocks[first]["bbox"][3])
             pos = next((k for k, n in enumerate(nodes)
                         if (n["page"], -n["bbox"][3]) > key), len(nodes))
-            nodes.insert(pos, node)
-        else:
-            nodes.append(node)
+            nodes.insert(pos, inline)
+
+        data = {"type": "footnotes", "variant": "data", "notes": notes,
+                "page": last["page"], "bbox": last["bbox"], "rk": rk, "data": {}}
+        data["nid"] = _stable_id("n", ctx.nids, "footnotes-data",
+                                 data["page"], data["bbox"], "footnotes-data")
+        nodes.append(data)
+
+    # References are a property of text, not of paragraphs: attach them to every
+    # text unit (list items, table cells, …) from its superscripts, in one place.
+    _attach_refs(nodes)
+
+    # Reconciliation flag (user QA): every in-text reference index should have a
+    # matching note and vice-versa. Mismatches (both directions) surface as a
+    # banner at the TOP of the document until there's a dedicated flags panel.
+    flag = _reconcile_notes(ctx, nodes, notes)
+    if flag is not None:
+        nodes.insert(0, flag)
 
     title = next((n["text"] for n in nodes if n["type"] == "heading" and n["level"] == 1),
                  ctx.source.stem)
@@ -895,7 +915,13 @@ def _is_label(text):
 
 # ------------------------------------------------------------------ nodes ---
 
-def _heading_node(ctx, blk, text, level, reason, prov, used_ids):
+def _heading_node(ctx, blk, text, level, reason, prov, used_ids, sups=None):
+    # a heading carries superscripts like any other text — a footnote reference
+    # in a section title / case-study heading is common. Keep them (rebased if a
+    # section number is stripped/reformatted off the front) so _attach_refs links
+    # them like anywhere else. [[first-class-content]]
+    orig = text
+    sups = [list(sp) for sp in (sups or [])]
     num, rest = _section_number(ctx, text)
     if num:
         mode = ctx.cfg["structure"].get("sectionNumbers", "styled")
@@ -906,6 +932,10 @@ def _heading_node(ctx, blk, text, level, reason, prov, used_ids):
             text = f"{num}. {rest}"
         else:  # styled: separate element, css decides presentation
             text = rest
+        # rest is orig with the front number removed; map sups from orig-offsets
+        # to the final text (front region dropped, new prefix `add` chars long)
+        front, add = len(orig) - len(rest), len(text) - len(rest)
+        sups = [[s - front + add, e - front + add] for s, e in sups if s >= front]
         ctx.log.entry("section-number", page=blk["page"], num=num,
                       mode=mode, text=rest[:60])
     hid = _heading_id(text, used_ids)
@@ -918,6 +948,8 @@ def _heading_node(ctx, blk, text, level, reason, prov, used_ids):
                               blk["bbox"], text)}
     if num and ctx.cfg["structure"].get("sectionNumbers", "styled") == "styled":
         node["sectionNum"] = num
+    if sups:
+        node["sups"] = sups  # first-class; _attach_refs consumes + strips
     return node
 
 
@@ -934,8 +966,10 @@ def _promote_lead_headings(ctx, nodes, used_ids):
         e0, level, lead_prov = lh
         text = n["text"]
         blk = {"page": n["page"], "bbox": n["bbox"], "rk": n.get("rk")}
+        lead_sups = [[s, e] for s, e in (n.get("sups") or []) if e <= e0]
         out.append(_heading_node(ctx, blk, text[:e0].strip(), level,
-                                 "bold run-in lead", dict(lead_prov), used_ids))
+                                 "bold run-in lead", dict(lead_prov), used_ids,
+                                 lead_sups))
         # paragraph remainder begins at the first non-space char past the lead
         rstart = e0
         while rstart < len(text) and text[rstart] in " \t":
@@ -1013,7 +1047,7 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         if level:
             return _heading_node(ctx, blk, text, min(level, 6),
                                  "config headingOverride (user answer)",
-                                 prov, used_ids)
+                                 prov, used_ids, rich.get("sups"))
         tag_levels = None   # forced paragraph: fall through, skip heading paths
         levels = {}
         kicker_level = 0
@@ -1022,7 +1056,7 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
             and text.strip():
         return _heading_node(ctx, blk, text, tag_levels[tag_role],
                              f"struct tag {tag_role} (coverage {tag_cov:.2f})",
-                             prov, used_ids)
+                             prov, used_ids, rich.get("sups"))
 
     if not in_aside and size in levels \
             and _looks_like_heading(text, big=size >= 1.5 * body_size):
@@ -1034,7 +1068,7 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         reason = f"size {size} ranked #{level} above body {body_size}"
         if conflict:
             reason += " (struct tag says P — kept as heading, question emitted)"
-        node = _heading_node(ctx, blk, text, level, reason, prov, used_ids)
+        node = _heading_node(ctx, blk, text, level, reason, prov, used_ids, rich.get("sups"))
         if conflict:
             _question(ctx, "tag-conflict-heading", node,
                       f"“{text[:60]}” looks like a heading by size, but the "
@@ -1052,13 +1086,13 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         # would flood the panel on label-heavy docs; feedback covers misses
         return _heading_node(ctx, blk, text, kicker_level,
                              "ALL-CAPS standalone kicker at body size",
-                             prov, used_ids)
+                             prov, used_ids, rich.get("sups"))
 
     if not in_aside and kicker_level and len(blk["lines"]) == 1 \
             and NOTES_HEADING.fullmatch(text.strip()):
         # section labels like "Sources" deserve a heading even at body size
         return _heading_node(ctx, blk, text, kicker_level,
-                             "notes-section label", prov, used_ids)
+                             "notes-section label", prov, used_ids, rich.get("sups"))
 
     if _is_bullet_list(blk):
         items = _bullet_items(ctx, blk)
@@ -1090,11 +1124,7 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
     align = _block_align(blk, size)
     if align:
         prov["align"] = align
-    refs = []
-    for s, e in _merge_sup_ranges(text, rich.get("sups", [])):
-        val = _marker_value(text[s:e].replace(" ", "")) if e - s <= 7 else None
-        if val:
-            refs.append([s, e, val])
+    refs = _extract_refs(text, rich.get("sups"))
     rk = ctx.log.entry("paragraph", page=blk["page"], bbox=blk["bbox"],
                        size=size, strong=strong, refs=[r[2] for r in refs],
                        links=len(rich.get("links", [])),
@@ -1107,6 +1137,8 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         node["strong"] = True
     if refs:
         node["refs"] = refs
+    if rich.get("sups"):
+        node["sups"] = rich["sups"]  # first-class; _attach_refs consumes+strips
     if rich.get("links"):
         node["links"] = rich["links"]
     if rich.get("emph"):
@@ -2972,10 +3004,12 @@ def _ordinal_block(ctx, blk):
     return style0, start, items
 
 
-# the style runs a list item carries: each is a [start, end, payload] span list
-# over the item's own text. Underline will join here once detected (a graphics
-# object - sibling of mark detection), and then it can't drop either.
-_RUN_KEYS = ("emph", "links", "marks", "colors")
+# the style runs a text unit carries: each is a [start, end, payload?] span list
+# over its own text. `sups` (superscript ranges) rides along like the rest so a
+# list item / table cell keeps the signal a paragraph would — references live in
+# ALL text, not just paragraphs ([[first-class-content]]); _attach_refs turns
+# sups into refs everywhere and then drops the raw sups.
+_RUN_KEYS = ("emph", "links", "marks", "colors", "sups")
 
 
 def _node_runs(node):
@@ -3473,6 +3507,49 @@ def _merge_sup_ranges(text, sups):
     return merged
 
 
+def _extract_refs(text, sups):
+    """In-text footnote references from superscript ranges — the SINGLE source
+    of ref detection, applied to every text unit (paragraph, list item, table
+    cell, caption), never gated to one node type. A reference is a superscript
+    that parses to a marker value; a multi-citation superscript ("20, 21") is
+    one range holding several, split so each links and reconciles."""
+    refs = []
+    for s, e in _merge_sup_ranges(text, sups or []):
+        seg = text[s:e]
+        val = _marker_value(seg.replace(" ", "")) if e - s <= 7 else None
+        if val:
+            refs.append([s, e, val])
+        elif re.fullmatch(r"\d{1,3}(?:\s*,\s*\d{1,3})+", seg):
+            for m in re.finditer(r"\d{1,3}", seg):
+                refs.append([s + m.start(), s + m.end(), int(m.group())])
+    return refs
+
+
+def _attach_refs(tree):
+    """Attach footnote refs to EVERY text-bearing unit in the IR — paragraph,
+    heading, list item, table cell, caption, aside, or any node type that ever
+    exists — computed from its `sups`, then drop the raw `sups`.
+
+    This is a fully GENERIC walk: it descends into every dict value and every
+    list element and inspects every dict, with no list of node types or
+    container keys. Enumerating "the places refs can live" is the bug this
+    replaces — refs are a property of text, so anything holding (text, sups)
+    gets them, and a new node type can never fall through. [[first-class-content]]"""
+    def visit(u):
+        if isinstance(u, dict):
+            if "text" in u and u.get("sups") and not u.get("refs"):
+                refs = _extract_refs(u["text"], u["sups"])
+                if refs:
+                    u["refs"] = refs
+            u.pop("sups", None)
+            for v in u.values():
+                visit(v)
+        elif isinstance(u, list):
+            for v in u:
+                visit(v)
+    visit(tree)
+
+
 def _line_marker(line):
     """Leading footnote marker of a line: (value, raw, text_offset, is_sup).
     A superscript run at position 0 (arabic or roman) is the strongest form;
@@ -3567,154 +3644,207 @@ def _body_note_runs(ctx, blocks, texts, skip, body_size):
     return member, scattered
 
 
+def _block_fragments(blk, block_idx):
+    """A block's lines as ordered note fragments. A line that leads with a
+    marker becomes (marker value, raw, text-after-marker); any other line is a
+    (None) continuation. The sequencer decides which markers are real."""
+    out = []
+    for l in blk["lines"]:
+        m = _line_marker(l)
+        if m:
+            out.append({"page": blk["page"], "block": block_idx, "rk": blk["rk"],
+                        "marker": m[0], "raw": m[1], "text": l["text"][m[2]:]})
+        else:
+            out.append({"page": blk["page"], "block": block_idx, "rk": blk["rk"],
+                        "marker": None, "raw": None, "text": l["text"]})
+    return out
+
+
+def _accept_marker(M, last, last_page, page, next_marker):
+    """Is marker M the next note, given the last accepted note number/page and
+    the very next marker in the stream? Notes are a MONOTONIC subsequence:
+      - first marker: yes.
+      - M <= last: a backward marker is a per-page RESTART if we've turned the
+        page (toolkit numbers 1,2,3 on every page), else a misread / column
+        scramble on the same page (reject).
+      - small forward gap: yes (a note or two legitimately missing).
+      - big forward jump: real only if the sequence continues FROM it. If the
+        NEXT marker instead resumes just after `last`, the jump is an outlier —
+        a digit misread ("277"->"287") followed by the true 278 — so reject it.
+        This is what stops one bad marker swallowing the rest into a runaway."""
+    if last is None:
+        return True
+    if M <= last:
+        return page != last_page
+    if M <= last + _NOTE_SMALLGAP:
+        return True
+    if next_marker is not None and last < next_marker <= last + _NOTE_SMALLGAP:
+        return False
+    return True
+
+
+def _sequence_notes(ctx, frags):
+    """Build note records from an ordered fragment stream. A note's text runs
+    from its accepted marker to the next accepted marker; rejected markers and
+    markerless lines fold into the current note as continuation. Returns
+    (notes, contributing block indexes)."""
+    n = len(frags)
+    next_marker, nxt = [None] * n, None
+    for k in range(n - 1, -1, -1):
+        next_marker[k] = nxt
+        if frags[k]["marker"] is not None:
+            nxt = frags[k]["marker"]
+    notes, contributing = [], set()
+    last = last_page = cur = None
+    for k, fr in enumerate(frags):
+        M = fr["marker"]
+        if M is None:
+            if cur is not None:
+                cur["text"] += " " + fr["text"]
+                contributing.add(fr["block"])
+            continue
+        if _accept_marker(M, last, last_page, fr["page"], next_marker[k]):
+            rk = ctx.log.entry("note", page=fr["page"], n=M, marker=fr["raw"],
+                               block=fr["rk"], text=fr["text"][:80])
+            cur = {"n": M, "marker": fr["raw"], "page": fr["page"],
+                   "text": fr["text"].lstrip(".) ").strip(), "rk": rk}
+            notes.append(cur)
+            last, last_page = M, fr["page"]
+            contributing.add(fr["block"])
+        else:
+            ctx.log.entry("note-reject", page=fr["page"], rejected_n=M,
+                          last=last, text=fr["text"][:60])
+            if cur is not None:
+                cur["text"] += " " + fr["raw"] + " " + fr["text"]
+                contributing.add(fr["block"])
+    return notes, contributing
+
+
 def _find_notes(ctx, pages, blocks, texts, skip, body_size):
     """Footnote/endnote text in three forms: numbered blocks following a
     notes-section heading, small numbered text at the bottom of a page, or a
-    body-size sequential run with citation signal (_body_note_runs).
-    Returns (notes, absorbed block indexes, sectioned flag)."""
-    notes, note_idx = [], set()
-    # note GROUPS (per heading-section / per body-size run): the rendered
-    # position anchors at the group holding the MAJORITY of the notes; with no
-    # majority group the notes collect at the document end. (An early numbered
-    # run with citations must not drag 46 end-references to page 3.)
-    groups = {}
-    h_seq = 0
-    cur_h = None
-    in_section = False
+    body-size sequential run with citation signal (_body_note_runs). Candidate
+    blocks are flattened to fragments and sequenced (_sequence_notes) so a bad
+    marker can never poison the rest of the run.
+    Returns (notes, contributing block indexes, in-place position)."""
+    # Placement is deterministic (user's rule): the notes live WHERE WE FOUND
+    # their content — no heading match, no majority vote.
     body_runs, small_runs = _body_note_runs(ctx, blocks, texts, skip, body_size)
-    expected = None  # next anticipated note number; gates against wrapped DOIs
+    frags = []
+    in_section = False
     for i, (blk, text) in enumerate(zip(blocks, texts)):
         if i in skip:
             continue
         size = _dominant_size(blk)
         if NOTES_HEADING.fullmatch(text.strip()):
-            # a notes-ish section label (Endnotes, Sources, References) at any
-            # size starts a fresh section — and must never be eaten as a
-            # continuation of the previous section's last note
-            in_section = True
-            h_seq += 1
-            cur_h = ("h", h_seq)
-            expected = None
+            in_section = True  # Endnotes/Sources/References label starts a run
             continue
         marker = _line_marker(blk["lines"][0])
+        cand = False
         if not in_section and (i in body_runs or i in small_runs):
-            new, lead, expected = _parse_notes(ctx, blk, expected)
-            if lead and notes:
-                notes[-1]["text"] += " " + lead
-            notes.extend(new)
-            if new or (lead and notes):
-                note_idx.add(i)
-                if i in body_runs:
-                    g = groups.setdefault(("r", body_runs[i]),
-                                          {"start": i, "count": 0})
-                    g["count"] += len(new)
-            continue
-        if in_section:
+            cand = True
+        elif in_section:
             if size > body_size * 1.15:
-                in_section = False  # next heading ends the notes section
+                in_section = False  # a larger heading ends the notes section
             elif marker:
-                new, lead, expected = _parse_notes(ctx, blk, expected)
-                if lead and notes:
-                    notes[-1]["text"] += " " + lead
-                notes.extend(new)
-                if new or (lead and notes):
-                    note_idx.add(i)
-                    g = groups.setdefault(cur_h, {"start": i, "count": 0})
-                    g["count"] += len(new)
-                continue
-            elif notes and len(text.strip()) <= 4:
-                # a tiny stray fragment (a split-off subscript: the "2.5" of
-                # PM2.5) must not TERMINATE the section — keep it with the notes
-                notes[-1]["text"] += " " + text.strip()
-                note_idx.add(i)
-                continue
-            elif notes and size < body_size * 1.15:
-                # a markerless block inside the section can still HOLD notes:
-                # its first line is a wrapped continuation (a URL), with the
-                # next numbered notes as later lines — parse it, don't glue it
-                new, lead, expected = _parse_notes(ctx, blk, expected)
-                if new:
-                    if lead:
-                        notes[-1]["text"] += " " + lead
-                    notes.extend(new)
-                    note_idx.add(i)
-                    g = groups.setdefault(cur_h, {"start": i, "count": 0})
-                    g["count"] += len(new)
-                    continue
-                if text[:1].islower():
-                    # pure continuation = a wrap of the previous note (starts
-                    # mid-sentence); anything else ends the section instead of
-                    # being silently appended to the last note
-                    notes[-1]["text"] += " " + text
-                    note_idx.add(i)
-                    continue
-                in_section = False
+                cand = True
+            elif frags and len(text.strip()) <= 4:
+                cand = True  # tiny stray fragment (split subscript) stays
+            elif frags and size < body_size * 1.15 and (
+                    any(_line_marker(l) for l in blk["lines"])
+                    or text[:1].islower()):
+                cand = True  # holds a note, or wraps the previous one
             else:
                 in_section = False
-        if not in_section and marker and size <= 0.92 * body_size:
+        if not cand and not in_section and marker and size <= 0.92 * body_size:
             page = pages[blk["page"]]
-            # bottom of the page; anywhere when the marker is a leading
-            # superscript (unambiguous footnote form, e.g. roman markers on
-            # the last page); or anywhere when the small block carries a
-            # citation signal (uk-local-giving's scattered sidebar notes —
-            # a small numbered block citing a year/URL is a note wherever
-            # the layout parked it)
+            # bottom of the page; or a leading-superscript marker anywhere; or a
+            # small block carrying a citation signal (scattered sidebar notes)
             if (blk["bbox"][1] < 0.18 * page["height"] or marker[3]
                     or _CITE_RE.search(text)):
-                new, lead, expected = _parse_notes(ctx, blk, expected)
-                if lead and notes:
-                    notes[-1]["text"] += " " + lead
-                notes.extend(new)
-                if new or (lead and notes):
-                    note_idx.add(i)
+                cand = True
+        if cand:
+            frags.extend(_block_fragments(blk, i))
+    notes, note_idx = _sequence_notes(ctx, frags)
     # (page, n): keeps doc-wide numbering in order AND keeps per-page
     # RESTARTING footnotes (toolkit: 1, 2, 3 on every page) in document order
     # instead of interleaving every page's "1" together
     notes.sort(key=lambda n: (n["page"], n["n"]))
-    # Placement spec (user): footnotes go at the END of the document, or where
-    # the document ITSELF shows them. "Shows them" means an explicit notes
-    # heading (Endnotes / References / Sources) — a run we merely inferred is
-    # not the document showing us anything, so runs never anchor. The heading
-    # group must also hold most of the notes: anchoring 40 scattered page
-    # notes at a 3-note section would move them INTO the text.
-    anchor = None
+    # Placement (user's rule): the notes live where their content was found —
+    # the FIRST note block, in reading order. The one exception is per-page
+    # restarting footnotes (toolkit: 1,2,3 at the bottom of every page): those
+    # are scattered across many pages, so no single in-place location makes
+    # sense — they render only in the end-of-document data copy (place=None).
+    place = None
     if notes:
-        h_groups = [g for k, g in groups.items() if k and k[0] == "h"]
-        if h_groups:
-            best = max(h_groups, key=lambda g: g["count"])
-            if best["count"] >= 0.5 * len(notes):
-                anchor = best["start"]
-    return notes, note_idx, anchor
+        n_counts = Counter(n["n"] for n in notes)
+        pages_with = sorted({n["page"] for n in notes})
+        restart = any(c > 1 for c in n_counts.values())
+        # A single in-place location only makes sense when the notes live in ONE
+        # place: on one page, or a contiguous run of pages (a real endnotes
+        # section that may be followed by appendices). When they're SCATTERED
+        # across the document (per-page figure notes on p13, p15, p17 … plus
+        # endnotes on p33-35, as in clean-air) there is no single spot — placing
+        # all of them at the earliest one would inject the whole pile mid-text,
+        # the exact bug we're removing. Those render only in the end data copy;
+        # correct per-page placement is the deferred follow-up.
+        span = pages_with[-1] - pages_with[0]
+        contiguous = span <= len(pages_with)
+        if not restart and contiguous:
+            place = min(note_idx,
+                        key=lambda i: (blocks[i]["page"], -blocks[i]["bbox"][3]))
+    return notes, note_idx, place
 
 
-def _parse_notes(ctx, blk, expected):
-    """Split a block into individual numbered notes (one block often holds
-    several notes as consecutive lines). Note numbers are sequential, so a
-    numbered-looking line that doesn't continue the sequence (a wrapped DOI
-    like "10.1073/...") is a continuation, not a new note.
-    Returns (notes, leading continuation text, next expected number)."""
-    notes = []
-    leading = []
-    for l in blk["lines"]:
-        marker = _line_marker(l)
-        if marker and (expected is None
-                       or marker[0] in (expected, expected + 1)):
-            num, raw, off, _is_sup = marker
-            rk = ctx.log.entry("note", page=blk["page"], n=num, marker=raw,
-                               block=blk["rk"], text=l["text"][:80])
-            notes.append({"n": num, "marker": raw, "page": blk["page"],
-                          "text": l["text"][off:].lstrip(".) ").strip(), "rk": rk})
-            expected = num + 1
-        else:
-            if marker:
-                ctx.log.entry("note-continuation", page=blk["page"],
-                              rejected_n=marker[0], expected=expected,
-                              text=l["text"][:60])
-            if notes:
-                notes[-1]["text"] += " " + l["text"]
-            else:
-                leading.append(l["text"])
-    return notes, " ".join(leading), expected
+def _fn_display(val):
+    """Human label for a note index value: letters live at _ALPHA_NOTE_BASE+n."""
+    if val > _ALPHA_NOTE_BASE:
+        return chr(val - _ALPHA_NOTE_BASE + 96)
+    return str(val)
+
+
+def _reconcile_notes(ctx, nodes, notes):
+    """Compare in-text reference indexes against collected note indexes, both
+    directions. Returns a `flag` node (rendered as a top-of-document banner)
+    when they don't fully match, else None. This is the QA check the user asked
+    for: 'does every reference and every note have a match?'"""
+    ref_vals = set()
+
+    def visit(u):
+        if not isinstance(u, dict):
+            return
+        for r in (u.get("refs") or []):
+            ref_vals.add(r[2])
+        for child in (u.get("children") or []):
+            visit(child)
+        for it in (u.get("items") or []):
+            visit(it)
+            sub = it.get("sub") if isinstance(it, dict) else None
+            if sub:
+                for s in (sub.get("items") or []):
+                    visit(s)
+        for row in (u.get("rows") or []):
+            for cell in (row or []):
+                visit(cell)
+    for n in nodes:
+        visit(n)
+
+    note_vals = {n["n"] for n in notes}
+    refs_no_note = sorted(v for v in ref_vals if v not in note_vals)
+    notes_no_ref = sorted(v for v in note_vals if v not in ref_vals)
+    if not refs_no_note and not notes_no_ref:
+        return None
+
+    rk = ctx.log.entry("footnote-mismatch",
+                       refs_without_notes=[_fn_display(v) for v in refs_no_note],
+                       notes_without_refs=[_fn_display(v) for v in notes_no_ref],
+                       ref_total=len(ref_vals), note_total=len(note_vals))
+    return {"type": "flag", "kind": "footnote-mismatch",
+            "refs_no_note": [_fn_display(v) for v in refs_no_note],
+            "notes_no_ref": [_fn_display(v) for v in notes_no_ref],
+            "page": 1, "bbox": [0, 0, 0, 0], "rk": rk, "data": {},
+            "nid": _stable_id("n", ctx.nids, "flag", 0, [0, 0, 0, 0],
+                              "footnote-mismatch")}
 
 
 def _heading_id(text, used):

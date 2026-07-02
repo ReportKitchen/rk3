@@ -50,3 +50,25 @@ checks:
         conceptually if they are to apply it beyond the classroom.</li><li>Students learn more effectively
         if they take a metacognitive approach that allows them to consciously assess and manage their own
         learning.</li></ol>
+
+  - note: 'freeze: Darling-Hammond, L., Flook, L., Cook-Harvey,'
+    stage: analyze
+    freeze:
+      anchor: Darling-Hammond, L., Flook, L., Cook-Harvey, C., Barron, B.,
+      html: <ul><li>Darling-Hammond, L., Flook, L., Cook-Harvey, C., Barron, B., & Osher, D. (2020). Implications
+        for educational practice of the science of learning and development. <em>Applied Developmental Science</em>,
+        24(2),97–140. <a href="https://doi.org/10.1080/10888691.2018.1537791">https://doi.org/10.1080/10888691.2018.1537791</a></li><li>Darling-Hammond,
+        L., Flook, L., Schachner, A., & Wojcikiewicz, S. (with Cantor, P., & Osher, D.). (2022). <em>Educator
+        learning to enact the science of learning and development</em>. Learning Policy Institute. <a href="https://doi.org/10.54300/859.776">https://doi.org/10.54300/859.776</a></li><li>Darling-Hammond,
+        L., Oakes, J., Wojcikiewicz, S. K., Hyler, M. E., Guha, R., Podolsky, A., Kini, T., Cook-Harvey,
+        C., Mercer, C., & Harrell, A. (2019). <em>Preparing teachers for deeper learning</em>. Harvard Education
+        Press.</li></ul>
+
+  - note: 'freeze: To act in the best interests of the client'
+    stage: analyze
+    freeze:
+      anchor: To act in the best interests of the client
+      html: <ol type="decimal"><li>To act in the best interests of the client</li><li>To identify, master,
+        and continue to advance a shared body of knowledge that is used to make decisions that further the
+        client’s welfare</li><li>To develop shared standards of practice that evolve as knowledge evolves
+        in the profession</li></ol>

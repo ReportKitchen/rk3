@@ -1,5 +1,12 @@
 # These are fundamental elements that need to be addressed wholistically
 
+
+## Headings
+Header parsing is actually huge for RK.  I'm pretty sure we'll never come up with a ruleset that never fails.  And, it's critical for breaking into web pages, building navigation, for understanding semantics, for outlining/summarizing, for "reading by scanning" etc.
+
+also when we get to importing "final but not polished" documents, it's common to have to adjust headings up or down.  Most authors don't meticulously curate their headings, so if it hasn't been to a designer yet, anything goes.
+
+
 ## Footnotes
 - match the size and position of the references.  They're almost always superscripted, but vanilla HTML superscripts mess with line-heights, so we need as lean and approach as possbile to avoid that while staying semantically pure.
 - consistency: the formatting of references is almost always consistent within a document.  an easy QA pass of the computed style attributes of refs should yeild at most a small number of variations (typically color changes when they occur within a region with a background)

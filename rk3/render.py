@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 64
+VERSION = 71
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -54,9 +54,14 @@ def run(ctx):
              "autolink": ctx.cfg["output"].get("autolinkUrls", True),
              "anchors": _anchor_targets(ir),
              "pageTargets": _page_targets(ir)}
-    parts = []
-    for node in ir["body"]:
-        parts.append(_render_node(ctx, node, pages, state))
+    # QA flags are document-level annotations, not content: pull them out of the
+    # body so a saved reading-order reorder op (whose nid list can't include a
+    # freshly-minted flag) never sorts them to the bottom. They render pinned at
+    # the very top, before the outline.
+    flag_nodes = [n for n in ir["body"] if n.get("type") == "flag"]
+    parts = [_render_node(ctx, node, pages, state)
+             for node in ir["body"] if node.get("type") != "flag"]
+    flags_html = "\n".join(_render_node(ctx, n, pages, state) for n in flag_nodes)
 
     nav = _render_nav(ir)
     title = html.escape(ir.get("title", "Document"))
@@ -84,6 +89,7 @@ def run(ctx):
 </head>
 <body>
 {_render_warnings(ir.get("warnings", []))}
+{flags_html}
 {nav}
 <main>
 <article>
@@ -119,13 +125,44 @@ def _apply_ops(ctx, ir):
     """Edit ops: durable per-element operations (<name>.ops.json, written by
     the viewer). The user's one-off cleanups live here instead of as
     hyper-specific pipeline rules; they survive every re-render and cost no
-    code. v1 vocabulary: set-text, delete, set-level."""
+    code. v1 vocabulary: set-text, delete, set-level, note.
+
+    `note` is the manual footnote-rescue op (for docs whose markers are too
+    entangled with charts to auto-detect, e.g. gates-earth): the user tags a
+    stranded note element `#note N`; we lift its text into a fielded note
+    record, drop the element from the flow, fold it into the end data copy, and
+    refresh the reconciliation flag."""
     ops = ctx.cfg.get("ops", [])
     if not ops:
         return
     by_nid = {}
     for op in ops:
         by_nid.setdefault(op.get("nid"), []).append(op)
+    collected = []
+    ref_applied = [False]
+    # ref ops are idempotent: a `#ref N` only adds a reference when N isn't
+    # already detected anywhere (so a mark that auto-detection later recovers
+    # can't double-add a superscript).
+    existing_ref_vals = set()
+
+    def _scan(u):
+        if not isinstance(u, dict):
+            return
+        for r in (u.get("refs") or []):
+            existing_ref_vals.add(r[2])
+        for c in (u.get("children") or []):
+            _scan(c)
+        for it in (u.get("items") or []):
+            _scan(it)
+            sub = it.get("sub") if isinstance(it, dict) else None
+            if sub:
+                for s in (sub.get("items") or []):
+                    _scan(s)
+        for row in (u.get("rows") or []):
+            for cell in (row or []):
+                _scan(cell)
+    for n in ir["body"]:
+        _scan(n)
 
     def transform(nodes):
         out = []
@@ -136,7 +173,33 @@ def _apply_ops(ctx, ir):
             drop = False
             for op in applied:
                 kind = op.get("op")
-                if kind == "delete":
+                if kind == "note" and "text" in n:
+                    val = _note_op_value(op.get("n"))
+                    if val is not None:
+                        rec = {"n": val, "marker": str(op.get("n")),
+                               "page": op.get("page", n.get("page")),
+                               "text": n["text"], "rk": n.get("rk", "op-note")}
+                        for k in ("links", "emph", "marks", "colors"):
+                            if n.get(k):
+                                rec[k] = n[k]
+                        collected.append(rec)
+                        drop = True
+                        ctx.log.entry("op-note", nid=n["nid"], n=op.get("n"),
+                                      text=(n.get("text") or "")[:50])
+                elif kind == "ref" and "text" in n:
+                    # manual reference rescue: the tagged element cites note N
+                    # but the superscript was detached/dropped. Add it (as an
+                    # end-of-text superscript link) unless N is already detected.
+                    val = _note_op_value(op.get("n"))
+                    if val is not None and val not in existing_ref_vals:
+                        raw = str(op.get("n"))
+                        s = len(n["text"])
+                        n["text"] = n["text"] + raw
+                        n.setdefault("refs", []).append([s, s + len(raw), val])
+                        existing_ref_vals.add(val)
+                        ref_applied[0] = True
+                        ctx.log.entry("op-ref", nid=n["nid"], n=op.get("n"))
+                elif kind == "delete":
                     drop = True
                     ctx.log.entry("op-delete", nid=n["nid"],
                                   text=(n.get("text") or "")[:50])
@@ -173,6 +236,29 @@ def _apply_ops(ctx, ir):
         return out
 
     ir["body"] = transform(ir["body"])
+
+    if collected:
+        # fold the rescued notes into the end data copy (create it if the doc
+        # had no collected notes at all), deduped by (page, n), then refresh the
+        # reconciliation flag so the "missing footnotes" count drops accordingly.
+        data = next((n for n in ir["body"] if n.get("type") == "footnotes"
+                     and n.get("variant") == "data"), None)
+        if data is None:
+            data = {"type": "footnotes", "variant": "data", "notes": [],
+                    "page": collected[-1]["page"], "bbox": [0, 0, 0, 0],
+                    "data": {}, "nid": "n-fn-data-ops"}
+            ir["body"].append(data)
+        have = {(nt.get("page"), nt["n"]) for nt in data["notes"]}
+        for c in collected:
+            if (c["page"], c["n"]) not in have:
+                data["notes"].append(c)
+                have.add((c["page"], c["n"]))
+        data["notes"].sort(key=lambda x: (x.get("page") or 0, x["n"]))
+        ctx.log.entry("op-note-collect", count=len(collected),
+                      total=len(data["notes"]))
+
+    if collected or ref_applied[0]:
+        _refresh_flag(ir)
 
     # reorder ops from the viewer's reading-order tool. A doc-level op (no page)
     # lists ALL top-level nids in the corrected reading order — reorder the whole
@@ -256,14 +342,106 @@ def _merge_into(a, b):
         a["breaks"] = a.get("breaks", []) + [x + off for x in b["breaks"]]
 
 
+def _fn_display_r(val):
+    """Human label for a note index (letters live at 1000+)."""
+    return chr(val - 1000 + 96) if val > 1000 else str(val)
+
+
+def _note_op_value(raw):
+    """A `note` op's index -> internal value: arabic int, single letter at
+    1000+ ('a'=1001, matching analyze), else None."""
+    if raw is None:
+        return None
+    s = str(raw).strip()
+    if s.isdigit():
+        return int(s)
+    if len(s) == 1 and s.isalpha():
+        return 1000 + ord(s.lower()) - 96
+    return None
+
+
+def _reconcile_lists(ir):
+    """Recompute (refs-without-note, notes-without-ref) as display strings,
+    counting notes across every footnotes node (deduped). Used to refresh the
+    flag after manual note-collection ops change the collected set."""
+    ref_vals, note_vals = set(), set()
+
+    def visit(u):
+        if not isinstance(u, dict):
+            return
+        for r in (u.get("refs") or []):
+            ref_vals.add(r[2])
+        if u.get("type") == "footnotes":
+            for nt in u["notes"]:
+                note_vals.add(nt["n"])
+        for child in (u.get("children") or []):
+            visit(child)
+        for it in (u.get("items") or []):
+            visit(it)
+            sub = it.get("sub") if isinstance(it, dict) else None
+            if sub:
+                for s in (sub.get("items") or []):
+                    visit(s)
+        for row in (u.get("rows") or []):
+            for cell in (row or []):
+                visit(cell)
+    for n in ir["body"]:
+        visit(n)
+    rn = [_fn_display_r(v) for v in sorted(v for v in ref_vals if v not in note_vals)]
+    nr = [_fn_display_r(v) for v in sorted(v for v in note_vals if v not in ref_vals)]
+    return rn, nr
+
+
+def _refresh_flag(ir):
+    """Rebuild the footnote-mismatch flag node in place (or remove it once the
+    doc fully reconciles)."""
+    rn, nr = _reconcile_lists(ir)
+    flag = next((n for n in ir["body"] if n.get("type") == "flag"), None)
+    if not rn and not nr:
+        if flag:
+            ir["body"].remove(flag)
+        return
+    if flag:
+        flag["refs_no_note"], flag["notes_no_ref"] = rn, nr
+    else:
+        ir["body"].insert(0, {"type": "flag", "kind": "footnote-mismatch",
+                              "refs_no_note": rn, "notes_no_ref": nr,
+                              "page": 1, "bbox": [0, 0, 0, 0], "data": {},
+                              "nid": "n-flag-fn"})
+
+
+def _fmt_flag_vals(vals):
+    """Compress a list of index display strings into runs: [1,4,8,9,10,11,12,'a']
+    -> '1, 4, 8–12, a'. Keeps non-numeric labels (letters) at the end."""
+    ints = sorted({int(v) for v in vals if str(v).isdigit()})
+    others = [str(v) for v in vals if not str(v).isdigit()]
+    parts, i = [], 0
+    while i < len(ints):
+        j = i
+        while j + 1 < len(ints) and ints[j + 1] == ints[j] + 1:
+            j += 1
+        parts.append(f"{ints[i]}–{ints[j]}" if j > i else str(ints[i]))
+        i = j + 1
+    return ", ".join(parts + others)
+
+
 def _fn_keys(ir):
     """Anchor keys for every footnote: plain "n" while the number is unique
     doc-wide, "page-n" when numbering restarts per page. Returns
-    ({(page, n): key}, {n: [(page, key), …]})."""
+    ({(page, n): key}, {n: [(page, key), …]}).
+
+    The notes appear TWICE in the body (in-place copy + end data copy), so
+    dedupe by (page, n) — otherwise every doc-unique number looks duplicated
+    and wrongly switches to per-page keying."""
     per_n = {}
+    seen = set()
     for node in ir["body"]:
         if node["type"] == "footnotes":
             for note in node["notes"]:
+                pn = (note.get("page"), note["n"])
+                if pn in seen:
+                    continue
+                seen.add(pn)
                 per_n.setdefault(note["n"], []).append(note)
     keys, by_n = {}, {}
     for n, notes in per_n.items():
@@ -350,9 +528,30 @@ def _attrs(node, pages, extra=None):
 
 def _render_node(ctx, node, pages, state):
     t = node["type"]
+    if t == "flag":
+        # QA banner at the top of the document (no flags panel yet). Currently
+        # only footnote ref<->note mismatches; the shape generalizes. Values are
+        # range-compressed ("1, 4, 8–12, 112–426") with a count so a badly
+        # under-collected doc reads as a summary, not a wall of numbers.
+        rows = []
+        if node.get("refs_no_note"):
+            vals = node["refs_no_note"]
+            rows.append(f"<li>References with no matching note ({len(vals)}): "
+                        f'<strong>{html.escape(_fmt_flag_vals(vals))}</strong></li>')
+        if node.get("notes_no_ref"):
+            vals = node["notes_no_ref"]
+            rows.append(f"<li>Notes with no matching reference ({len(vals)}): "
+                        f'<strong>{html.escape(_fmt_flag_vals(vals))}</strong></li>')
+        return (f'<div class="rk-flags" {_attrs(node, pages)}>\n'
+                '  <p class="rk-flags-title">⚑ Footnote mismatch</p>\n'
+                f'  <ul>\n    ' + "\n    ".join(rows) + '\n  </ul>\n</div>')
     if t == "heading":
         lv = min(max(node["level"], 1), 6)
-        body = html.escape(node["text"])
+        # a heading is text too: run it through _inline so a footnote reference
+        # in a title renders as a linked superscript, not a bare digit
+        body = _inline(node["text"], node.get("links"), node.get("refs"), state,
+                       emph=node.get("emph"), marks=node.get("marks"),
+                       colors=node.get("colors"), page=node.get("page"))
         if node.get("sectionNum"):
             body = (f'<span class="section-number">{html.escape(node["sectionNum"])}'
                     f'</span> {body}')
@@ -499,6 +698,7 @@ def _render_node(ctx, node, pages, state):
         joined = "\n".join(cols)
         return f'<div class="columns" {_attrs(node, pages)}>\n{joined}\n</div>'
     if t == "footnotes":
+        is_data = node.get("variant") == "data"
         items = []
         for note in node["notes"]:
             n = note["n"]
@@ -510,6 +710,21 @@ def _render_node(ctx, node, pages, state):
             # lettered page-notes with numbered endnotes)
             display = n - 1000 if n > 1000 else n
             li_style = ' style="list-style-type: lower-alpha"' if n > 1000 else ""
+            if is_data:
+                # data copy: plain <li>, no back-link chrome, but carry the
+                # ref<->note wiring so tooltip JS (future) can find both ends
+                refids = " ".join(f"fnref-{key}-{k}"
+                                  for k in range(1, state["ref_seq"].get(key, 0) + 1))
+                attrs = (f'value="{display}"{li_style} data-fn-key="{key}" '
+                         f'data-fn-index="{html.escape(_fn_display_r(n))}"'
+                         + (f' data-ref-ids="{refids}"' if refids else ""))
+                # op-rescued notes carry the source element's inline runs; keep
+                # bold/ital/links (analyze-collected notes have none -> plain)
+                body = _inline(note["text"], note.get("links"), None, state,
+                               emph=note.get("emph"), marks=note.get("marks"),
+                               colors=note.get("colors"))
+                items.append(f'  <li {attrs}>{body}</li>')
+                continue
             back = (f' <a class="fn-back" href="#fnref-{key}-1" '
                     f'title="Back to reference {note.get("marker", n)} in the text" '
                     f'aria-label="Back to reference {note.get("marker", n)}">↩</a>'
@@ -522,9 +737,16 @@ def _render_node(ctx, node, pages, state):
         notes_ = node["notes"]
         roman = all(re.fullmatch(r"[ivxl]+", note.get("marker", "").lower())
                     for note in notes_) if notes_ else False
-        ol = ('<ol style="list-style-type: lower-roman">' if roman else "<ol>")
+        ol_style = ' style="list-style-type: lower-roman"' if roman else ""
+        if is_data:
+            # QA-visible data layer: plain, pink-backed, labeled. Not styled as
+            # the document's footnotes; this is the copy that will power
+            # tooltips once the rollover JS lands.
+            return (f'<div class="fn-data" {_attrs(node, pages)}>\n'
+                    '  <p class="fn-data-title">Hidden data for footnotes (QA)</p>\n'
+                    f'  <ol{ol_style}>\n' + "\n".join(items) + '\n  </ol>\n</div>')
         return (f'<section class="footnotes" {_attrs(node, pages)}>\n'
-                f'{ol}\n' + "\n".join(items) + '\n</ol>\n</section>')
+                f'<ol{ol_style}>\n' + "\n".join(items) + '\n</ol>\n</section>')
     ctx.log.entry("unknown-node", type=t, rk=node.get("rk"))
     return f"<!-- unrendered node type {html.escape(t)} ({node.get('rk')}) -->"
 
@@ -540,7 +762,7 @@ def _item_inline(it, state):
     tolerated defensively but carries no style by definition."""
     if isinstance(it, str):
         return html.escape(it)
-    return _inline(it.get("text", ""), it.get("links"), None, state,
+    return _inline(it.get("text", ""), it.get("links"), it.get("refs"), state,
                    emph=it.get("emph"), marks=it.get("marks"),
                    colors=it.get("colors"))
 

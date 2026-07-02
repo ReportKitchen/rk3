@@ -196,3 +196,85 @@ All of these tools need to be usable by agents as well -- user may choose to tel
 
 
 
+
+re: Apply as fix currently pins the whole document's order 
+
+That's ok, as long as I can have 2 things:
+- some kind of unobtrusive outline on elements that have been re-ordered, just so I know.
+- a "remove reordering" button, mainly for development purposes
+
+
+# Case
+- we have 25ish HTML documents in /var/www/rk3/output/pdfium/*/index.html. They were converted from PDF
+- I'm looking specifically at TOC and headers, and being able to convert all caps text where we find it, into either sentence case or title case.
+- the glitch is, these occasionally contain acronyms or special words.  For example: "WHAT IS FOIA" -- FOIA is an acronym used in that document, so the correct case would be "What is FOIA"
+- the other case would be formal names, like "ABOUT THE GATES FOUNDATION" should become "About the Gates Foundation" since that's a proper name used in the doc.
+- my goal is a general-purpose function for "convert this string to title/sentence case" that considers and protects the acronyms and proper names in the document.
+
+so, can you write a routine that examines the HTML and looks through the text (go ahead and ignore any ALL CAPS since that's not helpful) and identifies instances of ALL CAPS or Proper Names found within the text.  you can write out what you find in a file in each doc's directory (ie same dir as its index.html) named special-case-words.json
+
+
+Worth a mention: I'm not opposed to wiring in some per-document vision-based QA, assuming the user (imaginary so far...) has their AI >= analyze.  In fact that would probably be a big benefit and could help us let some trickier edge cases go.  I get that it's non-deterministic and we don't want to rely too heavily, but it can't hurt as a backup or aid to thorny issues, especially if we can use an inexpensive model.
+
+
+
+
+
+
+"just throws that away by taking plain text "-- headers (I hate to repeat myself here) must be first-class objects.  Headers can have bolds, italics, sometimes links. If I want to embed a video in a header, I need the code to support that.  "Oh I didn't think X would ever have a Y" is unacceptable.  Every attribute, every signal, is gold.  You never know what operation down the line will need that information.  
+
+"That's the last first-class gap."
+Really?
+
+
+
+# Lists
+
+We're going to tackle lists next.
+
+If we do what we've been doing, we will fail.
+
+I need you to create a plan that allows for the fact that we will discover things that need to be fixed along the way, and we will discover some of these documents need one-off fixes.
+
+But we can not get off track.  We have to build a robust list parsing engine that is as successful as possible, and, a fast-and-easy one-off mechanism to address edge cases.
+
+Without getting derailed.  Without adding special cases to the code.  Without making lazy assumptions and taking lazy shortcuts.
+
+Where we need to do research, we will do research.  
+
+Nothing we're undertaking here is frontier science.  There is vast amounts of research and code available on text analysis, parsing, and transformation.  We need to leverage the experience of others before inventing things anew.
+
+So break the work into small steps so we can validate it all the way, and get back on track if we get lost.
+
+
+Flag pinned to the top (the bug you hit): it was being sorted to 83% depth by gates' saved reorder op
+
+see this scares me.  that makes the reorder op seem fragile.
+
+
+
+
+
+--------
+
+I want to replace the PDF Metadata link with one called "All PDFs"
+
+That window would be a tabbed interface, with "PDF Metadata" being the first tab and "Counts" being the second.  
+
+In that window, a table of documents and a column for footnotes, showing #refs found / #notes found
+
+
+
+---
+re: The per-page-restart model -- FYI we've been asked to switch models before -- put all notes at the end, or put all notes at the end of each web page, etc.  And if per-page, sometimes they want us to restart numbering, sometimes not.  lately I've taken to convincing people a lightbulb icon is better for the web since you don't need numbers to hunt down the ref. 
+
+hey remember our convo re: page breaks?  you have to track which footnotes go on which page so you can have the right data hidden and available for hover popups.
+
+bottom line, we need to be flexible with positioning and displaying them.
+
+re: Scattered singles: a small numbered block carrying citation signal (a year or URL)  
+ok, keep an eye on that. seems ripe for false positives.  notes floating randomly is a crime anyway and should be punished.
+
+re: its notes sit inside a map-infographic figure region and get absorbed into the cropped image -- that definitely happens, and as you say - belongs to figures.
+
+
