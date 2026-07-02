@@ -12,9 +12,9 @@
 - callout_label: 1
 - date_time_period: 140
 - definition: 2
-- funding_event: 14
+- funding_event: 4
 - geography_place: 3
-- impact_statement: 28
+- impact_statement: 38
 - key_finding: 2
 - metric_cluster: 21
 - named_entity: 60
@@ -32,9 +32,9 @@
 - `callout_label`: 1 candidate(s). Sample: Maximising impact through collaboration
 - `date_time_period`: 140 candidate(s). Sample: 2008; 2015; 2022
 - `definition`: 2 candidate(s). Sample: PM10; funder focus area
-- `funding_event`: 14 candidate(s). Sample: $1.3 billion; $30 million; $10 billion -> Bezos Earth Fund
+- `funding_event`: 4 candidate(s). Sample: $1.3 billion; $30 million; $10 billion -> Bezos Earth Fund
 - `geography_place`: 3 candidate(s). Sample: New York; Texas; United States
-- `impact_statement`: 28 candidate(s). Sample: impact | $71.3 million | However, the level of funding from foundations to air quality in 2022, estimated at $71.3 million, has increased only slightly since 2021, suggesting a slowdown in year-on-year growth.; funding_summary | $330 million | A total of $330 million of known funding went to air-quality projects between 2015 and 2022.; funding_summary | $30 million | In 2021 and 2022, more than $30 million of philanthropic foundation funding was invested through re-granters.
+- `impact_statement`: 38 candidate(s). Sample: impact | $71.3 million | However, the level of funding from foundations to air quality in 2022, estimated at $71.3 million, has increased only slightly since 2021, suggesting a slowdown in year-on-year growth.; funding_summary | $330 million | A total of $330 million of known funding went to air-quality projects between 2015 and 2022.; funding_summary | $30 million | In 2021 and 2022, more than $30 million of philanthropic foundation funding was invested through re-granters.
 - `key_finding`: 2 candidate(s). Sample: KEY FINDINGS; days is harmful, and exposure over months or years is particularly dangerous.
 - `metric_cluster`: 21 candidate(s). Sample: 2 metric(s): 600, 50; 4 metric(s): 0.1%, 77%, 1%, 2%; 2 metric(s): 8.3 million, 40
 - `named_entity`: 60 candidate(s). Sample: Health foundations’ funding is not matching the scale of the challenge; Clean Air Fund; Clean Air Fund

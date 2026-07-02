@@ -35,11 +35,11 @@ FUNDING_CONTEXT_RE = re.compile(
 )
 FUNDING_NEGATIVE_CONTEXT_RE = re.compile(r"\b(fee waiver|fees? exceed|processing additional records|fee category)\b", re.I)
 DISCRETE_FUNDING_ACTION_RE = re.compile(
-    r"\b(received|provided|awarded|pledged|committed|granted|funded|invested|loaned|made by|from|to|launched|expand its commitment)\b",
+    r"\b(received|provided|awarded|pledged|committed|granted|funded|invested|loaned|made by|launched|announced|expand its commitment)\b",
     re.I,
 )
 BROAD_FUNDING_SUMMARY_RE = re.compile(
-    r"\b(total|known funding|average grant size|capital backlog|economic impact|funding went to|level of funding|created over|generated over|invested nearly|foundation funding was invested|grant funding awarded|median amount|annual grantmaking)\b",
+    r"\b(total|known funding|average grant size|average amount of annual foundation funding|capital backlog|economic impact|funding went to|funding to projects|funding channelled|level of funding|created over|generated over|invested nearly|foundation funding was invested|grant funding awarded|grant success rate|median amount|annual expenses|annual grantmaking|top-funded|outliers)\b",
     re.I,
 )
 IMPACT_STATEMENT_RE = re.compile(

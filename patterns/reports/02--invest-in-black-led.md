@@ -11,9 +11,9 @@
 - callout: 37
 - date_time_period: 155
 - definition: 1
-- funding_event: 7
+- funding_event: 1
 - geography_place: 3
-- impact_statement: 32
+- impact_statement: 38
 - key_finding: 2
 - metric_cluster: 27
 - named_entity: 10
@@ -30,9 +30,9 @@
 - `callout`: 37 candidate(s). Sample: I don’t want to just get a grant. I want to sustain the grant... but if I don’t get the support I need, that i s j u st n ot go i n g to happen.; When funders want to support your work and they truly believe in what you’re doing, they work very diligently and explicitly to eliminate barriers.; There is something about trusting us to be able to do the work that we have already determined in partnership with community. This is what community wants and needs.
 - `date_time_period`: 155 candidate(s). Sample: 2019; 2026; 1971
 - `definition`: 1 candidate(s). Sample: Human-centered support
-- `funding_event`: 7 candidate(s). Sample: $1 million; $328,009,710; $109,336,570
+- `funding_event`: 1 candidate(s). Sample: $1 million
 - `geography_place`: 3 candidate(s). Sample: United States; United States; United States
-- `impact_statement`: 32 candidate(s). Sample: impact | $7,214,399,690 | Grant funding awarded $979,979,199 $7,214,399,690; impact | $1 million | , total annual grantmaking greater than $1 million) than foundations that did not fund Black-led nonprofits.; impact | $979,979,199 | Grant funding awarded $979,979,199 $7,214,399,690
+- `impact_statement`: 38 candidate(s). Sample: impact | $7,214,399,690 | Grant funding awarded $979,979,199 $7,214,399,690; impact | $1 million | , total annual grantmaking greater than $1 million) than foundations that did not fund Black-led nonprofits.; impact | $979,979,199 | Grant funding awarded $979,979,199 $7,214,399,690
 - `key_finding`: 2 candidate(s). Sample: Key findings; Small Black-led nonprofits experienced a different reality.
 - `metric_cluster`: 27 candidate(s). Sample: 2 metric(s): 4.0, 4.0; 4 metric(s): 627, 246, 24, 3,642; 3 metric(s): 70%, 54%, 34%
 - `named_entity`: 10 candidate(s). Sample: Interview and focus group methodology: Foundation representatives; GuideStar and Foundation Center; Association of Black Foundation Executives
