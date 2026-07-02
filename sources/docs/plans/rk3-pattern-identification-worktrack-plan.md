@@ -1034,3 +1034,28 @@ Two smaller conventions, matching the main repo's practice:
   issue/opportunity lanes when integration eventually happens
   (plans/proposals-layer.md), which is why the safe-vs-editorial distinction
   must never blur.
+
+
+---
+
+# 24. Requests FROM the main track (2026-07-02, owner review session)
+
+1. **Per-run pattern config / profiles.** `source_note_reference` is
+   incredibly noisy on our own IR (15 candidates on baystate alone) because
+   the IR already types every footnote reference explicitly (`refs` runs +
+   fielded footnote records). Two-part request:
+   - When the input is our IR, DERIVE source_note_reference from the typed
+     `refs`/footnotes instead of re-detecting — the §9 consume-don't-redetect
+     rule applied to one more type. 100% precision for free on our docs.
+   - General mechanism: run profiles — `--profile our-ir` (everything the IR
+     types is consumed, not detected) vs `--profile raw` (all detectors on,
+     for never-seen documents), plus per-type disable/threshold overrides.
+     Record the active profile in the report's `input` stamp so the review
+     UI can display it.
+
+2. The owner's ideas doc (sources/docs/specifications/info-pat-taxo-ideas.md)
+   now carries registry-ready sketches from the review session: funding_event,
+   partnership/collaboration, domain event frames, subject_scope and
+   question-function DIMENSIONS, mission_statement — plus five named
+   false-positive classes in the review-decisions stream. Fold into the
+   registry on your next pass.
