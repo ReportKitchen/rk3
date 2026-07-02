@@ -14,6 +14,7 @@ PATTERNS = ROOT / "patterns"
 OUT = PATTERNS / "out"
 REPORTS = PATTERNS / "reports"
 LOGS = PATTERNS / "logs"
+REVIEW_DECISIONS = PATTERNS / "review-decisions"
 CORPUS_MANIFEST = PATTERNS / "corpus" / "manifest.json"
 REGISTRY = PATTERNS / "registry" / "patterns.json"
 
@@ -81,4 +82,3 @@ def corpus_from_rk3_list() -> list[dict]:
         if len(parts) >= 2:
             docs.append({"status": parts[0], "document_id": parts[1]})
     return docs
-

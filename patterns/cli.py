@@ -21,6 +21,7 @@ from .io import (
     write_text,
 )
 from .report import build_report, markdown_summary
+from .review import markdown_review_summary, summarize_review_decisions
 from .validate import validate_report_against_registry
 
 
@@ -47,6 +48,10 @@ def main(argv: list[str] | None = None) -> None:
     manifest = sub.add_parser("manifest", help="print manifest status")
     manifest.add_argument("--refresh-from-rk3", action="store_true")
 
+    review_summary = sub.add_parser("review-summary", help="summarize JSONL reviewer decisions")
+    review_summary.add_argument("document_id", nargs="?")
+    review_summary.add_argument("--markdown", action="store_true")
+
     args = parser.parse_args(argv)
     ensure_dirs()
 
@@ -72,6 +77,12 @@ def main(argv: list[str] | None = None) -> None:
         print(json.dumps(eval_gold(args.document_id, all_docs=args.all), indent=2, sort_keys=True))
     elif args.command == "manifest":
         print(json.dumps(manifest_status(refresh=args.refresh_from_rk3), indent=2, sort_keys=True))
+    elif args.command == "review-summary":
+        summary = summarize_review_decisions(args.document_id)
+        if args.markdown:
+            print(markdown_review_summary(summary))
+        else:
+            print(json.dumps(summary, indent=2, sort_keys=True))
 
 
 def registry_by_id() -> dict[str, dict]:
@@ -187,4 +198,3 @@ def normalize_text(text: str) -> str:
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-

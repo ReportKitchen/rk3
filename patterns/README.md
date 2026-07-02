@@ -15,8 +15,8 @@ python3 -m patterns analyze 02--foia-basics-for-activists-may-2019
 python3 -m patterns report 02--foia-basics-for-activists-may-2019
 python3 -m patterns eval 02--foia-basics-for-activists-may-2019
 python3 -m patterns eval --all
+python3 -m patterns review-summary --markdown
 ```
 
 `pattern-id` is the command name used by the CLI help text; until a packaging
 entry point exists, `python3 -m patterns` is the executable form.
-
