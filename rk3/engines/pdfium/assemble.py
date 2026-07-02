@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter, defaultdict
 
-VERSION = 49
+VERSION = 50
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -100,13 +100,21 @@ def _lines(chars, links, fills=()):
     return [ln for ln in lines if ln["text"].strip()]
 
 
+# the words that decide whether a drop cap 'A'/'I' joins its following token:
+# cap + token completing one of these means the space is a sidebearing artifact
+# ("A n oil" -> "An oil", "I n the" -> "In the"); anything else keeps the space
+# ("A square mile"). English's only single-letter words are A and I, so all
+# other caps always join ("E DF" -> "EDF").
+_CAP_WORDS = frozenset(("An", "As", "At", "Am", "In", "It", "Is", "If"))
+
+
 def _dropcap_join(prev_c, c):
     """A drop cap — an ornamental first glyph several times the body size — leaves
     a wide sidebearing that mimics a word gap ("E" before "DF subsidiary" sits
     5pt off, 0.5 body-em). Geometry can't tell "Aboard" (join) from "A square"
-    (space): both hug the cap identically. English has exactly two single-letter
-    words, so join the cap to the following text UNLESS it is 'a' or 'I' — those
-    stay spaced, accepting the rare "A board"/"Aboard" ambiguity in their favor."""
+    (space): both hug the cap identically, so suppress the synthesized space for
+    every cap except 'A'/'I' — those are decided by the _CAP_WORDS token test in
+    the line-level repair (which also handles EXPLICIT space glyphs)."""
     return (prev_c is not None and prev_c[UC].isalpha()
             and prev_c[SIZE] >= 1.8 * max(c[SIZE], 1.0)
             and prev_c[UC] not in ("A", "a", "I", "i"))
@@ -196,6 +204,19 @@ def _finish_line(chars, links, fills=()):
     text, src = text[start:end], src[start:end]
 
     dom_size = sizes.most_common(1)[0][0]
+    # drop-cap space repair: an ornamental cap's sidebearing gap often arrives
+    # as an EXPLICIT space glyph ("A"," ","n oil"), which the synthesis guard
+    # (_dropcap_join) never sees. Decide once on the assembled line: the cap
+    # joins its word — and 'A'/'I' DO join when the next token completes a
+    # common short word ("A n oil" -> "An oil", "I n the" -> "In the") but
+    # keep their space when it doesn't ("A square mile").
+    if (len(text) > 2 and text[1] == " " and src[0] is not None
+            and src[0][UC].isalpha()
+            and src[0][SIZE] >= 1.8 * max(dom_size, 1.0)):
+        tok = "".join(text[2:8]).split(" ", 1)[0]
+        if text[0] not in "AaIi" or (text[0].upper() + tok.lower()) in _CAP_WORDS:
+            del text[1]
+            del src[1]
     line = {
         "text": "".join(text),
         "bbox": [min(c[L] for c in chars), min(c[B] for c in chars),
@@ -218,13 +239,13 @@ def _finish_line(chars, links, fills=()):
     if color_runs:
         line["colors"] = color_runs
     # ornamental drop cap: the line's first glyph is a letter several times the
-    # body size. Record its scale + color so render can re-create the visual
-    # cap via CSS (rubric §3: preserve by default; content-joining is handled
-    # by _dropcap_join above).
+    # body size. Record its scale + color + FONT so render can re-create the
+    # visual cap via CSS (rubric §3: preserve by default) at its true weight —
+    # a cap inside a <strong> lead would otherwise inherit bold it never had.
     if (src and src[0] is not None and src[0][UC].isalpha()
             and src[0][SIZE] >= 1.8 * max(dom_size, 1.0)):
         line["dropCap"] = [round(src[0][SIZE] / max(dom_size, 1.0), 2),
-                           src[0][COLOR]]
+                           src[0][COLOR], src[0][FONT]]
     font_runs = _font_runs(src, line["fontIdx"])
     if font_runs:
         line["fontRuns"] = font_runs

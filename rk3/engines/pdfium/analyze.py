@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 111
+VERSION = 112
 
 
 # PDF font-descriptor flag bits
@@ -972,7 +972,8 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         prov["color"] = _hex(ctx.colors[color_votes.most_common(1)[0][0]])
     dc = blk["lines"][0].get("dropCap")
     if dc:
-        prov["dropCap"] = f"{dc[0]} {_hex(ctx.colors[dc[1]])}"
+        dc_w = ctx.fonts[dc[2]]["weight"] if len(dc) > 2 else 400
+        prov["dropCap"] = f"{dc[0]} {_hex(ctx.colors[dc[1]])} {dc_w}"
     if not in_aside:
         bg = _block_bg(ctx, blk)
         if bg:

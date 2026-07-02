@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 60
+VERSION = 61
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -1191,15 +1191,21 @@ def _original_css(ctx, ir):
             # even a modest oversized lead letter (chep's 1.9× labels) is a
             # real design flourish — render it proportionally.
             try:
-                scale_s, dc_color = d["dropCap"].split()
-                dc_size = round(float(scale_s) * 0.65, 2)
-            except (ValueError, AttributeError):
-                dc_size, dc_color = None, None
+                parts_dc = d["dropCap"].split()
+                dc_size = round(float(parts_dc[0]) * 0.65, 2)
+                dc_color = parts_dc[1]
+                dc_weight = parts_dc[2] if len(parts_dc) > 2 else None
+            except (ValueError, AttributeError, IndexError):
+                dc_size, dc_color, dc_weight = None, None, None
             if dc_size and dc_size >= 1.1:
                 rules_dc = [f"  float: left;",
                             f"  font-size: {dc_size}em;",
                             "  line-height: 0.8;",
                             "  padding: 0.04em 0.08em 0 0;"]
+                if dc_weight:
+                    # the cap's TRUE weight — also shields it from inheriting
+                    # a <strong> the paragraph happens to open with
+                    rules_dc.append(f"  font-weight: {dc_weight};")
                 if _usable_color(dc_color):
                     rules_dc.append(f"  color: {dc_color};")
                 out += [f'[data-nid="{n["nid"]}"]::first-letter {{',
