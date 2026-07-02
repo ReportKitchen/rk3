@@ -443,7 +443,7 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
                 "Heading names a reusable resource or program.",
                 text,
             )
-        if is_entity_candidate(text, heading=True):
+        if is_entity_candidate(text, heading=True) and not is_resource_only_name(text):
             add(
                 "named_entity",
                 node,
@@ -464,6 +464,8 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
 
     for node in leaves:
         text = node.get("text") or ""
+        if is_citation_like_text(text) or is_chart_or_methodology_text(text):
+            continue
         for entity in entities_in_text(text):
             if is_resource_only_name(entity):
                 continue
@@ -1268,7 +1270,7 @@ def is_chart_or_methodology_text(text: str) -> bool:
     lowered = (text or "").strip().lower()
     return bool(
         lowered.startswith(("figure ", "fig. ", "chart ", "table ", "base:"))
-        or re.search(r"\b(n=\d|sample size|respondents in the survey|demographic makeup)\b", lowered)
+        or re.search(r"\b(n=\d|sample size|respondents in the survey|demographic makeup|methodolog(?:y|ies))\b", lowered)
     )
 
 

@@ -16,7 +16,7 @@
 - impact_statement: 38
 - key_finding: 2
 - metric_cluster: 27
-- named_entity: 10
+- named_entity: 7
 - process_step_list: 3
 - purpose_statement: 2
 - question: 49
@@ -35,7 +35,7 @@
 - `impact_statement`: 38 candidate(s). Sample: impact | $7,214,399,690 | Grant funding awarded $979,979,199 $7,214,399,690; impact | $1 million | , total annual grantmaking greater than $1 million) than foundations that did not fund Black-led nonprofits.; impact | $979,979,199 | Grant funding awarded $979,979,199 $7,214,399,690
 - `key_finding`: 2 candidate(s). Sample: Key findings; Small Black-led nonprofits experienced a different reality.
 - `metric_cluster`: 27 candidate(s). Sample: 2 metric(s): 4.0, 4.0; 4 metric(s): 627, 246, 24, 3,642; 3 metric(s): 70%, 54%, 34%
-- `named_entity`: 10 candidate(s). Sample: Interview and focus group methodology: Foundation representatives; GuideStar and Foundation Center; Association of Black Foundation Executives
+- `named_entity`: 7 candidate(s). Sample: Interview and focus group methodology: Foundation representatives; GuideStar and Foundation Center; Association of Black Foundation Executives
 - `process_step_list`: 3 candidate(s). Sample: 3 step(s): Financial support: the money that nonprofits need to accomplish their work; Social support: the relationships that help nonprofits thrive; Human-centered support: the resources that nonprofit staff need to be healthy and carry out mission-driven work at full capacity; 3 step(s): Financial support: the money that nonprofits need to accomplish their work; Social support: the relationships that help nonprofits thrive; Human-centered support: the resources that nonprofit staff need to be healthy and carry out mission-driven work at full capacity; 3 step(s): between Black-led and other nonprofits; among different-sized nonprofits; as an interaction between nonprofit type and nonprofit size.
 - `purpose_statement`: 2 candidate(s). Sample: Following George Floyd’s murder and heightened focus on racial equity in 2020, many foundations pledged support for Black communities; similarly, many also increased giving to address pandemic-related urgent needs.; Current challenges in the philanthropic landscape inevitably make systemic change more difficult, but also more urgent.
 - `question`: 49 candidate(s). Sample: But how much really changed, and who did it change for?; Definition: What is a Black-led nonprofit?; Has foundations’ support for Black-led nonprofits waned in the years following the call for racial justice in 2020?

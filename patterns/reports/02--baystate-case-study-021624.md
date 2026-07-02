@@ -18,7 +18,7 @@
 - geography_place: 9
 - impact_statement: 2
 - metric_cluster: 2
-- named_entity: 53
+- named_entity: 52
 - process_step_list: 2
 - purpose_statement: 1
 - quotation: 31
@@ -38,7 +38,7 @@
 - `geography_place`: 9 candidate(s). Sample: Massachusetts; Massachusetts; Massachusetts
 - `impact_statement`: 2 candidate(s). Sample: impact | Amplify impact through place-based collaboratives and leadership commitments.; impact | 2022 | To demonstrate its commitment to economic opportunity for all, Baystate Health signed an Impact Workforce Commitment (IWC) in 2022.
 - `metric_cluster`: 2 candidate(s). Sample: 2 metric(s): 800,000, 13,000; 2 metric(s): 90%, 75%
-- `named_entity`: 53 candidate(s). Sample: Baystate Health; Baystate Health; Baystate Health
+- `named_entity`: 52 candidate(s). Sample: Baystate Health; Baystate Health; Baystate Health
 - `process_step_list`: 2 candidate(s). Sample: 5 step(s): Partner with other local employers, communitybased organizations, and educational partners to support an effective workforce ecosystem.; Connect unsuccessful applicants with career development opportunities.; Collaborate with community-based organizations and other community partners on initiatives such as cohort training programs.; 3 step(s): Increase retention rates with an inside-up workforce strategy that includes apprenticeships, internships, earn-andlearns, and “pay to train” models.; Develop a strategy to help employees overcome financial instability.; Enlist workforce planners to build programming to support incumbent employees’ career advancement.
 - `purpose_statement`: 1 candidate(s). Sample: Samra emphasized the need to sustainably integrate initiatives into their operations so that they are not just one-time pilot programs, but rather part of a long-term, cohesive strategy.
 - `quotation`: 31 candidate(s). Sample: to improve the health of the people in our communities every day, with quality and compassion.; this is the key to survival: having a healthy, sustainable pipeline of workers.; We had been struggling the most with identifying the underesourced neighborhoods that we want to be targeting,

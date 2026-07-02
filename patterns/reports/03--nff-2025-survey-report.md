@@ -15,7 +15,7 @@
 - impact_statement: 17
 - key_finding: 4
 - metric_cluster: 17
-- named_entity: 15
+- named_entity: 14
 - process_step_list: 2
 - purpose_statement: 2
 - question: 9
@@ -32,7 +32,7 @@
 - `impact_statement`: 17 candidate(s). Sample: accomplishment | $10 | Every dollar invested in our organization results in $10 in economic impact on multiple fronts.; accomplishment | $1 billion | Since we’ve existed, we have generated over $350 million in investment to create permanent affordable housing, which has created over $1 billion in economic impact across our three-state footprint.; accomplishment | $350 million | Since we’ve existed, we have generated over $350 million in investment to create permanent affordable housing, which has created over $1 billion in economic impact across our three-state footprint.
 - `key_finding`: 4 candidate(s). Sample: [A challenge is] finding adequate, sustainable, unrestricted funding sources to support staff.; FINDING STAFF WITH THE RIGHT SKILL SETS; More than two-thirds of respondents reported difficulty employing enough staff for both program and administrative needs and finding workers with the right skill sets.
 - `metric_cluster`: 17 candidate(s). Sample: 5 metric(s): 360, 40, 360, 2,200, 100%; 12 metric(s): 41 %, 18%, 0%, 2%, 4%, 6%; 11 metric(s): 46%, 70%, 37%, 40%, 8%, 67%
-- `named_entity`: 15 candidate(s). Sample: Betty and Davis Fitzgerald Foundation; Nonprofit Finance Fund; Nonprofit Finance Fund
+- `named_entity`: 14 candidate(s). Sample: Betty and Davis Fitzgerald Foundation; Nonprofit Finance Fund; Nonprofit Finance Fund
 - `process_step_list`: 2 candidate(s). Sample: 3 step(s): Elise Miller, Nonprofit Finance Fund; Jennifer Talansky, Nonprofit Finance Fund; Anjali Deshmukh, Co-Founder of Make Justice Normal; 5 step(s): Annie Chang, Nonprofit Finance Fund; Larry McGill, Ambit 360 Consulting, LLC; Tessa Borelli, Nonprofit Finance Fund
 - `purpose_statement`: 2 candidate(s). Sample: We’re looking at 2025 with urgency – not just because of this year’s data, but because we’ve seen the consequences of this kind of interconnected strain before.; For too long, chronic underfunding has been treated as a problem for nonprofits to solve with a “smarter” business model or “more strategic” plan.
 - `question`: 9 candidate(s). Sample: WHO RESPONDED TO THE SURVEY?; For example, if a crisis hits, how long can the organization keep running?; HOW MUCH OF YOUR FULL-TIME STAFF IS YOUR ORGANIZATION ABLE TO PAY A LIVING WAGE?

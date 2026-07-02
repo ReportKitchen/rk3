@@ -17,7 +17,7 @@
 - impact_statement: 7
 - key_finding: 1
 - metric_cluster: 6
-- named_entity: 44
+- named_entity: 43
 - purpose_statement: 2
 - quotation: 16
 - resource: 14
@@ -34,7 +34,7 @@
 - `impact_statement`: 7 candidate(s). Sample: need | Together with our partners, we focus on the greatest need – the massive shortage of affordable rental homes – to achieve three critical goals:; impact | 2001 | Since 2001, rents have increased by 13% while renter incomes only rose 0.5%.; impact | 40 | During the event, we were excited to honor 40 individuals who have made an enormous impact in housing over the last four decades.
 - `key_finding`: 1 candidate(s). Sample: Stories of Impact
 - `metric_cluster`: 6 candidate(s). Sample: 2 metric(s): 40, 40; 4 metric(s): 13%, 0.5%, 62%, 6%; 7 metric(s): 40, 1,000, 40, 40, 40, 40
-- `named_entity`: 44 candidate(s). Sample: Annual Report from Enterprise Community Partners; MARCIA FUDGE; COLLEEN DUSHKIN
+- `named_entity`: 43 candidate(s). Sample: MARCIA FUDGE; COLLEEN DUSHKIN; ANDRE DICKENS
 - `purpose_statement`: 2 candidate(s). Sample: I want Cleveland to be safe for all children, and I know this is a problem we can solve.; Our mission is to make home and community places of pride, power and belonging, and platforms for resilience and upward mobility for all.
 - `quotation`: 16 candidate(s). Sample: We have to find ways to not only preserve housing but to preserve the people who live in that housing. We have to build neighborhoods.; Our partners came away with a deeper understanding of Alaska, our dynamic delivery system and housing community, and an energy to invest in the phenomenal work happening in our communities.; To meet my administration’s ambitious goal of creating or preserving 20,000 units of affordable housing, we will need the assistance of all facets of our community using all tools at our disposal. Thank you to Wells Fargo and Enterprise Co...
 - `resource`: 14 candidate(s). Sample: Annual Report | report; The Challenge | challenge; Department of Housing and Urban Development’s American Housing Survey | survey
@@ -43,7 +43,6 @@
 ## High Confidence Candidates
 
 - `date_time_period` p1 `patt_5961ceb5fc55` (0.78): 2022
-- `named_entity` p1 `patt_9d86ce49f6c9` (0.82): Annual Report from Enterprise Community Partners
 - `date_time_period` p3 `patt_d66a5ff7f460` (0.78): 2001 | source: Since 2001, rents have increased by 13% while renter incomes only rose 0.
 - `callout` p6 `patt_b392f25b708a` (0.82): We have to find ways to not only preserve housing but to preserve the people who live in that housing. We have to build neighborhoods. MARCIA FUDGE HUD Secretary “ It isn’t just that housing’s not affordable, it’s especially unaffordable i...
 - `date_time_period` p6 `patt_bc7c6a066cdf` (0.78): October 20, 2022 | source: On October 20, 2022, we brought together nearly 1,000 housing leaders from across the country to discuss solutions to our most pressing challenges.
@@ -82,6 +81,7 @@
 - `funding_event` p10 `patt_15b3f4f4bbe2` (0.76): $20 million -> Wells Fargo Foundation | source: During a celebration of the program in December 2022, president of the Wells Fargo Foundation, Otis Rolley, announced that Wells Fargo would expand its commitment to fund a second $20 million competition in collaboration with Enterprise.
 - `named_entity` p10 `patt_08f11018298d` (0.78): Wells Fargo Foundation | source: OTIS ROLLEY President, Wells Fargo Foundation
 - `named_entity` p10 `patt_6b94e39fb4d8` (0.82): TOM MIHALJEVIC | source: TOM MIHALJEVIC, M.D. President & CEO, Cleveland Clinic
+- `named_entity` p10 `patt_91e2f2342886` (0.82): OTIS ROLLEY | source: OTIS ROLLEY President, Wells Fargo Foundation
 
 ## Lower Confidence Candidates
 
