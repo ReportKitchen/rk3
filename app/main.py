@@ -38,6 +38,11 @@ FEEDBACK = ROOT / "feedback"
 app = FastAPI(title="RK3")
 
 _active: set[str] = set()
+# a save that lands WHILE a convert is running must not be dropped: the
+# running convert already read the ops/config files and won't see it. Mark
+# the slug dirty; when the convert finishes it immediately reruns once
+# (fingerprints make the rerun cheap — render-only for op saves).
+_rerun: set[str] = set()
 _active_lock = threading.Lock()
 
 
@@ -263,6 +268,10 @@ def set_doc_config(slug: str, cfg: DocConfig):
 def _spawn_convert(slug: str, force: bool = False):
     with _active_lock:
         if slug in _active:
+            # coalesce, don't drop: the user saved again mid-convert (two
+            # quick saves made tenure's and invest's newest merge "not take").
+            # The finishing convert reruns once for everything that landed.
+            _rerun.add(slug)
             return
         _active.add(slug)
 
@@ -288,6 +297,10 @@ def _spawn_convert(slug: str, force: bool = False):
         finally:
             with _active_lock:
                 _active.discard(slug)
+                again = slug in _rerun
+                _rerun.discard(slug)
+            if again:
+                _spawn_convert(slug)
 
     threading.Thread(target=work, daemon=True, name=f"convert-{slug}").start()
 
