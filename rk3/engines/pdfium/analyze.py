@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 145
+VERSION = 149
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -515,6 +515,8 @@ def run(ctx):
     nodes = _join_broken_paragraphs(ctx, nodes)
     nodes = _merge_crosspage_lists(ctx, nodes)
     nodes = _merge_crosspage_bullet_lists(ctx, nodes)
+    nodes = _join_list_tail(ctx, nodes)
+    nodes = _absorb_bullet_stragglers(ctx, nodes)
     nodes = _marker_lists(ctx, nodes)
     nodes = _definition_lists(ctx, nodes)
     nodes = _floating_pullquotes(ctx, nodes, body_size)
@@ -2945,15 +2947,19 @@ def _aside_layout_and_pullquotes(ctx, nodes, twocol_pages=()):
 def _join_pagebreak_sentences(ctx, children):
     """A sentence interrupted by a page break (previous paragraph ends without
     terminal punctuation, next starts lowercase on a later page) is one
-    paragraph."""
+    paragraph. A SEMICOLON end is the one uppercase-tolerant case: no prose
+    paragraph ends on ';', and the items of a semicolon-list legitimately
+    start uppercase (covid p4-5: '…spending (6.5%);' + 'Access to financial
+    services (4%)…')."""
     out = []
     for ch in children:
         prev = out[-1] if out else None
         if (prev is not None and prev["type"] == "paragraph"
                 and ch["type"] == "paragraph" and ch["page"] > prev["page"]
                 and prev.get("text") and ch.get("text")
-                and prev["text"][-1] not in ".!?:;”’\""
-                and ch["text"][:1].islower()):
+                and (prev["text"][-1] not in ".!?:;”’\""
+                     and ch["text"][:1].islower()
+                     or _prose_end(prev) == ";" and ch["text"][:1].isalpha())):
             off = len(prev["text"]) + 1
             # joined text renders under prev's page; credit the source page
             ctx.audit_moved[ch["page"]] += _alnum(ch["text"])
@@ -2964,6 +2970,77 @@ def _join_pagebreak_sentences(ctx, children):
                         [r[0] + off, r[1] + off, *r[2:]] for r in ch[key])
             ctx.log.entry("join-pagebreak", page=ch["page"], into=prev["rk"],
                           joined=ch["text"][:60])
+            continue
+        out.append(ch)
+    return out
+
+
+def _join_list_tail(ctx, nodes):
+    """A list whose LAST item ends mid-sentence, followed by a short
+    lowercase paragraph, is a broken item: the fragment is the item's own
+    continuation, split off by column geometry (ecp p10 — the magic-wand
+    example: 'Post-Eviction: after the court has determined that an' +
+    'eviction can proceed'). Fold it back into the item, runs rebased."""
+    out = []
+    for ch in nodes:
+        prev = out[-1] if out else None
+        if not (prev is not None and prev.get("type") == "list"
+                and prev.get("items") and ch.get("type") == "paragraph"
+                and ch.get("text") and len(ch["text"]) <= 200
+                and ch["text"][:1].islower() and not ch.get("breaks")
+                and 0 <= ch["page"] - prev["page"] <= 1):
+            out.append(ch)
+            continue
+        it = prev["items"][-1]
+        if not isinstance(it, dict) or it.get("sub"):
+            out.append(ch)
+            continue
+        last = _prose_end(it)
+        if not (last.isalnum() or last in ",-–­"):
+            out.append(ch)
+            continue
+        text = it.get("text", "")
+        if last in "-­" and text.rstrip()[-1:] in "-­":
+            it["text"] = text.rstrip()[:-1]
+            joiner = ""
+        else:
+            joiner = " "
+        off = len(it["text"]) + len(joiner)
+        it["text"] += joiner + ch["text"]
+        for key in _RUN_KEYS:
+            if ch.get(key):
+                it.setdefault(key, []).extend(
+                    [r[0] + off, r[1] + off, *r[2:]] for r in ch[key])
+        ctx.audit_moved[ch["page"]] += _alnum(ch["text"])
+        ctx.log.entry("join-list-tail", page=ch["page"], into=prev["rk"],
+                      joined=ch["text"][:60])
+    return out
+
+
+def _absorb_bullet_stragglers(ctx, nodes):
+    """A paragraph that still LEADS WITH A BULLET GLYPH, sitting after an
+    unordered list, is a stranded item (gates p9: '• For countries: …'
+    separated from its siblings by note-marker debris and the chart the
+    bullets annotate). Intervening FIGURES don't break the kinship — look
+    past up to two of them. Strip the marker, append as an item."""
+    out = []
+    for ch in nodes:
+        prev = None
+        for back in out[-3:][::-1]:
+            if back.get("type") == "figure":
+                continue
+            prev = back
+            break
+        if (prev is not None and prev.get("type") == "list"
+                and prev.get("items") is not None and not prev.get("ordered")
+                and ch.get("type") == "paragraph"
+                and (ch.get("text") or "")[:1] in BULLETS
+                and 0 <= ch["page"] - prev["page"] <= 1):
+            # the stripped bullet glyph leaves the text; claim it for audit
+            ctx.audit_claimed[ch["page"]] += _alnum(ch["text"][:1])
+            prev["items"].append(_strip_marker_item(_node_runs(ch), BULLETS))
+            ctx.log.entry("list-straggler", page=ch["page"], into=prev["rk"],
+                          text=ch["text"][:60])
             continue
         out.append(ch)
     return out
@@ -4139,7 +4216,7 @@ def _sequence_notes(ctx, frags):
                                    reason="block-leading text + single gap")
                 cur = {"n": M - 1, "marker": str(M - 1), "page": p0["page"],
                        "text": " ".join(p["text"] for p in pending).strip(),
-                       "rk": rk}
+                       "rk": rk, "inferred": True}
                 notes.append(cur)
                 contributing.update(p["block"] for p in pending)
                 pending = []
@@ -4262,6 +4339,20 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
         if cand:
             frags.extend(_block_fragments(blk, i))
     notes, note_idx = _sequence_notes(ctx, frags)
+    # a note whose marker was INFERRED (typeset apart from its text) usually
+    # leaves the detached marker glyph as a stray tiny block in the flow —
+    # gates p9 renders orphan '1' and '9' paragraphs. A block whose whole
+    # text IS that note's marker, on the note's page, is debris: claim it.
+    for nt in notes:
+        if not nt.pop("inferred", False):
+            continue
+        for i, blk in enumerate(blocks):
+            if i in skip or i in note_idx or blk["page"] != nt["page"]:
+                continue
+            if texts[i].strip() == nt["marker"]:
+                note_idx.add(i)
+                ctx.log.entry("note-marker-claimed", page=blk["page"],
+                              n=nt["n"], block=blk["rk"])
     # (page, n): keeps doc-wide numbering in order AND keeps per-page
     # RESTARTING footnotes (toolkit: 1, 2, 3 on every page) in document order
     # instead of interleaving every page's "1" together

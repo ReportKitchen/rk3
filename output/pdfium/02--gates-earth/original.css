@@ -111,11 +111,6 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
   font-size: 1.11em;
 }
 
-.accent-4 {
-  color: #838383;
-  font-size: 0.89em;
-}
-
 .xl-center {
   font-size: 1.79em;
   text-align: center;
@@ -163,6 +158,11 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
 .sm-accent-2 {
   color: #707070;
   font-size: 0.76em;
+}
+
+.accent-4 {
+  color: #838383;
+  font-size: 0.89em;
 }
 
 .fine-6 {

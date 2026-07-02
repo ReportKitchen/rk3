@@ -1570,7 +1570,7 @@
       "footnotes": 1,
       "heading": 84,
       "list": 12,
-      "paragraph": 179,
+      "paragraph": 177,
       "table": 6
     },
     "asideChildren": 66,
@@ -1703,7 +1703,7 @@
       126
     ],
     "questions": 29,
-    "textChars": 155671
+    "textChars": 155669
   },
   "02--baystate-case-study-021624": {
     "status": "done",
@@ -2588,7 +2588,7 @@
       "footnotes": 2,
       "heading": 31,
       "list": 7,
-      "paragraph": 126,
+      "paragraph": 125,
       "table": 3
     },
     "asideChildren": 327,
@@ -2700,8 +2700,8 @@
       105,
       106
     ],
-    "questions": 20,
-    "textChars": 135043
+    "questions": 19,
+    "textChars": 135044
   },
   "02--edf-ir23-digital-pages": {
     "status": "done",
@@ -3171,12 +3171,12 @@
       "figure": 10,
       "heading": 30,
       "list": 18,
-      "paragraph": 82
+      "paragraph": 81
     },
     "asideChildren": 39,
     "notes": [],
     "questions": 9,
-    "textChars": 40692
+    "textChars": 40690
   },
   "02--invest-in-black-led": {
     "status": "done",
@@ -3357,7 +3357,7 @@
       "footnotes": 1,
       "heading": 42,
       "list": 15,
-      "paragraph": 356
+      "paragraph": 355
     },
     "asideChildren": 119,
     "notes": [
@@ -3368,7 +3368,7 @@
       5
     ],
     "questions": 10,
-    "textChars": 131525
+    "textChars": 131526
   },
   "02--oxfam-davos-2024-report": {
     "status": "done",
@@ -3686,7 +3686,7 @@
       "footnotes": 2,
       "heading": 76,
       "list": 14,
-      "paragraph": 248
+      "paragraph": 246
     },
     "asideChildren": 39,
     "notes": [
@@ -4168,7 +4168,7 @@
       476
     ],
     "questions": 13,
-    "textChars": 386369
+    "textChars": 386365
   },
   "02--points-of-light": {
     "status": "done",
@@ -4337,7 +4337,7 @@
       "footnotes": 1,
       "heading": 39,
       "list": 18,
-      "paragraph": 159
+      "paragraph": 158
     },
     "asideChildren": 22,
     "notes": [
@@ -4393,7 +4393,7 @@
       46
     ],
     "questions": 10,
-    "textChars": 89330
+    "textChars": 89328
   },
   "02--race-to-lead": {
     "status": "done",
@@ -6468,7 +6468,7 @@
       "footnotes": 2,
       "heading": 45,
       "list": 1,
-      "paragraph": 113
+      "paragraph": 112
     },
     "asideChildren": 0,
     "notes": [
@@ -6541,7 +6541,7 @@
       67
     ],
     "questions": 0,
-    "textChars": 115907
+    "textChars": 115908
   },
   "02--gates-earth": {
     "status": "done",
@@ -7392,7 +7392,7 @@
       "footnotes": 1,
       "heading": 209,
       "list": 51,
-      "paragraph": 563,
+      "paragraph": 555,
       "table": 10
     },
     "asideChildren": 271,
@@ -7821,7 +7821,7 @@
       426
     ],
     "questions": 43,
-    "textChars": 404232
+    "textChars": 404218
   },
   "02--rwjf-futures": {
     "status": "done",
@@ -8293,12 +8293,12 @@
       "figure": 43,
       "heading": 115,
       "list": 26,
-      "paragraph": 463
+      "paragraph": 461
     },
     "asideChildren": 65,
     "notes": [],
-    "questions": 77,
-    "textChars": 171464
+    "questions": 76,
+    "textChars": 171463
   },
   "02--toolkit-hiring2022-copy112222onlineversiononly-1": {
     "status": "done",
@@ -9425,7 +9425,7 @@
       "footnotes": 1,
       "heading": 278,
       "list": 68,
-      "paragraph": 509
+      "paragraph": 508
     },
     "asideChildren": 101,
     "notes": [
@@ -9489,7 +9489,7 @@
       10
     ],
     "questions": 60,
-    "textChars": 291105
+    "textChars": 291106
   },
   "03--enterprise-annual-report-2022": {
     "status": "done",

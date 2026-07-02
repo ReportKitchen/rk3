@@ -103,6 +103,23 @@ two columns exist where the join pass fused them), covid p4; and clean 1-col
 conf=1.0 on both negative controls. Eval census unchanged (32/12), pytest
 33/33.
 
+**Post-phase-2 target sweep (2026-07-02, analyze v145-149): 34/10 → 38/6.**
+Four more gold targets closed by precise pass fixes, each verified + eyeballed:
+- *trailing footnote ref ≠ mid-sentence* (`_prose_end` in both join passes) —
+  killed the advancing p12 weld AND ~27 bogus welds in oxfam alone;
+- *semicolon pagebreak joins* (a ';' end never closes a paragraph; its list
+  items legitimately start uppercase) — covid p4-5;
+- *detached note-marker debris claimed* (a tiny block whose whole text is an
+  INFERRED note's marker) — gates p9's stray '1'/'9' paragraphs gone;
+- *list-tail continuation* (`_join_list_tail`, the magic-wand example) and
+  *bullet stragglers absorbed past intervening figures*
+  (`_absorb_bullet_stragglers`) — ecp p10 + gates p9 lists whole.
+Remaining 6 = gates p8 (cross-gutter FUSED LINE — needs an assemble-level
+line split; no ordering of a fused unit is correct), atlantic p6 (signature
+rows), edf p6 ×2 (fused-line class + footer typing), ecp p4 (region
+membership: the continuation belongs INSIDE the box region), foia p20
+(notes-section interleave).
+
 **Phase 2 SHIPPED (2026-07-02, analyze v144): 32/12 → 34/10, zero guard
 losses.** `structure.readingOrder: "model"` is the default; `"xycut"` is the
 config escape hatch. Implementation went sort-key rather than DAG — the model
