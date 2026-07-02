@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 119
+VERSION = 122
 
 
 # PDF font-descriptor flag bits
@@ -260,7 +260,7 @@ def run(ctx):
     _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles)
     absorbed.update(dict.fromkeys(skip))
 
-    notes, note_idx, notes_sectioned = _find_notes(ctx, pages, blocks, texts,
+    notes, note_idx, notes_anchor = _find_notes(ctx, pages, blocks, texts,
                                                    absorbed, body_size)
     absorbed.update(dict.fromkeys(note_idx))
 
@@ -463,17 +463,17 @@ def run(ctx):
         last = blocks[max(note_idx)]
         rk = ctx.log.entry("footnotes", count=len(notes),
                            numbers=[n["n"] for n in notes][:20],
-                           sectioned=notes_sectioned)
+                           anchored=notes_anchor is not None)
         node = {"type": "footnotes", "notes": notes, "page": last["page"],
                 "bbox": last["bbox"], "rk": rk, "data": {}}
         node["nid"] = _stable_id("n", ctx.nids, "footnotes", node["page"],
                                  node["bbox"], "footnotes")
-        if notes_sectioned:
-            # notes lifted from a section render AT the section's position
-            # (an Endnotes section may be followed by Sources etc.); only
-            # scattered page-bottom notes collect at document end
-            first = min(note_idx, key=lambda i: (blocks[i]["page"],
-                                                 -blocks[i]["bbox"][3]))
+        if notes_anchor is not None:
+            # the MAJORITY note group (a real Endnotes/References section)
+            # renders at its own position — it may be followed by Sources,
+            # appendices etc. Scattered page-notes and minority runs never
+            # anchor; without a majority group the notes collect at the end.
+            first = notes_anchor
             key = (blocks[first]["page"], -blocks[first]["bbox"][3])
             pos = next((k for k, n in enumerate(nodes)
                         if (n["page"], -n["bbox"][3]) > key), len(nodes))
@@ -3518,8 +3518,11 @@ def _body_note_runs(ctx, blocks, texts, skip, body_size):
     least half the notes) is a notes section regardless of size or heading.
     The citation gate is what keeps numbered LISTS and survey questions out
     (respond-to-crisis's appendix questions count sequentially but cite
-    nothing). Returns the set of member block indexes."""
-    member = set()
+    nothing). Returns (sectionish, scattered) member index sets: BODY-size
+    chains read as an endnotes SECTION (they anchor the rendered position);
+    small chains are scattered page notes (collected, but never an anchor)."""
+    member = {}       # block index -> its run's START block (group identity)
+    scattered = set()
     idxs = [i for i in range(len(blocks)) if i not in skip]
     k = 0
     while k < len(idxs):
@@ -3552,12 +3555,16 @@ def _body_note_runs(ctx, blocks, texts, skip, body_size):
         if count >= (2 if small else 4):
             cites = len(_CITE_RE.findall(" ".join(texts[c] for c in chain)))
             if cites >= 0.5 * count:
-                member.update(chain)
+                if small:
+                    scattered.update(chain)
+                else:
+                    for c in chain:
+                        member[c] = chain[0]
                 ctx.log.entry("note-run", page=blocks[i]["page"], blocks=len(chain),
-                              notes=count, cites=cites,
+                              notes=count, cites=cites, small=small,
                               text=texts[i][:60])
         k = max(j, k + 1)
-    return member
+    return member, scattered
 
 
 def _find_notes(ctx, pages, blocks, texts, skip, body_size):
@@ -3566,9 +3573,15 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
     body-size sequential run with citation signal (_body_note_runs).
     Returns (notes, absorbed block indexes, sectioned flag)."""
     notes, note_idx = [], set()
+    # note GROUPS (per heading-section / per body-size run): the rendered
+    # position anchors at the group holding the MAJORITY of the notes; with no
+    # majority group the notes collect at the document end. (An early numbered
+    # run with citations must not drag 46 end-references to page 3.)
+    groups = {}
+    h_seq = 0
+    cur_h = None
     in_section = False
-    sectioned = False
-    body_runs = _body_note_runs(ctx, blocks, texts, skip, body_size)
+    body_runs, small_runs = _body_note_runs(ctx, blocks, texts, skip, body_size)
     expected = None  # next anticipated note number; gates against wrapped DOIs
     for i, (blk, text) in enumerate(zip(blocks, texts)):
         if i in skip:
@@ -3579,18 +3592,22 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
             # size starts a fresh section — and must never be eaten as a
             # continuation of the previous section's last note
             in_section = True
+            h_seq += 1
+            cur_h = ("h", h_seq)
             expected = None
             continue
         marker = _line_marker(blk["lines"][0])
-        if not in_section and i in body_runs:
+        if not in_section and (i in body_runs or i in small_runs):
             new, lead, expected = _parse_notes(ctx, blk, expected)
             if lead and notes:
                 notes[-1]["text"] += " " + lead
             notes.extend(new)
             if new or (lead and notes):
                 note_idx.add(i)
-                sectioned = True  # a body-size run is an endnotes section:
-                # it renders at its own position in the flow
+                if i in body_runs:
+                    g = groups.setdefault(("r", body_runs[i]),
+                                          {"start": i, "count": 0})
+                    g["count"] += len(new)
             continue
         if in_section:
             if size > body_size * 1.15:
@@ -3602,7 +3619,8 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
                 notes.extend(new)
                 if new or (lead and notes):
                     note_idx.add(i)
-                    sectioned = True
+                    g = groups.setdefault(cur_h, {"start": i, "count": 0})
+                    g["count"] += len(new)
                 continue
             elif notes and len(text.strip()) <= 4:
                 # a tiny stray fragment (a split-off subscript: the "2.5" of
@@ -3620,7 +3638,8 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
                         notes[-1]["text"] += " " + lead
                     notes.extend(new)
                     note_idx.add(i)
-                    sectioned = True
+                    g = groups.setdefault(cur_h, {"start": i, "count": 0})
+                    g["count"] += len(new)
                     continue
                 if text[:1].islower():
                     # pure continuation = a wrap of the previous note (starts
@@ -3652,7 +3671,12 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
     # RESTARTING footnotes (toolkit: 1, 2, 3 on every page) in document order
     # instead of interleaving every page's "1" together
     notes.sort(key=lambda n: (n["page"], n["n"]))
-    return notes, note_idx, sectioned
+    anchor = None
+    if groups and notes:
+        best = max(groups.values(), key=lambda g: g["count"])
+        if best["count"] >= 0.5 * len(notes):
+            anchor = best["start"]
+    return notes, note_idx, anchor
 
 
 def _parse_notes(ctx, blk, expected):
