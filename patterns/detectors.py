@@ -18,6 +18,22 @@ NUMBER_RE = re.compile(
     r"(?P<value>(?:[$][ ]?)?\d[\d,]*(?:\.\d+)?(?:[ ]?(?:%|percent|percentage points|million|billion|thousand))?)",
     re.I,
 )
+MONEY_RE = re.compile(
+    r"(?P<amount>\$\s?\d[\d,]*(?:\.\d+)?(?:\s?(?:million|billion|thousand|m|b))?|\b\d[\d,]*(?:\.\d+)?\s+(?:million|billion|thousand)\s+dollars\b)",
+    re.I,
+)
+LEGAL_REFERENCE_RE = re.compile(
+    r"\b(?P<bill>(?:HB|SB|HR|H\.R\.|S\.)\s*\d+[A-Z]?)\b|"
+    r"\b(?P<usc>\d+\s*U\.?S\.?C\.?\s*(?:§|Sec\.?)?\s*[\w().-]+)(?=[\s,.;)]|$)|"
+    r"(?P<section>§+\s*[\w().-]+)|"
+    r"\b(?P<subsection>\d{2,4}\s*(?:\([a-zA-Z0-9]+\)){1,4})\b",
+    re.I,
+)
+FUNDING_CONTEXT_RE = re.compile(
+    r"\b(fund|funded|funding|grant|grants|investment|invested|investor|loan|loans|donor|donors|capital|award|awarded|committed|raised|financing|philanthrop)\w*\b",
+    re.I,
+)
+FUNDING_NEGATIVE_CONTEXT_RE = re.compile(r"\b(fee waiver|fees? exceed|processing additional records|fee category)\b", re.I)
 DATE_RE = re.compile(
     r"\b(?:"
     r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|"
@@ -46,6 +62,7 @@ QUESTION_PROMPT_RE = re.compile(r"^(what|who|when|where|why|how|which)\b.{8,140}
 RECOMMENDATION_RE = re.compile(r"\b(should|must|need to|needs to|recommend|increase|fund|create|adopt|require|expand|establish|invest|coordinate|evaluate)\b", re.I)
 KEY_FINDING_RE = re.compile(r"\b(key finding|finding|we find|this shows|this demonstrates|evidence suggests)\b", re.I)
 ACTION_START_RE = re.compile(r"^\s*(partner|connect|collaborate|hold|develop|enlist|increase|fund|create|adopt|require|expand|establish|invest|coordinate|evaluate|seek|seeking|challenge|challenging|negotiate|negotiating|identify|make sure)\b", re.I)
+ROLE_HINT_RE = re.compile(r"\b(ceo|director|officer|president|founder|manager|chair|principal|partner|professor|secretary|minister|attorney|counsel|lead|head|vp|vice president)\b", re.I)
 ENTITY_PHRASE_RE = re.compile(
     r"\b(?:[A-Z][A-Za-z&.'’-]+|[A-Z]{2,})(?:\s+(?:[A-Z][A-Za-z&.'’-]+|of|and|for|the|[A-Z]{2,})){1,7}\b"
 )
@@ -115,8 +132,73 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
     leaves = list(irwalk.leaves(body))
     for node in leaves:
         text = node.get("text") or ""
+        legal_spans: list[tuple[int, int]] = []
+        money_spans: list[tuple[int, int]] = []
+
+        for match in LEGAL_REFERENCE_RE.finditer(text):
+            reference = clean_legal_reference(match.group(0))
+            if not reference:
+                continue
+            legal_spans.append(match.span())
+            add(
+                "legal_reference",
+                node,
+                {
+                    "reference_text": reference,
+                    "reference_type": infer_legal_reference_type(reference),
+                    "context": sentence_around(text, match.start(), match.end()),
+                },
+                0.82,
+                "Legal citation, bill number, or statutory subsection.",
+                sentence_around(text, match.start(), match.end()),
+            )
+
+        for match in MONEY_RE.finditer(text):
+            amount = clean_money_amount(match.group("amount"))
+            quote = sentence_around(text, match.start(), match.end())
+            if not amount or not is_funding_context(quote):
+                continue
+            money_spans.append(match.span())
+            parties = infer_funding_parties(quote, amount)
+            fallback_funder = None if parties.get("program") else infer_funder(text, match.start())
+            fields = {
+                "amount": amount,
+                "funder": parties.get("funder") or fallback_funder,
+                "recipient": parties.get("recipient") or infer_recipient(text, match.end()),
+                "program": parties.get("program"),
+                "purpose": infer_funding_purpose(quote),
+                "time_period": first_date_value(quote),
+                "relationship_edges": [],
+            }
+            add(
+                "funding_event",
+                node,
+                fields,
+                0.76,
+                "Currency amount in funding, grant, investment, donor, or capital context.",
+                quote,
+            )
+            if fields["funder"] and fields["recipient"]:
+                add(
+                    "entity_relationship",
+                    node,
+                    {
+                        "subject": fields["funder"],
+                        "predicate": "funds",
+                        "object": fields["recipient"],
+                        "subject_type": infer_entity_type(fields["funder"]),
+                        "object_type": infer_entity_type(fields["recipient"]),
+                        "confidence_reason": "currency amount appears in funding context with inferred parties",
+                    },
+                    0.62,
+                    "Funding context links inferred funder and recipient.",
+                    quote,
+                )
+
         for match in NUMBER_RE.finditer(text):
             value = match.group("value").strip()
+            if overlaps(match.span(), legal_spans) or overlaps(match.span(), money_spans):
+                continue
             if should_skip_number(value, text, match.start(), node):
                 continue
             unit = infer_unit(text, match.end())
@@ -232,16 +314,6 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
                 sentence_around(text, definition["start"], definition["end"]),
             )
 
-        if is_recommendation_text(text):
-            add(
-                "recommendation",
-                node,
-                {"action": first_sentence(text), "actor": None, "target": None},
-                0.55,
-                "Action or recommendation verb in a text leaf.",
-                first_sentence(text),
-            )
-
         if KEY_FINDING_RE.search(text):
             add(
                 "key_finding",
@@ -309,6 +381,7 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
 
     for node in irwalk.of_type(body, "aside"):
         text = irwalk.subtree_text(node)
+        quote_payload = quote_payload_from_aside(node)
         add(
             "callout",
             node,
@@ -318,14 +391,62 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
             text,
         )
         if node.get("quote"):
+            quote_fields = {
+                "quote_text": quote_payload["quote_text"],
+                "speaker_name": quote_payload.get("speaker_name"),
+                "speaker_title": quote_payload.get("speaker_title"),
+                "speaker_affiliation": quote_payload.get("speaker_affiliation"),
+            }
             add(
                 "quotation",
                 node,
-                {"quote_text": clean_quote(text), "speaker_name": None},
-                0.76,
-                "IR aside marked as quote.",
-                text,
+                quote_fields,
+                0.84 if quote_payload.get("speaker_name") else 0.76,
+                "IR aside marked as quote with parsed attribution." if quote_payload.get("speaker_name") else "IR aside marked as quote.",
+                quote_payload["quote_text"],
             )
+            if quote_payload.get("speaker_name"):
+                add(
+                    "named_entity",
+                    node,
+                    {
+                        "entity_text": quote_payload["speaker_name"],
+                        "entity_type": "person",
+                        "source": "quote_attribution",
+                    },
+                    0.82,
+                    "Speaker name parsed from quote attribution.",
+                    quote_payload.get("attribution_text") or text,
+                )
+            if quote_payload.get("speaker_affiliation"):
+                add(
+                    "named_entity",
+                    node,
+                    {
+                        "entity_text": quote_payload["speaker_affiliation"],
+                        "entity_type": infer_entity_type(quote_payload["speaker_affiliation"]),
+                        "source": "quote_attribution",
+                    },
+                    0.78,
+                    "Speaker affiliation parsed from quote attribution.",
+                    quote_payload.get("attribution_text") or text,
+                )
+            if quote_payload.get("speaker_name") and quote_payload.get("speaker_affiliation"):
+                add(
+                    "entity_relationship",
+                    node,
+                    {
+                        "subject": quote_payload["speaker_name"],
+                        "predicate": "affiliated_with",
+                        "object": quote_payload["speaker_affiliation"],
+                        "subject_type": "person",
+                        "object_type": infer_entity_type(quote_payload["speaker_affiliation"]),
+                        "confidence_reason": "quote attribution supplies person/title/organization",
+                    },
+                    0.78,
+                    "Quote attribution links speaker to organization.",
+                    quote_payload.get("attribution_text") or text,
+                )
 
     for node in irwalk.of_type(body, "table"):
         text = irwalk.subtree_text(node)
@@ -499,9 +620,14 @@ def infer_unit(text: str, offset: int) -> str | None:
 
 
 def should_skip_number(value: str, text: str, start: int, node: dict) -> bool:
+    normalized_value = (value or "").strip(" ,.;:")
     if value.isdigit() and len(value) < 2:
         return True
-    if re.fullmatch(r"(?:19|20)\d{2}", value):
+    if is_money_value(value):
+        return True
+    if re.fullmatch(r"(?:19|20)\d{2}", normalized_value):
+        return True
+    if legal_reference_near(text, start):
         return True
     for ref in node.get("refs") or []:
         if len(ref) >= 2 and ref[0] <= start < ref[1]:
@@ -599,7 +725,7 @@ def infer_entity_type(entity: str) -> str:
     lowered = entity.lower()
     if any(word in lowered for word in ("health", "clinic", "hospital", "medical")):
         return "organization"
-    if any(word in lowered for word in ("foundation", "fund", "partners", "network", "coalition", "council", "center")):
+    if any(word in lowered for word in ("authority", "authorities", "corporation", "foundation", "fund", "partners", "network", "coalition", "council", "center")):
         return "organization"
     if any(word in lowered for word in ("act", "law", "regulation")):
         return "law_or_policy"
@@ -619,6 +745,241 @@ def label_values_from_texts(texts: list[str]) -> list[dict[str, str]]:
         if match and NUMBER_RE.search(match.group("value")):
             out.append({"label": clean_quote(match.group("label"), 80), "value": clean_quote(match.group("value"), 80)})
     return out
+
+
+def overlaps(span: tuple[int, int], spans: list[tuple[int, int]]) -> bool:
+    start, end = span
+    return any(start < other_end and end > other_start for other_start, other_end in spans)
+
+
+def is_money_value(value: str) -> bool:
+    return bool(MONEY_RE.fullmatch((value or "").strip()))
+
+
+def clean_money_amount(amount: str) -> str:
+    return re.sub(r"\s+", " ", amount or "").strip()
+
+
+def is_funding_context(text: str) -> bool:
+    if FUNDING_NEGATIVE_CONTEXT_RE.search(text or ""):
+        return False
+    return bool(FUNDING_CONTEXT_RE.search(text or ""))
+
+
+def legal_reference_near(text: str, start: int) -> bool:
+    window_start = max(0, start - 24)
+    window_end = min(len(text), start + 48)
+    return bool(LEGAL_REFERENCE_RE.search(text[window_start:window_end]))
+
+
+def infer_legal_reference_type(reference: str) -> str:
+    ref = reference.strip()
+    lowered = ref.lower()
+    if re.match(r"^(hb|sb|hr|h\.r\.|s\.)\s*\d+", lowered):
+        return "bill_number"
+    if "usc" in lowered or "u.s.c" in lowered:
+        return "statute"
+    if ref.startswith("§"):
+        return "section"
+    if re.match(r"^\d{2,4}\s*(?:\([a-zA-Z0-9]+\)){1,4}$", ref):
+        return "legal_subsection"
+    return "legal_reference"
+
+
+def clean_legal_reference(reference: str) -> str:
+    ref = (reference or "").strip().rstrip(".,;")
+    while ref.endswith(")") and ref.count(")") > ref.count("("):
+        ref = ref[:-1].rstrip()
+    return ref
+
+
+def first_date_value(text: str) -> str | None:
+    match = DATE_RE.search(text or "")
+    return match.group(0) if match else None
+
+
+def infer_funder(text: str, amount_start: int) -> str | None:
+    prefix = text[max(0, amount_start - 140):amount_start]
+    candidates = entities_in_text(prefix)
+    return candidates[-1] if candidates else None
+
+
+def infer_funding_parties(quote: str, amount: str) -> dict[str, str | None]:
+    parties: dict[str, str | None] = {"funder": None, "program": None, "recipient": None}
+    if not quote or not amount:
+        return parties
+
+    escaped_amount = re.escape(amount)
+    program_match = re.search(rf"\blaunched\s+(?P<program>.+?),\s+a\s+{escaped_amount}\s+program\b", quote, re.I)
+    if program_match:
+        program_candidates = entities_in_text(program_match.group("program"))
+        parties["program"] = program_candidates[-1] if program_candidates else clean_entity_text(program_match.group("program"))
+
+    received = re.search(
+        rf"(?P<recipient>.+?)\s+received\s+{escaped_amount}.*?\bfrom\s+(?P<funder>.+?)(?:[.;,]|$)",
+        quote,
+        re.I,
+    )
+    if received:
+        recipient_candidates = entities_in_text(received.group("recipient"))
+        funder_candidates = entities_in_text(received.group("funder"))
+        parties["recipient"] = recipient_candidates[-1] if recipient_candidates else None
+        parties["funder"] = funder_candidates[0] if funder_candidates else clean_entity_text(received.group("funder"))
+        return parties
+
+    by_match = re.search(r"\b(?:pledge|grant|investment|award).*?\b(?:made|provided|funded|awarded)\s+by\s+(?P<funder>.+?)(?:[.;,]|$)", quote, re.I)
+    if by_match:
+        funder_candidates = entities_in_text(by_match.group("funder"))
+        parties["funder"] = funder_candidates[0] if funder_candidates else clean_entity_text(by_match.group("funder"))
+
+    to_match = re.search(rf"{escaped_amount}.*?\b(?:to|for|supporting)\s+(?P<recipient>.+?)(?:[.;,]|$)", quote, re.I)
+    if to_match:
+        recipient_candidates = entities_in_text(to_match.group("recipient"))
+        parties["recipient"] = recipient_candidates[0] if recipient_candidates else None
+    return parties
+
+
+def infer_recipient(text: str, amount_end: int) -> str | None:
+    tail = text[amount_end:amount_end + 160]
+    match = re.search(r"\b(?:to|for|in|into|supporting)\s+(.+?)(?:[.;,]|$)", tail, re.I)
+    if not match:
+        return None
+    candidates = entities_in_text(match.group(1))
+    return candidates[0] if candidates else None
+
+
+def infer_funding_purpose(quote: str) -> str | None:
+    match = re.search(r"\b(?:to|for|supporting|toward)\s+(.+?)(?:[.;]|$)", quote or "", re.I)
+    return clean_quote(match.group(1), 140) if match else None
+
+
+def quote_payload_from_aside(node: dict) -> dict[str, str | None]:
+    leaves = [leaf for leaf in irwalk.leaves([node]) if leaf.get("text")]
+    quote_leaf = next((leaf for leaf in leaves if leaf.get("quoteOpen")), None)
+    if quote_leaf is None and leaves:
+        quote_leaf = leaves[0]
+    quote_text = clean_quote(quote_leaf.get("text") if quote_leaf else irwalk.subtree_text(node))
+
+    attribution_text = None
+    role_text = None
+    if quote_leaf is not None:
+        quote_index = leaves.index(quote_leaf)
+        for i, leaf in enumerate(leaves[quote_index + 1:], start=quote_index + 1):
+            candidate = clean_quote(leaf.get("text") or "", 180)
+            if starts_new_quote(candidate):
+                break
+            if looks_like_speaker_line(candidate):
+                attribution_text = candidate
+                if should_scan_role_text(candidate):
+                    for role_leaf in leaves[i + 1:]:
+                        role_candidate = clean_quote(role_leaf.get("text") or "", 180)
+                        if starts_new_quote(role_candidate):
+                            break
+                        if looks_like_role_line(role_candidate):
+                            role_text = role_candidate
+                            break
+                break
+
+    attribution = parse_attribution(attribution_text or "", role_text)
+    return {
+        "quote_text": quote_text,
+        "attribution_text": " ".join(part for part in (attribution_text, role_text) if part),
+        "speaker_name": attribution.get("speaker_name"),
+        "speaker_title": attribution.get("speaker_title"),
+        "speaker_affiliation": attribution.get("speaker_affiliation"),
+    }
+
+
+def starts_new_quote(text: str) -> bool:
+    return bool((text or "").lstrip().startswith(("“", '"')) or len(text or "") > 220)
+
+
+def looks_like_speaker_line(text: str) -> bool:
+    if not text or len(text) > 180:
+        return False
+    if "," in text and looks_like_person_name(text.split(",", 1)[0]):
+        return True
+    return looks_like_person_name(text) and not role_only_text(text)
+
+
+def looks_like_role_line(text: str) -> bool:
+    if not text or len(text) > 160:
+        return False
+    return bool(ROLE_HINT_RE.search(text) or ("," in text and entities_in_text(text)))
+
+
+def should_scan_role_text(text: str) -> bool:
+    if "," not in text:
+        return True
+    parts = [part.strip() for part in text.split(",") if part.strip()]
+    return bool(len(parts) >= 2 and all(is_credential(part) for part in parts[1:]))
+
+
+def parse_attribution(text: str, role_text: str | None = None) -> dict[str, str | None]:
+    if not text:
+        return {"speaker_name": None, "speaker_title": None, "speaker_affiliation": None}
+    parts = [part.strip() for part in text.split(",") if part.strip()]
+    speaker_name = parts[0] if parts and looks_like_person_name(parts[0]) else None
+    speaker_title = None
+    speaker_affiliation = None
+
+    if role_text:
+        role_parts = [part.strip() for part in role_text.split(",") if part.strip()]
+        if len(role_parts) >= 2:
+            speaker_title = clean_quote(role_parts[0], 90)
+            speaker_affiliation = clean_entity_text(", ".join(role_parts[1:]))
+        elif role_parts:
+            of_match = re.search(r"\b(?P<title>.+?)\s+(?:of|at|for|with)\s+(?P<org>.+)$", role_parts[0], re.I)
+            if of_match:
+                speaker_title = clean_quote(of_match.group("title"), 90)
+                speaker_affiliation = clean_entity_text(of_match.group("org"))
+            elif ROLE_HINT_RE.search(role_parts[0]):
+                speaker_title = clean_quote(role_parts[0], 90)
+            else:
+                speaker_affiliation = clean_entity_text(role_parts[0])
+    elif len(parts) >= 2:
+        remaining = ", ".join(parts[1:])
+        of_match = re.search(r"\b(?P<title>.+?)\s+(?:of|at|for|with)\s+(?P<org>.+)$", remaining, re.I)
+        if of_match:
+            speaker_title = clean_quote(of_match.group("title"), 90)
+            speaker_affiliation = clean_entity_text(of_match.group("org"))
+        elif len(parts) >= 3:
+            speaker_title = clean_quote(parts[1], 90)
+            speaker_affiliation = clean_entity_text(", ".join(parts[2:]))
+        elif ROLE_HINT_RE.search(parts[1]):
+            speaker_title = clean_quote(parts[1], 90)
+        else:
+            speaker_affiliation = clean_entity_text(parts[1])
+
+    if speaker_affiliation:
+        speaker_affiliation = speaker_affiliation.strip(" .")
+    return {
+        "speaker_name": speaker_name,
+        "speaker_title": speaker_title,
+        "speaker_affiliation": speaker_affiliation or None,
+    }
+
+
+def looks_like_person_name(text: str) -> bool:
+    words = [word.strip(".") for word in re.split(r"\s+", text or "") if word.strip()]
+    if len(words) < 2 or len(words) > 4:
+        return False
+    if role_only_text(text):
+        return False
+    return all(re.match(r"^[A-Z][A-Za-z.'’-]+$", word) for word in words)
+
+
+def is_credential(text: str) -> bool:
+    return bool(re.fullmatch(r"(?:[A-Z]\.){1,4}", (text or "").strip()))
+
+
+def role_only_text(text: str) -> bool:
+    words = [word.strip(".,").lower() for word in re.split(r"\s+", text or "") if word.strip()]
+    if not words:
+        return False
+    role_words = {"secretary", "director", "president", "ceo", "officer", "manager", "chair", "minister", "attorney", "counsel"}
+    modifiers = {"former", "interim", "deputy", "executive", "hud"}
+    return any(word in role_words for word in words) and all(word in role_words or word in modifiers for word in words)
 
 
 

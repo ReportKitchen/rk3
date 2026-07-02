@@ -7,14 +7,42 @@
       "name": "Statistic",
       "layer": 0,
       "definition": "A numeric fact presented as evidence, context, trend, scale, or outcome.",
-      "positive_indicators": ["percentage", "currency", "count", "rate", "comparison"],
-      "negative_indicators": ["page number", "citation marker without surrounding evidence"],
+      "positive_indicators": ["percentage", "count", "rate", "comparison"],
+      "negative_indicators": ["page number", "citation marker without surrounding evidence", "standalone year", "legal identifier", "funding amount"],
       "required_fields": ["value"],
       "optional_fields": ["unit", "label", "qualifier", "time_period", "geography", "surrounding_claim"],
       "evidence_requirements": ["source_refs[0].quote contains the value"],
       "candidate_component_treatments": ["stat_card", "metric_row", "comparison_card"],
-      "common_false_positives": ["years used only as publication dates", "section numbers"],
+      "common_false_positives": ["years used only as publication dates", "section numbers", "bill numbers", "statutory citations", "money amounts that belong to funding events"],
       "validation_rules": ["value must appear in source quote"]
+    },
+    {
+      "id": "funding_event",
+      "name": "Funding Event",
+      "layer": 1,
+      "definition": "A funding, grant, investment, loan, donor, or capital event anchored by an amount or funding context.",
+      "positive_indicators": ["currency amount", "grant", "funding", "investment", "loan", "donor"],
+      "negative_indicators": ["ordinary price mention", "unrelated currency in a comparison table"],
+      "required_fields": ["amount"],
+      "optional_fields": ["funder", "recipient", "program", "purpose", "time_period", "relationship_edges"],
+      "evidence_requirements": ["amount or funding context appears in source_refs"],
+      "candidate_component_treatments": ["funding_event_card", "relationship_graph_edge"],
+      "common_false_positives": ["financial statement totals without event context"],
+      "validation_rules": ["amount must appear in source quote"]
+    },
+    {
+      "id": "legal_reference",
+      "name": "Legal Reference",
+      "layer": 0,
+      "definition": "A statute, bill number, legal section, regulation, or codified legal citation.",
+      "positive_indicators": ["HB/SB bill number", "USC citation", "section symbol", "parenthetical legal subsection"],
+      "negative_indicators": ["ordinary numbered list item", "page number"],
+      "required_fields": ["reference_text"],
+      "optional_fields": ["reference_type", "jurisdiction", "context"],
+      "evidence_requirements": ["reference_text appears in source_refs"],
+      "candidate_component_treatments": ["legal_reference_badge", "citation_popover"],
+      "common_false_positives": ["citation years", "footnote markers"],
+      "validation_rules": ["reference_text must appear in source quote"]
     },
     {
       "id": "quotation",
@@ -103,8 +131,8 @@
     {
       "id": "recommendation",
       "name": "Recommendation",
-      "layer": 1,
-      "definition": "A proposed action, usually directed at a stakeholder.",
+      "layer": 2,
+      "definition": "A proposed action, usually directed at a stakeholder. Deterministic Stage A should not emit this directly; recommendation-ness requires Stage B judgment about modality, addressee, and intent.",
       "positive_indicators": ["should", "must", "recommend", "increase", "fund", "create"],
       "negative_indicators": ["descriptive use of action verbs"],
       "required_fields": ["action"],
@@ -113,6 +141,20 @@
       "candidate_component_treatments": ["recommendation_card", "action_agenda_item"],
       "common_false_positives": ["capability statements"],
       "validation_rules": ["action must be grounded in source quote"]
+    },
+    {
+      "id": "entity_relationship",
+      "name": "Entity Relationship",
+      "layer": 2,
+      "definition": "A graph-ready relationship between people, organizations, initiatives, places, funders, laws, or programs.",
+      "positive_indicators": ["speaker attribution", "person title and organization", "partnership wording", "funding relationship"],
+      "negative_indicators": ["entities merely co-occurring without relationship language"],
+      "required_fields": ["subject", "predicate", "object"],
+      "optional_fields": ["subject_type", "object_type", "confidence_reason", "source_pattern_id"],
+      "evidence_requirements": ["relationship evidence appears in source_refs"],
+      "candidate_component_treatments": ["relationship_graph_edge", "entity_profile_link"],
+      "common_false_positives": ["adjacent entities in unrelated list items"],
+      "validation_rules": ["subject and object must be grounded in source quote"]
     },
     {
       "id": "question",
@@ -214,4 +256,3 @@
     }
   ]
 }
-

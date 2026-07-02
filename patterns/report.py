@@ -112,6 +112,17 @@ def display_value(candidate: dict[str, Any]) -> str:
     if pattern_type == "statistic":
         bits = [fields.get("value"), fields.get("unit"), fields.get("label")]
         return " ".join(str(b) for b in bits if b)
+    if pattern_type == "funding_event":
+        bits = [fields.get("amount"), fields.get("funder"), fields.get("program"), fields.get("recipient")]
+        return " -> ".join(str(b) for b in bits if b)
+    if pattern_type == "legal_reference":
+        return fields.get("reference_text") or first_quote(candidate)
+    if pattern_type == "entity_relationship":
+        subject = fields.get("subject")
+        predicate = fields.get("predicate")
+        obj = fields.get("object")
+        if subject and predicate and obj:
+            return f"{subject} --{predicate}--> {obj}"
     if pattern_type == "metric_cluster":
         metrics = fields.get("metrics") or []
         values = [m.get("value") for m in metrics if m.get("value")]
@@ -128,4 +139,3 @@ def display_value(candidate: dict[str, Any]) -> str:
 def first_quote(candidate: dict[str, Any]) -> str:
     refs = candidate.get("source_refs") or []
     return (refs[0].get("quote") if refs else "") or ""
-
