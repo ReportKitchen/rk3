@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 130
+VERSION = 131
 
 
 # PDF font-descriptor flag bits
@@ -156,6 +156,61 @@ class InfoLossError(Exception):
     """A list item lost its style runs (it's a bare string). Raised loudly
     rather than shipping a silent emphasis/link drop - see [[surface-failures]]
     and the information-monotonicity doctrine in [[foundation-legs]]."""
+
+
+def _leaf(ctx, type_, runs, page, bbox, rk, data=None, **extra):
+    """Build a text LEAF node — the single funnel from a runs-dict to a node.
+    Every inline run in _RUN_KEYS present on `runs` is attached here, so no
+    construction path can hand-roll a node and silently drop emphasis/links/
+    sups again (first-class content: any text node holds any inline feature).
+    Every leaf gets a durable nid, so it is addressable by ops/feedback."""
+    node = {"type": type_, "text": runs.get("text", ""), "page": page,
+            "bbox": bbox, "rk": rk}
+    if data is not None:
+        node["data"] = data
+    for k in _RUN_KEYS:
+        if runs.get(k):
+            node[k] = runs[k]
+    node.update(extra)
+    node["nid"] = _stable_id("n", ctx.nids, type_, page, bbox, node["text"])
+    return node
+
+
+def _container(ctx, type_, children, page, bbox, rk, data=None, **extra):
+    """Build a CONTAINER node: an ordered list of child nodes and nothing
+    else. One containment rule for the whole IR — any node can appear inside
+    any container, so a cell holds a figure (or a caption holds an aside)
+    tomorrow with zero new plumbing. A container never stores raw text of its
+    own; text lives in a leaf child."""
+    node = {"type": type_, "children": children, "page": page, "bbox": bbox,
+            "rk": rk}
+    if data is not None:
+        node["data"] = data
+    node.update(extra)
+    node["nid"] = _stable_id("n", ctx.nids, type_, page, bbox,
+                             "|".join(c["nid"] for c in children))
+    return node
+
+
+def _assert_nids(nodes):
+    """Unified-model invariant: every typed node anywhere in the tree carries
+    a durable nid (addressable by ops/feedback). A missing nid means some
+    builder bypassed the _leaf/_container constructors."""
+    def walk(u):
+        if isinstance(u, dict):
+            if u.get("type") and not u.get("nid"):
+                yield u
+            for v in u.values():
+                if isinstance(v, (dict, list)):
+                    yield from walk(v)
+        elif isinstance(u, list):
+            for v in u:
+                yield from walk(v)
+    bad = list(walk(nodes))
+    if bad:
+        raise InfoLossError(
+            f"{len(bad)} typed node(s) without a nid; first: "
+            f"{str(bad[0])[:140]}")
 
 
 def _assert_rich_items(nodes):
@@ -500,6 +555,9 @@ def run(ctx):
     flag = _reconcile_notes(ctx, nodes, notes)
     if flag is not None:
         nodes.insert(0, flag)
+
+    # unified-model invariant: every typed node, at any depth, is addressable
+    _assert_nids(nodes)
 
     title = next((n["text"] for n in nodes if n["type"] == "heading" and n["level"] == 1),
                  ctx.source.stem)
@@ -942,14 +1000,10 @@ def _heading_node(ctx, blk, text, level, reason, prov, used_ids, sups=None):
     rk = ctx.log.entry("heading", level=level, page=blk["page"],
                        bbox=blk["bbox"], size=prov["size"], reason=reason,
                        text=text[:120], block=blk["rk"])
-    node = {"type": "heading", "level": level, "text": text, "id": hid,
-            "page": blk["page"], "bbox": blk["bbox"], "rk": rk, "data": prov,
-            "nid": _stable_id("n", ctx.nids, "heading", blk["page"],
-                              blk["bbox"], text)}
+    node = _leaf(ctx, "heading", {"text": text, "sups": sups}, blk["page"],
+                 blk["bbox"], rk, data=prov, level=level, id=hid)
     if num and ctx.cfg["structure"].get("sectionNumbers", "styled") == "styled":
         node["sectionNum"] = num
-    if sups:
-        node["sups"] = sups  # first-class; _attach_refs consumes + strips
     return node
 
 
@@ -1129,24 +1183,12 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
                        size=size, strong=strong, refs=[r[2] for r in refs],
                        links=len(rich.get("links", [])),
                        text=text[:120], block=blk["rk"])
-    node = {"type": "paragraph", "text": text, "page": blk["page"],
-            "bbox": blk["bbox"], "rk": rk, "data": prov}
-    node["nid"] = _stable_id("n", ctx.nids, "paragraph", node["page"],
-                             node["bbox"], text)
+    node = _leaf(ctx, "paragraph", rich, blk["page"], blk["bbox"], rk,
+                 data=prov)
     if strong:
         node["strong"] = True
     if refs:
         node["refs"] = refs
-    if rich.get("sups"):
-        node["sups"] = rich["sups"]  # first-class; _attach_refs consumes+strips
-    if rich.get("links"):
-        node["links"] = rich["links"]
-    if rich.get("emph"):
-        node["emph"] = rich["emph"]
-    if rich.get("marks"):
-        node["marks"] = rich["marks"]
-    if rich.get("colors"):
-        node["colors"] = rich["colors"]
 
     # Run-in heading: a bold first line, on its own line and heading-shaped,
     # welded onto the front of a regular-weight paragraph IS a real subsection
