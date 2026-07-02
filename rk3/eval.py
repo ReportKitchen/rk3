@@ -323,6 +323,57 @@ def evaluate_check(slug, check):
     return EVALUATORS[kind](slug, check)
 
 
+def _check_anchor(check, kind):
+    """The text snippet that locates a check's primary element."""
+    if kind == "freeze":
+        return check["freeze"].get("anchor")
+    if kind == "role":
+        return check["role"].get("text")
+    if kind in ("merge", "order"):
+        return (check[kind] or [None])[0]
+    if kind == "list":
+        return (check["list"] or [None])[0]
+    return None
+
+
+def checks_with_status(slug):
+    """Every check on the doc, evaluated against the CURRENT artifacts, with
+    the nid of its anchoring element — backs the viewer's assertion markers
+    (⚑ green = passing stake, red = failing / regression target)."""
+    path = EVAL_DIR / f"{slug}.yaml"
+    if not path.exists():
+        return []
+    spec = yaml.safe_load(path.read_text()) or {}
+    ir = _artifact(slug, "analyze") or {}
+    nodes = [n for n in _walk(ir.get("body", []))
+             if n.get("type") in ("paragraph", "heading", "list")]
+    out = []
+    for i, c in enumerate(spec.get("checks", [])):
+        kind = next((k for k in EVALUATORS if k in c), None)
+        if kind:
+            try:
+                ok, detail = EVALUATORS[kind](slug, c)
+            except Exception as e:  # a malformed check must not hide the rest
+                ok, detail = False, f"check error: {e}"
+        else:
+            ok, detail = False, "unknown check kind"
+        anchor, nid = _check_anchor(c, kind), None
+        if anchor and _norm(anchor):
+            na = _norm(anchor)
+            # match canonical (markup-aware) OR plain text — an anchor spanning
+            # an emphasis boundary has tags inside its canonical form
+            def _plain(n):
+                return " ".join([n.get("text") or "",
+                                 *(_norm(i) for i in n.get("items") or [])])
+            nid = next((n.get("nid") for n in nodes
+                        if na in _norm(_canonical(n)) or na in _norm(_plain(n))),
+                       None)
+        out.append({"i": i, "kind": kind, "note": c.get("note"),
+                    "stage": c.get("stage", "analyze"),
+                    "ok": ok, "detail": detail, "nid": nid})
+    return out
+
+
 def append_check(slug, check):
     """Append a validated check to eval/<slug>.yaml (creating the spec if new).
     A TEXTUAL append — the existing file (incl. its rationale comments) is left

@@ -29,6 +29,9 @@ export const startConvert = (slug, force = false) =>
 export const getBuildStatus = (slug) =>
   fetch(`/api/build-status/${slug}`, { cache: "no-store" }).then(json);
 
+export const getAssertions = (slug) =>
+  fetch(`/api/assertions/${slug}`, { cache: "no-store" }).then(json);
+
 export const getSnapshot = (slug, nid) =>
   fetch(`/api/assertions/${slug}/snapshot?nid=${encodeURIComponent(nid)}`,
         { cache: "no-store" }).then(json);

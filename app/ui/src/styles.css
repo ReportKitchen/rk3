@@ -813,6 +813,11 @@ pre.error {
   font-size: 0.78rem;
 }
 .assert-pop .ap-row button:hover { filter: brightness(0.95); }
+.assert-pop .ap-row button.cur {
+  background: #0a7d6b;
+  color: #fff;
+  font-weight: 700;
+}
 .assert-pop .ap-freeze { font-weight: 600; }
 .assert-pop .ap-role span { color: #777; }
 .assert-pop .ap-hint { color: #999; font-size: 0.72rem; margin-top: 0.25rem; }

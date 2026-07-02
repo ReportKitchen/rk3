@@ -4,7 +4,7 @@ import { docUrl, pageUrl } from "../api.js";
 import { setupSync } from "../syncScroll.js";
 import DocToolbar from "./DocToolbar.jsx";
 import { saveOrderAssertion, saveReorderOp, saveMergeOp, saveMergeAssertion,
-         getSnapshot, saveAssertion } from "../api.js";
+         getSnapshot, saveAssertion, getAssertions } from "../api.js";
 import { reportError } from "../errorBus.js";
 import QuestionsPanel from "./QuestionsPanel.jsx";
 import TocCompare from "./TocCompare.jsx";
@@ -44,18 +44,17 @@ const ORDER_CSS = `
 `;
 
 const MARKER_CSS = `
-/* markers hang in the left margin, absolutely positioned: they never bump
-   content around, and (being out of flow) never steal ::first-letter from
-   the element's real first letter (drop caps vanished on noted paras) */
+/* markers are absolutely positioned overlays (never bump content, never steal
+   ::first-letter) just inside the element's left edge — a negative offset
+   would clip against the pane edge. Stacking slot (top) is set at injection. */
 .rk-marked { position: relative; }
 .rk-qmark {
-  position: absolute; left: -1.6rem; top: 0.1em; z-index: 30;
+  position: absolute; left: 10px; top: 2px; z-index: 30;
   display: inline-flex; align-items: center; justify-content: center;
-  width: 1.1rem; height: 1.1rem;
+  width: 1.1rem; height: 1.1rem; opacity: 0.92;
   border-radius: 50%; border: 1px solid #b58900; background: #fdf3d7;
   color: #8a6d00; font: 700 0.75rem/1 sans-serif; cursor: pointer;
 }
-.rk-qmark + .rk-fbmark, .rk-fbmark + .rk-qmark { top: 1.5em; }
 .rk-qmark.rk-resolved { border-color: #2e7d32; background: #e6f2e6; color: #2e7d32; }
 .rk-feedback-mode, .rk-feedback-mode * { cursor: crosshair !important; }
 .rk-flash { outline: 2px solid #d99a06; transition: outline 0.8s; }
@@ -65,15 +64,30 @@ const MARKER_CSS = `
   background: rgba(253, 243, 215, 0.35);
 }
 .rk-fbmark {
-  position: absolute; left: -1.6rem; top: 0.1em; z-index: 30;
+  position: absolute; left: 10px; top: 2px; z-index: 30;
   display: inline-flex; align-items: center; justify-content: center;
-  width: 1.1rem; height: 1.1rem;
+  width: 1.1rem; height: 1.1rem; opacity: 0.92;
   border-radius: 3px; border: 1px solid #5b7fb5; background: #e2ecf8;
   color: #2c4a75; font: 700 0.7rem/1 sans-serif; cursor: help;
 }
 .rk-fbmark.rk-resolved { border-color: #999; background: #eee; color: #777; }
+.rk-amark {
+  position: absolute; left: 10px; top: 2px; z-index: 30;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.1rem; height: 1.1rem; opacity: 0.92;
+  border-radius: 3px; font: 700 0.7rem/1 sans-serif; cursor: help;
+}
+.rk-amark.pass { border: 1px solid #2e7d32; background: #e6f2e6; color: #2e7d32; }
+.rk-amark.fail { border: 1px solid #c62828; background: #fdeaea; color: #c62828; }
 .rk-assert-sel { outline: 2px dashed #0a7d6b !important; outline-offset: 3px; }
 `;
+
+// stacking slot for margin markers: each new marker on an element sits below
+// the ones already there
+const slotMarker = (el, mark) => {
+  const n = el.querySelectorAll(".rk-qmark,.rk-fbmark,.rk-amark").length;
+  mark.style.top = `${2 + 22 * n}px`;
+};
 
 export default function DocumentView({
   doc, buildId = null, toggles, setToggles, questions, answers, feedback, ops, pageDims, onConvert, onAnnotate,
@@ -153,6 +167,7 @@ export default function DocumentView({
       const res = await saveAssertion(doc.slug, check);
       if (res.saved) {
         setAssertMsg({ ok: true, text: `Saved ✓ — ${res.total} checks on this doc` });
+        loadAssertions();
       } else {
         setAssertMsg({
           ok: false,
@@ -160,6 +175,7 @@ export default function DocumentView({
           force: allowForce ? async () => {
             const r2 = await saveAssertion(doc.slug, check, true);
             setAssertMsg({ ok: true, text: `Saved as regression target ✓ — ${r2.total} checks` });
+            loadAssertions();
           } : null,
         });
       }
@@ -479,10 +495,12 @@ export default function DocumentView({
       const rect = iframeRef.current.getBoundingClientRect();
       setFreezePrev(null);
       setAssertMsg(null);
+      const hm = /^H([1-6])$/.exec(el.tagName);
       setAssertPop({
         x: Math.min(rect.left + e.clientX, window.innerWidth - 360),
         y: rect.top + e.clientY - (iframeRef.current.contentWindow?.scrollY ? 0 : 0),
         nid: el.dataset.nid, snippet,
+        currentLevel: hm ? +hm[1] : 0,  // 0 = not currently a heading
       });
     };
     idoc.addEventListener("click", onClick, true);
@@ -523,6 +541,7 @@ export default function DocumentView({
         stateRef.current.onQuestion(q, { x: rect.left + r.left, y: rect.top + r.bottom + 4 });
       };
       el.classList.add("rk-marked");  // positioning context for the margin marker
+      slotMarker(el, btn);
       el.prepend(btn);
     }
   }, [frameLoaded, questions, answers]);
@@ -555,9 +574,40 @@ export default function DocumentView({
         };
       }
       target.classList.add("rk-marked");  // positioning context for the marker
+      slotMarker(target, mark);
       target.prepend(mark);
     }
   }, [frameLoaded, feedback]);
+
+  // ⚑ markers where eval assertions are anchored, colored by live pass/fail
+  const [assertions, setAssertions] = useState([]);
+  const loadAssertions = useCallback(() => {
+    getAssertions(doc.slug)
+      .then((r) => setAssertions(r.checks || []))
+      .catch((e) => reportError("load assertions", e));
+  }, [doc.slug]);
+  useEffect(() => { if (frameLoaded) loadAssertions(); }, [frameLoaded, loadAssertions]);
+
+  useEffect(() => {
+    if (!frameLoaded) return;
+    const idoc = iframeRef.current.contentDocument;
+    if (!idoc?.body) return;
+    idoc.querySelectorAll(".rk-amark").forEach((m) => m.remove());
+    for (const a of assertions) {
+      if (!a.nid) continue;
+      const el = idoc.querySelector(`[data-nid="${a.nid}"]`);
+      if (!el) continue;
+      const mark = idoc.createElement("span");
+      mark.className = "rk-amark " + (a.ok ? "pass" : "fail");
+      mark.textContent = "⚑";
+      mark.title = `${a.kind} assertion — ${a.ok ? "passing" : "FAILING"}`
+        + (a.note ? `\n${a.note}` : "")
+        + (!a.ok && a.detail ? `\n${a.detail}` : "");
+      el.classList.add("rk-marked");
+      slotMarker(el, mark);
+      el.prepend(mark);
+    }
+  }, [frameLoaded, assertions]);
 
   // outline the element a question/feedback popover refers to, so its extent
   // is unambiguous (e.g. a full-page callout)
@@ -725,10 +775,16 @@ export default function DocumentView({
                     </div>
                     <div className="ap-row ap-role">
                       <span>heading:</span>
-                      {[1, 2, 3, 4].map((l) => (
-                        <button key={l} onClick={() => doRole(l)}>h{l}</button>
+                      {[1, 2, 3, 4, 5, 6].map((l) => (
+                        <button key={l}
+                          className={assertPop.currentLevel === l ? "cur" : ""}
+                          title={assertPop.currentLevel === l ? "current" : ""}
+                          onClick={() => doRole(l)}>h{l}</button>
                       ))}
-                      <button onClick={() => doRole(null)}>not one</button>
+                      <button
+                        className={assertPop.currentLevel === 0 ? "cur" : ""}
+                        title={assertPop.currentLevel === 0 ? "current" : ""}
+                        onClick={() => doRole(null)}>not one</button>
                     </div>
                     {assertSel.length >= 2 && (
                       <div className="ap-row">

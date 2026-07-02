@@ -23,7 +23,8 @@ from pydantic import BaseModel, Field
 
 from rk3.ai import ai_can_analyze, ai_can_generate, ai_mode
 from rk3.documents import OUTPUT, list_documents, output_dir, source_for_slug
-from rk3.eval import append_check, canonical_for_nid, evaluate_check
+from rk3.eval import (append_check, canonical_for_nid, checks_with_status,
+                      evaluate_check)
 from rk3.pipeline import build_status
 from rk3.toccompare import compare as toc_compare
 from rk3.landing.ai import (
@@ -146,6 +147,16 @@ def _assertion_check(a: Assertion) -> dict:
     # restoring the wire key `list` for the items field
     return {k: v for k, v in a.model_dump(by_alias=True).items()
             if v not in (None, [], "")}
+
+
+@app.get("/api/assertions/{slug}")
+def list_assertions(slug: str, response: Response):
+    """All eval checks on the doc, each evaluated live against the current
+    artifacts + resolved to its anchoring nid — backs the ⚑ markers."""
+    response.headers["Cache-Control"] = "no-store"
+    if source_for_slug(slug) is None:
+        raise HTTPException(404, f"unknown document {slug!r}")
+    return {"checks": checks_with_status(slug)}
 
 
 @app.get("/api/assertions/{slug}/snapshot")
