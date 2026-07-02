@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 from .detectors import detect
+from .graph import build_graph, write_graph
 from .io import (
     CORPUS_MANIFEST,
     OUT,
@@ -52,6 +53,11 @@ def main(argv: list[str] | None = None) -> None:
     review_summary.add_argument("document_id", nargs="?")
     review_summary.add_argument("--markdown", action="store_true")
 
+    graph = sub.add_parser("graph", help="emit a graph JSON from one or more pattern reports")
+    graph.add_argument("document_id", nargs="*")
+    graph.add_argument("--all", action="store_true")
+    graph.add_argument("--write", type=Path)
+
     args = parser.parse_args(argv)
     ensure_dirs()
 
@@ -83,6 +89,12 @@ def main(argv: list[str] | None = None) -> None:
             print(markdown_review_summary(summary))
         else:
             print(json.dumps(summary, indent=2, sort_keys=True))
+    elif args.command == "graph":
+        graph_data = build_graph(None if args.all else args.document_id)
+        if args.write:
+            print(write_graph(graph_data, args.write))
+        else:
+            print(json.dumps(graph_data, indent=2, sort_keys=True))
 
 
 def registry_by_id() -> dict[str, dict]:
