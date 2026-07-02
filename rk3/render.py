@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 61
+VERSION = 62
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -468,16 +468,26 @@ def _render_node(ctx, node, pages, state):
         items = []
         for note in node["notes"]:
             n = note["n"]
+            # alphabetic designators (a, b, c — table notes) live at 1000+;
+            # display their letter ordinal, not the namespaced int
+            display = n - 1000 if n > 1000 else n
             back = (f' <a class="fn-back" href="#fnref-{n}-1" '
-                    f'title="Back to reference {n} in the text" '
-                    f'aria-label="Back to reference {n}">↩</a>'
+                    f'title="Back to reference {note.get("marker", n)} in the text" '
+                    f'aria-label="Back to reference {note.get("marker", n)}">↩</a>'
                     if state["ref_seq"].get(n) else "")
-            items.append(f'  <li id="fn-{n}" value="{n}" data-rk="{note["rk"]}">'
+            items.append(f'  <li id="fn-{n}" value="{display}" data-rk="{note["rk"]}">'
                          f'{_inline(note["text"], None, None, state)}{back}</li>')
-        # documents that number notes i/ii/iii keep their roman markers
+        # documents that mark notes i/ii/iii (roman) or a/b/c (letters) keep
+        # their marker style
+        notes_ = node["notes"]
         roman = all(re.fullmatch(r"[ivxl]+", note.get("marker", "").lower())
-                    for note in node["notes"]) if node["notes"] else False
-        ol = '<ol style="list-style-type: lower-roman">' if roman else "<ol>"
+                    for note in notes_) if notes_ else False
+        alpha = (not roman and notes_
+                 and all(re.fullmatch(r"[a-z]", note.get("marker", "").lower() or "0")
+                         for note in notes_))
+        ol = ('<ol style="list-style-type: lower-roman">' if roman
+              else '<ol style="list-style-type: lower-alpha">' if alpha
+              else "<ol>")
         return (f'<section class="footnotes" {_attrs(node, pages)}>\n'
                 f'{ol}\n' + "\n".join(items) + '\n</ol>\n</section>')
     ctx.log.entry("unknown-node", type=t, rk=node.get("rk"))

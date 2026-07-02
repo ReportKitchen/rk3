@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 112
+VERSION = 114
 
 
 # PDF font-descriptor flag bits
@@ -86,12 +86,26 @@ for _n, _r in enumerate(
     ROMAN[_r] = _n
 
 
+# alphabetic footnote designators (a, b, c … as used for table notes) live in
+# their own namespace above any realistic numeric note count, so a doc using
+# BOTH numbered endnotes and lettered table-notes can't cross-wire refs
+_ALPHA_NOTE_BASE = 1000
+
+
 def _marker_value(raw):
-    """Footnote marker -> int (arabic or roman), else None."""
+    """Footnote marker -> int (arabic, roman, or single letter), else None.
+    Letters map to _ALPHA_NOTE_BASE+1… ('a'=1001); i/v/x stay roman — an
+    alphabetic series crossing 'i' loses that one marker (logged upstream as a
+    sequence break), which beats misreading roman notes as letters."""
     raw = raw.strip().rstrip(".)").strip()
     if raw.isdigit() and len(raw) <= 3:
         return int(raw)
-    return ROMAN.get(raw.lower())
+    rv = ROMAN.get(raw.lower())
+    if rv:
+        return rv
+    if len(raw) == 1 and raw.isalpha():
+        return _ALPHA_NOTE_BASE + ord(raw.lower()) - 96
+    return None
 
 # function words that mark a WRAPPED clause when they END a candidate run-in
 # heading (a heading ends on a content word; "…points for" / "…already in the"
@@ -3427,7 +3441,9 @@ def _toc_pages(ctx, pages, blocks):
     return bands
 
 
-NOTE_START = re.compile(r"^(\d{1,3})(?:[.)]\s*|\s+)(?=\S)")
+# the (?!\d) guard rejects decimals: "0.3% - 0.7%" (chart labels) and
+# "10.1073/…" (wrapped DOIs) must not read as note markers 0 and 10
+NOTE_START = re.compile(r"^(\d{1,3})(?:[.)]\s*(?!\d)|\s+)(?=\S)")
 
 
 def _merge_sup_ranges(text, sups):
@@ -3461,13 +3477,72 @@ def _line_marker(line):
 NOTES_HEADING = re.compile(r"(end\s*)?notes?|references|sources", re.I)
 
 
+_CITE_RE = re.compile(r"https?://|www\.|\b(?:19|20)\d{2}\b")
+
+
+def _seq_count(blk, expected):
+    """Sequential markers inside one block, continuing `expected` (or starting
+    fresh): (count, next expected). Mirrors _parse_notes' walk without logging."""
+    count = 0
+    for l in blk["lines"]:
+        m = _line_marker(l)
+        if m and (expected is None or m[0] in (expected, expected + 1)):
+            count += 1
+            expected = m[0] + 1
+    return count, expected
+
+
+def _body_note_runs(ctx, blocks, texts, skip, body_size):
+    """Endnote sections set at BODY size — the form the small-text gate can't
+    see (points-of-light: "35 Suzanne Blake …" at 10.5pt body). A run of
+    consecutive blocks whose leading markers count straight through, holding
+    ≥4 notes, where the text carries a real CITATION signal (years/URLs in at
+    least half the notes) is a notes section regardless of size or heading.
+    The citation gate is what keeps numbered LISTS and survey questions out
+    (respond-to-crisis's appendix questions count sequentially but cite
+    nothing). Returns the set of member block indexes."""
+    member = set()
+    idxs = [i for i in range(len(blocks)) if i not in skip]
+    k = 0
+    while k < len(idxs):
+        i = idxs[k]
+        first = _line_marker(blocks[i]["lines"][0])
+        if not (first and _dominant_size(blocks[i]) <= 1.05 * body_size):
+            k += 1
+            continue
+        count, expected = _seq_count(blocks[i], None)
+        chain = [i]
+        j = k + 1
+        while j < len(idxs):
+            nb = idxs[j]
+            m = _line_marker(blocks[nb]["lines"][0])
+            if not (m and m[0] in (expected, expected + 1)
+                    and _dominant_size(blocks[nb]) <= 1.05 * body_size):
+                break
+            c2, expected = _seq_count(blocks[nb], expected)
+            count += c2
+            chain.append(nb)
+            j += 1
+        if count >= 4:
+            cites = len(_CITE_RE.findall(" ".join(texts[c] for c in chain)))
+            if cites >= 0.5 * count:
+                member.update(chain)
+                ctx.log.entry("note-run", page=blocks[i]["page"], blocks=len(chain),
+                              notes=count, cites=cites,
+                              text=texts[i][:60])
+        k = max(j, k + 1)
+    return member
+
+
 def _find_notes(ctx, pages, blocks, texts, skip, body_size):
-    """Footnote/endnote text in either form: numbered blocks following a
-    notes-section heading, or small numbered text at the bottom of a page.
+    """Footnote/endnote text in three forms: numbered blocks following a
+    notes-section heading, small numbered text at the bottom of a page, or a
+    body-size sequential run with citation signal (_body_note_runs).
     Returns (notes, absorbed block indexes, sectioned flag)."""
     notes, note_idx = [], set()
     in_section = False
     sectioned = False
+    body_runs = _body_note_runs(ctx, blocks, texts, skip, body_size)
     expected = None  # next anticipated note number; gates against wrapped DOIs
     for i, (blk, text) in enumerate(zip(blocks, texts)):
         if i in skip:
@@ -3481,6 +3556,16 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
             expected = None
             continue
         marker = _line_marker(blk["lines"][0])
+        if not in_section and i in body_runs:
+            new, lead, expected = _parse_notes(ctx, blk, expected)
+            if lead and notes:
+                notes[-1]["text"] += " " + lead
+            notes.extend(new)
+            if new or (lead and notes):
+                note_idx.add(i)
+                sectioned = True  # a body-size run is an endnotes section:
+                # it renders at its own position in the flow
+            continue
         if in_section:
             if size > body_size * 1.15:
                 in_section = False  # next heading ends the notes section
@@ -3528,7 +3613,8 @@ def _parse_notes(ctx, blk, expected):
     leading = []
     for l in blk["lines"]:
         marker = _line_marker(l)
-        if marker and (expected is None or marker[0] == expected):
+        if marker and (expected is None
+                       or marker[0] in (expected, expected + 1)):
             num, raw, off, _is_sup = marker
             rk = ctx.log.entry("note", page=blk["page"], n=num, marker=raw,
                                block=blk["rk"], text=l["text"][:80])

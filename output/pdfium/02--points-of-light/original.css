@@ -38,16 +38,8 @@ a {
 }
 a:hover { text-decoration: underline; }
 
-[data-nid="n110d77c5a2"] a,
-[data-nid="n606e49d285"] a,
 [data-nid="n566df5285e"] a,
-[data-nid="nb452d33789"] a,
-[data-nid="n161bc4ab26"] a,
-[data-nid="nebb51a0c2e"] a,
-[data-nid="nc6991e1129"] a,
-[data-nid="ncb6570069e"] a,
-[data-nid="nb52a629a82"] a,
-[data-nid="nb712503dc2"] a { color: #175d9e; }
+[data-nid="ncb6570069e"] a { color: #175d9e; }
 
 strong.c-175d9e { color: #175d9e; font-weight: inherit; }
 strong.c-231f20 { color: #231f20; font-weight: inherit; }
@@ -130,10 +122,6 @@ strong.c-4280c2 { color: #4280c2; font-weight: inherit; }
   font-style: italic;
   color: #8bbd3f;
   font-size: 1.14em;
-}
-
-.accent {
-  color: #175d9e;
 }
 
 [data-nid="nb6ce8da116"] .soft-header {
