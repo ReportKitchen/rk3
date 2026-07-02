@@ -5027,7 +5027,7 @@
       "list": 10,
       "paragraph": 95
     },
-    "asideChildren": 119,
+    "asideChildren": 117,
     "notes": [
       2,
       3,
@@ -5035,7 +5035,7 @@
       1024
     ],
     "questions": 32,
-    "textChars": 49583
+    "textChars": 49481
   },
   "02--tenure-annual-report": {
     "status": "done",
@@ -5283,16 +5283,16 @@
       ]
     ],
     "counts": {
-      "aside": 23,
+      "aside": 22,
       "figure": 43,
       "flag": 1,
       "footnotes": 1,
       "heading": 60,
       "list": 3,
-      "paragraph": 301,
+      "paragraph": 303,
       "table": 4
     },
-    "asideChildren": 117,
+    "asideChildren": 113,
     "notes": [
       1,
       3,
@@ -5318,7 +5318,7 @@
       1007
     ],
     "questions": 16,
-    "textChars": 125801
+    "textChars": 125783
   },
   "02--chep-300pages": {
     "status": "done",
@@ -10258,13 +10258,13 @@
       "paragraph": 71,
       "table": 1
     },
-    "asideChildren": 172,
+    "asideChildren": 133,
     "notes": [
       1,
       2,
       3
     ],
     "questions": 24,
-    "textChars": 26893
+    "textChars": 26243
   }
 }

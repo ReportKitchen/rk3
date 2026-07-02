@@ -73,12 +73,6 @@ a:hover { text-decoration: underline; }
   font-size: 1.89em;
 }
 
-.sm-medium-alt {
-  font-family: "DM Sans", sans-serif;
-  font-weight: 500;
-  font-size: 0.79em;
-}
-
 .strong-alt-2 {
   font-family: "Montserrat", sans-serif;
   font-weight: 600;
@@ -175,7 +169,7 @@ a:hover { text-decoration: underline; }
   font-size: 0.84em;
 }
 
-.sm-medium-alt-2 {
+.sm-medium-alt {
   font-family: "DM Sans", sans-serif;
   font-weight: 500;
   font-size: 0.84em;
@@ -223,7 +217,7 @@ a:hover { text-decoration: underline; }
   font-size: 1.32em;
 }
 
-.sm-medium-alt-3 {
+.sm-medium-alt-2 {
   font-family: "DM Sans", sans-serif;
   font-weight: 500;
   font-size: 0.63em;

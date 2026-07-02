@@ -1,16 +1,24 @@
 doc: 02--tenure-annual-report
 checks:
-  - note: reads before (p13)
+  # p13 (owner-minted 2026-07-02, CORRECTED against the source page image):
+  # the original pair asserted 'It is a golden moment' BEFORE 'The Babassu
+  # women approached' (and was minted twice) — the source page shows the
+  # right column reading Babassu-women (top) THEN golden-moment (below it).
+  # The defect the owner was flagging was real but different: both bottom
+  # paragraphs were trapped in a phantom aside minted from the decorative
+  # leaf watermark; dissolved via regionOverride kind=text (config,
+  # 2026-07-02). These pins encode the source order.
+  - note: "p13 (guard): 'They persuaded' reads in flow, before the right column"
     stage: analyze
     order:
-    - It is a golden moment. The new Brazilian Mini
+    - They persuaded 17 municipalities
     - The Babassu women approached the Tenure Facil
 
-  - note: reads before (p13)
+  - note: "p13 (guard): right column reads Babassu-women then golden-moment"
     stage: analyze
     order:
-    - It is a golden moment. The new Brazilian Mini
     - The Babassu women approached the Tenure Facil
+    - It is a golden moment. The new Brazilian Mini
 
   - merge:
     - The new scheme came with its own programme ma

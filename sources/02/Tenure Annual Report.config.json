@@ -1,4 +1,14 @@
 {
+  "structure": {
+    "regionOverrides": [
+      {
+        "page": 13,
+        "bbox": [35.3, 47.9, 561.2, 530.7],
+        "kind": "text",
+        "_source": "owner p13 order assertions (2026-07-02) + source page image: the detected 'callout' (4 paths, no box, no border) is the pale decorative leaf watermark behind ordinary two-column body text — 'They persuaded 17 municipalities…' and 'It is a golden moment…' are body flow, not an aside"
+      }
+    ]
+  },
   "output": {
     "fonts": {
       "map": {

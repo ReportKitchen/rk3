@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 164
+VERSION = 168
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -2066,11 +2066,61 @@ def _aside_images(ctx, reg, node, pages, fig_count):
         # multi-column box back to interleave (edf p6: 0.4pt of top-edge
         # difference put the right column first)
         for f in figs:
-            key = (f["page"], -f["bbox"][3])
-            pos = next((i for i, c in enumerate(node["children"])
-                        if (c["page"], -c["bbox"][3]) > key),
-                       len(node["children"]))
+            wide = (f["bbox"][2] - f["bbox"][0]
+                    >= 0.7 * (reg["bbox"][2] - reg["bbox"][0]))
+            if wide:
+                # a figure spanning the box reads AFTER every child above it
+                # in EITHER column — the top-edge key would drop it into the
+                # middle of the left column's flow (tenure p48: the bottom
+                # photo landed between "The new scheme…" and its right-column
+                # continuation)
+                pos = max((i + 1 for i, c in enumerate(node["children"])
+                           if c["page"] < f["page"]
+                           or (c["page"] == f["page"]
+                               and c["bbox"][1] >= f["bbox"][3] - 2)),
+                          default=0)
+            else:
+                key = (f["page"], -f["bbox"][3])
+                pos = next((i for i, c in enumerate(node["children"])
+                            if (c["page"], -c["bbox"][3]) > key),
+                           len(node["children"]))
             node["children"].insert(pos, f)
+        # short text sitting ON an interior photo (bbox inside the figure's
+        # crop) is already part of the cropped pixels — top-level figure
+        # regions claim such text; interior figures must too, else it renders
+        # twice AND interleaves the box's column flow (tenure p48: "Photo
+        # credit: SRUTI" split "The new scheme…" from its right-column
+        # continuation "leaders. The State Government…"). Only genuine
+        # interior photos claim: a figure covering most of the region is the
+        # box's BACKGROUND, and text over it is the callout's designed
+        # content, not overlay (good-food p8: the tinted band's heading and
+        # intro lines must stay live text)
+        ra = max((reg["bbox"][2] - reg["bbox"][0])
+                 * (reg["bbox"][3] - reg["bbox"][1]), 1.0)
+        photos = [f for f in figs
+                  if (f["bbox"][2] - f["bbox"][0])
+                  * (f["bbox"][3] - f["bbox"][1]) < 0.8 * ra]
+        kept = []
+        for c in node["children"]:
+            overlay = (c.get("type") != "figure" and c.get("text")
+                       and len(c["text"]) <= 120
+                       and any(f["bbox"][0] - 2 <= c["bbox"][0]
+                               and c["bbox"][2] <= f["bbox"][2] + 2
+                               and f["bbox"][1] - 2 <= c["bbox"][1]
+                               and c["bbox"][3] <= f["bbox"][3] + 2
+                               for f in photos))
+            if overlay:
+                ctx.audit_claimed[c["page"]] += _alnum(c["text"])
+                ctx.log.entry("figure-overlay-text", page=c["page"],
+                              region=reg["rk"], text=c["text"][:50])
+                continue
+            kept.append(c)
+        if len(kept) < len(node["children"]):
+            # the claimed overlay may have sat between a paragraph and its
+            # continuation (the aside's own join pass ran before figures
+            # existed) — rejoin now that they're adjacent
+            kept = _join_broken_paragraphs(ctx, kept)
+        node["children"] = kept
     return fig_count
 
 
