@@ -56,6 +56,42 @@ meanwhile) and continue with a workaround. The main agent reads that file
 and either ships the request into the IR contract properly or explains the
 alternative. This is the mechanism that keeps the tracks decoupled.
 
+---
+
+# START HERE: your first assignment
+
+Everything below §0 and this list is REFERENCE — read it as each task needs
+it, not before you begin. In order:
+
+1. Read the taxonomy draft
+   (`../specifications/rk3-information-pattern-taxonomy-draft.md`) and the
+   IR contract (`sources/docs/ir-contract.md`).
+2. Create the `patterns/` work area (package, CLI entry point,
+   `patterns/out/` and `patterns/logs/` — both already gitignored).
+3. Create the corpus manifest structure (§6) and add entries for the
+   corpus docs (`python -m rk3 list`; `tests/expectations.json` has known
+   quirks), even if some fields start blank.
+4. Define the JSON schemas (§4): pattern objects, registry entries,
+   component recommendations, review decisions — including the four
+   non-negotiable fields the review tab pins to (§23: top-level `schema`,
+   `source_refs` as `{nid, page, quote}`, the `input` staleness stamp,
+   registry-stable `pattern_type` ids).
+5. Convert the first 10–15 taxonomy patterns into registry entries (§5).
+6. Build the CLI harness (§8): load one `output/pdfium/<slug>/ir.json`,
+   emit an empty-but-valid report to `patterns/out/<slug>.json`.
+7. Implement Stage A pre-detection (§9, as revised: consume the IR's typed
+   nodes via `rk3.irwalk`; code-detect only statistics, dates, geographies,
+   quotations, questions, label/value repetition).
+8. Manually gold-annotate the 3 pilot documents (§7).
+9. Produce the first review report for one pilot document (§11).
+10. Anything you need from the pipeline goes in
+    `patterns/INTEGRATION-REQUESTS.md` (§0) — do not stop and wait; work
+    around it and keep moving. The original integration questions are
+    already answered in §21.
+
+---
+# REFERENCE MATERIAL (read as needed)
+
 ## Purpose
 
 Build a parallel RK3 work track that identifies information patterns in long-form PDFs and Word-style reports while the main RK3 track continues improving PDF-to-HTML fidelity.
@@ -899,18 +935,9 @@ Mitigation: separate source-supported transformations from editorial/data follow
 
 # 20. First agent assignment
 
-Ask the agent to begin with these tasks:
-
-1. Read `rk3-information-pattern-taxonomy-draft.md`.
-2. Create a separate pattern-identification work area.
-3. Create the corpus manifest structure.
-4. Add entries for the 25 known PDFs, even if some fields are initially blank.
-5. Define JSON schemas for pattern objects, pattern registry entries, component recommendations, and review decisions.
-6. Convert the first 10–15 taxonomy patterns into machine-readable registry entries.
-7. Create a CLI harness that can load a document artifact and output an empty but valid pattern report.
-8. Implement deterministic pre-detection for statistics, questions, quotations, dates, and geographies.
-9. Produce a first review report for one pilot document.
-10. Stop and document integration questions for the RK3 main agent before modifying RK3 core code.
+Moved to the top of this document — see "START HERE: your first assignment"
+immediately after §0. (Kept as a numbered stub so cross-references to §20
+still resolve.)
 
 ---
 
