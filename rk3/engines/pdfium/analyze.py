@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 149
+VERSION = 150
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -1992,9 +1992,17 @@ def _aside_images(ctx, reg, node, pages, fig_count):
                      "nid": _stable_id("n", ctx.nids, "figure", page["n"],
                                        sub["bbox"])})
     if figs:
-        node["children"] = sorted(
-            node["children"] + figs,
-            key=lambda c: (c["page"], -c["bbox"][3]))
+        # INSERT each figure at its y-position without re-sorting the text
+        # children — their order is the reading order (possibly column-aware
+        # via the aside-interior model) and a global y-sort would scramble a
+        # multi-column box back to interleave (edf p6: 0.4pt of top-edge
+        # difference put the right column first)
+        for f in figs:
+            key = (f["page"], -f["bbox"][3])
+            pos = next((i for i, c in enumerate(node["children"])
+                        if (c["page"], -c["bbox"][3]) > key),
+                       len(node["children"]))
+            node["children"].insert(pos, f)
     return fig_count
 
 
@@ -2022,6 +2030,10 @@ def _aside_node(ctx, reg, blocks, rich, fonts, body_size, roles):
     children = _group_tag_lists(ctx, children)
     children = _group_bullet_paragraphs(ctx, children)
     children = _join_pagebreak_sentences(ctx, children)
+    # a box's interior splits paragraphs like the body does (edf p6: the
+    # dropcap 'M' severs 'MethaneAIR, the world's only dedicated' from
+    # 'methane-measuring jet, flew over…'); same high-precision signature
+    children = _join_broken_paragraphs(ctx, children)
     is_quote = _extract_quote_marks(ctx, reg, children)
     if len(children) == 1:
         # a lone child is the box's content, not a headline over content

@@ -115,6 +115,15 @@ def _check_order(slug, c):
         return False, f"{a!r} not found in {stage} — {_localize(slug, a)}"
     if ib < 0:
         return False, f"{b!r} not found in {stage} — {_localize(slug, b)}"
+    if ia == ib:
+        # both snippets in ONE node: a column-wrap join legitimately fuses a
+        # sentence that flows across the gutter — the reading-order intent is
+        # satisfied iff A's text precedes B's WITHIN the node
+        t = _norm(seq[ia].get("text"))
+        oa, ob = t.find(_norm(a)), t.find(_norm(b))
+        if oa < ob:
+            return True, f"both in node #{ia}, {a!r} first (joined flow)"
+        return False, f"both in node #{ia} but {a!r} reads AFTER {b!r} inside it"
     if ia < ib:
         return True, f"{a!r} (#{ia}) before {b!r} (#{ib})"
     return False, f"{a!r} (#{ia}) reads AFTER {b!r} (#{ib}) — {_localize(slug, a)}"

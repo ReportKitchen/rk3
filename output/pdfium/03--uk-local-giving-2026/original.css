@@ -102,14 +102,14 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   font-family: "Inter", sans-serif;
 }
 
-.sm-strong-alt {
+.sm-alt-2 {
   font-family: "Inter", sans-serif;
-  font-weight: 700;
   font-size: 0.8em;
 }
 
-.sm-alt-2 {
+.sm-strong-alt {
   font-family: "Inter", sans-serif;
+  font-weight: 700;
   font-size: 0.8em;
 }
 
@@ -222,9 +222,9 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
 [data-nid="n0a03ef0d00"] .soft-header,
 [data-nid="ne37a313b1e"] .soft-header,
 [data-nid="nde8a45f833"] .soft-header,
+[data-nid="n6db78fd5ae"] .soft-header,
 [data-nid="n3217bea0c2"] .soft-header,
 [data-nid="na1dc559e75"] .soft-header,
-[data-nid="n6db78fd5ae"] .soft-header,
 [data-nid="nb4a990270c"] .soft-header,
 [data-nid="ndec548f19e"] .soft-header {
   font-family: "Inter", sans-serif;

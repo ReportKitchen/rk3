@@ -118,12 +118,6 @@ strong.c-80afc7 { color: #80afc7; font-weight: inherit; }
 }
 
 .italic-alt-2 {
-  font-family: "Carlito", sans-serif;
-  font-style: italic;
-  color: #15364f;
-}
-
-.italic-alt-3 {
   font-family: var(--rkf-merriweather, "Merriweather", sans-serif);
   font-style: italic;
   color: #15364f;
@@ -186,7 +180,7 @@ strong.c-80afc7 { color: #80afc7; font-weight: inherit; }
   font-size: 0.83em;
 }
 
-.italic-alt-4 {
+.italic-alt-3 {
   font-family: var(--rkf-merriweather, "Merriweather", sans-serif);
   font-style: italic;
   color: #d5e5f1;

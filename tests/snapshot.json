@@ -228,7 +228,7 @@
       "list": 15,
       "paragraph": 193
     },
-    "asideChildren": 356,
+    "asideChildren": 336,
     "notes": [
       1,
       2,
@@ -305,7 +305,7 @@
       73
     ],
     "questions": 39,
-    "textChars": 265328
+    "textChars": 265348
   },
   "02--advancing-mobility-from-poverty": {
     "status": "done",
@@ -1027,7 +1027,7 @@
       "paragraph": 399,
       "table": 25
     },
-    "asideChildren": 308,
+    "asideChildren": 307,
     "notes": [
       2,
       3,
@@ -1220,7 +1220,7 @@
       26
     ],
     "questions": 76,
-    "textChars": 331088
+    "textChars": 331089
   },
   "02--atlantic-council-report-060823": {
     "status": "done",
@@ -1573,7 +1573,7 @@
       "paragraph": 177,
       "table": 6
     },
-    "asideChildren": 66,
+    "asideChildren": 63,
     "notes": [
       1,
       2,
@@ -1703,7 +1703,7 @@
       126
     ],
     "questions": 29,
-    "textChars": 155669
+    "textChars": 155672
   },
   "02--baystate-case-study-021624": {
     "status": "done",
@@ -2437,7 +2437,7 @@
       "heading": 106,
       "paragraph": 908
     },
-    "asideChildren": 75,
+    "asideChildren": 72,
     "notes": [
       1,
       2,
@@ -2451,7 +2451,7 @@
       10
     ],
     "questions": 13,
-    "textChars": 370159
+    "textChars": 370162
   },
   "02--ecp-homeforgood": {
     "status": "done",
@@ -2591,7 +2591,7 @@
       "paragraph": 125,
       "table": 3
     },
-    "asideChildren": 327,
+    "asideChildren": 326,
     "notes": [
       1,
       2,
@@ -2701,7 +2701,7 @@
       106
     ],
     "questions": 19,
-    "textChars": 135044
+    "textChars": 135045
   },
   "02--edf-ir23-digital-pages": {
     "status": "done",
@@ -2858,10 +2858,10 @@
       "heading": 36,
       "paragraph": 89
     },
-    "asideChildren": 4,
+    "asideChildren": 3,
     "notes": [],
     "questions": 15,
-    "textChars": 34450
+    "textChars": 34451
   },
   "02--foia-basics-for-activists-may-2019": {
     "status": "done",
@@ -3029,7 +3029,7 @@
       "list": 7,
       "paragraph": 86
     },
-    "asideChildren": 43,
+    "asideChildren": 42,
     "notes": [
       1,
       2,
@@ -3039,7 +3039,7 @@
       666
     ],
     "questions": 12,
-    "textChars": 50112
+    "textChars": 50113
   },
   "02--good-food-building-the-agricultural-bioeconomy": {
     "status": "done",
@@ -3359,7 +3359,7 @@
       "list": 15,
       "paragraph": 355
     },
-    "asideChildren": 119,
+    "asideChildren": 117,
     "notes": [
       1,
       2,
@@ -3368,7 +3368,7 @@
       5
     ],
     "questions": 10,
-    "textChars": 131526
+    "textChars": 131528
   },
   "02--oxfam-davos-2024-report": {
     "status": "done",
@@ -4339,7 +4339,7 @@
       "list": 18,
       "paragraph": 158
     },
-    "asideChildren": 22,
+    "asideChildren": 21,
     "notes": [
       1,
       2,
@@ -4393,7 +4393,7 @@
       46
     ],
     "questions": 10,
-    "textChars": 89328
+    "textChars": 89329
   },
   "02--race-to-lead": {
     "status": "done",
@@ -4565,7 +4565,7 @@
       "list": 2,
       "paragraph": 316
     },
-    "asideChildren": 56,
+    "asideChildren": 55,
     "notes": [
       1,
       2,
@@ -4597,7 +4597,7 @@
       28
     ],
     "questions": 45,
-    "textChars": 108107
+    "textChars": 108108
   },
   "02--respond-to-crisis": {
     "status": "done",
@@ -4764,7 +4764,7 @@
       "heading": 38,
       "paragraph": 117
     },
-    "asideChildren": 165,
+    "asideChildren": 151,
     "notes": [
       1,
       2,
@@ -4790,7 +4790,7 @@
       675
     ],
     "questions": 39,
-    "textChars": 75184
+    "textChars": 75198
   },
   "02--rock-farm-to-fim": {
     "status": "done",
@@ -5027,7 +5027,7 @@
       "list": 10,
       "paragraph": 95
     },
-    "asideChildren": 122,
+    "asideChildren": 119,
     "notes": [
       2,
       3,
@@ -5035,7 +5035,7 @@
       1024
     ],
     "questions": 32,
-    "textChars": 49580
+    "textChars": 49583
   },
   "02--tenure-annual-report": {
     "status": "done",
@@ -5292,7 +5292,7 @@
       "paragraph": 301,
       "table": 4
     },
-    "asideChildren": 123,
+    "asideChildren": 117,
     "notes": [
       1,
       3,
@@ -5318,7 +5318,7 @@
       1007
     ],
     "questions": 16,
-    "textChars": 125797
+    "textChars": 125803
   },
   "02--chep-300pages": {
     "status": "done",
@@ -6151,7 +6151,7 @@
       "paragraph": 716,
       "table": 24
     },
-    "asideChildren": 620,
+    "asideChildren": 462,
     "notes": [
       1,
       1001,
@@ -6200,7 +6200,7 @@
       1016
     ],
     "questions": 122,
-    "textChars": 628815
+    "textChars": 628971
   },
   "02--compelling-investment-case-climate-adaptation": {
     "status": "done",
@@ -9427,7 +9427,7 @@
       "list": 68,
       "paragraph": 508
     },
-    "asideChildren": 101,
+    "asideChildren": 98,
     "notes": [
       1,
       2,
@@ -9489,7 +9489,7 @@
       10
     ],
     "questions": 60,
-    "textChars": 291106
+    "textChars": 291109
   },
   "03--enterprise-annual-report-2022": {
     "status": "done",
@@ -10258,13 +10258,13 @@
       "paragraph": 71,
       "table": 1
     },
-    "asideChildren": 179,
+    "asideChildren": 172,
     "notes": [
       1,
       2,
       3
     ],
     "questions": 24,
-    "textChars": 26886
+    "textChars": 26893
   }
 }
