@@ -80,7 +80,10 @@ export default function PatternsPanel({ doc }) {
     setTimeout(() => el.classList.remove("rk-pat-flash"), 1200);
   };
 
-  const [noteFor, setNoteFor] = useState(null);  // pattern_id with note box open
+  // {id, decision} — a note box open for pattern id; when `decision` is set
+  // (reject-with-comments, wrong-type-with-comments) submitting the note also
+  // records that decision in one gesture
+  const [noteFor, setNoteFor] = useState(null);
   const decide = (c, decision, notes = null) => {
     postPatternDecision(doc.slug, {
       pattern_id: c.pattern_id, decision,
@@ -93,10 +96,11 @@ export default function PatternsPanel({ doc }) {
     }).catch((e) => reportError("save pattern decision", e));
   };
   // the qualitative WHY behind a decision is the registry's food (negative
-  // indicators, false-positive classes) — capture it at the click, not in chat
+  // indicators, false-positive classes, missing pattern types) — capture it
+  // at the click, not in chat
   const addNote = (c, text) => {
     const d = decisions[c.pattern_id];
-    decide(c, d?.decision || "needs_more_context", text);
+    decide(c, noteFor?.decision || d?.decision || "needs_more_context", text);
     setNoteFor(null);
   };
 
@@ -156,18 +160,30 @@ export default function PatternsPanel({ doc }) {
                       ))}
                       <select value={MORE_DECISIONS.includes(d?.decision) ? d.decision : ""}
                               title="Other decision"
-                              onChange={(e) => e.target.value && decide(c, e.target.value)}>
+                              onChange={(e) => {
+                                const v = e.target.value;
+                                if (!v) return;
+                                if (v === "reject+note" || v === "wrong_type+note") {
+                                  setNoteFor({ id: c.pattern_id, decision: v.split("+")[0] });
+                                } else {
+                                  decide(c, v);
+                                }
+                                e.target.value = "";
+                              }}>
                         <option value="">…</option>
+                        <option value="reject+note">reject with comments…</option>
+                        <option value="wrong_type+note">wrong type with comments…</option>
                         {MORE_DECISIONS.map((m) => <option key={m} value={m}>{m.replaceAll("_", " ")}</option>)}
                       </select>
                       <button className="pat-btn" title="Add a why-note to this decision"
-                              onClick={() => setNoteFor(noteFor === c.pattern_id ? null : c.pattern_id)}>✎</button>
+                              onClick={() => setNoteFor(noteFor?.id === c.pattern_id ? null : { id: c.pattern_id, decision: null })}>✎</button>
                     </span>
                   </div>
                   <p className="pat-quote">“{(ref.quote || "").slice(0, 140)}”</p>
-                  {noteFor === c.pattern_id && (
+                  {noteFor?.id === c.pattern_id && (
                     <input className="pat-note" autoFocus
-                           placeholder="why? (feeds the pattern registry — e.g. 'scare quotes, not a quotation')"
+                           placeholder={(noteFor.decision ? `${noteFor.decision.replaceAll("_", " ")} — ` : "")
+                             + "why? (feeds the pattern registry — e.g. 'mission statement, not a quotation')"}
                            onKeyDown={(e) => {
                              if (e.key === "Enter" && e.target.value.trim()) addNote(c, e.target.value.trim());
                              if (e.key === "Escape") setNoteFor(null);
