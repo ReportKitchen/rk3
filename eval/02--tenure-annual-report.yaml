@@ -15,3 +15,29 @@ checks:
   - merge:
     - The new scheme came with its own programme ma
     - leaders. The State Government entrusted our p
+
+  # GOLD p31 (target, owner note 4005009f): the SOURCE line-breaks
+  # "SUMMA-/RISE" inside an all-caps Q&A heading; dehyphenation misses the
+  # caps case, leaving "SUMMA- RISE". Red at plant (v163).
+  - note: "GOLD p31 (target): 'SUMMARISE' dehyphenates inside the all-caps question"
+    stage: analyze
+    freeze:
+      anchor: "THE IMPACT OF FECOFUN ON THE FORESTS"
+      html: "Q: HOW WOULD YOU SUMMARISE THE IMPACT OF FECOFUN ON THE FORESTS OF NEPAL?"
+
+  # GOLD p54 (guards, owner note 9480e0a1): two side-by-side photo captions
+  # ("hidden table" — person left, person right) were spliced when noted;
+  # healed by the v157-163 ordering/caption work. Pinned: each caption is
+  # one whole node, never fused with its neighbour. ("Protectd" is the
+  # source's own typo — fidelity keeps it.)
+  - note: "GOLD p54 (guard): the two photo captions stay separate nodes"
+    stage: analyze
+    split: ["Wider Guaramag, President of the", "Nixon Andy, Coordinator of the"]
+
+  - note: "GOLD p54 (guard): left caption is whole"
+    stage: analyze
+    merge: ["Wider Guaramag, President of the", "Cofan Protectd Community of Sinagoe"]
+
+  - note: "GOLD p54 (guard): right caption is whole"
+    stage: analyze
+    merge: ["Nixon Andy, Coordinator of the", "Protected Community of Sinagoe, Ecuador."]

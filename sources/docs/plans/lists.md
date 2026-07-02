@@ -88,6 +88,20 @@ documented in the conditions. Remaining L2 residue: enabler nesting
 under a SPLIT-OFF parent bullet (gates p17) — the sub-list arrives
 BEFORE the parent's own list exists; different shape.
 
+**Owner-note encodings (2026-07-02, post-compact):** tenure p31
+hard-hyphen (4005009f) FIXED via layered caps dehyphenation
+(`_caps_wrap_joins`, v164): in-doc vocabulary first (doc writes the
+joined word elsewhere → join; writes the hyphenated compound mid-line →
+keep), wordfreq morphology fallback (joined is a real word AND one
+fragment isn't a common standalone word → broken word). 5 joins
+corpus-wide (SUMMARISE, MULTIDIMENSIONAL ×2, PHILANTHROPIC,
+DEVELOPMENT), zero false fires against the 14-case corpus census
+(LONG-TERM/AIR-QUALITY class all kept). Tenure p54 caption-splice note
+(9480e0a1) found already healed by v157-163 ordering — pinned with
+split + merge guards. respond-to-crisis p24 Q&A-layout note (195a0316)
+NOT encoded: the owner is musing (horizontal-rule signal idea), no
+prescribed structure yet — needs a structure decision before a stake.
+
 ## Phase 0 — gold set first
 
 Encode targets + guards before touching the engine (the columns lesson: the

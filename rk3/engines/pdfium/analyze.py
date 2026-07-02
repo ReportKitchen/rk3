@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 163
+VERSION = 164
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -266,6 +266,7 @@ def run(ctx):
     ctx.audit_moved = Counter()
 
     ctx.fonts = fonts
+    ctx.vocab, ctx.hyph_vocab = _doc_vocab(blocks)
     link_colors = _link_colors(ctx, blocks)
     rich = [_join_block(ctx, blk, link_colors) for blk in blocks]
     texts = [r["text"] for r in rich]
@@ -3917,6 +3918,54 @@ def _block_base_rank(ctx, lines):
     return min(_font_weight_rank(ctx.fonts[fi]) for fi in sig)
 
 
+def _doc_vocab(blocks):
+    """The document's own word evidence for caps dehyphenation: every
+    lowercased alphabetic token, and every hyphenated compound that appears
+    MID-LINE (a mid-line 'air-quality' proves the doc writes that compound
+    with its hyphen; a line-END hyphen proves nothing — it's the ambiguous
+    case being decided)."""
+    words, hyph = set(), set()
+    for blk in blocks:
+        for l in blk.get("lines", []):
+            for tok in re.findall(r"[A-Za-z][A-Za-z-]*[A-Za-z]",
+                                  l.get("text", "")):
+                lo = tok.lower()
+                (hyph if "-" in lo else words).add(lo)
+    return words, hyph
+
+
+def _caps_wrap_joins(ctx, out, t):
+    """Is 'A-' + line break + 'B' (B capitalized) a broken word or a
+    hyphenated compound wrapped at its own hyphen? Layered evidence,
+    strongest first:
+    1. the document's own usage — it writes the joined word elsewhere
+       (atlantic writes 'multidimensional' 12x -> JOIN its 'MULTI-|DIMENSIONAL')
+       or the hyphenated compound mid-line (clean-air writes 'air-quality'
+       78x -> KEEP its 'AIR-|QUALITY');
+    2. lexicon morphology (wordfreq): the joined form is a real word AND at
+       least one fragment is NOT a common standalone word — a rare fragment
+       means a broken word ('SUMMA-|RISE' -> SUMMARISE), while two common
+       words mean a compound that legitimately breaks at its hyphen
+       ('LONG-|TERM' stays). Undecidable -> keep (never corrupt)."""
+    a = re.search(r"([A-Za-z]+)-$", out)
+    b = re.match(r"[A-Za-z]+", t)
+    if not a or not b:
+        return False
+    a, b = a.group(1), b.group(0)
+    j, h = (a + b).lower(), (a + "-" + b).lower()
+    if j in getattr(ctx, "vocab", ()) and h not in getattr(ctx, "hyph_vocab", ()):
+        return True
+    if h in getattr(ctx, "hyph_vocab", ()):
+        return False
+    try:
+        from wordfreq import zipf_frequency
+    except ImportError:
+        return False
+    return (zipf_frequency(j, "en") > 0
+            and min(zipf_frequency(a.lower(), "en"),
+                    zipf_frequency(b.lower(), "en")) < 4.0)
+
+
 def _join_block(ctx, blk, link_colors=()):
     """Join a block's lines into flowing text, dehyphenating soft wraps and
     carrying per-line superscript/link char ranges into the joined offsets.
@@ -3956,6 +4005,12 @@ def _build_runs(ctx, blk, lines, blk_font, link_colors=()):
         t = l["text"]
         if out.endswith("-") and t[:1].islower():
             ctx.log.entry("dehyphenate", page=blk["page"],
+                          joined=out[-12:] + "|" + t[:12], block=blk["rk"])
+            base = len(out) - 1
+            out = out[:-1] + t
+        elif (out.endswith("-") and t[:1].isupper()
+                and _caps_wrap_joins(ctx, out, t)):
+            ctx.log.entry("dehyphenate-caps", page=blk["page"],
                           joined=out[-12:] + "|" + t[:12], block=blk["rk"])
             base = len(out) - 1
             out = out[:-1] + t
