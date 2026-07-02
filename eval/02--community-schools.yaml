@@ -1,0 +1,11 @@
+doc: 02--community-schools
+
+# GOLD(col) — NEGATIVE CONTROLS (plans/columns-reading-order.md phase 0).
+# Single-column narrative pages; p107's consecutive paragraphs must never be
+# re-ordered by column detection. Pass today; must keep passing.
+checks:
+  - note: "GOLD(col) p107 (guard/negative-control): single-column paragraphs stay in order (1/2)"
+    order: ["For a community school to succeed, the teachers must be partners", "Rosa Jimenez is a founding lead teacher"]
+
+  - note: "GOLD(col) p107 (guard/negative-control): single-column paragraphs stay in order (2/2)"
+    order: ["Rosa Jimenez is a founding lead teacher", "Jimenez believes there is a natural alliance"]

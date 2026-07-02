@@ -207,6 +207,24 @@ def _check_merge(slug, c):
     return False, f"{a!r} (#{ia}) and {b!r} (#{ib}) are separate — should be one paragraph"
 
 
+def _check_split(slug, c):
+    """A and B must live in SEPARATE text nodes — the inverse of merge. Pins
+    column fusion: two columns' text welded into one paragraph (the
+    advancing-mobility p12 class, where a new column's opening sentence lands
+    mid-node)."""
+    a, b = c["split"]
+    seq = _stage_seq(slug, "analyze")
+    ia, ib = _find(seq, a), _find(seq, b)
+    if ia < 0:
+        return False, f"{a!r} not found — {_localize(slug, a)}"
+    if ib < 0:
+        return False, f"{b!r} not found — {_localize(slug, b)}"
+    if ia != ib:
+        return True, f"separate nodes (#{ia}, #{ib})"
+    return False, (f"{a!r} and {b!r} are FUSED in node #{ia} — "
+                   "should be separate (column/paragraph fusion)")
+
+
 # ---- freeze: the general "this bit is correct, keep it" primitive ----
 # A reviewer selects a rendered element and freezes its SEMANTIC content — the
 # text plus the <em>/<strong>/<a> and list/heading structure, woven from the IR.
@@ -329,7 +347,8 @@ def _check_freeze(slug, c):
 
 
 EVALUATORS = {"order": _check_order, "role": _check_role, "list": _check_list,
-              "merge": _check_merge, "freeze": _check_freeze}
+              "merge": _check_merge, "split": _check_split,
+              "freeze": _check_freeze}
 
 
 def evaluate_check(slug, check):

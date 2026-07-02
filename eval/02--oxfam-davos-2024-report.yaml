@@ -25,3 +25,13 @@ checks:
   - note: "p11: 'A new era of monopoly' is a heading, not body text"
     stage: analyze
     role: { text: "A new era of monopoly", is: heading }
+
+  # GOLD(col) p10 (guards): the reviewer flagged a column swap here ("this
+  # should be the second column — the one below it comes first"); the page
+  # now reads correctly after the assemble column-fusion fixes. Pin the
+  # correct flow so the column-engine work can't silently regress it.
+  - note: "GOLD(col) p10 (guard): first-column body precedes the Oxfam research paragraph"
+    order: ["Sharply increasing billionaire wealth", "New research by Oxfam illuminates"]
+
+  - note: "GOLD(col) p10 (guard): research paragraph precedes 'Billionaire owners use this control'"
+    order: ["New research by Oxfam illuminates", "Billionaire owners use this control"]

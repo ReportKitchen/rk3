@@ -1,0 +1,11 @@
+doc: 02--foia-basics-for-activists-may-2019
+
+# GOLD(col) — columns/reading-order gold set (plans/columns-reading-order.md
+# phase 0). Encoded from reviewer structure notes.
+checks:
+  # p20: "priority. 552 (a)(6)(E)." is the tail of the body paragraph "For
+  # FOIA to be an effective movement support tool…" but reads AFTER the
+  # ENDNOTES heading (note n930182a9b5: "quite a bit of elements out of
+  # order here").
+  - note: "GOLD(col) p20 (target): body tail precedes the ENDNOTES heading"
+    order: ["priority. 552 (a)(6)(E)", "ENDNOTES"]

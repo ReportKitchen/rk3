@@ -21,3 +21,9 @@ checks:
   - note: "p8: left-column body precedes the right column (in the IR)"
     stage: analyze
     order: ["That assumption no longer holds", "of countries, companies and communities"]
+
+  # GOLD(col) p9 (target): the "• For countries: …" fragment is a stray
+  # paragraph with a literal bullet char; it belongs in the key-findings list
+  # with "For communities" / "For companies" (reviewer note nd6d8031b6b).
+  - note: "GOLD(col) p9 (target): 'For countries' joins the key-findings list"
+    list: ["For communities", "For companies", "For countries: Adaptation interventions"]

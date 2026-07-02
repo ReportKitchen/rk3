@@ -49,6 +49,18 @@ is measured, not vibed:
 Deliverable: `eval/` additions only; current engine's pass/fail census as the
 baseline scorecard.
 
+**Phase 0 SHIPPED (2026-07-02).** New `split:` check kind (inverse of merge —
+pins column fusion). Baseline census: **32 passed / 12 failed**, where the 12
+= 4 pre-existing (gates p8, atlantic p6, edf p6 ordering + edf footer typing)
++ **8 GOLD(col) targets**: advancing p12 column weld (split), covid p4-5
+cross-page break (merge), ecp p4 continuation (merge), ecp p6 box-vs-body
+order ×2, ecp p10 list-item fragment (the magic-wand example, as a list
+check), foia p20 body-tail-after-ENDNOTES (order), gates p9 stray
+bullet-paragraph (list). 7 guards pass, incl. 4 single-column
+negative-controls (race-to-lead p16, community-schools p107) that pin the
+"gutter detector must not fire inside one column" failure mode. Definition of
+done for phases 1-2: targets go green without any guard going red.
+
 ## Phase 1 — column evidence, root-caused (the keystone)
 
 Replace implicit column inference with an explicit, logged, per-page **column

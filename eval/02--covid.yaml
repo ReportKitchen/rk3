@@ -1,0 +1,11 @@
+doc: 02--covid
+
+# GOLD(col) — columns/reading-order gold set (plans/columns-reading-order.md
+# phase 0). Encoded from reviewer structure notes.
+checks:
+  # p4→p5: a ranked list is split by a cross-page column break — "This was
+  # followed by: Access to healthcare (56.5%); Poverty (39%); …" continues as
+  # "Access to financial services (4%); and Economic exploitation…" on the
+  # next page and should be one paragraph (note nbf93bf85a4).
+  - note: "GOLD(col) p4-5 (target): cross-page column break rejoined"
+    merge: ["This was followed by: Access to healthcare", "Access to financial services (4%)"]

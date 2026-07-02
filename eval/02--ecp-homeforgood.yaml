@@ -1,0 +1,31 @@
+doc: 02--ecp-homeforgood
+
+# GOLD(col) — columns/reading-order gold set (plans/columns-reading-order.md
+# phase 0). This doc is the column stress-test: sidebar boxes interleave with
+# two-column body text. Encoded from reviewer structure notes.
+checks:
+  # p4: the text "(“post-filing”) and after the court has determined…" was
+  # emitted as a stray element; it is the CONTINUATION of the paragraph
+  # "The goal of this paper is to highlight…" (note n4d471893bf: "column
+  # problem — this is not a callout").
+  - note: "GOLD(col) p4 (target): 'post-filing' continuation rejoins its paragraph"
+    merge: ["The goal of this paper is to highlight", "post-filing”) and after the court has determined"]
+
+  # p6: the "Defining Legal Terms" box definitions interleave with the body
+  # column. Correct order (note n6cc849e5e5): the whole legal-terms box, then
+  # the "Eviction's Impact" body text. Two targets pin box-before-body; the
+  # guard pins body text that already follows its heading.
+  - note: "GOLD(col) p6 (target): 'Just Cause' definition precedes 'Eviction's Impact' body"
+    order: ["Just Cause – The requirement", "Eviction’s Impact"]
+
+  - note: "GOLD(col) p6 (target): last definition precedes 'Eviction's Impact' body"
+    order: ["Writ of Restitution", "Eviction’s Impact"]
+
+  - note: "GOLD(col) p6 (guard): body text follows its 'Eviction's Impact' header"
+    order: ["Eviction’s Impact", "More than a quarter of renters"]
+
+  # p10: the magic-wand example (features/magic-wand.md) — "eviction can
+  # proceed" is a stray fragment that belongs to the "Post-Eviction: after
+  # the court has determined that an" list item (note nb37cb63343).
+  - note: "GOLD(col) p10 (target): 'eviction can proceed' rejoins its list item"
+    list: ["Upstream: to avoid housing instability", "Post-Eviction: after the court has determined that an eviction can proceed"]

@@ -1,0 +1,12 @@
+doc: 02--advancing-mobility-from-poverty
+
+# GOLD(col) — columns/reading-order gold set (plans/columns-reading-order.md
+# phase 0). Encoded from reviewer structure notes.
+checks:
+  # p12: two columns were WELDED into one paragraph — "In the housing
+  # sector, disinvestment…" opens a new column (its assemble block starts
+  # there; the previous column's last line ends half-width, a strong
+  # paragraph-end cue) but lands at offset ~660 inside the same IR node
+  # (note n65f6ec64da: "columns got merged here").
+  - note: "GOLD(col) p12 (target): column weld splits — 'In the housing sector' starts its own node"
+    split: ["led to poor quality housing and under-resourced schools", "In the housing sector, disinvestment in minority neighborhoods"]

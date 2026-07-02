@@ -1,0 +1,13 @@
+doc: 02--race-to-lead
+
+# GOLD(col) — NEGATIVE CONTROLS (plans/columns-reading-order.md phase 0).
+# This is a single-column report: p16 carries consecutive full-width body
+# paragraphs. A gutter detector that fires on whitespace inside a single
+# column would scramble exactly this — these checks pass today and must
+# keep passing through every column-engine change.
+checks:
+  - note: "GOLD(col) p16 (guard/negative-control): single-column paragraphs stay in order (1/2)"
+    order: ["The data revealed persistent", "One important workplace challenge stands out"]
+
+  - note: "GOLD(col) p16 (guard/negative-control): single-column paragraphs stay in order (2/2)"
+    order: ["One important workplace challenge stands out", "Figure 12 (on the following page) compares"]
