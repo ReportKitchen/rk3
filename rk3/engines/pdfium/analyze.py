@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 144
+VERSION = 145
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -2969,6 +2969,18 @@ def _join_pagebreak_sentences(ctx, children):
     return out
 
 
+def _prose_end(node):
+    """The last PROSE char of a node's text — a trailing footnote reference
+    is not prose ('…under-resourced schools.⁷' ENDS a sentence; the ref digit
+    must not read as mid-sentence and invite a bogus column-wrap join)."""
+    text = node.get("text", "").rstrip()
+    pend = len(text)
+    for s, e, _v in (node.get("refs") or []):
+        if e >= pend and s < pend:
+            pend = s
+    return text[:pend].rstrip()[-1:]
+
+
 def _join_column_wrap(ctx, nodes):
     """A body paragraph that wraps from the foot of one column to the head of
     the next (same page) is split in two by block grouping. Rejoin when the
@@ -2985,7 +2997,7 @@ def _join_column_wrap(ctx, nodes):
                 and not prev.get("breaks") and not ch.get("breaks")):
             out.append(ch)
             continue
-        last = prev["text"].rstrip()[-1:]
+        last = _prose_end(prev)
         mid_sentence = last.isalnum() or last in ",-–­"
         ps = (prev.get("data") or {}).get("size", 0)
         cs = (ch.get("data") or {}).get("size", 0)
@@ -3034,7 +3046,7 @@ def _join_broken_paragraphs(ctx, nodes):
                 and not ch.get("breaks")):
             out.append(ch)
             continue
-        last = prev["text"].rstrip()[-1:]
+        last = _prose_end(prev)
         mid_sentence = last.isalnum() or last in ",-–­"
         ps = (prev.get("data") or {}).get("size", 0)
         cs = (ch.get("data") or {}).get("size", 0)

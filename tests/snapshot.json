@@ -1024,7 +1024,7 @@
       "footnotes": 1,
       "heading": 176,
       "list": 27,
-      "paragraph": 398,
+      "paragraph": 399,
       "table": 25
     },
     "asideChildren": 308,
@@ -1220,7 +1220,7 @@
       26
     ],
     "questions": 76,
-    "textChars": 331089
+    "textChars": 331088
   },
   "02--atlantic-council-report-060823": {
     "status": "done",
@@ -1570,7 +1570,7 @@
       "footnotes": 1,
       "heading": 84,
       "list": 12,
-      "paragraph": 177,
+      "paragraph": 179,
       "table": 6
     },
     "asideChildren": 66,
@@ -1703,7 +1703,7 @@
       126
     ],
     "questions": 29,
-    "textChars": 155673
+    "textChars": 155671
   },
   "02--baystate-case-study-021624": {
     "status": "done",
@@ -3027,7 +3027,7 @@
       "footnotes": 2,
       "heading": 38,
       "list": 7,
-      "paragraph": 85
+      "paragraph": 86
     },
     "asideChildren": 43,
     "notes": [
@@ -3039,7 +3039,7 @@
       666
     ],
     "questions": 12,
-    "textChars": 50113
+    "textChars": 50112
   },
   "02--good-food-building-the-agricultural-bioeconomy": {
     "status": "done",
@@ -3686,7 +3686,7 @@
       "footnotes": 2,
       "heading": 76,
       "list": 14,
-      "paragraph": 221
+      "paragraph": 248
     },
     "asideChildren": 39,
     "notes": [
@@ -4168,7 +4168,7 @@
       476
     ],
     "questions": 13,
-    "textChars": 386396
+    "textChars": 386369
   },
   "02--points-of-light": {
     "status": "done",
@@ -4762,7 +4762,7 @@
       "flag": 1,
       "footnotes": 2,
       "heading": 38,
-      "paragraph": 115
+      "paragraph": 117
     },
     "asideChildren": 165,
     "notes": [
@@ -4790,7 +4790,7 @@
       675
     ],
     "questions": 39,
-    "textChars": 75186
+    "textChars": 75184
   },
   "02--rock-farm-to-fim": {
     "status": "done",
@@ -6468,7 +6468,7 @@
       "footnotes": 2,
       "heading": 45,
       "list": 1,
-      "paragraph": 105
+      "paragraph": 113
     },
     "asideChildren": 0,
     "notes": [
@@ -6541,7 +6541,7 @@
       67
     ],
     "questions": 0,
-    "textChars": 115915
+    "textChars": 115907
   },
   "02--gates-earth": {
     "status": "done",
@@ -7392,7 +7392,7 @@
       "footnotes": 1,
       "heading": 209,
       "list": 51,
-      "paragraph": 548,
+      "paragraph": 563,
       "table": 10
     },
     "asideChildren": 271,
@@ -7821,7 +7821,7 @@
       426
     ],
     "questions": 43,
-    "textChars": 404247
+    "textChars": 404232
   },
   "02--rwjf-futures": {
     "status": "done",

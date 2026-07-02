@@ -103,6 +103,20 @@ two columns exist where the join pass fused them), covid p4; and clean 1-col
 conf=1.0 on both negative controls. Eval census unchanged (32/12), pytest
 33/33.
 
+**Phase 2 SHIPPED (2026-07-02, analyze v144): 32/12 → 34/10, zero guard
+losses.** `structure.readingOrder: "model"` is the default; `"xycut"` is the
+config escape hatch. Implementation went sort-key rather than DAG — the model
+makes the order deterministic: key = (band, sub-band, column, -top, left),
+with column-spanning items acting as local band splitters. The decisive win
+was REGION INTERIORS: `_aside_node`'s single-column assumption interleaved
+wide regions (ecp p6); a local `_blocks_column_model` over the region's own
+blocks fixed the class. Diagnosis of the remaining 10: they are NOT page-sort
+failures — gates p8 hinges on a cross-gutter fused LINE (no ordering of a
+fused unit is correct; needs assemble-level line split), ecp p4 is region
+membership (the continuation belongs inside the box), covid/foia/gates-p9 and
+the welds are join/notes/list-pass work. The sort itself is done; the
+remaining phases attack those classes.
+
 ## Phase 2 — topological order replaces the XY-cut
 
 **Why the parked `_reading_order_topo` regressed, and why the column model
