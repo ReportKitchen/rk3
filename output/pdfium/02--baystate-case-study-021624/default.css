@@ -56,6 +56,14 @@ th p, td p {
   margin: 0;
 }
 
+/* QA trail: elements touched by saved edit ops (reorder/merge/set-text).
+   Visible so the user can see where hand-corrections stand in for the
+   engine; a future "output" view strips data-op along with provenance. */
+[data-op] {
+  outline: 2px dashed #d4a017;
+  outline-offset: 3px;
+}
+
 nav {
   border-bottom: 1px solid #999;
   margin-bottom: 2rem;

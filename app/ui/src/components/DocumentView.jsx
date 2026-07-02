@@ -105,6 +105,22 @@ export default function DocumentView({
   const [tab, setTab] = useState("convert");
   // jump-to-node requests from the questions panel (now rendered inside this view)
   const [scrollToNid, setScrollToNid] = useState(null);
+  // nid -> {text, page, type} over the WHOLE IR tree (cells/items/captions
+  // included), so the Edits panel can say what each op refers to
+  const nidIndex = useMemo(() => {
+    const idx = new Map();
+    const walk = (nodes) => {
+      for (const n of nodes || []) {
+        if (n && typeof n === "object") {
+          if (n.nid) idx.set(n.nid, { text: n.text || "", page: n.page, type: n.type });
+          if (n.children) walk(n.children);
+        }
+      }
+    };
+    walk(ir?.body);
+    return idx;
+  }, [ir]);
+  const resolveNid = useCallback((nid) => nidIndex.get(nid) || null, [nidIndex]);
   // persists the content|pdf divider position to localStorage
   const splitLayout = useDefaultLayout({ id: "rk3-content-split", panelIds: ["content", "pdf"] });
   const savedScroll = useRef(null);
@@ -820,6 +836,7 @@ export default function DocumentView({
                 answers={answers}
                 feedback={feedback}
                 ops={ops}
+                resolveNid={resolveNid}
                 onJump={(nid) => setScrollToNid(nid)}
                 onAnswer={(q) => onQuestion(q, { x: window.innerWidth / 2, y: 160 })}
                 onClear={onClearNote}

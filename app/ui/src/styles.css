@@ -698,6 +698,17 @@ pre.error {
   font-size: 0.7rem;
 }
 .qpanel .jump-placeholder { cursor: default; color: #888; }
+.qpanel .jump:disabled { cursor: default; color: #bbb; }
+.qpanel .op-nid {
+  display: inline-block;
+  margin: 0 0.5rem 0.3rem 0;
+  font: 0.68rem/1.4 ui-monospace, monospace;
+  color: #777;
+  background: #f4f4f4;
+  border-radius: 3px;
+  padding: 0 0.3rem;
+  user-select: all; /* one click selects the whole id */
+}
 .qpanel .q-body { min-width: 0; }
 .qpanel .q-body p { margin: 0 0 0.3rem; }
 .qpanel .q-state { color: #2e7d32; }

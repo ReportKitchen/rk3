@@ -173,6 +173,10 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
   font-size: 1.33em;
 }
 
+.styled-3 {
+  font-size: 0.9em;
+}
+
 .fine-7 {
   font-size: 0.67em;
 }
@@ -188,10 +192,6 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
 
 .fine-8 {
   font-size: 0.84em;
-}
-
-.styled-3 {
-  font-size: 0.9em;
 }
 
 .fine-9 {
@@ -334,14 +334,14 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
 .sm-strong-alt-6 {
   font-family: var(--rkf-opensans, "Open Sans", sans-serif);
   font-weight: 700;
-  color: #ff00e9;
+  color: #ff0000;
   font-size: 0.63em;
 }
 
 .sm-strong-alt-7 {
   font-family: var(--rkf-opensans, "Open Sans", sans-serif);
   font-weight: 700;
-  color: #ff0000;
+  color: #ff00e9;
   font-size: 0.63em;
 }
 
@@ -442,25 +442,25 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
 }
 
 .accent-8 {
-  color: #6b7b2a;
-  font-size: 0.89em;
+  color: #004902;
 }
 
 .accent-9 {
-  color: #735936;
+  color: #6b7b2a;
   font-size: 0.89em;
 }
 
 .accent-10 {
   color: #735936;
+  font-size: 0.89em;
 }
 
 .accent-11 {
-  color: #2b612b;
+  color: #735936;
 }
 
 .accent-12 {
-  color: #004902;
+  color: #2b612b;
 }
 
 .accent-13 {
@@ -615,6 +615,10 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
   color: #735936;
 }
 
+[data-nid="n6a506af96d"] {
+  color: #735936;
+}
+
 [data-nid="n212e471d4b"] {
   background: #eaeaea;
   border: none;
@@ -625,6 +629,10 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
   background: #eaeaea;
   border: none;
   border-left: 1px solid #2b612b;
+}
+
+[data-nid="ne4f06b09df"] {
+  color: #735936;
 }
 
 [data-nid="n9edd918e98"] {
@@ -643,6 +651,18 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
 [data-nid="neea2346ea1"] td:nth-child(6) { color: #004202; }
 
 [data-nid="nc05f111a57"] {
+  color: #ff7800;
+}
+
+[data-nid="na646838fe5"] {
+  color: #ff7800;
+}
+
+[data-nid="n7f03e06bcb"] {
+  color: #ff7800;
+}
+
+[data-nid="n583b41b8d9"] {
   color: #ff7800;
 }
 
@@ -801,6 +821,18 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
   border-left: 1px solid #fea000;
 }
 
+[data-nid="n134ee987bf"] {
+  color: #fea000;
+}
+
+[data-nid="nc3a1a277d7"] {
+  color: #fea000;
+}
+
+[data-nid="n2f8e0339d7"] {
+  color: #fea000;
+}
+
 [data-nid="n31575848f5"] {
   background: #fea000;
   padding: 0.4em 0.6em;
@@ -866,6 +898,18 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
   border-left: 1px solid #db578a;
 }
 
+[data-nid="nc0579bdf5e"] {
+  color: #db578a;
+}
+
+[data-nid="nca2a3758c0"] {
+  color: #db578a;
+}
+
+[data-nid="n6cf6ddb0a8"] {
+  color: #db578a;
+}
+
 [data-nid="na68e3a7222"] {
   background: #eaeaea;
   border: none;
@@ -929,6 +973,30 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
   border-left: 1px solid #db578a;
   border-right: 1px solid #00053a;
   border-top: 1px solid #00053a;
+}
+
+[data-nid="n514fac1473"] {
+  color: #6b7b2a;
+}
+
+[data-nid="ne1fce96620"] {
+  color: #6b7b2a;
+}
+
+[data-nid="nff13f1b05d"] {
+  color: #6b7b2a;
+}
+
+[data-nid="nc3804eeb17"] {
+  color: #6b7b2a;
+}
+
+[data-nid="nce15768497"] {
+  color: #6b7b2a;
+}
+
+[data-nid="n7619759f55"] {
+  color: #6b7b2a;
 }
 
 [data-nid="nbd2e395f43"] th, [data-nid="nbd2e395f43"] td { border-color: #fdfdfd; }
@@ -1245,74 +1313,6 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
 [data-nid="n46378cf94e"] td:nth-child(4) { color: #1e421e; }
 [data-nid="n46378cf94e"] td:nth-child(5) { color: #1e421e; }
 [data-nid="n46378cf94e"] td:nth-child(7) { color: #1e421e; }
-
-[data-nid="n6a506af96d"] {
-  color: #735936;
-}
-
-[data-nid="ne4f06b09df"] {
-  color: #735936;
-}
-
-[data-nid="na646838fe5"] {
-  color: #ff7800;
-}
-
-[data-nid="n7f03e06bcb"] {
-  color: #ff7800;
-}
-
-[data-nid="n583b41b8d9"] {
-  color: #ff7800;
-}
-
-[data-nid="n134ee987bf"] {
-  color: #fea000;
-}
-
-[data-nid="nc3a1a277d7"] {
-  color: #fea000;
-}
-
-[data-nid="n2f8e0339d7"] {
-  color: #fea000;
-}
-
-[data-nid="nc0579bdf5e"] {
-  color: #db578a;
-}
-
-[data-nid="nca2a3758c0"] {
-  color: #db578a;
-}
-
-[data-nid="n6cf6ddb0a8"] {
-  color: #db578a;
-}
-
-[data-nid="n514fac1473"] {
-  color: #6b7b2a;
-}
-
-[data-nid="ne1fce96620"] {
-  color: #6b7b2a;
-}
-
-[data-nid="nff13f1b05d"] {
-  color: #6b7b2a;
-}
-
-[data-nid="nc3804eeb17"] {
-  color: #6b7b2a;
-}
-
-[data-nid="nce15768497"] {
-  color: #6b7b2a;
-}
-
-[data-nid="n7619759f55"] {
-  color: #6b7b2a;
-}
 
 figure { border: none; padding: 0; }
 

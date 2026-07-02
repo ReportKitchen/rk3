@@ -2,7 +2,7 @@ import React from "react";
 
 export default function QuestionsPanel({
   questions, answers, feedback, onJump, onAnswer, onClear, onEmptyTrash,
-  ops = [], onRemoveOp,
+  ops = [], onRemoveOp, resolveNid = null,
 }) {
   const comments = feedback.filter((f) => f.type === "comment" && f.status !== "cleared");
   const trashCount = feedback.filter((f) => f.status === "cleared").length;
@@ -67,20 +67,35 @@ export default function QuestionsPanel({
         <>
           <h2>Edits</h2>
           <ul>
-            {ops.map((o) => (
-              <li key={o.op + o.nid} className={o.orphaned ? "resolved" : "open"}>
-                <button className="jump" onClick={() => onJump(o.nid)}>→</button>
-                <div className="q-body">
-                  <p>
-                    <strong>{o.op}</strong>
-                    {o.value !== undefined && `: ${String(o.value).slice(0, 60)}`}
-                    {o.orphaned && " (orphaned)"}
-                  </p>
-                  <button className="q-clear" title="Undo this edit"
-                          onClick={() => onRemoveOp(o)}>Undo</button>
-                </div>
-              </li>
-            ))}
+            {ops.map((o) => {
+              // where this op actually lands in the document: merges live on
+              // their INTO node (frm is folded away at render); the synthetic
+              // "merge-…"/"reorder-doc" keys match nothing in the DOM
+              const target = o.op === "merge" ? o.into
+                : o.op === "reorder" ? null : o.nid;
+              const info = target && resolveNid ? resolveNid(target) : null;
+              return (
+                <li key={o.op + o.nid} className={o.orphaned ? "resolved" : "open"}>
+                  <button className="jump" disabled={!target}
+                          title={target ? "Show in document" : "Whole-document edit"}
+                          onClick={() => target && onJump(target)}>→</button>
+                  <div className="q-body">
+                    <p>
+                      <strong>{o.op}</strong>
+                      {o.op === "reorder" &&
+                        ` — whole document (${(o.order || []).length} elements)`}
+                      {o.op === "merge" && !info && " → (target not in this build)"}
+                      {o.value !== undefined && `: ${String(o.value).slice(0, 60)}`}
+                      {info && ` · p${info.page} · “${(info.text || info.type || "").slice(0, 70)}”`}
+                      {o.orphaned && " (orphaned)"}
+                    </p>
+                    {target && <code className="op-nid">{target}</code>}
+                    <button className="q-clear" title="Undo this edit"
+                            onClick={() => onRemoveOp(o)}>Undo</button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </>
       )}
