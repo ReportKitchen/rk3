@@ -127,13 +127,6 @@ strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
 .xl-strong-alt-3 {
   font-family: "Karla", sans-serif;
   font-weight: 700;
-  color: #283434;
-  font-size: 3.35em;
-}
-
-.xl-strong-alt-4 {
-  font-family: "Karla", sans-serif;
-  font-weight: 700;
   font-size: 3.35em;
 }
 
@@ -141,6 +134,13 @@ strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
   font-family: "Karla", sans-serif;
   font-weight: 700;
   font-size: 1.33em;
+}
+
+.xl-strong-alt-4 {
+  font-family: "Karla", sans-serif;
+  font-weight: 700;
+  color: #283434;
+  font-size: 3.35em;
 }
 
 .strong-center-alt {
@@ -171,7 +171,7 @@ strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
   color: #1f8ca5;
 }
 
-[data-nid="n3951388bcc"] {
+[data-nid="n8334428938"] {
   background: #ea581d;
   border: none;
   border-bottom: 5px solid #ffffff;

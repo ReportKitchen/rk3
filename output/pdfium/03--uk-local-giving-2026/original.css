@@ -64,16 +64,16 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   font-size: 2.1em;
 }
 
-.sm-alt {
-  font-family: "Inter", sans-serif;
-  font-size: 0.7em;
-}
-
 .xl-panel {
   background: #544368;
   padding: 0.6em 0.8em;
   color: #ffffff;
   font-size: 7.0em;
+}
+
+.sm-alt {
+  font-family: "Inter", sans-serif;
+  font-size: 0.7em;
 }
 
 .lg-strong-panel-alt {
@@ -155,6 +155,7 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   font-family: "Inter", sans-serif;
   background: #554368;
   padding: 0.6em 0.8em;
+  color: #ffffff;
   font-size: 1.3em;
 }
 
@@ -162,7 +163,6 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   font-family: "Inter", sans-serif;
   background: #554368;
   padding: 0.6em 0.8em;
-  color: #ffffff;
   font-size: 1.3em;
 }
 
@@ -174,13 +174,6 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   font-size: 1.3em;
 }
 
-.lg-panel-alt-4 {
-  font-family: "Inter", sans-serif;
-  background: #0d393b;
-  padding: 0.6em 0.8em;
-  font-size: 1.3em;
-}
-
 .lg-center-panel-alt {
   font-family: "Inter", sans-serif;
   background: #0d393b;
@@ -189,14 +182,14 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   text-align: center;
 }
 
-.lg-panel-alt-5 {
+.lg-panel-alt-4 {
   font-family: "Inter", sans-serif;
-  background: #1a3796;
+  background: #0d393b;
   padding: 0.6em 0.8em;
   font-size: 1.3em;
 }
 
-.lg-panel-alt-6 {
+.lg-panel-alt-5 {
   font-family: "Inter", sans-serif;
   background: #1a3796;
   padding: 0.6em 0.8em;
@@ -204,12 +197,11 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   font-size: 1.3em;
 }
 
-.lg-center-panel-alt-2 {
+.lg-panel-alt-6 {
   font-family: "Inter", sans-serif;
   background: #1a3796;
   padding: 0.6em 0.8em;
   font-size: 1.3em;
-  text-align: center;
 }
 
 .strong-alt {
@@ -370,11 +362,6 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   padding: 0.4em 0.6em;
 }
 
-[data-nid="n0e5c44920d"] {
-  background: #554368;
-  padding: 0.4em 0.6em;
-}
-
 [data-nid="n339a02eb6f"] {
   background: #554368;
   border: none;
@@ -387,8 +374,8 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   margin: 0 0 1rem 1.5rem;
 }
 
-[data-nid="naab45d71f2"] {
-  background: #0d393b;
+[data-nid="n0e5c44920d"] {
+  background: #554368;
   padding: 0.4em 0.6em;
 }
 
@@ -402,6 +389,11 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   float: right;
   width: 47%;
   margin: 0 0 1rem 1.5rem;
+}
+
+[data-nid="naab45d71f2"] {
+  background: #0d393b;
+  padding: 0.4em 0.6em;
 }
 
 [data-nid="n097022daf3"] {

@@ -306,14 +306,14 @@ strong.c-f57d29 { color: #f57d29; font-weight: inherit; }
   color: #e8cf79;
 }
 
+.fine {
+  font-size: 0.8em;
+}
+
 .sm-strong-alt {
   font-family: "futura-pt", sans-serif;
   font-weight: 600;
   font-size: 0.47em;
-}
-
-.fine {
-  font-size: 0.8em;
 }
 
 .sm-strong-alt-2 {
@@ -414,7 +414,7 @@ strong.c-f57d29 { color: #f57d29; font-weight: inherit; }
   border-bottom: 1px solid #5091cd;
 }
 
-[data-nid="n03d75ab0eb"] {
+[data-nid="n1c37ce5064"] {
   background: #000000;
   border: none;
   border-bottom: 0px solid #56616d;

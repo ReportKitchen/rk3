@@ -240,6 +240,18 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   border: none;
 }
 
+[data-nid="nb9c3faa2fe"] {
+  float: right;
+  width: 36%;
+  margin: 0 0 1rem 1.5rem;
+}
+
+[data-nid="nca39a2ca05"] {
+  float: right;
+  width: 33%;
+  margin: 0 0 1rem 1.5rem;
+}
+
 [data-nid="n2411fdfd35"] {
   background: #fff577;
   border: none;
@@ -367,6 +379,12 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
 [data-nid="n415b1857af"] {
   background: #fdc060;
   border: none;
+}
+
+[data-nid="n358851d8a3"] {
+  float: right;
+  width: 42%;
+  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="n4d7348b55a"] {

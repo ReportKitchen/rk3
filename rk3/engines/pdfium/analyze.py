@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 141
+VERSION = 144
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -376,7 +376,17 @@ def run(ctx):
     # Reading order, per page. For a reliably-tagged page the DECLARED order (the
     # struct tree's depth-first sequence — authoritative per ISO 32000-2 §14.7)
     # wins; items the tags don't cover are slotted in by geometry. Otherwise we
-    # infer it geometrically (_side_rows + XY-cut). See docs/research/reading-order.md
+    # infer it geometrically. structure.readingOrder selects the geometric
+    # engine: "xycut" (default) or "model" (the explicit column model —
+    # phase 2 of plans/columns-reading-order.md, A/B'd by the gold set).
+    order_mode = ctx.cfg["structure"].get("readingOrder", "model")
+
+    def geom_ro(items_, page_n_):
+        bbs = [item_bbox(it) for it in items_]
+        if order_mode == "model":
+            return _reading_order_model(bbs, ctx.column_model.get(page_n_))
+        return _reading_order(bbs)
+
     twocol_pages = set()
     ro_src = Counter()  # per-page reading-order source -> doc tagging verdict
     for page_n, items in page_items.items():
@@ -384,7 +394,7 @@ def run(ctx):
         struct = [_struct_order(tagged, item_bbox(it)) for it in items]
         tagged_frac = (sum(1 for o in struct if o >= 0) / len(items)) if items else 0.0
         # ncols is still read geometrically (drives aside/pull-quote layout)
-        geom_order, ncols = _reading_order([item_bbox(it) for it in items])
+        geom_order, ncols = geom_ro(items, page_n)
         if tagged_frac >= 0.6:
             # declared order; untagged items interpolate right after the tagged
             # item that geometrically precedes them (stable sub-order via `frac`)
@@ -401,7 +411,7 @@ def run(ctx):
             grouped = _side_rows(ctx, items, blocks, body_size, page_n)
             if grouped is not None:
                 items = grouped
-                geom_order, ncols = _reading_order([item_bbox(it) for it in items])
+                geom_order, ncols = geom_ro(items, page_n)
                 order = geom_order
             else:
                 # heading-left/body-right rows return a flat list already in
@@ -1987,11 +1997,23 @@ def _aside_images(ctx, reg, node, pages, fig_count):
 
 
 def _aside_node(ctx, reg, blocks, rich, fonts, body_size, roles):
-    # callout boxes are single-column: order children top-down by position
-    # (page first, for boxes merged across a page break) so the headline
-    # leads regardless of content-stream order
+    # order the box's interior: most callouts are single-column (top-down by
+    # position, page first for boxes merged across a page break, so the
+    # headline leads regardless of content-stream order) — but a WIDE region
+    # can hold real columns (ecp p6: a whole-page box with a legal-terms
+    # column beside body text; pure y-sort interleaves them). In model mode,
+    # a local column model over the region's own blocks orders those.
     ordered = sorted(reg["blockIdx"],
                      key=lambda i: (blocks[i]["page"], -blocks[i]["bbox"][3]))
+    if ctx.cfg["structure"].get("readingOrder", "model") == "model" \
+            and len(ordered) > 2 and not reg.get("endPage"):
+        sub = [blocks[i] for i in ordered]
+        m = _blocks_column_model(sub)
+        if m and m["ncols"] > 1:
+            order, _ = _reading_order_model([b["bbox"] for b in sub], m)
+            ordered = [ordered[k] for k in order]
+            ctx.log.entry("aside-columns", page=reg["page"], region=reg["rk"],
+                          ncols=m["ncols"], conf=m["conf"])
     children = [_block_node(ctx, blocks[i], rich[i], fonts, {}, body_size,
                             set(), in_aside=True, role=roles[i])
                 for i in ordered]
@@ -2363,6 +2385,67 @@ def _reading_order_topo(bboxes):
             if indeg[j] == 0 and not seen[j]:
                 ready.append(j)
     return out
+
+
+def _reading_order_model(bboxes, page_model):
+    """Reading order driven by the EXPLICIT column model (phase 2 of
+    plans/columns-reading-order.md; enabled by structure.readingOrder =
+    "model"). Every bbox gets a deterministic sort key from the model:
+
+        (band, sub-band, column, -top, left)
+
+    Band = the model band with the largest y-overlap; column = the band
+    column with the largest x-overlap. An item that spans >=2 of its band's
+    columns (a pull-quote, an inline figure, a nested spanning block) acts as
+    a LOCAL BAND SPLITTER: it partitions the band's other members into
+    above/below sub-bands and reads between them — the XY-Cut++
+    mask-then-restore move, without a recursive cut. This is the parked
+    topo-sort's intent with its two failure modes removed: column edges only
+    exist within a model column, left-right only within a band.
+    Returns (index_order, ncols)."""
+    if not page_model or not bboxes:
+        return _reading_order(bboxes)
+    bands = page_model["bands"]
+
+    def yov(bb, band):
+        y0, y1 = band["y"]
+        return max(0.0, min(bb[3], y1) - max(bb[1], y0))
+
+    def xov(bb, col):
+        return max(0.0, min(bb[2], col[1]) - max(bb[0], col[0]))
+
+    # assign (band, column-or-splitter) per item
+    assign = []
+    for k, bb in enumerate(bboxes):
+        bi = max(range(len(bands)), key=lambda i: yov(bb, bands[i]))
+        cols = bands[bi]["cols"]
+        hit = [ci for ci, c in enumerate(cols)
+               if xov(bb, c) > 0.25 * max(bb[2] - bb[0], 1.0)]
+        spanning = len(cols) > 1 and len(hit) >= 2
+        ci = max(range(len(cols)), key=lambda i: xov(bb, cols[i])) \
+            if not spanning else -1
+        assign.append((bi, ci, spanning))
+
+    # per band: splitters partition members into sub-bands
+    keys = {}
+    for bi in range(len(bands)):
+        idxs = [k for k in range(len(bboxes)) if assign[k][0] == bi]
+        if not idxs:
+            continue
+        splitters = sorted((k for k in idxs if assign[k][2]),
+                           key=lambda k: -(bboxes[k][1] + bboxes[k][3]) / 2)
+        cuts = [(bboxes[k][1] + bboxes[k][3]) / 2 for k in splitters]
+        for k in idxs:
+            if assign[k][2]:
+                sub = 2 * splitters.index(k) + 1
+                keys[k] = (bi, sub, 0, 0.0, bboxes[k][0])
+                continue
+            yc = (bboxes[k][1] + bboxes[k][3]) / 2
+            above = sum(1 for c in cuts if c > yc)
+            keys[k] = (bi, 2 * above, assign[k][1],
+                       -bboxes[k][3], bboxes[k][0])
+    order = sorted(range(len(bboxes)), key=lambda k: keys[k])
+    return order, page_model.get("ncols", 1)
 
 
 def _reading_order(bboxes):
@@ -3005,91 +3088,103 @@ def _column_model(ctx, pages, blocks):
     for blk in blocks:
         by_page.setdefault(blk["page"], []).append(blk)
     for page_n, blks in sorted(by_page.items()):
-        boxes = [b["bbox"] for b in blks]
-        left = min(b[0] for b in boxes)
-        right = max(b[2] for b in boxes)
-        content_w = right - left
-        if content_w <= 0 or len(boxes) < 2:
+        m = _blocks_column_model(blks)
+        if m is None:
             continue
-        widths = sorted(b[2] - b[0] for b in boxes)
-        median_w = widths[len(widths) // 2]
-        # spanning = wide against BOTH the page content and its peers
-        # (XY-Cut++ median-adaptive idea): these bound the bands
-        span_w = max(0.6 * content_w, 1.3 * median_w)
-        spanning = [b["bbox"] for b in blks if b["bbox"][2] - b["bbox"][0] >= span_w]
-        rest = [b for b in blks if b["bbox"][2] - b["bbox"][0] < span_w]
-
-        # bands: y-intervals between spanning blocks (top-down)
-        cuts = sorted({round(v, 1) for b in spanning for v in (b[1], b[3])},
-                      reverse=True)
-        top = max(b[3] for b in boxes)
-        bot = min(b[1] for b in boxes)
-        edges = [top, *[c for c in cuts if bot < c < top], bot]
-        bands = []
-        for y1, y0 in zip(edges, edges[1:]):   # y1 = band top, y0 = bottom
-            if y1 - y0 < 4:
-                continue
-            members = [b for b in rest
-                       if min(y1, b["bbox"][3]) - max(y0, b["bbox"][1])
-                       > 0.5 * (b["bbox"][3] - b["bbox"][1])]
-            band = {"y": [round(y0, 1), round(y1, 1)]}
-            # project member LINES, not blocks: one line fused across the
-            # gutter (the oxfam p11 pathology) must not hide it — a gutter
-            # tolerates a few bridging lines, never many
-            lines = [l["bbox"] for b in members for l in b["lines"]]
-            if len(lines) < 4:
-                band["cols"] = [[round(left, 1), round(right, 1)]]
-                band["spanning"] = True
-                bands.append(band)
-                continue
-            lo = min(l[0] for l in lines)
-            hi = max(l[2] for l in lines)
-            n = len(lines)
-            tol = max(1 if n >= 12 else 0, round(0.06 * n))
-            step = 2.0
-            gutters = []          # [x0, x1, crossing]
-            run = None
-            x = lo + step
-            while x < hi - step:
-                crossing = sum(1 for l in lines if l[0] < x < l[2])
-                if crossing <= tol:
-                    if run is None:
-                        run = [x, x, crossing]
-                    else:
-                        run[1], run[2] = x, max(run[2], crossing)
-                else:
-                    if run and run[1] - run[0] >= _MIN_GUTTER:
-                        gutters.append(run)
-                    run = None
-                x += step
-            if run and run[1] - run[0] >= _MIN_GUTTER:
-                gutters.append(run)
-            # a gutter needs real columns on BOTH sides
-            gutters = [g for g in gutters
-                       if sum(1 for l in lines if l[2] <= g[0]) >= 2
-                       and sum(1 for l in lines if l[0] >= g[1]) >= 2]
-            xs = [lo, *[v for g in gutters for v in (g[0], g[1])], hi]
-            band["cols"] = [[round(a, 1), round(b, 1)]
-                            for a, b in zip(xs[::2], xs[1::2])]
-            if gutters:
-                band["gutters"] = [round(g[1] - g[0], 1) for g in gutters]
-                band["bridged"] = max(g[2] for g in gutters)
-                band["lines"] = n
-            bands.append(band)
-        ncols = max((len(b["cols"]) for b in bands), default=1)
-        # confidence: narrowest gutter vs a comfortable 18pt, discounted by
-        # the worst bridging fraction; single-column pages are fully confident
-        conf = 1.0
-        for b in bands:
-            for g in b.get("gutters", []):
-                c = min(g / 18, 1.0) * (1 - b["bridged"] / b["lines"])
-                conf = min(conf, c)
-        conf = round(conf, 2)
-        model[page_n] = {"bands": bands, "ncols": ncols, "conf": conf}
-        ctx.log.entry("column-model", page=page_n, ncols=ncols, conf=conf,
-                      bands=bands)
+        model[page_n] = m
+        ctx.log.entry("column-model", page=page_n, ncols=m["ncols"],
+                      conf=m["conf"], bands=m["bands"])
     ctx.column_model = model
     return model
+
+
+def _blocks_column_model(blks):
+    """The column model for ONE set of blocks (a page, or a region's
+    interior): bands bounded by spanning blocks, line-level gutter detection
+    within each band. Pure; None when there is nothing to model."""
+    boxes = [b["bbox"] for b in blks]
+    if len(boxes) < 2:
+        return None
+    left = min(b[0] for b in boxes)
+    right = max(b[2] for b in boxes)
+    content_w = right - left
+    if content_w <= 0:
+        return None
+    widths = sorted(b[2] - b[0] for b in boxes)
+    median_w = widths[len(widths) // 2]
+    # spanning = wide against BOTH the page content and its peers
+    # (XY-Cut++ median-adaptive idea): these bound the bands
+    span_w = max(0.6 * content_w, 1.3 * median_w)
+    spanning = [b["bbox"] for b in blks if b["bbox"][2] - b["bbox"][0] >= span_w]
+    rest = [b for b in blks if b["bbox"][2] - b["bbox"][0] < span_w]
+
+    # bands: y-intervals between spanning blocks (top-down)
+    cuts = sorted({round(v, 1) for b in spanning for v in (b[1], b[3])},
+                  reverse=True)
+    top = max(b[3] for b in boxes)
+    bot = min(b[1] for b in boxes)
+    edges = [top, *[c for c in cuts if bot < c < top], bot]
+    bands = []
+    for y1, y0 in zip(edges, edges[1:]):   # y1 = band top, y0 = bottom
+        if y1 - y0 < 4:
+            continue
+        members = [b for b in rest
+                   if min(y1, b["bbox"][3]) - max(y0, b["bbox"][1])
+                   > 0.5 * (b["bbox"][3] - b["bbox"][1])]
+        band = {"y": [round(y0, 1), round(y1, 1)]}
+        # project member LINES, not blocks: one line fused across the
+        # gutter (the oxfam p11 pathology) must not hide it — a gutter
+        # tolerates a few bridging lines, never many
+        lines = [l["bbox"] for b in members for l in b["lines"]]
+        if len(lines) < 4:
+            band["cols"] = [[round(left, 1), round(right, 1)]]
+            band["spanning"] = True
+            bands.append(band)
+            continue
+        lo = min(l[0] for l in lines)
+        hi = max(l[2] for l in lines)
+        n = len(lines)
+        tol = max(1 if n >= 12 else 0, round(0.06 * n))
+        step = 2.0
+        gutters = []          # [x0, x1, crossing]
+        run = None
+        x = lo + step
+        while x < hi - step:
+            crossing = sum(1 for l in lines if l[0] < x < l[2])
+            if crossing <= tol:
+                if run is None:
+                    run = [x, x, crossing]
+                else:
+                    run[1], run[2] = x, max(run[2], crossing)
+            else:
+                if run and run[1] - run[0] >= _MIN_GUTTER:
+                    gutters.append(run)
+                run = None
+            x += step
+        if run and run[1] - run[0] >= _MIN_GUTTER:
+            gutters.append(run)
+        # a gutter needs real columns on BOTH sides
+        gutters = [g for g in gutters
+                   if sum(1 for l in lines if l[2] <= g[0]) >= 2
+                   and sum(1 for l in lines if l[0] >= g[1]) >= 2]
+        xs = [lo, *[v for g in gutters for v in (g[0], g[1])], hi]
+        band["cols"] = [[round(a, 1), round(b, 1)]
+                        for a, b in zip(xs[::2], xs[1::2])]
+        if gutters:
+            band["gutters"] = [round(g[1] - g[0], 1) for g in gutters]
+            band["bridged"] = max(g[2] for g in gutters)
+            band["lines"] = n
+        bands.append(band)
+    ncols = max((len(b["cols"]) for b in bands), default=1)
+    # confidence: narrowest gutter vs a comfortable 18pt, discounted by
+    # the worst bridging fraction; single-column pages are fully confident
+    conf = 1.0
+    for b in bands:
+        for g in b.get("gutters", []):
+            c = min(g / 18, 1.0) * (1 - b["bridged"] / b["lines"])
+            conf = min(conf, c)
+    conf = round(conf, 2)
+    return {"bands": bands, "ncols": ncols, "conf": conf}
 
 
 def _dominant_size(blk):

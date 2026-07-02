@@ -226,7 +226,7 @@
       "footnotes": 2,
       "heading": 54,
       "list": 15,
-      "paragraph": 192
+      "paragraph": 193
     },
     "asideChildren": 356,
     "notes": [
@@ -305,7 +305,7 @@
       73
     ],
     "questions": 39,
-    "textChars": 265329
+    "textChars": 265328
   },
   "02--advancing-mobility-from-poverty": {
     "status": "done",
@@ -1023,11 +1023,11 @@
       "flag": 1,
       "footnotes": 1,
       "heading": 176,
-      "list": 26,
-      "paragraph": 401,
+      "list": 27,
+      "paragraph": 398,
       "table": 25
     },
-    "asideChildren": 309,
+    "asideChildren": 308,
     "notes": [
       2,
       3,
@@ -1220,7 +1220,7 @@
       26
     ],
     "questions": 76,
-    "textChars": 331097
+    "textChars": 331089
   },
   "02--atlantic-council-report-060823": {
     "status": "done",
@@ -1532,11 +1532,11 @@
       ],
       [
         6,
-        "PRESIDENT AND CEO"
+        "EXECUTIVE CHAIRMAN EMERITUS"
       ],
       [
         6,
-        "EXECUTIVE CHAIRMAN EMERITUS"
+        "PRESIDENT AND CEO"
       ],
       [
         6,
@@ -1921,7 +1921,7 @@
       "footnotes": 1,
       "heading": 30,
       "list": 7,
-      "paragraph": 99
+      "paragraph": 103
     },
     "asideChildren": 89,
     "notes": [
@@ -1998,8 +1998,8 @@
       61,
       62
     ],
-    "questions": 20,
-    "textChars": 77181
+    "questions": 22,
+    "textChars": 77186
   },
   "02--community-schools": {
     "status": "done",
@@ -2856,12 +2856,12 @@
       "aside": 1,
       "figure": 38,
       "heading": 36,
-      "paragraph": 85
+      "paragraph": 89
     },
     "asideChildren": 4,
     "notes": [],
     "questions": 15,
-    "textChars": 34454
+    "textChars": 34450
   },
   "02--foia-basics-for-activists-may-2019": {
     "status": "done",
@@ -2917,11 +2917,11 @@
       ],
       [
         6,
-        "Sample items to request"
+        "Identify the records being sought"
       ],
       [
         6,
-        "Identify the records being sought"
+        "Sample items to request"
       ],
       [
         6,
@@ -2969,11 +2969,11 @@
       ],
       [
         6,
-        "1. Initial response (acknowledgment)"
+        "2. Administrative closure response"
       ],
       [
         6,
-        "2. Administrative closure response"
+        "1. Initial response (acknowledgment)"
       ],
       [
         6,
@@ -3008,12 +3008,12 @@
         "Length of time"
       ],
       [
-        6,
-        "Litigation and movement priorities"
-      ],
-      [
         3,
         "ENDNOTES"
+      ],
+      [
+        6,
+        "Litigation and movement priorities"
       ],
       [
         6,
@@ -3067,11 +3067,11 @@
       ],
       [
         1,
-        "-2 lbs"
+        "+22%"
       ],
       [
         1,
-        "+22%"
+        "-2 lbs"
       ],
       [
         1,
@@ -3171,12 +3171,12 @@
       "figure": 10,
       "heading": 30,
       "list": 18,
-      "paragraph": 83
+      "paragraph": 82
     },
     "asideChildren": 39,
     "notes": [],
     "questions": 9,
-    "textChars": 40691
+    "textChars": 40692
   },
   "02--invest-in-black-led": {
     "status": "done",
@@ -3357,9 +3357,9 @@
       "footnotes": 1,
       "heading": 42,
       "list": 15,
-      "paragraph": 359
+      "paragraph": 356
     },
-    "asideChildren": 122,
+    "asideChildren": 119,
     "notes": [
       1,
       2,
@@ -3368,7 +3368,7 @@
       5
     ],
     "questions": 10,
-    "textChars": 131531
+    "textChars": 131525
   },
   "02--oxfam-davos-2024-report": {
     "status": "done",
@@ -4764,7 +4764,7 @@
       "heading": 38,
       "paragraph": 115
     },
-    "asideChildren": 168,
+    "asideChildren": 165,
     "notes": [
       1,
       2,
@@ -4790,7 +4790,7 @@
       675
     ],
     "questions": 39,
-    "textChars": 75198
+    "textChars": 75186
   },
   "02--rock-farm-to-fim": {
     "status": "done",
@@ -4858,15 +4858,15 @@
       ],
       [
         6,
+        "Stronger community resilience and environmental stewardship"
+      ],
+      [
+        6,
         "Stable income for small and mid-sized family farms"
       ],
       [
         6,
         "Job creation and business growth across the food value chain"
-      ],
-      [
-        6,
-        "Stronger community resilience and environmental stewardship"
       ],
       [
         6,
@@ -4982,19 +4982,19 @@
       ],
       [
         6,
-        "State context"
-      ],
-      [
-        6,
         "Organization description"
       ],
       [
         6,
-        "Program highlight"
+        "Local sourcing"
       ],
       [
         6,
-        "Local sourcing"
+        "State context"
+      ],
+      [
+        6,
+        "Program highlight"
       ],
       [
         6,
@@ -5292,7 +5292,7 @@
       "paragraph": 301,
       "table": 4
     },
-    "asideChildren": 125,
+    "asideChildren": 123,
     "notes": [
       1,
       3,
@@ -5318,7 +5318,7 @@
       1007
     ],
     "questions": 16,
-    "textChars": 125800
+    "textChars": 125797
   },
   "02--chep-300pages": {
     "status": "done",
@@ -6151,7 +6151,7 @@
       "paragraph": 716,
       "table": 24
     },
-    "asideChildren": 622,
+    "asideChildren": 620,
     "notes": [
       1,
       1001,
@@ -6200,7 +6200,7 @@
       1016
     ],
     "questions": 122,
-    "textChars": 628837
+    "textChars": 628815
   },
   "02--compelling-investment-case-climate-adaptation": {
     "status": "done",
@@ -6251,12 +6251,12 @@
         "Water"
       ],
       [
-        2,
-        "Adaptation Yields High Returns Even when Disasters Don’t Strike"
-      ],
-      [
         3,
         "The ‘triple dividend’ of adaptation investments"
+      ],
+      [
+        2,
+        "Adaptation Yields High Returns Even when Disasters Don’t Strike"
       ],
       [
         2,
@@ -6275,7 +6275,7 @@
     },
     "asideChildren": 29,
     "notes": [],
-    "questions": 7,
+    "questions": 8,
     "textChars": 13584
   },
   "02--covid": {
@@ -6645,11 +6645,11 @@
       ],
       [
         6,
-        "Resilient countries"
+        "What is Resilience?"
       ],
       [
         6,
-        "What is Resilience?"
+        "Resilient countries"
       ],
       [
         5,
@@ -7392,7 +7392,7 @@
       "footnotes": 1,
       "heading": 209,
       "list": 51,
-      "paragraph": 551,
+      "paragraph": 548,
       "table": 10
     },
     "asideChildren": 271,
@@ -7821,19 +7821,19 @@
       426
     ],
     "questions": 43,
-    "textChars": 404244
+    "textChars": 404247
   },
   "02--rwjf-futures": {
     "status": "done",
     "title": "ren",
     "headings": [
       [
-        6,
-        "DEMOCRATIZING THE IMAGINATION OF THE FUTURE"
-      ],
-      [
         5,
         "We Create"
+      ],
+      [
+        6,
+        "DEMOCRATIZING THE IMAGINATION OF THE FUTURE"
       ],
       [
         6,
@@ -8293,12 +8293,12 @@
       "figure": 43,
       "heading": 115,
       "list": 26,
-      "paragraph": 462
+      "paragraph": 463
     },
     "asideChildren": 65,
     "notes": [],
     "questions": 77,
-    "textChars": 171465
+    "textChars": 171464
   },
   "02--toolkit-hiring2022-copy112222onlineversiononly-1": {
     "status": "done",
@@ -9841,10 +9841,6 @@
       ],
       [
         6,
-        "FINANCIAL CHALLENGES IN FY 2024"
-      ],
-      [
-        6,
         "ACHIEVING LONG-TERM SUSTAINABILITY"
       ],
       [
@@ -9869,11 +9865,11 @@
       ],
       [
         6,
-        "WITH COSTS SKYROCKETING, SURPLUSES ARE BECOMING HARDER TO ATTAIN"
+        "FINANCIAL CHALLENGES IN FY 2024"
       ],
       [
         6,
-        "FY 2024 OPERATING RESULTS"
+        "WITH COSTS SKYROCKETING, SURPLUSES ARE BECOMING HARDER TO ATTAIN"
       ],
       [
         6,
@@ -9886,6 +9882,10 @@
       [
         6,
         "BREAK-EVEN FINANCIALS"
+      ],
+      [
+        6,
+        "FY 2024 OPERATING RESULTS"
       ],
       [
         6,
@@ -10264,7 +10264,7 @@
       2,
       3
     ],
-    "questions": 25,
+    "questions": 24,
     "textChars": 26886
   }
 }

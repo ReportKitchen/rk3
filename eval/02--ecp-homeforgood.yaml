@@ -11,15 +11,17 @@ checks:
   - note: "GOLD(col) p4 (target): 'post-filing' continuation rejoins its paragraph"
     merge: ["The goal of this paper is to highlight", "post-filing”) and after the court has determined"]
 
-  # p6: the "Defining Legal Terms" box definitions interleave with the body
-  # column. Correct order (note n6cc849e5e5): the whole legal-terms box, then
-  # the "Eviction's Impact" body text. Two targets pin box-before-body; the
-  # guard pins body text that already follows its heading.
-  - note: "GOLD(col) p6 (target): 'Just Cause' definition precedes 'Eviction's Impact' body"
-    order: ["Just Cause – The requirement", "Eviction’s Impact"]
+  # p6: the "Defining Legal Terms" box definitions interleaved with the body
+  # column (y-sort inside a two-column whole-page region). Source page order
+  # (eyeballed, note n6cc849e5e5): LEFT column = "About this Paper" box, then
+  # "Eviction's Impact" heading + body; RIGHT column = the legal-terms
+  # reference box, read last. Fixed by the aside-interior column model
+  # (phase 2); pinned here.
+  - note: "GOLD(col) p6 (guard): 'About this Paper' box precedes 'Eviction's Impact'"
+    order: ["About this Paper", "Eviction’s Impact"]
 
-  - note: "GOLD(col) p6 (target): last definition precedes 'Eviction's Impact' body"
-    order: ["Writ of Restitution", "Eviction’s Impact"]
+  - note: "GOLD(col) p6 (guard): definitions read AFTER the body column (no interleave)"
+    order: ["The pressures of poverty, combined", "Just Cause – The requirement"]
 
   - note: "GOLD(col) p6 (guard): body text follows its 'Eviction's Impact' header"
     order: ["Eviction’s Impact", "More than a quarter of renters"]
