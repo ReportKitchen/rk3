@@ -552,6 +552,18 @@ pre.error {
   font-size: 0.8rem; color: #555; white-space: nowrap;
 }
 .fbtable-count { font-size: 0.78rem; color: #888; white-space: nowrap; }
+.fbtable-src {
+  font: inherit; font-size: 0.8rem; color: #555;
+  padding: 0.25rem 0.35rem; border: 1px solid #ccc; border-radius: 4px;
+  background: #fff;
+}
+/* who wrote the note: reviewer (me) vs the vision-QA model */
+.src-chip {
+  display: inline-block; font-size: 0.68rem; line-height: 1.5;
+  padding: 0 0.45rem; border-radius: 999px; border: 1px solid;
+}
+.src-chip.me { color: #2a6042; border-color: #9ec9b0; background: #eef8f1; }
+.src-chip.vision { color: #5b3f9e; border-color: #c0aee6; background: #f5f0fd; }
 .fbtable-refresh {
   border: 1px solid #ccc; background: #fff; border-radius: 4px;
   width: 1.6rem; height: 1.6rem; cursor: pointer; color: #555;
@@ -698,6 +710,22 @@ pre.error {
   font-size: 0.7rem;
 }
 .qpanel .jump-placeholder { cursor: default; color: #888; }
+/* vision-QA section: badge on the heading, severity/category chips per flag */
+.qpanel .vq-badge {
+  font-size: 0.62rem; text-transform: none; letter-spacing: 0;
+  color: #5b3f9e; border: 1px solid #c0aee6; background: #f5f0fd;
+  border-radius: 999px; padding: 0 0.45rem; margin-left: 0.35rem;
+  vertical-align: 1px;
+}
+.qpanel .vq-sev, .qpanel .vq-cat {
+  display: inline-block; font-size: 0.65rem; line-height: 1.5;
+  padding: 0 0.4rem; border-radius: 999px; border: 1px solid #ddd;
+  color: #666; background: #f7f7f7; margin-right: 0.3rem;
+}
+.qpanel .vq-sev.critical { color: #fff; border-color: #a12626; background: #b93434; }
+.qpanel .vq-sev.high { color: #a12626; border-color: #e3b3b3; background: #fbeeee; }
+.qpanel .vq-sev.medium { color: #8a6116; border-color: #e6cf9d; background: #fdf6e7; }
+.qpanel .vq-where { font-size: 0.72rem; color: #888; margin: 0 0 0.3rem; }
 .qpanel .jump:disabled { cursor: default; color: #bbb; }
 
 /* ---- Patterns tab (pattern-identification worktrack review) ---- */

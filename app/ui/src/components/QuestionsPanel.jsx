@@ -5,13 +5,18 @@ export default function QuestionsPanel({
   ops = [], onRemoveOp, resolveNid = null,
 }) {
   const comments = feedback.filter((f) => f.type === "comment" && f.status !== "cleared");
+  // vision-QA flags live in the same jsonl but are machine-made (source
+  // field); show them in their own badged section so the reviewer's own
+  // notes are never confused with the model's
+  const visionFlags = feedback.filter((f) => f.source === "vision-qa"
+    && (f.disposition || "open") === "open");
   const trashCount = feedback.filter((f) => f.status === "cleared").length;
 
   return (
     <div className="qpanel">
       {comments.length > 0 && (
         <>
-          <h2>Feedback notes</h2>
+          <h2>My notes</h2>
           <ul>
             {comments.map((c) => (
               <li key={c.id ?? c.ts} className={c.status === "resolved" ? "resolved" : "open"}>
@@ -39,6 +44,31 @@ export default function QuestionsPanel({
               </li>
             ))}
           </ul>
+        </>
+      )}
+      {visionFlags.length > 0 && (
+        <>
+          <h2>Vision QA flags <span className="vq-badge">vision</span></h2>
+          <ul>
+            {visionFlags.map((v) => (
+              <li key={v.id ?? v.ts} className="open">
+                <span className="jump-placeholder">
+                  {v.page != null ? `p${v.page}` : "doc"}
+                </span>
+                <div className="q-body">
+                  <p>
+                    {v.severity && (
+                      <span className={`vq-sev ${v.severity}`}>{v.severity}</span>
+                    )}
+                    {v.category && <span className="vq-cat">{v.category}</span>}
+                    {" "}{v.text}
+                  </p>
+                  {v.where && <p className="vq-where">{v.where}</p>}
+                </div>
+              </li>
+            ))}
+          </ul>
+          <p className="hint">Triage these on the admin Review board.</p>
         </>
       )}
       <h2>Converter questions</h2>

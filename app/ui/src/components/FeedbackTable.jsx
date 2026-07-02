@@ -9,6 +9,7 @@ import { guard } from "../errorBus.js";
 const COLUMNS = [
   { key: "docName", label: "Document" },
   { key: "page", label: "Page", num: true, width: "3.5rem" },
+  { key: "srcLabel", label: "From", width: "4.5rem" },
   { key: "category", label: "Category", width: "7rem" },
   { key: "type", label: "Type", width: "5rem" },
   { key: "statusLabel", label: "Status", width: "4.5rem" },
@@ -20,6 +21,9 @@ function derive(f) {
   const modified = f.edited || f.clearedAt || f.ts || "";
   return {
     ...f,
+    // machine-made entries carry a source field ("vision-qa"); everything
+    // without one was typed by the reviewer
+    srcLabel: f.source === "vision-qa" ? "vision" : "me",
     statusLabel: f.status === "cleared" ? "closed" : (f.status || "open"),
     modified,
     note: (f.text || f.choice || f.qPrompt || "").trim(),
@@ -38,6 +42,7 @@ export default function FeedbackTable({ onOpen }) {
   const [rows, setRows] = useState(null);
   const [query, setQuery] = useState("");
   const [showClosed, setShowClosed] = useState(false);
+  const [srcFilter, setSrcFilter] = useState("all"); // all | me | vision
   const [sort, setSort] = useState({ key: "modified", dir: "desc" });
 
   const load = () => getAllFeedback().then((r) => setRows(r.map(derive)))
@@ -54,6 +59,7 @@ export default function FeedbackTable({ onOpen }) {
     const q = query.trim().toLowerCase();
     let r = rows;
     if (!showClosed) r = r.filter((x) => x.statusLabel !== "closed");
+    if (srcFilter !== "all") r = r.filter((x) => x.srcLabel === srcFilter);
     if (q) {
       r = r.filter((x) => COLUMNS.some((c) => {
         const v = x[c.key];
@@ -68,7 +74,7 @@ export default function FeedbackTable({ onOpen }) {
       return String(av ?? "").localeCompare(String(bv ?? ""),
         undefined, { sensitivity: "base", numeric: true }) * sign;
     });
-  }, [rows, query, showClosed, sort]);
+  }, [rows, query, showClosed, srcFilter, sort]);
 
   if (rows === null) return <p className="hint">Loading feedback…</p>;
 
@@ -86,6 +92,13 @@ export default function FeedbackTable({ onOpen }) {
           onChange={(e) => setQuery(e.target.value)}
           autoFocus
         />
+        <select className="fbtable-src" value={srcFilter}
+                title="Filter by who wrote the note"
+                onChange={(e) => setSrcFilter(e.target.value)}>
+          <option value="all">All sources</option>
+          <option value="me">My notes</option>
+          <option value="vision">Vision QA</option>
+        </select>
         <label className="fbtable-toggle">
           <input type="checkbox" checked={showClosed}
             onChange={(e) => setShowClosed(e.target.checked)} />
@@ -130,6 +143,9 @@ export default function FeedbackTable({ onOpen }) {
                       {r.page}
                     </button>
                   )}
+                </td>
+                <td>
+                  <span className={`src-chip ${r.srcLabel}`}>{r.srcLabel}</span>
                 </td>
                 <td>{r.category || ""}</td>
                 <td>{r.type || ""}</td>
