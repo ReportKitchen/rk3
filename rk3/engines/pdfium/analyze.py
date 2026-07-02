@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 150
+VERSION = 151
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -273,6 +273,8 @@ def run(ctx):
     # explicit per-page column evidence (log-only in phase 1; the phase-2
     # ordering rewrite consumes it as its constraint source)
     _column_model(ctx, pages, blocks)
+    # explicit per-block list evidence (lists plan phase 1, log-only)
+    _list_census(ctx, blocks)
     roles = _block_roles(pages, blocks)  # (role, coverage) per block, tag docs only
     tag_levels = _tag_heading_levels(ctx, roles)
 
@@ -3199,6 +3201,55 @@ def _column_model(ctx, pages, blocks):
     return model
 
 
+def _list_census(ctx, blocks):
+    """Phase 1 of the lists plan (plans/lists.md): an EXPLICIT, logged marker
+    census per block — the list-evidence model the 17 list passes will
+    consume one at a time. For each line: its leading marker token (bullet
+    glyph run / ordinal / none) and its x-position; indent LEVELS fall out of
+    x-clustering (markers at one x, wraps ~18pt right of it, nested markers
+    at the wrap x — clean-air p32). LOG-ONLY: nothing consumes it until the
+    logged models are eyeballed against the noted pages."""
+    census = {}
+    esc = re.escape(BULLETS)
+    for bi, blk in enumerate(blocks):
+        marks = []
+        for l in blk["lines"]:
+            t = l["text"]
+            x = round(l["bbox"][0], 1)
+            m = re.match(f"^(?:[{esc}]+\\s+|[{esc}]\\s*)", t)
+            if m:
+                marks.append((x, "glyph", m.group(0).strip()))
+                continue
+            ol = _ol_marker(t)
+            if ol is not None:
+                marks.append((x, ol[0], t[:ol[2]].strip()))
+            else:
+                marks.append((x, None, None))
+        n_marked = sum(1 for _x, k, _r in marks if k)
+        if n_marked < 2:
+            continue
+        # indent levels: cluster the MARKER x-positions (6pt tolerance)
+        xs = sorted(x for x, k, _r in marks if k)
+        levels = [xs[0]]
+        for x in xs[1:]:
+            if x - levels[-1] > 6:
+                levels.append(x)
+        items = []
+        for x, k, raw in marks:
+            if not k:
+                continue
+            lv = next((i for i, lx in enumerate(levels) if abs(x - lx) <= 6),
+                      len(levels) - 1)
+            items.append({"lv": lv, "kind": k, "raw": raw})
+        census[bi] = {"levels": [round(v, 1) for v in levels], "items": items}
+        ctx.log.entry("list-census", page=blk["page"], block=blk["rk"],
+                      levels=census[bi]["levels"], marked=n_marked,
+                      lines=len(blk["lines"]),
+                      kinds=sorted({k for _x, k, _r in marks if k}))
+    ctx.list_census = census
+    return census
+
+
 def _blocks_column_model(blks):
     """The column model for ONE set of blocks (a page, or a region's
     interior): bands bounded by spanning blocks, line-level gutter detection
@@ -3455,9 +3506,14 @@ def _cut_item(runs, cut):
 
 
 def _strip_marker_item(runs, markers):
-    """Drop a leading marker glyph (bullet) from a runs-dict, preserving the
-    style runs (rebased)."""
-    m = re.match(f"^[{re.escape(markers)}]\\s*", runs.get("text", ""))
+    """Drop the leading marker TOKEN (bullet glyph run) from a runs-dict,
+    preserving the style runs (rebased). Documents compose markers from
+    several glyphs — clean-air renders '•-' (bullet + dash) — so a glyph RUN
+    followed by whitespace is one token (lists plan L1: stray marker chars).
+    A glyph glued to text ('•-30%') keeps the second char: only the bullet
+    is a marker there, the '-' is the number's minus."""
+    esc = re.escape(markers)
+    m = re.match(f"^(?:[{esc}]+\\s+|[{esc}]\\s*)", runs.get("text", ""))
     return _cut_item(runs, m.end() if m else 0)
 
 
