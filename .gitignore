@@ -51,3 +51,6 @@ output/pdfium/*/qa/
 
 # local API-usage log
 logs/
+
+# misc
+/rk1
