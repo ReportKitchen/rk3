@@ -103,6 +103,18 @@ two columns exist where the join pass fused them), covid p4; and clean 1-col
 conf=1.0 on both negative controls. Eval census unchanged (32/12), pytest
 33/33.
 
+**Final sweep (2026-07-02, analyze v150): 38/6 → 40/4 — every ordering
+failure on the board is closed.** gates p8 (the original keystone): the
+engine had already JOINED the sentence flowing across the gutter correctly;
+`_check_order` now compares offsets within a node, so a legitimate
+column-wrap join satisfies the intent. edf p6: `_aside_images` was re-sorting
+aside children on y after the interior column ordering (0.4pt of top-edge
+difference re-interleaved the columns) — figures now insert without
+disturbing text order, and aside interiors run `_join_broken_paragraphs`
+(chep alone rejoined 158 split callout paragraphs). Remaining 4: atlantic p6
+signature rows, edf running-footer (typing), ecp p4 (region membership),
+foia p20 (notes-section interleave) — none are column-ordering defects.
+
 **Post-phase-2 target sweep (2026-07-02, analyze v145-149): 34/10 → 38/6.**
 Four more gold targets closed by precise pass fixes, each verified + eyeballed:
 - *trailing footnote ref ≠ mid-sentence* (`_prose_end` in both join passes) —
