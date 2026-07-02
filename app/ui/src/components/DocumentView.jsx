@@ -49,6 +49,9 @@ const MARKER_CSS = `
   border-radius: 50%; border: 1px solid #b58900; background: #fdf3d7;
   color: #8a6d00; font: 700 0.75rem/1 sans-serif; cursor: pointer;
   vertical-align: text-top;
+  /* out of flow so the marker's glyph doesn't steal ::first-letter from
+     the element's real first letter (drop caps vanished on noted paras) */
+  float: left;
 }
 .rk-qmark.rk-resolved { border-color: #2e7d32; background: #e6f2e6; color: #2e7d32; }
 .rk-feedback-mode, .rk-feedback-mode * { cursor: crosshair !important; }
@@ -64,6 +67,7 @@ const MARKER_CSS = `
   border-radius: 3px; border: 1px solid #5b7fb5; background: #e2ecf8;
   color: #2c4a75; font: 700 0.7rem/1 sans-serif; cursor: help;
   vertical-align: text-top;
+  float: left; /* see .rk-qmark: keep ::first-letter on the real first letter */
 }
 .rk-fbmark.rk-resolved { border-color: #999; background: #eee; color: #777; }
 `;
