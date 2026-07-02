@@ -292,10 +292,15 @@ def canonical_for_nid(slug, nid):
 
 
 def _check_freeze(slug, c):
-    """The element located by `anchor` still renders the exact frozen content."""
+    """The element located by `anchor` still renders the exact frozen content.
+    An anchor may legitimately match several nodes (the unified container model
+    made table-cell text real, so a heading's phrase can also appear in a
+    summary cell): the freeze holds if ANY matching node still renders the
+    frozen HTML exactly; only if none does is it a change."""
     spec = c["freeze"]
     anchor, want = spec.get("anchor", ""), spec.get("html", "")
     ir = _artifact(slug, "analyze") or {}
+    first = None
     for n in _walk(ir.get("body", [])):
         if n.get("type") not in ("paragraph", "heading", "list"):
             continue
@@ -303,7 +308,10 @@ def _check_freeze(slug, c):
             got = _canonical(n)
             if got == want:
                 return True, "content unchanged"
-            return False, f"changed:\n      was: {want}\n      now: {got}"
+            if first is None:
+                first = got
+    if first is not None:
+        return False, f"changed:\n      was: {want}\n      now: {first}"
     return False, f"element {anchor[:40]!r} not found — {_localize(slug, anchor)}"
 
 

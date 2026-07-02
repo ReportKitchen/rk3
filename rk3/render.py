@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 71
+VERSION = 72
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -657,16 +657,44 @@ def _render_node(ctx, node, pages, state):
                 f'  <img src="{node["src"]}" alt="{html.escape(node["alt"], quote=True)}"'
                 f' width="{node["width"]}">{tail}\n</figure>')
     if t == "table":
-        rows = node["rows"]
+        if node.get("rows") is not None:
+            # legacy string-cell shape (pre analyze-v132 artifacts); shim until
+            # the corpus is fully reconverted, then removed (migration step 5)
+            rows = node["rows"]
+            head = ""
+            body_rows = rows
+            if node.get("header") and len(rows) > 1:
+                head = ("<thead><tr>"
+                        + "".join(f"<th>{html.escape(c)}</th>" for c in rows[0])
+                        + "</tr></thead>\n")
+                body_rows = rows[1:]
+            body = "\n".join(
+                "  <tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in r)
+                + "</tr>" for r in body_rows)
+            return (f'<figure class="table" {_attrs(node, pages)}>\n<table>\n'
+                    f'{head}<tbody>\n{body}\n</tbody>\n</table>\n</figure>')
+        # unified container model: table > row > cell > leaf children. A cell
+        # renders whatever nodes it holds (today a paragraph leaf; tomorrow a
+        # figure or a list) — no cell-specific text handling. Rows/cells carry
+        # only data-nid (addressable by ops/feedback); page/rk provenance lives
+        # on the enclosing figure.
+        rows = node["children"]
+
+        def _cell(c, tag):
+            inner = "".join(_render_node(ctx, ch, pages, state)
+                            for ch in c.get("children", []))
+            return f'<{tag} data-nid="{c["nid"]}">{inner}</{tag}>'
+
         head = ""
         body_rows = rows
         if node.get("header") and len(rows) > 1:
             head = ("<thead><tr>"
-                    + "".join(f"<th>{html.escape(c)}</th>" for c in rows[0])
+                    + "".join(_cell(c, "th") for c in rows[0]["children"])
                     + "</tr></thead>\n")
             body_rows = rows[1:]
         body = "\n".join(
-            "  <tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in r) + "</tr>"
+            f'  <tr data-nid="{r["nid"]}">'
+            + "".join(_cell(c, "td") for c in r["children"]) + "</tr>"
             for r in body_rows)
         return (f'<figure class="table" {_attrs(node, pages)}>\n<table>\n'
                 f'{head}<tbody>\n{body}\n</tbody>\n</table>\n</figure>')

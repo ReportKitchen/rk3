@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 131
+VERSION = 132
 
 
 # PDF font-descriptor flag bits
@@ -413,14 +413,14 @@ def run(ctx):
         if ref["kind"] == "figure":
             # grid-ruled, text-dense "figures" are tables (strict gate keeps
             # charts with gridlines out); the region stops claiming its text
-            node = _try_table(ctx, ref, blocks, texts, pages, strict=True)
+            node = _try_table(ctx, ref, blocks, rich, pages, strict=True)
             if node is not None:
                 ref["kind"] = "table"
             else:
                 fig_count += 1
                 node = _figure_node(ctx, ref, pages, fig_count)
         else:
-            node = _try_table(ctx, ref, blocks, texts, pages)
+            node = _try_table(ctx, ref, blocks, rich, pages)
             if node is None:
                 node = _aside_node(ctx, ref, blocks, rich, fonts,
                                    body_size, roles)
@@ -586,7 +586,6 @@ def _audit(ctx, blocks, texts, nodes):
         page = n["page"]
         out[page] += _alnum(n.get("text"))
         out[page] += sum(_alnum(t) for t in _item_texts(n.get("items", [])))
-        out[page] += sum(_alnum(c) for row in n.get("rows", []) for c in row)
         out[page] += _alnum(n.get("caption"))
         out[page] += _alnum(n.get("title"))
         out[page] += _alnum(n.get("sectionNum"))
@@ -1705,7 +1704,7 @@ def _color_segments(line):
     return merged if len(merged) > 1 else None
 
 
-def _try_table(ctx, reg, blocks, texts, pages, strict=False):
+def _try_table(ctx, reg, blocks, rich, pages, strict=False):
     """A boxed region whose grid is literally drawn (ruled lines or cell
     fills) and whose blocks cluster into columns is a table, not a callout.
 
@@ -1773,8 +1772,11 @@ def _try_table(ctx, reg, blocks, texts, pages, strict=False):
     if n_cols < 2:
         return None
 
-    # cells: (col, top, bottom, text, colorIdx); blocks spanning several
-    # columns split at color-run boundaries, joined per column across lines
+    # cells: (col, top, bottom, runs, colorIdx); blocks spanning several
+    # columns split at color-run boundaries, joined per column across lines.
+    # Cell content stays a runs-dict (text + inline runs) end to end, so
+    # bold/links/superscript references inside cells reach the leaf nodes
+    # instead of collapsing to bare strings [[first-class-content]].
     cells = []
     for i in idx:
         blk = blocks[i]
@@ -1788,24 +1790,27 @@ def _try_table(ctx, reg, blocks, texts, pages, strict=False):
             c = span[0] if span else min(
                 range(n_cols), key=lambda c: abs((cols[c][0] + cols[c][1]) / 2
                                                  - (bl + br) / 2))
-            cells.append([c, bt, bb, texts[i], dom.most_common(1)[0][0]])
+            cells.append([c, bt, bb, rich[i], dom.most_common(1)[0][0]])
             continue
-        parts = {}
+        blk_font = _block_font(ctx, blk["lines"])
+        parts = {}    # col -> runs-dict
+        pcolor = {}   # col -> colorIdx of the column's first segment
         ok = True
         for line in blk["lines"]:
             segs = _color_segments(line)
             if not segs or len(segs) != len(span):
                 ok = False
                 break
+            lruns = _build_runs(ctx, blk, [line], blk_font)
             for c, (s, e, ci) in zip(span, segs):
-                part = parts.setdefault(c, ["", ci])
-                part[0] = (part[0] + " " + line["text"][s:e].strip()).strip()
+                parts[c] = _cat_runs(parts.get(c), _slice_strip(lruns, s, e))
+                pcolor.setdefault(c, ci)
         if ok:
             for c in sorted(parts):
-                if parts[c][0]:
-                    cells.append([c, bt, bb, parts[c][0], parts[c][1]])
+                if parts[c] and parts[c]["text"]:
+                    cells.append([c, bt, bb, parts[c], pcolor[c]])
         else:
-            cells.append([span[0], bt, bb, texts[i],
+            cells.append([span[0], bt, bb, rich[i],
                           dom.most_common(1)[0][0]])
 
     # rows by vertical-interval grouping (top-down)
@@ -1818,16 +1823,18 @@ def _try_table(ctx, reg, blocks, texts, pages, strict=False):
             rows_cells.append({"cells": [cell], "min_b": cell[2],
                                "max_t": cell[1]})
 
-    rows = []
+    rows_runs = []
     row_colors = []
     for row in rows_cells:
-        texts_r = [""] * n_cols
+        runs_r = [None] * n_cols
         colors_r = [None] * n_cols
-        for c, _t, _b, txt, ci in row["cells"]:
-            texts_r[c] = (texts_r[c] + " " + txt).strip()
+        for c, _t, _b, runs, ci in row["cells"]:
+            runs_r[c] = _cat_runs(runs_r[c], runs)
             colors_r[c] = ci
-        rows.append(texts_r)
+        rows_runs.append(runs_r)
         row_colors.append(colors_r)
+    # plain-text view of the grid (header/lattice heuristics + nid input)
+    rows = [[(r["text"] if r else "") for r in rr] for rr in rows_runs]
     if len(rows) < 2:
         return None
     if strict:
@@ -1879,7 +1886,21 @@ def _try_table(ctx, reg, blocks, texts, pages, strict=False):
                        cols=n_cols, rows=len(rows), header=header,
                        hlines=hl, vlines=vl, region=reg["rk"], style=style,
                        strict=strict)
-    node = {"type": "table", "rows": rows, "header": header,
+    # unified container model: table > row > cell > paragraph leaf. The leaf
+    # carries the cell's inline runs, so _attach_refs / ops / audit reach cell
+    # content through the same generic children walk as everything else.
+    row_nodes = []
+    for rr, rc in zip(rows_runs, rows_cells):
+        cell_nodes = []
+        for c, (xl, xr) in enumerate(cols):
+            cb = [xl, rc["min_b"], xr, rc["max_t"]]
+            kids = []
+            if rr[c] and rr[c]["text"]:
+                kids.append(_leaf(ctx, "paragraph", rr[c], reg["page"], cb, rk))
+            cell_nodes.append(_container(ctx, "cell", kids, reg["page"], cb, rk))
+        row_nodes.append(_container(ctx, "row", cell_nodes, reg["page"],
+                                    [l0, rc["min_b"], r0, rc["max_t"]], rk))
+    node = {"type": "table", "children": row_nodes, "header": header,
             "page": reg["page"], "bbox": reg["bbox"], "rk": rk,
             "data": {"region": reg["rk"]}}
     if style:
@@ -3149,6 +3170,33 @@ def _slice_runs(node, a, b):
             **{k: reb(node.get(k)) for k in _RUN_KEYS}}
 
 
+def _cat_runs(a, b):
+    """Concatenate two runs-dicts with a joining space, shifting the second's
+    style offsets. Either side may be None/empty; returns the other."""
+    if not a or not a.get("text"):
+        return b
+    if not b or not b.get("text"):
+        return a
+    base = len(a["text"]) + 1
+    out = {"text": a["text"] + " " + b["text"]}
+    for k in _RUN_KEYS:
+        runs = list(a.get(k) or []) + [[sp[0] + base, sp[1] + base, *sp[2:]]
+                                       for sp in (b.get(k) or [])]
+        if runs:
+            out[k] = runs
+    return out
+
+
+def _slice_strip(runs, a, b):
+    """_slice_runs with the slice bounds tightened past edge spaces."""
+    t = runs.get("text", "")
+    while a < b and t[a] == " ":
+        a += 1
+    while b > a and t[b - 1] == " ":
+        b -= 1
+    return _slice_runs(runs, a, b)
+
+
 def _bullet_items(ctx, blk):
     """Split a bullet block into items, each carrying its own emphasis/link runs
     (a bold lead-in sentence or an inline link survives) judged against the
@@ -3558,6 +3606,11 @@ def _extract_refs(text, sups):
     refs = []
     for s, e in _merge_sup_ranges(text, sups or []):
         seg = text[s:e]
+        # a superscript 'o' wedged between a digit and C/F is a typeset degree
+        # sign ("34oC day", "1.5oC."), not a lettered note reference
+        if seg.strip().lower() == "o" and s > 0 and text[s - 1].isdigit() \
+                and text[e:e + 1] in ("C", "F"):
+            continue
         val = _marker_value(seg.replace(" ", "")) if e - s <= 7 else None
         if val:
             refs.append([s, e, val])
@@ -3865,9 +3918,6 @@ def _reconcile_notes(ctx, nodes, notes):
             if sub:
                 for s in (sub.get("items") or []):
                     visit(s)
-        for row in (u.get("rows") or []):
-            for cell in (row or []):
-                visit(cell)
     for n in nodes:
         visit(n)
 
