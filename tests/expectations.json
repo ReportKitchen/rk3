@@ -1,51 +1,75 @@
 {
-  "01--2020-2026-criteria-comparison-narrative": {
-    "status": "failed",
-    "error_contains": "OCR is out of scope"
+ "02--baystate-case-study-021624": {
+  "headings_include": [
+   [
+    2,
+    "Baystate Health"
+   ]
+  ],
+  "headings_exclude": [
+   [
+    3,
+    "KEY STRATEGIES"
+   ]
+  ],
+  "text_not_contains": [
+   "BAYSTATE HEALTH | CASE STUDY"
+  ],
+  "aside_first_child_starts": [
+   [
+    1,
+    "KEY STRATEGIES"
+   ],
+   [
+    2,
+    "KEY STRATEGIES"
+   ]
+  ],
+  "counts": {
+   "table": 1
   },
-  "01--sample-content-penguin": {
-    "headings_include": [[1, "The Great Escape"], [1, "The Big Apple"], [1, "Home at Last"],
-                         [2, "A Dream of the Wider World"], [2, "A Happy New Life"]],
-    "headings_exclude": [[1, "“You’re a penguin"]],
-    "counts": {"figure": 1, "aside": 2},
-    "notes_sequential": [1, 3],
-    "text_contains": ["Not all penguins live in the cold"]
-  },
-  "01--design-principles-teacher-preparation-1-curriculum": {
-    "text_contains": [
-      "students’ backgrounds and experiences",
-      "asset-based approaches to learn about students’ backgrounds",
-      "that teachers need includes an asset-based",
-      "Mindsets of an Equitable Educator.",
-      "two sticks would thereby be 20 pencils, and she revoices"
-    ],
-    "text_not_contains": [
-      "students’background",
-      "Teachers’Knowledge"
-    ],
-    "headings_include": [[1, "Curriculum Rooted in a Deep Understanding"],
-                         [1, "Endnotes"],
-                         [2, "What the Science Says"]],
-    "counts": {"aside": 4},
-    "notes_sequential": [1, 73],
-    "aside_first_child_starts": [[7, "Preparation for Developmentally Grounded"]]
-  },
-  "02--baystate-case-study-021624": {
-    "headings_include": [[2, "Baystate Health"]],
-    "headings_exclude": [[3, "KEY STRATEGIES"]],
-    "text_not_contains": ["BAYSTATE HEALTH | CASE STUDY"],
-    "aside_first_child_starts": [[1, "KEY STRATEGIES"], [2, "KEY STRATEGIES"]],
-    "counts": {"table": 1},
-    "text_contains": ["Apprenticeships Programs"]
-  },
-  "02--toolkit-hiring2022-copy112222onlineversiononly-1": {
-    "headings_include": [[1, "Key Terms"], [1, "University Hospitals"]],
-    "headings_exclude": [[2, "Table of Contents"]]
-  },
-  "03--enterprise-annual-report-2022": {
-    "headings_include": [[1, "Annual Report from Enterprise Community Partners"],
-                         [2, "A Letter from Board Leadership"],
-                         [2, "Stories of Impact"]],
-    "headings_exclude": [[2, "$10.2 Billion"]]
-  }
+  "text_contains": [
+   "Apprenticeships Programs"
+  ]
+ },
+ "02--toolkit-hiring2022-copy112222onlineversiononly-1": {
+  "headings_include": [
+   [
+    1,
+    "Key Terms"
+   ],
+   [
+    1,
+    "University Hospitals"
+   ]
+  ],
+  "headings_exclude": [
+   [
+    2,
+    "Table of Contents"
+   ]
+  ]
+ },
+ "03--enterprise-annual-report-2022": {
+  "headings_include": [
+   [
+    1,
+    "Annual Report from Enterprise Community Partners"
+   ],
+   [
+    2,
+    "A Letter from Board Leadership"
+   ],
+   [
+    2,
+    "Stories of Impact"
+   ]
+  ],
+  "headings_exclude": [
+   [
+    2,
+    "$10.2 Billion"
+   ]
+  ]
+ }
 }

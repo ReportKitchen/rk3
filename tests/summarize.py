@@ -7,25 +7,18 @@ import json
 from collections import Counter
 from pathlib import Path
 
+from rk3 import irwalk
+
 ROOT = Path(__file__).resolve().parent.parent
 
 
 def node_texts(nodes):
-    for n in nodes:
+    """Every piece of user-visible text, at any depth — same walker as the
+    engine (unified container model: leaves carry text, containers carry
+    children), plus the fielded footnote records."""
+    for n in irwalk.walk(nodes):
         if n.get("text"):
             yield n["text"]
-        for it in n.get("items", []):
-            if isinstance(it, str):
-                yield it
-            else:
-                yield it.get("text", "")
-                yield from (it.get("sub") or {}).get("items", [])
-        for row in n.get("rows", []):
-            yield from (c for c in row if c)
-        for c in n.get("children", []):
-            if c.get("text"):
-                yield c["text"]
-            yield from c.get("items", [])
         for note in n.get("notes", []):
             yield note["text"]
 

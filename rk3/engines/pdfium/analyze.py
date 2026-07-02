@@ -29,7 +29,12 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 138
+VERSION = 139
+
+# IR schema version, stamped into ir.json. 1 = the unified container model
+# (leaf nodes with text+runs, container nodes with children, nids everywhere;
+# see sources/docs/ir-contract.md). Bump on breaking IR-shape changes.
+IR_VERSION = 1
 
 
 # PDF font-descriptor flag bits
@@ -586,6 +591,7 @@ def run(ctx):
                  ctx.source.stem)
     audit = _audit(ctx, blocks, texts, nodes)
     ctx.write_artifact("analyze", {
+        "irVersion": IR_VERSION,
         "title": title,
         "warnings": ctx.artifact("extract").get("warnings", []),
         "pages": {str(p["n"]): [p["width"], p["height"]] for p in asm["pages"]},

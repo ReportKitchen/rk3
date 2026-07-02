@@ -10,7 +10,9 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 75
+from . import irwalk
+
+VERSION = 76
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -145,15 +147,9 @@ def _apply_ops(ctx, ir):
     # can't double-add a superscript).
     existing_ref_vals = set()
 
-    def _scan(u):
-        if not isinstance(u, dict):
-            return
+    for u in irwalk.walk(ir["body"]):
         for r in (u.get("refs") or []):
             existing_ref_vals.add(r[2])
-        for c in (u.get("children") or []):
-            _scan(c)
-    for n in ir["body"]:
-        _scan(n)
 
     def transform(nodes):
         out = []
@@ -296,27 +292,8 @@ def _apply_ops(ctx, ir):
         ctx.log.entry("op-merge", into=op["into"], frm=op["frm"])
 
 
-def _find_node(nodes, nid):
-    for n in nodes:
-        if n.get("nid") == nid:
-            return n
-        if n.get("children"):
-            hit = _find_node(n["children"], nid)
-            if hit is not None:
-                return hit
-    return None
-
-
-def _find_node_parent(nodes, nid):
-    """(containing list, node) for nid, so the node can be removed from it."""
-    for n in nodes:
-        if n.get("nid") == nid:
-            return nodes, n
-        if n.get("children"):
-            hit = _find_node_parent(n["children"], nid)
-            if hit[1] is not None:
-                return hit
-    return nodes, None
+_find_node = irwalk.find
+_find_node_parent = irwalk.find_parent
 
 
 def _merge_into(a, b):
@@ -357,18 +334,12 @@ def _reconcile_lists(ir):
     flag after manual note-collection ops change the collected set."""
     ref_vals, note_vals = set(), set()
 
-    def visit(u):
-        if not isinstance(u, dict):
-            return
+    for u in irwalk.walk(ir["body"]):
         for r in (u.get("refs") or []):
             ref_vals.add(r[2])
         if u.get("type") == "footnotes":
             for nt in u["notes"]:
                 note_vals.add(nt["n"])
-        for child in (u.get("children") or []):
-            visit(child)
-    for n in ir["body"]:
-        visit(n)
     rn = [_fn_display_r(v) for v in sorted(v for v in ref_vals if v not in note_vals)]
     nr = [_fn_display_r(v) for v in sorted(v for v in note_vals if v not in ref_vals)]
     return rn, nr
@@ -447,7 +418,7 @@ def _resolve_fn(state, num, page):
 
 
 def _norm_anchor(text):
-    return re.sub(r"[^a-z0-9]+", "", (text or "").lower())
+    return irwalk.norm_key(text)
 
 
 def _anchor_targets(ir):

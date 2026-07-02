@@ -11,6 +11,8 @@ the same slot and label itself.
 
 import re
 
+from .. import irwalk
+
 # headings whose following paragraph tends to be a usable summary/abstract
 _SUMMARY_HEADING = re.compile(
     r"\b(abstract|executive\s+summary|summary|overview|introduction)\b", re.I)
@@ -35,13 +37,8 @@ THEME_VERSION = 1
 
 
 def _walk(body):
-    """Yield every node in reading order, descending into container children
-    (aside/columns/deflist) so nested paragraphs and headings are visible."""
-    for node in body or []:
-        yield node
-        kids = node.get("children")
-        if kids:
-            yield from _walk(kids)
+    """Every node in reading order, all depths (shared walker)."""
+    yield from irwalk.walk(body)
 
 
 def _trim(text: str, max_chars: int = 400) -> str:
@@ -90,19 +87,13 @@ def _item_texts_of(node):
         yield leaf.strip()
 
 
-def _flat(body, skip=("aside", "figure", "footnotes")):
+def _flat(body):
     """Reading-order walk that does NOT descend into figures/asides (their inner
     text is caption/label noise, not part of a readable section). Lists and
     tables are structured containers — yielded whole, never entered (their
     leaf paragraphs are the container's content, not free-standing text)."""
-    for node in body or []:
-        if node.get("type") in skip:
-            continue
-        yield node
-        if node.get("type") in ("list", "table"):
-            continue
-        if node.get("children"):
-            yield from _flat(node["children"], skip)
+    yield from irwalk.walk(body, skip=("aside", "figure", "footnotes"),
+                           prune=("list", "table"))
 
 
 def _section_blocks(nodes) -> list[str]:

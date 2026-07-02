@@ -10,38 +10,35 @@ silently left pointing at nothing.
 
 import difflib
 import json
-import re
 from pathlib import Path
+
+from . import irwalk
 
 ROOT = Path(__file__).resolve().parent.parent
 FEEDBACK = ROOT / "feedback"
 
 
 def _norm(text):
-    return re.sub(r"[^a-z0-9]+", "", (text or "").lower())[:120]
+    return irwalk.norm_key(text, 120)
 
 
 def _features(ir):
+    """Match features for EVERY nid at any depth — cells, list items and
+    captions are user-taggable nodes, so their marks must survive nid drift
+    across reconverts exactly like top-level paragraphs."""
     feats = {}
-
-    def add(node):
+    for node in irwalk.walk(ir.get("body", [])):
         if node.get("nid"):
             feats[node["nid"]] = (node["type"], node["page"],
                                   _norm(node.get("text")), node.get("bbox"))
-
-    for n in ir.get("body", []):
-        add(n)
-        for c in n.get("children", []):
-            add(c)
     return feats
 
 
 def _texts(ir):
     out = {}
-    for n in ir.get("body", []):
-        for node in [n, *n.get("children", [])]:
-            if node.get("nid"):
-                out[node["nid"]] = node.get("text") or ""
+    for node in irwalk.walk(ir.get("body", [])):
+        if node.get("nid"):
+            out[node["nid"]] = node.get("text") or ""
     return out
 
 

@@ -29,6 +29,7 @@ import re
 
 import yaml
 
+from . import irwalk
 from .documents import ROOT, output_dir
 from .pipeline import ARTIFACTS, convert
 
@@ -42,9 +43,7 @@ def _norm(s):
 
 
 def _walk(body):
-    for n in body or []:
-        yield n
-        yield from _walk(n.get("children"))
+    yield from irwalk.walk(body)
 
 
 def _artifact(slug, stage):
