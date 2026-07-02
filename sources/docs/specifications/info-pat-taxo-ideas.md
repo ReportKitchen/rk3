@@ -137,3 +137,14 @@ So: not ahead of ourselves at field level; ahead of ourselves only if it
 becomes a parallel taxonomy.
 
 
+
+## Question FUNCTION is a dimension too (review convention)
+
+`function: genuine | rhetorical | heading` on the Layer-1 question atom
+(gates uses "Why?" as an h2 — questions-as-headings are everywhere).
+
+Review convention: a rhetorical question typed as Layer-1 `question` =
+ACCEPT + note (the atom claim is true; rejecting muddies detector
+precision); a Layer-2 q&a_set built on one = REJECT (the compound claim —
+that answers exist — is false). Rhetorical questions gate OUT of Q&A
+promotion but IN to pull-quote / section-opener components.
