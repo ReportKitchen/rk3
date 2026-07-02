@@ -1070,3 +1070,35 @@ Two smaller conventions, matching the main repo's practice:
    question-function DIMENSIONS, mission_statement — plus five named
    false-positive classes in the review-decisions stream. Fold into the
    registry on your next pass.
+
+
+## §24.3 — Owner's 3-doc review retrospective (Stage A verdicts, 2026-07-02)
+
+The owner completed the full 3-doc pilot review. Read alongside the
+decisions files; these are the type-level verdicts:
+
+- **Review posture was DETECTION-ONLY, deliberately** — "have I found a
+  ___", not "did I extract all the pieces." Read the acceptance rates as
+  detection accuracy (your §12 level 1); field-extraction accuracy (level 2)
+  was NOT reviewed and the owner's impression is fields "were missing a
+  lot" — that's Stage B's job as designed, don't tune Stage A regexes
+  toward it.
+- **named_entity: strong.** Owner verdict: high accuracy, and the explicit
+  priority signal is RELATIONSHIPS — "a graph linking people, orgs,
+  initiatives, partnerships, places, funding, legislation." The
+  funding_event / partnership frames in the taxonomy-ideas doc are the
+  Stage-D route; prioritize them.
+- **quotation: strong on detection, weak on SPEAKERS.** Attribution parsing
+  is the gap — and attributions usually carry person + role + org
+  ("Hannah Jones, CEO, The Earthshot Prize"): parse the triple, mint the
+  entities, add the person→org edge. Feeds the graph twice.
+- **statistic: noisy, three named culprits** — (a) years/dates (known
+  class); (b) LAW/BILL NUMBERS (new false-positive class: 'HB 1234',
+  '552(a)(6)(E)' — legal identifiers, arguably a legal_reference atom);
+  (c) money/funding amounts — these are not standalone stats, they are
+  funding_event FUEL: route currency values into the event frame instead
+  of the statistic bucket.
+- **recommendation: "never seems very meaningful."** Demote from Stage A —
+  recommendation-ness is a judgment call (modality, imperative voice,
+  addressee), i.e. Stage B material; the deterministic version produces
+  noise.
