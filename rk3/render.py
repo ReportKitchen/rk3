@@ -12,7 +12,7 @@ from pathlib import Path
 
 from . import irwalk
 
-VERSION = 76
+VERSION = 77
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -195,6 +195,7 @@ def _apply_ops(ctx, ir):
                                   old=(n.get("text") or "")[:50],
                                   new=str(op.get("value", ""))[:50])
                     n["text"] = str(op.get("value", ""))
+                    n["_op"] = "set-text"
                     # replacement text invalidates char-range markup
                     for key in ("refs", "links", "breaks"):
                         n.pop(key, None)
@@ -257,9 +258,35 @@ def _apply_ops(ctx, ir):
     if doc_order:
         rank = {nid: i for i, nid in enumerate(doc_order)}
 
-        def _reorder(nodes):  # sort each level by the global reading-order rank
-            nodes.sort(key=lambda n: rank.get(n.get("nid"), len(rank)))
+        def _reorder(nodes):
+            # sort each level by the saved reading-order rank. A node NOT in
+            # the saved order (created since the op was saved, or one the
+            # editor skipped — tenure's un-mergeable figure) must NOT sink to
+            # the document end: it interpolates after the listed node that
+            # precedes it in the ENGINE's order (the struct-tree
+            # interpolation move), so it stays where the engine put it.
+            keys, last, frac = {}, -1, 0
+            moved = {}
+            prev_nid = None
             for n in nodes:
+                nid = n.get("nid")
+                r = rank.get(nid)
+                if r is not None:
+                    keys[id(n)] = (r, 0)
+                    last, frac = r, 0
+                else:
+                    frac += 1
+                    keys[id(n)] = (last, frac)
+                moved[id(n)] = prev_nid   # engine-order predecessor
+                prev_nid = nid
+            nodes.sort(key=lambda n: keys[id(n)])
+            # QA marking: a node whose predecessor changed was MOVED by the
+            # op — render outlines it (the user's review trail)
+            prev_nid = None
+            for n in nodes:
+                if moved[id(n)] != prev_nid and not n.get("_op"):
+                    n["_op"] = "reorder"
+                prev_nid = n.get("nid")
                 if n.get("children"):
                     _reorder(n["children"])
 
@@ -286,9 +313,21 @@ def _apply_ops(ctx, ir):
         a = _find_node(ir["body"], op["into"])
         holder, b = _find_node_parent(ir["body"], op["frm"])
         if a is None or b is None or a is b or "text" not in a or "text" not in b:
+            # a skipped op must be LOUD (surface-failures): the user watched
+            # a figure-merge do nothing and reasonably concluded the tool was
+            # broken. Log the reason; the viewer can surface it later.
+            reason = ("into not found" if a is None else
+                      "frm not found" if b is None else
+                      "same node" if a is b else
+                      "into is not a text node" if "text" not in a else
+                      "frm is not a text node (merge only joins text; use "
+                      "reorder to move a figure)")
+            ctx.log.entry("op-merge-skipped", into=op["into"], frm=op["frm"],
+                          reason=reason)
             continue
         _merge_into(a, b)
         holder.remove(b)
+        a["_op"] = "merge"
         ctx.log.entry("op-merge", into=op["into"], frm=op["frm"])
 
 
@@ -462,6 +501,11 @@ def _attrs(node, pages, extra=None):
     a = {"data-rk": node["rk"], "data-page": node["page"]}
     if node.get("nid"):
         a["data-nid"] = node["nid"]
+    if node.get("_op"):
+        # QA trail: this element was touched by a saved edit op (moved by a
+        # reorder, merge target, replaced text). CSS outlines it so the user
+        # can see WHERE their hand-corrections are standing in for the engine
+        a["data-op"] = node["_op"]
     # fractional vertical position of the element on its source page (0 = top),
     # used by the viewer for smooth sync-scroll against the page images
     dims = pages.get(str(node["page"]))
