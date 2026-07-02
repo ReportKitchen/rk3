@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 136
+VERSION = 137
 
 
 # PDF font-descriptor flag bits
@@ -432,7 +432,7 @@ def run(ctx):
                 ref["kind"] = "table"
             else:
                 fig_count += 1
-                node = _figure_node(ctx, ref, pages, fig_count)
+                node = _figure_node(ctx, ref, pages, fig_count, blocks, rich)
         else:
             node = _try_table(ctx, ref, blocks, rich, pages)
             if node is None:
@@ -946,6 +946,7 @@ def _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles):
                           or _dominant_size(blk) < 0.95 * body_size)
             if captionish and len(text) < 500:
                 reg["caption"] = text
+                reg["captionIdx"] = i  # rich runs for the caption leaf
                 # small font as the only signal => genuinely unsure
                 reg["captionWeak"] = not (keyword or tagged_caption)
                 reg["captionBlock"] = blk["rk"]
@@ -969,6 +970,7 @@ def _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles):
             tagged = roles[i][0] == "Caption" and roles[i][1] > 0.5
             if (keyword or tagged) and len(text) < 300:
                 reg["title"] = text
+                reg["titleIdx"] = i
                 reg["titleBlock"] = blk["rk"]
                 absorbed[i] = reg
                 ctx.log.entry("figure-title", page=reg["page"],
@@ -1653,7 +1655,7 @@ def _block_align(blk, size):
     return None
 
 
-def _figure_node(ctx, reg, pages, fig_count):
+def _figure_node(ctx, reg, pages, fig_count, blocks, rich):
     page = pages[reg["page"]]
     src, w_px, h_px = _crop(ctx, reg, page, fig_count)
     caption = reg.get("caption")
@@ -1669,10 +1671,20 @@ def _figure_node(ctx, reg, pages, fig_count):
             "page": reg["page"], "bbox": reg["bbox"], "rk": rk,
             "data": {"region": reg["rk"]}}
     node["nid"] = _stable_id("n", ctx.nids, "figure", node["page"], node["bbox"])
-    if caption:
-        node["caption"] = caption
-    if title:
-        node["title"] = title
+    # unified container model: title/caption are caption containers holding a
+    # paragraph leaf built from the source block's rich runs — a superscript
+    # reference or a link in a caption survives like anywhere else
+    kids = []
+    for variant, key in (("title", "titleIdx"), ("caption", "captionIdx")):
+        bi = reg.get(key)
+        if bi is None:
+            continue
+        bbox = blocks[bi]["bbox"]
+        leaf = _leaf(ctx, "paragraph", rich[bi], reg["page"], bbox, rk)
+        kids.append(_container(ctx, "caption", [leaf], reg["page"], bbox, rk,
+                               variant=variant))
+    if kids:
+        node["children"] = kids
     return node
 
 

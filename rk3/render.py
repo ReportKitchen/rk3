@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 73
+VERSION = 74
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -669,13 +669,41 @@ def _render_node(ctx, node, pages, state):
                      f'{html.escape(node["quoteClose"])}</span>')
         return f'<p {_attrs(node, pages)}>{body}</p>'
     if t == "figure":
+        # unified shape: title/caption are caption containers whose lead text
+        # leaf renders inline (refs/links in captions work like anywhere else);
+        # legacy string title/caption shimmed until step 5
+        def cap_inline(c):
+            leaf = next((ch for ch in c.get("children", [])
+                         if ch.get("text")), None)
+            if leaf is None:
+                return ""
+            return _inline(leaf.get("text", ""), leaf.get("links"),
+                           leaf.get("refs"), state, breaks=leaf.get("breaks"),
+                           emph=leaf.get("emph"), marks=leaf.get("marks"),
+                           colors=leaf.get("colors"), page=leaf.get("page"))
+
+        caps = [c for c in node.get("children", [])
+                if c.get("type") == "caption"]
+        tnode = next((c for c in caps if c.get("variant") == "title"), None)
+        cnode = next((c for c in caps if c.get("variant") == "caption"), None)
         title = node.get("title")
         cap = node.get("caption")
-        head = (f'  <figcaption>{html.escape(title)}</figcaption>\n'
-                if title else "")
-        if cap and title:
-            # one figcaption per figure: the title heads it, the source/
-            # caption line keeps its place below the image
+        if tnode is not None:
+            head = (f'  <figcaption data-nid="{tnode["nid"]}">'
+                    f'{cap_inline(tnode)}</figcaption>\n')
+        elif title:
+            head = f'  <figcaption>{html.escape(title)}</figcaption>\n'
+        else:
+            head = ""
+        if cnode is not None:
+            body = cap_inline(cnode)
+            # one figcaption per figure: a title heads it, the source/caption
+            # line keeps its place below the image
+            tail = (f'\n  <p class="fig-source" data-nid="{cnode["nid"]}">'
+                    f'{body}</p>' if head else
+                    f'\n  <figcaption data-nid="{cnode["nid"]}">'
+                    f'{body}</figcaption>')
+        elif cap and title:
             tail = f'\n  <p class="fig-source">{html.escape(cap)}</p>'
         elif cap:
             tail = f'\n  <figcaption>{html.escape(cap)}</figcaption>'
