@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 118
+VERSION = 119
 
 
 # PDF font-descriptor flag bits
@@ -3453,6 +3453,11 @@ def _toc_pages(ctx, pages, blocks):
 # the (?!\d) guard rejects decimals: "0.3% - 0.7%" (chart labels) and
 # "10.1073/…" (wrapped DOIs) must not read as note markers 0 and 10
 NOTE_START = re.compile(r"^(\d{1,3})(?:[.)]\s*(?!\d)|\s+)(?=\S)")
+# plain (non-superscript) LETTER designators: "f Note: Funding data…" at the
+# foot of cleanair p15 — a single lowercase letter + separator. Ambiguity
+# with prose ("a series of…") is carried by the downstream gates: small size,
+# position/citation signal, and the marker SEQUENCE
+LETTER_NOTE_START = re.compile(r"^([a-z])(?:[.)]\s*|\s+)(?=\S)")
 
 
 def _merge_sup_ranges(text, sups):
@@ -3482,6 +3487,10 @@ def _line_marker(line):
     m = NOTE_START.match(text)
     if m:
         return int(m.group(1)), m.group(1), m.end(), False
+    m = LETTER_NOTE_START.match(text)
+    if m:
+        return (_ALPHA_NOTE_BASE + ord(m.group(1)) - 96, m.group(1),
+                m.end(), False)
     return None
 NOTES_HEADING = re.compile(r"(end\s*)?notes?|references|sources", re.I)
 
@@ -3536,7 +3545,11 @@ def _body_note_runs(ctx, blocks, texts, skip, body_size):
             count += c2
             chain.append(nb)
             j += 1
-        if count >= 4:
+        # a body-size run needs bulk (4+) to be believed; a run of SMALL blocks
+        # is already footnote-shaped, so a pair suffices (cleanair's per-page
+        # letter notes f+g)
+        small = all(_dominant_size(blocks[c]) <= 0.92 * body_size for c in chain)
+        if count >= (2 if small else 4):
             cites = len(_CITE_RE.findall(" ".join(texts[c] for c in chain)))
             if cites >= 0.5 * count:
                 member.update(chain)

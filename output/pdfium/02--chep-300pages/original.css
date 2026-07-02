@@ -569,12 +569,6 @@ strong.c-8c3109 { color: #8c3109; font-weight: inherit; }
   font-size: 0.85em;
 }
 
-.sm-strong-alt {
-  font-family: var(--rkf-arial, "Arial", sans-serif);
-  font-weight: 700;
-  font-size: 0.85em;
-}
-
 .sm-accent {
   color: #00496e;
   font-size: 0.85em;
@@ -583,6 +577,12 @@ strong.c-8c3109 { color: #8c3109; font-weight: inherit; }
 .sm-italic-alt {
   font-family: var(--rkf-arial, "Arial", sans-serif);
   font-style: italic;
+  font-size: 0.85em;
+}
+
+.sm-strong-alt {
+  font-family: var(--rkf-arial, "Arial", sans-serif);
+  font-weight: 700;
   font-size: 0.85em;
 }
 
@@ -674,14 +674,6 @@ strong.c-8c3109 { color: #8c3109; font-weight: inherit; }
 }
 
 [data-nid="n4d16597320"] {
-  background: #00547e;
-  border: none;
-  float: right;
-  width: 49%;
-  margin: 0 0 1rem 1.5rem;
-}
-
-[data-nid="n91dc26147f"] {
   background: #00547e;
   border: none;
   float: right;

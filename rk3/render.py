@@ -10,7 +10,7 @@ import shutil
 from collections import Counter
 from pathlib import Path
 
-VERSION = 63
+VERSION = 64
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -503,26 +503,26 @@ def _render_node(ctx, node, pages, state):
         for note in node["notes"]:
             n = note["n"]
             key = state["fn_keys"].get((note.get("page"), n), str(n))
-            # alphabetic designators (a, b, c — table notes) live at 1000+;
-            # display their letter ordinal, not the namespaced int
+            # alphabetic designators (a, b, c — table notes) live at 1000+.
+            # Display THE MARKER THE SOURCE USED: per-item lower-alpha style +
+            # un-namespaced value renders "f." — never a bare number colliding
+            # with the numbered references sharing the list (cleanair mixes
+            # lettered page-notes with numbered endnotes)
             display = n - 1000 if n > 1000 else n
+            li_style = ' style="list-style-type: lower-alpha"' if n > 1000 else ""
             back = (f' <a class="fn-back" href="#fnref-{key}-1" '
                     f'title="Back to reference {note.get("marker", n)} in the text" '
                     f'aria-label="Back to reference {note.get("marker", n)}">↩</a>'
                     if state["ref_seq"].get(key) else "")
-            items.append(f'  <li id="fn-{key}" value="{display}" data-rk="{note["rk"]}">'
+            items.append(f'  <li id="fn-{key}" value="{display}"{li_style} '
+                         f'data-rk="{note["rk"]}">'
                          f'{_inline(note["text"], None, None, state)}{back}</li>')
-        # documents that mark notes i/ii/iii (roman) or a/b/c (letters) keep
-        # their marker style
+        # documents whose notes are ALL roman (i/ii/iii) keep that style on
+        # the list; lettered items carry their style per-item above
         notes_ = node["notes"]
         roman = all(re.fullmatch(r"[ivxl]+", note.get("marker", "").lower())
                     for note in notes_) if notes_ else False
-        alpha = (not roman and notes_
-                 and all(re.fullmatch(r"[a-z]", note.get("marker", "").lower() or "0")
-                         for note in notes_))
-        ol = ('<ol style="list-style-type: lower-roman">' if roman
-              else '<ol style="list-style-type: lower-alpha">' if alpha
-              else "<ol>")
+        ol = ('<ol style="list-style-type: lower-roman">' if roman else "<ol>")
         return (f'<section class="footnotes" {_attrs(node, pages)}>\n'
                 f'{ol}\n' + "\n".join(items) + '\n</ol>\n</section>')
     ctx.log.entry("unknown-node", type=t, rk=node.get("rk"))

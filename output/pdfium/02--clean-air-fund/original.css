@@ -85,10 +85,6 @@ strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
   font-size: 0.58em;
 }
 
-.fine-2 {
-  font-size: 0.73em;
-}
-
 .lg-strong-center-alt {
   font-family: "Karla", sans-serif;
   font-weight: 700;
@@ -110,6 +106,10 @@ strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
 
 .large {
   font-size: 1.15em;
+}
+
+.fine-2 {
+  font-size: 0.73em;
 }
 
 .xl-strong-alt-2 {
