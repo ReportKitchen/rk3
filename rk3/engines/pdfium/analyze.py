@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 132
+VERSION = 135
 
 
 # PDF font-descriptor flag bits
@@ -320,8 +320,22 @@ def run(ctx):
     _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles)
     absorbed.update(dict.fromkeys(skip))
 
+    # Notes hide inside regions too: gates prints section endnotes inside its
+    # chart figures (112-115, 300, 338); atlantic sets note 5 in a sidebar
+    # callout. A region-absorbed block that is NOTE-SHAPED — leading marker
+    # plus a citation signal, or a superscript marker — stays eligible for
+    # note collection. It still belongs to its region for body building (a
+    # figure keeps it inside the crop, an aside keeps its text); collection
+    # only adds the fielded note so its references reconcile. Chart legends
+    # ("2 Livestock,") and numbered list items ("5. Meaningfully advancing…")
+    # fail the citation gate and stay skipped.
+    note_skip = set()
+    for bi, reg in absorbed.items():
+        if reg is not None and _noteish_block(blocks[bi], texts[bi]):
+            continue
+        note_skip.add(bi)
     notes, note_idx, notes_place = _find_notes(ctx, pages, blocks, texts,
-                                                 absorbed, body_size)
+                                                 note_skip, body_size)
     absorbed.update(dict.fromkeys(note_idx))
 
     main_idx = [i for i in range(len(blocks)) if i not in absorbed]
@@ -3670,6 +3684,18 @@ NOTES_HEADING = re.compile(r"(end\s*)?notes?|references|sources", re.I)
 _CITE_RE = re.compile(r"https?://|www\.|\b(?:19|20)\d{2}\b")
 
 
+def _noteish_block(blk, text):
+    """Note-shaped block: leads with a marker that is superscript or backed by
+    a citation signal — or, the detached-first-marker form (gates p9), at
+    least two interior lines lead with markers and the block cites. Chart
+    legends and numbered lists fail the citation gate."""
+    nm = _line_marker(blk["lines"][0])
+    if nm:
+        return bool(nm[3] or _CITE_RE.search(text))
+    return (sum(1 for l in blk["lines"][1:] if _line_marker(l)) >= 2
+            and bool(_CITE_RE.search(text)))
+
+
 def _seq_count(blk, expected):
     """Sequential markers inside one block, continuing `expected` (or starting
     fresh): (count, next expected). Mirrors _parse_notes' walk without logging."""
@@ -3781,8 +3807,16 @@ def _accept_marker(M, last, last_page, page, next_marker):
 def _sequence_notes(ctx, frags):
     """Build note records from an ordered fragment stream. A note's text runs
     from its accepted marker to the next accepted marker; rejected markers and
-    markerless lines fold into the current note as continuation. Returns
-    (notes, contributing block indexes)."""
+    markerless lines fold into the current note as continuation.
+
+    Detached-marker recovery: fragments that LEAD a block with no marker are
+    buffered rather than folded immediately. When the block's first accepted
+    marker M shows exactly ONE number missing (last accepted == M-2, or M == 2
+    at the very start), the buffered lines ARE that missing note — its marker
+    was typeset apart (glued into a chart) — by sequence arithmetic, not
+    guessing (gates p9: notes 1 and 9 head their panels markerless). Any other
+    gap folds the buffer into the current note as ordinary continuation.
+    Returns (notes, contributing block indexes)."""
     n = len(frags)
     next_marker, nxt = [None] * n, None
     for k in range(n - 1, -1, -1):
@@ -3791,14 +3825,46 @@ def _sequence_notes(ctx, frags):
             nxt = frags[k]["marker"]
     notes, contributing = [], set()
     last = last_page = cur = None
+    pending = []          # markerless fragments leading the current block
+    folds = []            # rejected markers folded into a note (split later)
+    cur_block, block_had_marker = None, False
+
+    def fold_pending():
+        nonlocal pending
+        if cur is not None:
+            for p in pending:
+                cur["text"] += " " + p["text"]
+                contributing.add(p["block"])
+        pending = []
+
     for k, fr in enumerate(frags):
+        if fr["block"] != cur_block:
+            fold_pending()   # a block with no markers was pure continuation
+            cur_block, block_had_marker = fr["block"], False
         M = fr["marker"]
         if M is None:
-            if cur is not None:
+            if not block_had_marker:
+                pending.append(fr)
+            elif cur is not None:
                 cur["text"] += " " + fr["text"]
                 contributing.add(fr["block"])
             continue
         if _accept_marker(M, last, last_page, fr["page"], next_marker[k]):
+            if pending and (last == M - 2 or (last is None and M == 2)):
+                p0 = pending[0]
+                rk = ctx.log.entry("note-inferred", page=p0["page"], n=M - 1,
+                                   block=p0["rk"],
+                                   text=pending[0]["text"][:80],
+                                   reason="block-leading text + single gap")
+                cur = {"n": M - 1, "marker": str(M - 1), "page": p0["page"],
+                       "text": " ".join(p["text"] for p in pending).strip(),
+                       "rk": rk}
+                notes.append(cur)
+                contributing.update(p["block"] for p in pending)
+                pending = []
+            else:
+                fold_pending()
+            block_had_marker = True
             rk = ctx.log.entry("note", page=fr["page"], n=M, marker=fr["raw"],
                                block=fr["rk"], text=fr["text"][:80])
             cur = {"n": M, "marker": fr["raw"], "page": fr["page"],
@@ -3807,12 +3873,58 @@ def _sequence_notes(ctx, frags):
             last, last_page = M, fr["page"]
             contributing.add(fr["block"])
         else:
+            fold_pending()
+            block_had_marker = True
             ctx.log.entry("note-reject", page=fr["page"], rejected_n=M,
                           last=last, text=fr["text"][:60])
             if cur is not None:
+                folds.append({"note": cur, "off": len(cur["text"]),
+                              "raw": fr["raw"], "block": fr["block"],
+                              "page": fr["page"]})
                 cur["text"] += " " + fr["raw"] + " " + fr["text"]
                 contributing.add(fr["block"])
+    fold_pending()
+    _split_misread_folds(ctx, notes, folds, contributing)
     return notes, contributing
+
+
+def _split_misread_folds(ctx, notes, folds, contributing):
+    """Recover a note whose printed marker was MISREAD by one glyph (gates:
+    '200' extracted as '209'; the sequencer rightly rejected 209 between 199
+    and 201 and folded its text into note 199). When a note's number + 1 is
+    missing from the collected set and exactly one rejected marker was folded
+    into it whose digits differ from the missing value in ONE position, the
+    folded text IS the missing note — sequence arithmetic again, not a guess.
+    Splits the fold back out in place."""
+    by_note = {}
+    for f in folds:
+        by_note.setdefault(id(f["note"]), []).append(f)
+    collected = Counter(nt["n"] for nt in notes)
+    for nt in list(notes):
+        fs = by_note.get(id(nt), [])
+        want = nt["n"] + 1
+        if len(fs) != 1 or collected[want]:
+            continue
+        f = fs[0]
+        raw = f["raw"]
+        wraw = str(want)
+        if not raw.isdigit() or len(raw) != len(wraw) \
+                or sum(a != b for a, b in zip(raw, wraw)) != 1:
+            continue
+        tail = nt["text"][f["off"]:].strip()
+        if not tail.startswith(raw):
+            continue
+        text = tail[len(raw):].lstrip(".) ").strip()
+        if not text:
+            continue
+        rk = ctx.log.entry("note-split-misread", page=f["page"], n=want,
+                           misread=raw, from_note=nt["n"], text=text[:80])
+        nt["text"] = nt["text"][:f["off"]].rstrip()
+        notes.insert(notes.index(nt) + 1,
+                     {"n": want, "marker": wraw, "page": f["page"],
+                      "text": text, "rk": rk})
+        collected[want] += 1
+        contributing.add(f["block"])
 
 
 def _find_notes(ctx, pages, blocks, texts, skip, body_size):
@@ -3851,12 +3963,20 @@ def _find_notes(ctx, pages, blocks, texts, skip, body_size):
                 cand = True  # holds a note, or wraps the previous one
             else:
                 in_section = False
-        if not cand and not in_section and marker and size <= 0.92 * body_size:
+        if not cand and not in_section and size <= 0.92 * body_size:
             page = pages[blk["page"]]
-            # bottom of the page; or a leading-superscript marker anywhere; or a
-            # small block carrying a citation signal (scattered sidebar notes)
-            if (blk["bbox"][1] < 0.18 * page["height"] or marker[3]
-                    or _CITE_RE.search(text)):
+            if marker:
+                # bottom of the page; or a leading-superscript marker anywhere;
+                # or a small block carrying a citation signal (sidebar notes)
+                if (blk["bbox"][1] < 0.18 * page["height"] or marker[3]
+                        or _CITE_RE.search(text)):
+                    cand = True
+            elif (sum(1 for l in blk["lines"][1:] if _line_marker(l)) >= 2
+                    and _CITE_RE.search(text)):
+                # a notes panel whose FIRST note's marker was detached (glued
+                # into a chart): leading lines are continuation text, but the
+                # interior lines still lead with markers and the block cites
+                # (gates p9: notes 1-8 in one block, the '1' lost to a chart)
                 cand = True
         if cand:
             frags.extend(_block_fragments(blk, i))

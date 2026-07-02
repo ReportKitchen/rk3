@@ -1,7 +1,13 @@
 # Plan: Unified node / container model
 
-Status: proposed (paused the footnote sprint at commit 028f6ae to write this).
-Owner decision needed on scope/timing before implementation.
+Status: IN PROGRESS (owner approved 2026-07-02).
+- Step 1 done — `_leaf`/`_container` constructors, `_assert_nids` invariant,
+  paragraph+heading routed through `_leaf` (commit 3988053; byte-identical
+  output, eval 25/4).
+- Step 2 done — table > row > cell > paragraph-leaf (commit 02fa59b); cell
+  refs/bold/links live; gates notes-without-ref went to zero; naming as
+  implemented: `row` / `cell` (not table-row/table-cell).
+- Steps 3-5 pending (list items, captions/header-cells, shim removal).
 
 ## Why
 
