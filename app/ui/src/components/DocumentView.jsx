@@ -7,6 +7,7 @@ import { saveOrderAssertion, saveReorderOp, saveMergeOp, saveMergeAssertion,
          getSnapshot, saveAssertion, getAssertions } from "../api.js";
 import { reportError } from "../errorBus.js";
 import QuestionsPanel from "./QuestionsPanel.jsx";
+import PatternsPanel from "./PatternsPanel.jsx";
 import TocCompare from "./TocCompare.jsx";
 import ReviewBoard from "./ReviewBoard.jsx";
 
@@ -18,6 +19,7 @@ const LandingMaker = lazy(() => import("../landing/LandingMaker.jsx"));
 const TABS = [
   { id: "convert", label: "Convert Document" },
   { id: "review", label: "Review" },
+  { id: "patterns", label: "Patterns" },
   { id: "toc", label: "TOC ⇔ Headings" },
   { id: "landing", label: "Landing Page" },
 ];
@@ -848,6 +850,8 @@ export default function DocumentView({
         </div>
 
         {tab === "review" && <ReviewBoard slug={doc.slug} />}
+
+        {tab === "patterns" && <PatternsPanel doc={doc} />}
 
         {tab === "toc" && <TocCompare slug={doc.slug} />}
 

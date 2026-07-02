@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ADMIN_FEEDBACK, ADMIN_METADATA } from "../api.js";
+import { ADMIN_FEEDBACK, ADMIN_METADATA, ADMIN_PATTERNS } from "../api.js";
 
 const LABELS = {
   unconverted: "unconverted",
@@ -76,6 +76,12 @@ export default function DocList({ docs, selected, onSelect, onRefresh }) {
           <a className={"doc" + (selected === ADMIN_METADATA ? " selected" : "")}
             href={docHref(ADMIN_METADATA)} onClick={open(ADMIN_METADATA)}>
             <span>PDF Metadata</span>
+          </a>
+        </li>
+        <li>
+          <a className={"doc" + (selected === ADMIN_PATTERNS ? " selected" : "")}
+            href={docHref(ADMIN_PATTERNS)} onClick={open(ADMIN_PATTERNS)}>
+            <span>Patterns</span>
           </a>
         </li>
         {groups.map((g) => (

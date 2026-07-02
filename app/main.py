@@ -587,6 +587,89 @@ def delete_op(slug: str, op_kind: str, nid: str):
     return {"ops": len(kept), "status": "in_progress"}
 
 
+# ---- pattern-identification worktrack (read-only consumer + review writer) --
+# The pattern agent owns patterns/ and emits regenerable per-doc reports to
+# patterns/out/ (see sources/docs/plans/rk3-pattern-identification-worktrack-
+# plan.md §23). The app READS those reports and WRITES review decisions in the
+# agent's own format (patterns/schemas/review-decision.schema.json) to
+# patterns/review-decisions/<slug>.jsonl — the agreed seam, nothing else.
+
+PATTERNS_OUT = ROOT / "patterns" / "out"
+PATTERNS_DECISIONS = ROOT / "patterns" / "review-decisions"
+
+
+class PatternDecision(BaseModel):
+    pattern_id: str
+    decision: str  # accept | reject | accept_with_edits | wrong_type | …
+    pattern_type: Optional[str] = None
+    notes: Optional[str] = None
+
+
+def _pattern_decisions(slug: str) -> dict:
+    f = PATTERNS_DECISIONS / f"{slug}.jsonl"
+    out = {}
+    if f.exists():
+        for line in f.read_text().splitlines():
+            if not line.strip():
+                continue
+            try:
+                e = json.loads(line)
+                out[e["pattern_id"]] = e  # last decision wins
+            except (json.JSONDecodeError, KeyError):
+                continue
+    return out
+
+
+@app.get("/api/patterns")
+def patterns_index():
+    """Aggregate view: one row per analyzed doc — inventory, totals, review
+    progress, and the input stamp for staleness checks."""
+    rows = []
+    for p in sorted(PATTERNS_OUT.glob("*.json")) if PATTERNS_OUT.is_dir() else []:
+        try:
+            r = json.loads(p.read_text())
+        except json.JSONDecodeError:
+            continue
+        slug = r.get("document_id") or p.stem
+        cands = r.get("candidates") or []
+        rows.append({
+            "slug": slug,
+            "schema": r.get("schema"),
+            "input": r.get("input"),
+            "inventory": r.get("pattern_inventory") or {},
+            "total": len(cands),
+            "decided": len(_pattern_decisions(slug)),
+            "warnings": len(r.get("warnings") or []),
+        })
+    return rows
+
+
+@app.get("/api/patterns/{slug}")
+def patterns_doc(slug: str):
+    f = PATTERNS_OUT / f"{slug}.json"
+    if not f.exists():
+        raise HTTPException(404, f"no pattern report for {slug!r}")
+    r = json.loads(f.read_text())
+    r["decisions"] = _pattern_decisions(slug)
+    return r
+
+
+@app.post("/api/patterns/{slug}/decision")
+def pattern_decide(slug: str, d: PatternDecision):
+    PATTERNS_DECISIONS.mkdir(parents=True, exist_ok=True)
+    rec = {"schema": 1, "document_id": slug, "pattern_id": d.pattern_id,
+           "decision": d.decision, "reviewer": "owner",
+           "reviewed_at": datetime.datetime.now(datetime.timezone.utc)
+                          .isoformat()}
+    if d.pattern_type:
+        rec["pattern_type"] = d.pattern_type
+    if d.notes:
+        rec["notes"] = d.notes
+    with open(PATTERNS_DECISIONS / f"{slug}.jsonl", "a") as f:
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    return {"ok": True, "decided": len(_pattern_decisions(slug))}
+
+
 # ---------------------------------------------------------------- landing page
 # The Landing Page Maker builds an SEO/AEO/a11y landing page from a document.
 # Config + theme are the editable source of truth; they're stored next to the

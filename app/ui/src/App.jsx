@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ADMIN_FEEDBACK, ADMIN_METADATA, clearFeedback, deleteFeedback, deleteOp, emptyTrash, getBuildStatus, getDocuments, getFeedback, getIr, getOps, setDocEmbedFonts, startConvert, postFeedback, postOp } from "./api.js";
+import { ADMIN_FEEDBACK, ADMIN_METADATA, ADMIN_PATTERNS, clearFeedback, deleteFeedback, deleteOp, emptyTrash, getBuildStatus, getDocuments, getFeedback, getIr, getOps, setDocEmbedFonts, startConvert, postFeedback, postOp } from "./api.js";
 import DocList from "./components/DocList.jsx";
 import DocumentView from "./components/DocumentView.jsx";
 import ErrorBanner from "./components/ErrorBanner.jsx";
 import FeedbackPopover from "./components/FeedbackPopover.jsx";
 import FeedbackTable from "./components/FeedbackTable.jsx";
 import MetadataTable from "./components/MetadataTable.jsx";
+import PatternsAggregate from "./components/PatternsAggregate.jsx";
 import Toolbar from "./components/Toolbar.jsx";
 import { guard, reportError } from "./errorBus.js";
 
@@ -183,6 +184,8 @@ export default function App() {
             <FeedbackTable onOpen={selectDoc} />
           ) : selected === ADMIN_METADATA ? (
             <MetadataTable onOpen={selectDoc} />
+          ) : selected === ADMIN_PATTERNS ? (
+            <PatternsAggregate onOpen={selectDoc} />
           ) : doc ? (
             <DocumentView
               key={doc.slug}

@@ -4,6 +4,7 @@ export const ENGINE = "pdfium";
 // slug regex there rejects the colon anyway)
 export const ADMIN_FEEDBACK = "admin:all-feedback";
 export const ADMIN_METADATA = "admin:pdf-metadata";
+export const ADMIN_PATTERNS = "admin:patterns";
 
 async function json(res) {
   if (!res.ok) {
@@ -161,3 +162,13 @@ export const postLandingTheme = (slug, theme) =>
 
 export const pageUrl = (slug, p) =>
   `/output/${ENGINE}/${slug}/pages/page-${String(p).padStart(4, "0")}.png`;
+
+// pattern-identification worktrack (patterns/out reports + review decisions)
+export const getPatternsIndex = () => fetch(`/api/patterns`).then(json);
+export const getPatternsDoc = (slug) => fetch(`/api/patterns/${slug}`).then(json);
+export const postPatternDecision = (slug, d) =>
+  fetch(`/api/patterns/${slug}/decision`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(d),
+  }).then(json);

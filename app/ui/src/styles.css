@@ -699,6 +699,41 @@ pre.error {
 }
 .qpanel .jump-placeholder { cursor: default; color: #888; }
 .qpanel .jump:disabled { cursor: default; color: #bbb; }
+
+/* ---- Patterns tab (pattern-identification worktrack review) ---- */
+.patterns-pane { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.patterns-pane .split { flex: 1; min-height: 0; }
+.pat-header { padding: 0.4rem 0.8rem; border-bottom: 1px solid #ddd; font-size: 0.85rem; }
+.pat-header .pat-hide { margin-left: 1rem; font-size: 0.8rem; color: #555; }
+.pat-chips { padding: 0.35rem 0.8rem; border-bottom: 1px solid #eee;
+  display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.pat-chips .chip { border: 1px solid #c9b8e8; background: #faf7ff; color: #4c2f86;
+  border-radius: 999px; padding: 0.1rem 0.6rem; font-size: 0.72rem; cursor: pointer; }
+.pat-chips .chip.on { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+.pat-chips .chip-n { opacity: 0.7; }
+.pat-list-panel { overflow-y: auto; min-width: 0; }
+.pat-doc-panel iframe { width: 100%; height: 100%; border: none; background: #fff; }
+.pat-list { list-style: none; margin: 0; padding: 0.3rem 0.5rem; }
+.pat-item { border-bottom: 1px solid #eee; padding: 0.4rem 0.3rem; }
+.pat-item.decided-accept { background: #f0f7f0; }
+.pat-item.decided-reject { background: #faf0f0; opacity: 0.75; }
+.pat-item[class*="decided-"]:not(.decided-accept):not(.decided-reject) { background: #f6f3ec; }
+.pat-row1 { display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; }
+.pat-meta { color: #777; font-size: 0.72rem; }
+.pat-actions { margin-left: auto; display: flex; gap: 0.25rem; align-items: center; }
+.pat-btn { border: 1px solid #bbb; background: #fff; border-radius: 4px;
+  width: 1.6rem; height: 1.4rem; cursor: pointer; font-size: 0.8rem; }
+.pat-btn.on { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+.pat-actions select { font-size: 0.7rem; max-width: 2.2rem; border: 1px solid #ccc;
+  border-radius: 4px; background: #fff; height: 1.4rem; }
+.pat-quote { margin: 0.25rem 0 0 2rem; font-size: 0.78rem; color: #444; }
+.pat-rec { margin: 0.15rem 0 0 2rem; font-size: 0.72rem; }
+.pat-agg h1 { font-size: 1.15rem; }
+.pat-matrix { border-collapse: collapse; font-size: 0.82rem; margin-top: 0.8rem; }
+.pat-matrix th, .pat-matrix td { border: 1px solid #ddd; padding: 0.3rem 0.55rem; text-align: left; }
+.pat-matrix .num { text-align: right; }
+.pat-matrix .doc-col { min-width: 8rem; }
+.pat-matrix thead th { background: #f7f5fc; vertical-align: top; }
 .qpanel .op-nid {
   display: inline-block;
   margin: 0 0.5rem 0.3rem 0;
