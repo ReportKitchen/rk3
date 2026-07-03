@@ -45,3 +45,9 @@ checks:
   # single-interior-bullet split landed.
   - note: "GOLD(lists) p17 (target): parent bullet 'Turning…' splits from its lead-in"
     split: ["Getting key enablers in place:", "Turning the resilience opportunity into reality"]
+
+  # GOLD(figures F7) p61 (target, note 18c4eb6c): doc note 256 was pulled
+  # into the Nestlé figure as a caption — it belongs to the document's
+  # footnotes, not the figure.
+  - note: "GOLD(fig) p61 (target): doc note 256 is not swallowed by the figure"
+    not_in_figure: ["Nestle, Nestlé - Climate Change 2023"]

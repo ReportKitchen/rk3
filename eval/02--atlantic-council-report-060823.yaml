@@ -38,3 +38,25 @@ checks:
         for LAC.</li><li><strong>Meaningfully advancing the green agenda:</strong> helping advance the green
         agenda by working to create green jobs, taking measures to promote a transition to a circular-economy
         model, and partaking in green finance.</li></ol>
+
+  # GOLD(figures F1) p10 (target, note 80f32560): the Figure 1 chart is a
+  # <figure> "down to the Source" — title + chart + SOURCE line together.
+  - note: "GOLD(fig) p10 (target): Figure 1 anatomy holds title + SOURCE"
+    in_figure: ["Figure 1. In the last ten years", "SOURCE: Atlantic Council survey 2022"]
+
+  - note: "GOLD(fig) p10 (target): chart legend claimed into the image"
+    claimed: ["optimists pessimists"]
+
+  # GOLD(figures F2) p12 (targets, note e1aad018): each chart is its OWN
+  # figure holding its own title+SOURCE — today one fused crop bakes both
+  # titles in while "Figure 2"/"Figure 3" also render live (duplicates).
+  - note: "GOLD(fig) p12 (target): Figure 2 anatomy, unfused from Figure 3"
+    in_figure: ["Figure 2. Overall LAC attractiveness", "SOURCE: Atlantic Council survey 2022"]
+    not_with: "Figure 3. Pessimists"
+
+  - note: "GOLD(fig) p12 (target): Figure 3 anatomy, unfused from Figure 2"
+    in_figure: ["Figure 3. Pessimists", "SOURCE: Atlantic Council survey 2022"]
+    not_with: "Figure 2. Overall LAC attractiveness"
+
+  - note: "GOLD(fig) p12 (guard): the two figure titles stay separate nodes"
+    split: ["Figure 2. Overall LAC attractiveness", "Figure 3. Pessimists"]

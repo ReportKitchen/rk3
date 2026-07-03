@@ -49,3 +49,15 @@ checks:
   - note: "GOLD p54 (guard): right caption is whole"
     stage: analyze
     merge: ["Nixon Andy, Coordinator of the", "Protected Community of Sinagoe, Ecuador."]
+
+  # GOLD(figures F3) p14 (target, note 46f46d38): the pale tree watermark
+  # minted an aside that trapped two body paragraphs and scrambled the
+  # section rundown (source: plain two-column flow, sections 2-7 in order).
+  - note: "GOLD(fig) p14 (target): Section-7 + appendices paragraphs read in flow"
+    in_flow: ["In the final Section 7, we look", "And for those who might still want more insights"]
+
+  - note: "GOLD(fig) p14 (target): sections read in order (4 before 5)"
+    order: ["In Section 4, What We Achieved", "In Section 5, we explain the How"]
+
+  - note: "GOLD(fig) p14 (target): sections read in order (6 before 7)"
+    order: ["In Section 6, we describe the With What", "In the final Section 7, we look"]

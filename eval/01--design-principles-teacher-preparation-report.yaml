@@ -72,3 +72,16 @@ checks:
         and continue to advance a shared body of knowledge that is used to make decisions that further the
         client’s welfare</li><li>To develop shared standards of practice that evolve as knowledge evolves
         in the profession</li></ol>
+
+  # GOLD(figures F1) p10 (target, notes 7b850cd8 + f9d468e2): Figure ES.1 =
+  # title + wheel image + Source line in ONE <figure>. At plant (v168): no
+  # figure node exists — the region became an aside of leaked diagram labels
+  # (letter soup from the rotated ring text), the title is a stray heading,
+  # the Source line a stray paragraph.
+  - note: "GOLD(fig) p10 (target): ES.1 title + Source line live in ONE figure"
+    in_figure: ["Figure ES.1. Guiding Principles for Enacting", "Source: Learning Policy Institute & EdPrepLab. (2024)"]
+
+  # GOLD(figures F4) p10 (target): the wheel's interior labels render inside
+  # the image pixels, never as live paragraphs.
+  - note: "GOLD(fig) p10 (target): wheel labels claimed into the figure image"
+    claimed: ["Teaching That Supports Student Thriving", "DEEPLY KNOWLEDGEABLE"]

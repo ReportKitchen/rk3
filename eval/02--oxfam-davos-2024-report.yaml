@@ -35,3 +35,8 @@ checks:
 
   - note: "GOLD(col) p10 (guard): research paragraph precedes 'Billionaire owners use this control'"
     order: ["New research by Oxfam illuminates", "Billionaire owners use this control"]
+
+  # GOLD(figures) p4 (guard, note a92c2999 "great job identifying and
+  # marking up the figure and caption"): keep it that way.
+  - note: "GOLD(fig) p4 (guard): photo caption stays inside its figure"
+    in_figure: ["Beijing skyline, China. Photo by Li Yang"]

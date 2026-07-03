@@ -170,6 +170,88 @@ def _list_items(node):
     return out
 
 
+# ---- figure checks (plans/figures.md phase 0) ----
+def _figure_nodes(slug):
+    ir = _artifact(slug, "analyze") or {}
+    return [n for n in _walk(ir.get("body", [])) if n.get("type") == "figure"]
+
+
+def _region_texts(slug, types):
+    """Normalized subtree text of every node of the given types — the
+    'inside a figure/aside' membership test."""
+    ir = _artifact(slug, "analyze") or {}
+    return [_norm(irwalk.subtree_text(n)) for n in _walk(ir.get("body", []))
+            if n.get("type") in types]
+
+
+def _check_in_figure(slug, c):
+    """ALL snippets are text of ONE figure node's subtree — pins the anatomy
+    (figures.md F1): title + caption/source live INSIDE the <figure>
+    container, not scattered around the crop."""
+    snippets = c["in_figure"]
+    avoid = c.get("not_with")  # the matching figure must NOT also hold this
+    figs = _figure_nodes(slug)
+    fused = False
+    for f in figs:
+        t = _norm(irwalk.subtree_text(f))
+        if all(_norm(s) in t for s in snippets):
+            if avoid and _norm(avoid) in t:
+                fused = True
+                continue
+            return True, f"all {len(snippets)} snippet(s) in one figure (p{f.get('page')})"
+    if fused:
+        return False, (f"figure holds the snippets but ALSO {avoid!r} — "
+                       "two figures fused into one")
+    for s in snippets:
+        if not any(_norm(s) in t for t in
+                   (_norm(irwalk.subtree_text(f)) for f in figs)):
+            hit = _find(_stage_seq(slug, "analyze"), s)
+            where = ("is live text OUTSIDE any figure" if hit >= 0
+                     else _localize(slug, s))
+            return False, f"{s!r} is in no figure — {where}"
+    return False, "snippets found only across DIFFERENT figures (anatomy split)"
+
+
+def _check_not_in_figure(slug, c):
+    """Snippets exist as live text and sit in NO figure subtree — the
+    negative control for figure claiming (figures.md F7: doc footnotes must
+    not be swallowed by a chart's crop region)."""
+    fig_texts = _region_texts(slug, ("figure",))
+    for s in c["not_in_figure"]:
+        if _find(_stage_seq(slug, "analyze"), s) < 0:
+            return False, f"{s!r} not found at all — {_localize(slug, s)}"
+        if any(_norm(s) in t for t in fig_texts):
+            return False, f"{s!r} was swallowed by a figure"
+    return True, f"{len(c['not_in_figure'])} snippet(s) stay out of figures"
+
+
+def _check_in_flow(slug, c):
+    """Snippets exist and sit inside NEITHER a figure NOR an aside — pins
+    the dissolve call (figures.md F3): body text over background decoration
+    must stay ordinary flow."""
+    box_texts = _region_texts(slug, ("figure", "aside"))
+    for s in c["in_flow"]:
+        if _find(_stage_seq(slug, "analyze"), s) < 0:
+            return False, f"{s!r} not found at all — {_localize(slug, s)}"
+        if any(_norm(s) in t for t in box_texts):
+            return False, f"{s!r} is trapped in a figure/aside — should be flow"
+    return True, f"{len(c['in_flow'])} snippet(s) read in ordinary flow"
+
+
+def _check_claimed(slug, c):
+    """Snippets were extracted (present at assemble) but are deliberately
+    ABSENT from the IR as live text — they render inside a figure's pixels
+    (figures.md F2/F4: diagram ring labels, axis soup). The assemble
+    presence requirement keeps this from passing on extraction loss."""
+    seq = _stage_seq(slug, "analyze")
+    for s in c["claimed"]:
+        if not _blocks_has(slug, s):
+            return False, f"{s!r} missing at assemble — extraction loss, not a claim"
+        if _find(seq, s) >= 0:
+            return False, f"{s!r} is still live IR text — should be claimed into the figure"
+    return True, f"{len(c['claimed'])} snippet(s) claimed into figure pixels"
+
+
 def _check_nested(slug, c):
     """PARENT and CHILD: some list item's own text contains PARENT, and a
     list nested INSIDE that item contains CHILD as one of its items — pins
@@ -401,7 +483,10 @@ def _check_freeze(slug, c):
 EVALUATORS = {"order": _check_order, "role": _check_role, "list": _check_list,
               "not_list": _check_not_list, "nested": _check_nested,
               "merge": _check_merge,
-              "split": _check_split, "freeze": _check_freeze}
+              "split": _check_split, "freeze": _check_freeze,
+              "in_figure": _check_in_figure,
+              "not_in_figure": _check_not_in_figure,
+              "in_flow": _check_in_flow, "claimed": _check_claimed}
 
 
 def evaluate_check(slug, check):
