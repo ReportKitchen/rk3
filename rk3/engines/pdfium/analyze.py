@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 185
+VERSION = 187
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -567,6 +567,13 @@ def run(ctx):
     nodes = _definition_lists(ctx, nodes)
     nodes = _floating_pullquotes(ctx, nodes, body_size)
     nodes = _aside_layout_and_pullquotes(ctx, nodes, twocol_pages)
+    # figures plan phase 5: placement — a figure must not split a running
+    # sentence (atlantic p20), and a section-opener figure reads AFTER the
+    # page's opening heading (atlantic p14); float/wide evidence recorded
+    # for the renderer (tenure p25/p30)
+    nodes = _unsplit_figure_interruptions(ctx, nodes)
+    nodes = _anchor_figures_after_titles(ctx, nodes)
+    _figure_float_evidence(ctx, nodes)
     # a second pass: paragraphs that a floating pullquote/aside sat between are
     # now adjacent (the intruder has been extracted) — rejoin the split sentence
     nodes = _join_broken_paragraphs(ctx, nodes)
@@ -2149,7 +2156,8 @@ def _figure_node(ctx, reg, pages, fig_count, blocks, rich):
             "alt": title or caption or f"Figure from page {reg['page']}",
             "page": reg["page"], "bbox": reg["bbox"], "rk": rk,
             "data": {"region": reg["rk"],
-                     **({"svg": reg["svg"]} if reg.get("svg") else {})}}
+                     **({"svg": reg["svg"]} if reg.get("svg") else {}),
+                     **({"hero": True} if reg.get("hero") else {})}}
     node["nid"] = _stable_id("n", ctx.nids, "figure", node["page"], node["bbox"])
     # unified container model: title/caption are caption containers holding a
     # paragraph leaf built from the source block's rich runs — a superscript
@@ -2166,6 +2174,101 @@ def _figure_node(ctx, reg, pages, fig_count, blocks, rich):
     if kids:
         node["children"] = kids
     return node
+
+
+def _unsplit_figure_interruptions(ctx, nodes):
+    """A figure woven between the two halves of a running sentence (its
+    bbox y-position landed mid-paragraph — atlantic p20) moves after the
+    continuation, so the broken-paragraph join can fuse the halves."""
+    out = []
+    i = 0
+    while i < len(nodes):
+        n = nodes[i]
+        prev = out[-1] if out else None
+        nxt = nodes[i + 1] if i + 1 < len(nodes) else None
+        if (n["type"] == "figure" and prev is not None and nxt is not None
+                and prev.get("type") == "paragraph"
+                and nxt.get("type") == "paragraph"
+                and prev.get("text") and nxt.get("text")
+                and 0 <= nxt["page"] - prev["page"] <= 1
+                and (_prose_end(prev).isalnum() or _prose_end(prev) in ",-–­")
+                and nxt["text"][:1].islower()):
+            ctx.log.entry("figure-deferred", page=n["page"], rk=n.get("rk"),
+                          reason="was splitting a running sentence")
+            out.append(nxt)
+            out.append(n)
+            i += 2
+            continue
+        out.append(n)
+        i += 1
+    return out
+
+
+def _anchor_figures_after_titles(ctx, nodes):
+    """Figures woven BEFORE a page's opening heading (the section-cover
+    graphic sits above the title on the page — atlantic p14, hero pages)
+    read after it: title first, then the image. Only figures that LEAD
+    their page are touched; anything after the page's first text keeps its
+    woven position."""
+    out = []
+    pending = []      # page-leading figures awaiting the opening heading
+    page_started = set()   # pages whose first non-figure node has passed
+    for n in nodes:
+        if pending and n["page"] != pending[0]["page"]:
+            out.extend(pending)   # page ended figure-first with no heading
+            pending = []
+        if n["type"] == "figure" and n["page"] not in page_started:
+            pending.append(n)
+            continue
+        if n["page"] not in page_started:
+            page_started.add(n["page"])
+            if pending:
+                if n["type"] == "heading" and n.get("level", 9) <= 3:
+                    out.append(n)
+                    for f in pending:
+                        ctx.log.entry("figure-after-title", page=f["page"],
+                                      rk=f.get("rk"))
+                    out.extend(pending)
+                    pending = []
+                    continue
+                out.extend(pending)
+                pending = []
+        out.append(n)
+    out.extend(pending)
+    return out
+
+
+def _figure_float_evidence(ctx, nodes):
+    """Presentation evidence for the renderer (figures plan phase 5): a
+    narrow figure whose source position hugs one side of its column floats
+    that way (tenure p25); a content-width figure is a full-width block
+    (tenure p30). Recorded as data.float — CSS applies it, ops can override
+    it later."""
+    for n in nodes:
+        if n.get("type") != "figure" or (n.get("data") or {}).get("hero"):
+            continue
+        m = (getattr(ctx, "column_model", None) or {}).get(n["page"])
+        cols = [c for band in (m["bands"] if m else []) for c in band["cols"]]
+        if not cols:
+            continue
+        # the reference is the PAGE CONTENT width — the HTML flow container —
+        # not the figure's host column: a photo filling the right column of a
+        # two-column page is half the content width and floats right so the
+        # other column's text can wrap beside it (tenure p25)
+        content_l = min(c[0] for c in cols)
+        content_r = max(c[1] for c in cols)
+        cw = max(content_r - content_l, 1.0)
+        l, _, r, _ = n["bbox"]
+        w = r - l
+        data = n.setdefault("data", {})
+        if w >= 0.85 * cw:
+            data["float"] = "wide"
+        elif w <= 0.6 * cw:
+            mid = (content_l + content_r) / 2
+            data["float"] = "right" if (l + r) / 2 >= mid else "left"
+            ctx.log.entry("figure-float", page=n["page"], rk=n.get("rk"),
+                          side=data["float"],
+                          frac=round(w / cw, 2))
 
 
 def _fitz_doc(ctx):

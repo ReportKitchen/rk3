@@ -12,7 +12,7 @@ from pathlib import Path
 
 from . import irwalk
 
-VERSION = 78
+VERSION = 79
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -676,7 +676,13 @@ def _render_node(ctx, node, pages, state):
                     f'{body}</figcaption>')
         else:
             tail = ""
-        return (f'<figure {_attrs(node, pages)}>\n{head}'
+        # placement evidence from analyze (figures plan phase 5): narrow
+        # side-hugging figures float, content-width figures span
+        flo = (node.get("data") or {}).get("float")
+        fig_cls = {"left": ' class="fig-float-left"',
+                   "right": ' class="fig-float-right"',
+                   "wide": ' class="fig-wide"'}.get(flo, "")
+        return (f'<figure{fig_cls} {_attrs(node, pages)}>\n{head}'
                 f'  <img src="{node["src"]}" alt="{html.escape(node["alt"], quote=True)}"'
                 f' width="{node["width"]}">{tail}\n</figure>')
     if t == "table":
