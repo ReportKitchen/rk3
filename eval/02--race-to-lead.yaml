@@ -11,3 +11,33 @@ checks:
 
   - note: "GOLD(col) p16 (guard/negative-control): single-column paragraphs stay in order (2/2)"
     order: ["One important workplace challenge stands out", "Figure 12 (on the following page) compares"]
+
+  # GOLD(fig, #vision batch 2026-07-03) — chart COHERENCE. The owner's
+  # tagged notes + the vision scan showed every chart on p10/12/13/15/17
+  # scattered: region detection clustered only the BAR GRAPHICS, leaving
+  # axis/legend/value labels as flow paragraphs around sliver crops. The
+  # phase-3 label-soup rule relabeled those slivers without capturing the
+  # satellites (the "fires" that looked like a fix). Red at plant (v187).
+  # (snippets must be CHART-ONLY: the body prose legitimately quotes the
+  # 2019 figures — "14% African American/Black" lives in both)
+  - note: "GOLD(fig) p10 (target): fig-2 chart labels render inside the figure, not as flow text"
+    claimed: ["African American/Black 15%", "Native American/Indigenous 1% Multiracial 8%"]
+
+  - note: "GOLD(fig) p10 (target): fig-2 caption is the figure's own title"
+    in_figure: ["figure 2 | race/ethnicity"]
+
+  # DOC-WIDE by design (claimed has no page scope): p13's own chart is
+  # coherent as of v188, but this stays RED while ANY chart in the doc
+  # leaks its legend into flow — currently p15/p33/p41, whose bubble
+  # charts arrive as mini-callouts with no figure region to grow
+  # (chart REASSEMBLY, a further step growth doesn't cover).
+  - note: "GOLD(fig) doc-wide (target): chart legends/years are never flow text"
+    claimed: ["peopleofcolor white", "20162019"]
+
+  - note: "GOLD(fig) p17 (target, owner note 2efeab58): fig-12 category labels render inside the figure"
+    claimed: ["Mentors outside of my job/organization", "100%50%0% 0%50%100%"]
+
+  # Guard: the body paragraph ABOVE fig 2 must never be swallowed by
+  # region growth (it sits directly against the chart).
+  - note: "GOLD(fig) p10 (guard): body text above the chart stays in flow"
+    in_flow: ["The race/ethnicity breakdown of respondents (Figure 2) is within one percentage point"]

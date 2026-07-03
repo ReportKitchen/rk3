@@ -46,7 +46,7 @@ h6 {
   font-family: "helvetica-lt-pro", sans-serif;
   font-weight: 700;
   color: #5c6f7b;
-  font-size: 0.7rem;
+  font-size: 1.3rem;
 }
 
 a {
@@ -94,27 +94,6 @@ strong.c-f78813 { color: #f78813; font-weight: inherit; }
   font-size: 1.48em;
 }
 
-.sm-strong-alt {
-  font-family: "helvetica-lt-pro", sans-serif;
-  font-weight: 700;
-  color: #5c6f7b;
-  font-size: 0.7em;
-}
-
-.strong-alt {
-  font-family: "helvetica-lt-pro", sans-serif;
-  font-weight: 700;
-  color: #5c6f7b;
-  font-size: 0.9em;
-}
-
-.sm-strong-alt-2 {
-  font-family: "helvetica-lt-pro", sans-serif;
-  font-weight: 700;
-  color: #5c6f7b;
-  font-size: 0.8em;
-}
-
 .sm-alt-3 {
   font-family: "helvetica-lt-pro", sans-serif;
   font-size: 0.7em;
@@ -127,7 +106,7 @@ strong.c-f78813 { color: #f78813; font-weight: inherit; }
   font-size: 2.4em;
 }
 
-.strong-alt-2 {
+.strong-alt {
   font-family: "helvetica-lt-pro", sans-serif;
   font-weight: 700;
 }
@@ -139,23 +118,23 @@ strong.c-f78813 { color: #f78813; font-weight: inherit; }
   text-align: center;
 }
 
-.sm-strong-alt-3 {
+.sm-strong-alt {
   font-family: "helvetica-lt-pro", sans-serif;
   font-weight: 700;
   font-size: 0.8em;
+}
+
+.strong-alt-2 {
+  font-family: "helvetica-lt-pro", sans-serif;
+  font-weight: 700;
+  color: #5c6f7b;
+  font-size: 0.9em;
 }
 
 .alt-2 {
   font-family: "helvetica-lt-pro", sans-serif;
   color: #5c6f7b;
   font-size: 0.9em;
-}
-
-.sm-strong-alt-4 {
-  font-family: "helvetica-lt-pro", sans-serif;
-  font-weight: 700;
-  color: #5c6f7b;
-  font-size: 0.82em;
 }
 
 .strong-alt-3 {
@@ -168,6 +147,13 @@ strong.c-f78813 { color: #f78813; font-weight: inherit; }
   font-family: "helvetica-lt-pro", sans-serif;
   color: #5c6f7b;
   font-size: 0.8em;
+}
+
+.sm-strong-alt-2 {
+  font-family: "helvetica-lt-pro", sans-serif;
+  font-weight: 700;
+  color: #5c6f7b;
+  font-size: 0.7em;
 }
 
 [data-nid="n4bf24018f1"] {

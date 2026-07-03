@@ -4,7 +4,7 @@
 
 @import url("https://use.typekit.net/qmh3dop.css");
 @import url("https://fonts.googleapis.com/css2?family=gotham&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=gotham:ital,wght@0,400;0,500;0,700;0,800;1,400;1,500;1,700;1,800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=gotham:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap");
 
 body {
   font-family: "gotham", sans-serif;
@@ -90,26 +90,6 @@ strong.c-4280c2 { color: #4280c2; font-weight: inherit; }
   font-weight: 700;
   color: #8bbd3f;
   font-size: 0.81em;
-}
-
-.strong-center-alt {
-  font-family: "gotham", sans-serif;
-  font-weight: 700;
-  color: #4280c2;
-  text-align: center;
-}
-
-.lg-strong-alt {
-  font-family: "gotham", sans-serif;
-  font-weight: 800;
-  color: #4280c2;
-  font-size: 1.14em;
-}
-
-.strong-center-alt-2 {
-  font-family: "gotham", sans-serif;
-  font-weight: 700;
-  text-align: center;
 }
 
 .lg-medium-italic-alt-2 {
@@ -205,11 +185,6 @@ strong.c-4280c2 { color: #4280c2; font-weight: inherit; }
 
 [data-nid="n958c92ab8a"] {
   color: #8bbd3f;
-}
-
-[data-nid="nf23a80be63"] {
-  background: #929292;
-  border: 1px solid #ffffff;
 }
 
 [data-nid="nd569433f2e"] {

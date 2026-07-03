@@ -126,7 +126,6 @@ a:hover { text-decoration: underline; }
 [data-nid="n5a4170ec60"] a,
 [data-nid="n3e736c2541"] a,
 [data-nid="nfacefd6a1d"] a,
-[data-nid="n5a4870236c"] a,
 [data-nid="n287e9a0c6a"] a,
 [data-nid="nc739753f79"] a,
 [data-nid="ncaf42ffc59"] a,
@@ -362,14 +361,6 @@ strong.c-8c3109 { color: #8c3109; font-weight: inherit; }
 .strong-alt-3 {
   font-family: var(--rkf-arialnarrow, "Arial Narrow", sans-serif);
   font-weight: 700;
-}
-
-.strong-panel-alt {
-  font-family: var(--rkf-arialnarrow, "Arial Narrow", sans-serif);
-  font-weight: 700;
-  background: #d7e5e3;
-  padding: 0.6em 0.8em;
-  color: #3e3e3f;
 }
 
 .lg-italic-serif {
@@ -1170,18 +1161,6 @@ strong.c-8c3109 { color: #8c3109; font-weight: inherit; }
   margin: 0 0 1rem 1.5rem;
 }
 
-[data-nid="n9bc159fd46"] {
-  background: #e6e7e9;
-  border: none;
-  border-bottom: 1px solid #939598;
-  border-left: 1px solid #939598;
-  border-right: 1px solid #939598;
-  border-top: 1px solid #939598;
-  float: right;
-  width: 43%;
-  margin: 0 0 1rem 1.5rem;
-}
-
 [data-nid="naa3249f2b5"] {
   color: #4b4c4d;
 }
@@ -1459,13 +1438,7 @@ strong.c-8c3109 { color: #8c3109; font-weight: inherit; }
   color: #4a2a64;
 }
 
-[data-nid="n9b637f0954"] {
-  background: #e6e7e9;
-  border: none;
-  border-bottom: 1px solid #939598;
-  border-left: 1px solid #939598;
-  border-right: 1px solid #939598;
-  border-top: 1px solid #939598;
+[data-nid="n4d94585e86"] {
   float: right;
   width: 21%;
   margin: 0 0 1rem 1.5rem;

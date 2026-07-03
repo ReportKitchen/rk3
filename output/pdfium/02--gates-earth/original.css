@@ -61,7 +61,6 @@ strong.c-735936 { color: #735936; font-weight: inherit; }
 strong.c-ba2626 { color: #ba2626; font-weight: inherit; }
 strong.c-db578a { color: #db578a; font-weight: inherit; }
 strong.c-fea000 { color: #fea000; font-weight: inherit; }
-strong.c-ff6d00 { color: #ff6d00; font-weight: inherit; }
 strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
 
 .xl-accent {
@@ -116,24 +115,12 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
   text-align: center;
 }
 
-.fine {
-  font-size: 0.87em;
-}
-
-.fine-2 {
-  font-size: 0.75em;
-}
-
-.fine-3 {
-  font-size: 0.81em;
-}
-
 .sm-accent {
   color: #838383;
   font-size: 0.78em;
 }
 
-.fine-4 {
+.fine {
   font-size: 0.85em;
 }
 
@@ -147,81 +134,27 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
   font-size: 1.33em;
 }
 
-.styled-2 {
-  font-size: 0.93em;
-}
-
-.fine-5 {
-  font-size: 0.7em;
-}
-
-.sm-accent-2 {
-  color: #707070;
-  font-size: 0.76em;
-}
-
 .accent-4 {
   color: #838383;
   font-size: 0.89em;
-}
-
-.fine-6 {
-  font-size: 0.76em;
 }
 
 .large-2 {
   font-size: 1.33em;
 }
 
-.styled-3 {
-  font-size: 0.9em;
-}
-
-.fine-7 {
-  font-size: 0.67em;
-}
-
 .large-3 {
   font-size: 1.22em;
 }
 
-.sm-accent-3 {
+.sm-accent-2 {
   color: #9f9f9f;
   font-size: 0.72em;
-}
-
-.fine-8 {
-  font-size: 0.84em;
-}
-
-.fine-9 {
-  font-size: 0.66em;
-}
-
-.fine-10 {
-  font-size: 0.83em;
-}
-
-.fine-11 {
-  font-size: 0.71em;
-}
-
-.sm-center {
-  font-size: 0.71em;
-  text-align: center;
 }
 
 .xl-accent-7 {
   color: #db578a;
   font-size: 2.0em;
-}
-
-.fine-12 {
-  font-size: 0.65em;
-}
-
-.fine-13 {
-  font-size: 0.53em;
 }
 
 .accent-5 {
@@ -345,7 +278,7 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
   font-size: 0.63em;
 }
 
-.styled-4 {
+.styled-2 {
   font-size: 0.89em;
 }
 
@@ -402,25 +335,6 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
 .lg-accent-8 {
   color: #fea000;
   font-size: 1.56em;
-}
-
-.fine-14 {
-  font-size: 0.78em;
-}
-
-.sm-accent-4 {
-  color: #004202;
-  font-size: 0.78em;
-}
-
-.sm-accent-5 {
-  color: #9f9f9f;
-  font-size: 0.78em;
-}
-
-.sm-accent-6 {
-  color: #9f9f9f;
-  font-size: 0.76em;
 }
 
 .xl-accent-9 {
@@ -481,12 +395,19 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
   color: #fea000;
 }
 
+.sm-accent-3 {
+  color: #9f9f9f;
+  font-size: 0.76em;
+}
+
+.sm-accent-4 {
+  color: #9f9f9f;
+  font-size: 0.78em;
+}
+
 [data-nid="na438ec9f12"] .soft-header,
 [data-nid="nd932987ef0"] .soft-header,
 [data-nid="nf3d79646bb"] .soft-header,
-[data-nid="n1c2cf58f21"] .soft-header,
-[data-nid="nb0b146e916"] .soft-header,
-[data-nid="n78d2bba18f"] .soft-header,
 [data-nid="n7b00717192"] .soft-header,
 [data-nid="n4ff12c2380"] .soft-header,
 [data-nid="na47c01c171"] .soft-header,
@@ -701,27 +622,6 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
   border-left: 1px solid #fea000;
 }
 
-[data-nid="n7ebb0af911"] {
-  background: #ffdcbb;
-  padding: 0.4em 0.6em;
-}
-
-[data-nid="n84813f5599"] {
-  background: #404040;
-  border: 1px solid #ffffff;
-}
-
-[data-nid="n3c6bf8cc25"] {
-  background: #c7d8c9;
-  padding: 0.4em 0.6em;
-  color: #096223;
-}
-
-[data-nid="n10cc54a7fc"] {
-  background: #fea000;
-  padding: 0.4em 0.6em;
-}
-
 [data-nid="nc3919c7acf"] {
   background: #fea000;
   padding: 0.4em 0.6em;
@@ -861,12 +761,6 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
 }
 
 [data-nid="nf0b9fa2e65"] {
-  background: #ba2626;
-  padding: 0.4em 0.6em;
-  color: #ffffff;
-}
-
-[data-nid="n4d7dae0fb3"] {
   background: #ba2626;
   padding: 0.4em 0.6em;
   color: #ffffff;
@@ -1223,9 +1117,6 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
   color: #ffffff;
 }
 
-[data-nid="n8a718fe3be"] thead th { background: #5d5d5d; color: #ffffff; }
-[data-nid="n8a718fe3be"] td:nth-child(1) { background: #cfcfcf; }
-
 [data-nid="nb290d20d28"] {
   background: #000000;
   padding: 0.4em 0.6em;
@@ -1315,8 +1206,6 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
 [data-nid="n46378cf94e"] td:nth-child(7) { color: #1e421e; }
 
 figure { border: none; padding: 0; }
-
-ul[data-marker="-"] { list-style-type: square; }
 
 .section-number {
   display: inline-grid;

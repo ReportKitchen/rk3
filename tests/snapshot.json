@@ -144,10 +144,6 @@
         "Designing Inquiry and Reflection"
       ],
       [
-        2,
-        "Figure 6. The Universal Design for Learning Guidelines"
-      ],
-      [
         3,
         "Supporting Performance Through Assessment"
       ],
@@ -209,14 +205,14 @@
       ]
     ],
     "counts": {
-      "aside": 26,
-      "figure": 8,
+      "aside": 25,
+      "figure": 9,
       "footnotes": 2,
-      "heading": 51,
+      "heading": 50,
       "list": 15,
       "paragraph": 191
     },
-    "asideChildren": 247,
+    "asideChildren": 205,
     "notes": [
       1,
       2,
@@ -292,8 +288,8 @@
       72,
       73
     ],
-    "questions": 18,
-    "textChars": 263628
+    "questions": 16,
+    "textChars": 260861
   },
   "02--advancing-mobility-from-poverty": {
     "status": "done",
@@ -1207,8 +1203,8 @@
       25,
       26
     ],
-    "questions": 76,
-    "textChars": 331089
+    "questions": 75,
+    "textChars": 331043
   },
   "02--atlantic-council-report-060823": {
     "status": "done",
@@ -1552,16 +1548,16 @@
       ]
     ],
     "counts": {
-      "aside": 13,
-      "figure": 30,
+      "aside": 9,
+      "figure": 36,
       "flag": 1,
       "footnotes": 1,
       "heading": 84,
       "list": 12,
-      "paragraph": 176,
+      "paragraph": 177,
       "table": 6
     },
-    "asideChildren": 56,
+    "asideChildren": 26,
     "notes": [
       1,
       2,
@@ -1642,8 +1638,6 @@
       77,
       78,
       79,
-      80,
-      81,
       82,
       83,
       84,
@@ -1691,7 +1685,7 @@
       126
     ],
     "questions": 17,
-    "textChars": 155725
+    "textChars": 148249
   },
   "02--baystate-case-study-021624": {
     "status": "done",
@@ -1814,10 +1808,6 @@
         "COUNTING THE COSTS OF AIR POLLUTION"
       ],
       [
-        6,
-        "FIGURE 1: THE ADVERSE IMPACTS OF AIR POLLUTION GLOBALLY"
-      ],
-      [
         3,
         "HOW REDUCING AIR POLLUTION DRIVES HEALTH GAINS"
       ],
@@ -1878,10 +1868,6 @@
         "FUNDERS FOCUS ON AWARENESS, IMPACTS AND POLICY PROJECTS"
       ],
       [
-        5,
-        "FILLING IN FUNDING GAPS"
-      ],
-      [
         3,
         "THE TIME IS RIPE FOR PHILANTHROPY TO EMBRACE CLEAN AIR AS A ROUTE TO BETTER HEAL"
       ],
@@ -1899,15 +1885,15 @@
       ]
     ],
     "counts": {
-      "aside": 18,
-      "figure": 12,
+      "aside": 14,
+      "figure": 16,
       "flag": 1,
       "footnotes": 1,
-      "heading": 30,
+      "heading": 28,
       "list": 7,
       "paragraph": 74
     },
-    "asideChildren": 89,
+    "asideChildren": 49,
     "notes": [
       1001,
       1002,
@@ -1982,8 +1968,8 @@
       61,
       62
     ],
-    "questions": 18,
-    "textChars": 77053
+    "questions": 13,
+    "textChars": 76660
   },
   "02--community-schools": {
     "status": "done",
@@ -2416,7 +2402,7 @@
     ],
     "counts": {
       "aside": 41,
-      "figure": 31,
+      "figure": 28,
       "footnotes": 1,
       "heading": 106,
       "paragraph": 908
@@ -3006,7 +2992,7 @@
     ],
     "counts": {
       "aside": 10,
-      "figure": 28,
+      "figure": 27,
       "flag": 1,
       "footnotes": 2,
       "heading": 38,
@@ -3328,14 +3314,14 @@
       ]
     ],
     "counts": {
-      "aside": 37,
-      "figure": 9,
+      "aside": 24,
+      "figure": 14,
       "footnotes": 1,
       "heading": 42,
       "list": 16,
-      "paragraph": 358
+      "paragraph": 252
     },
-    "asideChildren": 117,
+    "asideChildren": 88,
     "notes": [
       1,
       2,
@@ -3343,8 +3329,8 @@
       4,
       5
     ],
-    "questions": 9,
-    "textChars": 131507
+    "questions": 3,
+    "textChars": 128877
   },
   "02--oxfam-davos-2024-report": {
     "status": "done",
@@ -3662,7 +3648,7 @@
       "footnotes": 2,
       "heading": 76,
       "list": 14,
-      "paragraph": 246
+      "paragraph": 240
     },
     "asideChildren": 37,
     "notes": [
@@ -4144,7 +4130,7 @@
       476
     ],
     "questions": 13,
-    "textChars": 386363
+    "textChars": 385970
   },
   "02--points-of-light": {
     "status": "done",
@@ -4308,14 +4294,14 @@
       ]
     ],
     "counts": {
-      "aside": 7,
-      "figure": 11,
+      "aside": 6,
+      "figure": 12,
       "footnotes": 1,
       "heading": 39,
       "list": 18,
       "paragraph": 160
     },
-    "asideChildren": 21,
+    "asideChildren": 15,
     "notes": [
       1,
       2,
@@ -4369,7 +4355,7 @@
       46
     ],
     "questions": 10,
-    "textChars": 89327
+    "textChars": 89041
   },
   "02--race-to-lead": {
     "status": "done",
@@ -4457,14 +4443,6 @@
       ],
       [
         4,
-        "categorizing organizational types"
-      ],
-      [
-        3,
-        "Experiences in Organizations"
-      ],
-      [
-        4,
         "organization type and impact on experiences"
       ],
       [
@@ -4533,15 +4511,14 @@
       ]
     ],
     "counts": {
-      "aside": 24,
-      "columns": 2,
-      "figure": 80,
+      "aside": 7,
+      "figure": 62,
       "footnotes": 2,
-      "heading": 39,
-      "list": 2,
-      "paragraph": 316
+      "heading": 37,
+      "list": 1,
+      "paragraph": 126
     },
-    "asideChildren": 55,
+    "asideChildren": 30,
     "notes": [
       1,
       2,
@@ -4572,8 +4549,8 @@
       27,
       28
     ],
-    "questions": 39,
-    "textChars": 108106
+    "questions": 6,
+    "textChars": 102061
   },
   "02--respond-to-crisis": {
     "status": "done",
@@ -4733,14 +4710,14 @@
       ]
     ],
     "counts": {
-      "aside": 12,
-      "figure": 13,
+      "aside": 8,
+      "figure": 17,
       "flag": 1,
       "footnotes": 2,
       "heading": 38,
-      "paragraph": 117
+      "paragraph": 115
     },
-    "asideChildren": 151,
+    "asideChildren": 35,
     "notes": [
       1,
       2,
@@ -4765,8 +4742,8 @@
       21,
       675
     ],
-    "questions": 37,
-    "textChars": 75198
+    "questions": 32,
+    "textChars": 69929
   },
   "02--rock-farm-to-fim": {
     "status": "done",
@@ -5115,10 +5092,6 @@
       ],
       [
         6,
-        "FIGURE 1. EXPANSION IN NUMBER OF PROJECTS AND DISBURSEMENTS 2021-2023"
-      ],
-      [
-        6,
         "MAP 1. TENURE FACILITY REACH IN 2023: TOTAL PROJECTS AND COUNTRIES"
       ],
       [
@@ -5132,10 +5105,6 @@
       [
         2,
         "What Did We Achieve?"
-      ],
-      [
-        6,
-        "FIGURE 2. SUMMARY OF PROJECTS RESULTS, 2023"
       ],
       [
         6,
@@ -5222,10 +5191,6 @@
         "FINANCIALS"
       ],
       [
-        6,
-        "FIGURE 3: EXPENDITURE GROWTH AND ALLOCATION, 2021-2023"
-      ],
-      [
         2,
         "What Next?"
       ],
@@ -5260,12 +5225,12 @@
     ],
     "counts": {
       "aside": 20,
-      "figure": 48,
+      "figure": 49,
       "flag": 1,
       "footnotes": 1,
-      "heading": 60,
+      "heading": 57,
       "list": 3,
-      "paragraph": 301,
+      "paragraph": 261,
       "table": 4
     },
     "asideChildren": 110,
@@ -5293,8 +5258,8 @@
       1006,
       1007
     ],
-    "questions": 15,
-    "textChars": 125403
+    "questions": 17,
+    "textChars": 125070
   },
   "02--chep-300pages": {
     "status": "done",
@@ -6118,16 +6083,16 @@
       ]
     ],
     "counts": {
-      "aside": 181,
-      "figure": 96,
+      "aside": 179,
+      "figure": 98,
       "flag": 1,
       "footnotes": 1,
       "heading": 204,
       "list": 41,
-      "paragraph": 716,
+      "paragraph": 715,
       "table": 24
     },
-    "asideChildren": 447,
+    "asideChildren": 444,
     "notes": [
       1,
       1001,
@@ -6176,7 +6141,7 @@
       1016
     ],
     "questions": 105,
-    "textChars": 628853
+    "textChars": 628984
   },
   "02--compelling-investment-case-climate-adaptation": {
     "status": "done",
@@ -6247,12 +6212,12 @@
       "aside": 1,
       "figure": 3,
       "heading": 15,
-      "paragraph": 53
+      "paragraph": 48
     },
     "asideChildren": 8,
     "notes": [],
     "questions": 7,
-    "textChars": 13382
+    "textChars": 13245
   },
   "02--covid": {
     "status": "done",
@@ -6660,14 +6625,6 @@
         "2.2 One Thing Leads to Another: Resilience is an Upward Spiral"
       ],
       [
-        4,
-        "Downward Spiral"
-      ],
-      [
-        4,
-        "Upward Spiral"
-      ],
-      [
         5,
         "2.3 The Downward Spiral: Capital"
       ],
@@ -6682,14 +6639,6 @@
       [
         6,
         "Losses Compound"
-      ],
-      [
-        6,
-        "CASE STUDY 2.2"
-      ],
-      [
-        6,
-        "Slovenia Flooding Disrupts Global Automotive Supply Chain"
       ],
       [
         6,
@@ -6785,10 +6734,6 @@
       ],
       [
         6,
-        "Yield trend russet burbank"
-      ],
-      [
-        6,
         "CASE STUDY 2.12"
       ],
       [
@@ -6862,10 +6807,6 @@
       [
         6,
         "World Bank Adaptation and Resilience Assessments270"
-      ],
-      [
-        6,
-        "CASE STUDY 3.2"
       ],
       [
         6,
@@ -7361,17 +7302,16 @@
       ]
     ],
     "counts": {
-      "aside": 35,
-      "columns": 2,
-      "figure": 85,
+      "aside": 34,
+      "figure": 84,
       "flag": 1,
       "footnotes": 1,
-      "heading": 209,
-      "list": 59,
-      "paragraph": 555,
-      "table": 10
+      "heading": 203,
+      "list": 57,
+      "paragraph": 465,
+      "table": 9
     },
-    "asideChildren": 271,
+    "asideChildren": 270,
     "notes": [
       1,
       2,
@@ -7796,8 +7736,8 @@
       425,
       426
     ],
-    "questions": 33,
-    "textChars": 402293
+    "questions": 29,
+    "textChars": 398143
   },
   "02--rwjf-futures": {
     "status": "done",
@@ -9641,10 +9581,6 @@
       ],
       [
         6,
-        "FY 2024 OPERATING EXPENSES"
-      ],
-      [
-        6,
         "SECTORS REPRESENTED"
       ],
       [
@@ -9654,10 +9590,6 @@
       [
         6,
         "WHO AND WHERE THEY SERVE"
-      ],
-      [
-        6,
-        "NUMBER OF RESPONDENTS PER STATE"
       ],
       [
         6,
@@ -9721,87 +9653,7 @@
       ],
       [
         6,
-        "TOP THREE CRITICAL COMMUNITY NEEDS"
-      ],
-      [
-        6,
-        "ACCESS TO CAPITAL"
-      ],
-      [
-        6,
-        "ACCESS TO MENTAL AND BEHAVIORAL HEALTH SERVICES"
-      ],
-      [
-        6,
-        "AFFORDABLE HOUSING"
-      ],
-      [
-        6,
-        "CHILDCARE/EARLY CHILDHOOD EDUCATION"
-      ],
-      [
-        6,
-        "COMMUNITY BUILDING"
-      ],
-      [
-        6,
-        "ECONOMIC DEVELOPMENT"
-      ],
-      [
-        6,
-        "FINANCIAL SECURITY/STABILITY/CAPABILITY"
-      ],
-      [
-        6,
-        "FOOD SECURITY"
-      ],
-      [
-        6,
-        "IMPROVING K-12 EDUCATION/READINESS FOR POST-SECONDARY EDUCATION"
-      ],
-      [
-        6,
-        "RACIAL JUSTICE/ADVANCING RACIAL EQUITY"
-      ],
-      [
-        6,
-        "SERVICES FOR PEOPLE EXPERIENCING HOMELESSNESS"
-      ],
-      [
-        6,
-        "YOUTH PROGRAMS AND SERVICES"
-      ],
-      [
-        6,
-        "RANK 2 RANK 3"
-      ],
-      [
-        6,
         "WITH CURRENT RESOURCES, NONPROFITS ARE STRUGGLING TO MEET RISING COMMUNITY NEEDS"
-      ],
-      [
-        6,
-        "SERVICE DEMAND BETWEEN FY 2023 AND FY 2024"
-      ],
-      [
-        6,
-        "SIGNIFICANTLY DECREASED (>10%)"
-      ],
-      [
-        6,
-        "SLIGHTLY DECREASED (1-10%)"
-      ],
-      [
-        6,
-        "ANTICIPATED SERVICE DEMAND IN FY 2025"
-      ],
-      [
-        6,
-        "SIGNIFICANTLY DECREASE (>10%)"
-      ],
-      [
-        6,
-        "SLIGHTLY DECREASE (1-10%)"
       ],
       [
         3,
@@ -9845,71 +9697,11 @@
       ],
       [
         6,
-        "A SIGNIFICANT OPERATING SURPLUS (>10%)"
-      ],
-      [
-        6,
-        "A SLIGHT OPERATING SURPLUS (1-10%)"
-      ],
-      [
-        6,
-        "BREAK-EVEN FINANCIALS"
-      ],
-      [
-        6,
-        "FY 2024 OPERATING RESULTS"
-      ],
-      [
-        6,
-        "A SLIGHT OPERATING DEFICIT (1-10%)"
-      ],
-      [
-        6,
-        "A SIGNIFICANT OPERATING DEFICIT (>10%)"
-      ],
-      [
-        6,
         "OPERATING RESULTS DATA OVER TIME (FY 2014 - FY 2024)"
       ],
       [
         6,
-        "SURPLUS BREAK-EVEN DEFICIT"
-      ],
-      [
-        6,
         "MANY ORGANIZATIONS HAVE LITTLE SAVINGS IN THE BANK"
-      ],
-      [
-        6,
-        "MONTHS OF CASH ON HAND"
-      ],
-      [
-        6,
-        "<1 TO 1 MONTH OF CASH"
-      ],
-      [
-        6,
-        "2 MONTHS OF CASH"
-      ],
-      [
-        6,
-        "3 MONTHS OF CASH"
-      ],
-      [
-        6,
-        "4 MONTHS OF CASH"
-      ],
-      [
-        6,
-        "5 MONTHS OF CASH"
-      ],
-      [
-        6,
-        "6 MONTHS OF CASH"
-      ],
-      [
-        6,
-        ">6 MONTHS OF CASH"
       ],
       [
         6,
@@ -9918,10 +9710,6 @@
       [
         6,
         "FUNDER DYNAMICS"
-      ],
-      [
-        6,
-        "FY 2024 REVENUE SOURCES"
       ],
       [
         6,
@@ -9949,31 +9737,7 @@
       ],
       [
         6,
-        "MORE THAN 90 DAYS LATE"
-      ],
-      [
-        6,
         "ANTICIPATED CHANGE IN GOVT FUNDING AS A RESULT OF 2024 ELECTION"
-      ],
-      [
-        6,
-        "SIGNIFICANTLY INCREASE (MORE THAN 10%)"
-      ],
-      [
-        6,
-        "SLIGHTLY INCREASE (1 TO 10%)"
-      ],
-      [
-        6,
-        "STAY THE SAME"
-      ],
-      [
-        6,
-        "SLIGHTLY DECREASE (1 TO 10%)"
-      ],
-      [
-        6,
-        "SIGNIFICANTLY DECREASE (MORE THAN 10%)"
       ],
       [
         3,
@@ -9989,27 +9753,7 @@
       ],
       [
         6,
-        "ALL STAFF"
-      ],
-      [
-        6,
-        "HALF OR MORE OF STAFF"
-      ],
-      [
-        6,
-        "LESS THAN HALF OF STAFF"
-      ],
-      [
-        6,
-        "NONE OF THE STAFF"
-      ],
-      [
-        6,
         "BENEFITS ARE LIMITED–ESPECIALLY FOR SMALLER ORGANIZATIONS"
-      ],
-      [
-        6,
-        "BENEFITS MADE AVAILABLE IN FY 2024"
       ],
       [
         6,
@@ -10017,43 +9761,7 @@
       ],
       [
         6,
-        "MANAGEMENT CHALLENGES IN FY 2024"
-      ],
-      [
-        6,
-        "EMPLOYING ENOUGH STAFF TO DO ALL THE PROGRAMMATIC WORK"
-      ],
-      [
-        6,
-        "EMPLOYING ENOUGH STAFF TO DO ALL THE OPERATIONAL/ADMINISTRATIVE WORK"
-      ],
-      [
-        6,
-        "FINDING STAFF WITH THE RIGHT SKILL SETS"
-      ],
-      [
-        6,
-        "HIGH COST OF LIVING WHERE ORGANIZATION IS LOCATED"
-      ],
-      [
-        6,
-        "IDENTIFYING AND DEVELOPING OUR ORGANIZATION’S NEXT GENERATION OF LEADERS"
-      ],
-      [
-        6,
         "PROVIDING FOR STAFF WELLNESS (E.G., FLEXIBLE HOURS, WORKING FROM HOME)"
-      ],
-      [
-        6,
-        "EXECUTIVE DIRECTOR/SENIOR LEADERSHIP BURNOUT"
-      ],
-      [
-        6,
-        "STAFF BURNOUT"
-      ],
-      [
-        6,
-        "SOME OTHER MANAGEMENT CHALLENGE"
       ],
       [
         4,
@@ -10109,17 +9817,17 @@
       "figure": 42,
       "flag": 1,
       "footnotes": 2,
-      "heading": 126,
+      "heading": 68,
       "list": 11,
-      "paragraph": 110,
+      "paragraph": 60,
       "table": 1
     },
     "asideChildren": 71,
     "notes": [
       163
     ],
-    "questions": 29,
-    "textChars": 43143
+    "questions": 19,
+    "textChars": 40465
   },
   "03--native-forward-scholars-2024-2025-annual-report": {
     "status": "failed",
@@ -10219,19 +9927,20 @@
       ]
     ],
     "counts": {
-      "aside": 22,
-      "figure": 37,
+      "aside": 20,
+      "figure": 39,
+      "flag": 1,
       "footnotes": 1,
       "heading": 22,
       "paragraph": 62
     },
-    "asideChildren": 124,
+    "asideChildren": 111,
     "notes": [
       1,
       2,
       3
     ],
-    "questions": 19,
-    "textChars": 24965
+    "questions": 17,
+    "textChars": 23947
   }
 }

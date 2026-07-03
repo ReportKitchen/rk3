@@ -48,12 +48,6 @@ h6 {
   font-size: 1.3rem;
 }
 
-a {
-  color: #215e9e;
-  text-decoration: none;
-}
-a:hover { text-decoration: underline; }
-
 strong.c-000000 { color: #000000; font-weight: inherit; }
 
 .xl-medium-panel-alt {
@@ -113,10 +107,6 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   font-size: 0.8em;
 }
 
-.fine {
-  font-size: 0.7em;
-}
-
 .lg-strong-alt {
   font-family: "Inter", sans-serif;
   font-weight: 700;
@@ -136,6 +126,10 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   font-family: "Inter", sans-serif;
   font-weight: 700;
   font-size: 1.2em;
+}
+
+.fine {
+  font-size: 0.7em;
 }
 
 .lg-medium-alt {
@@ -253,23 +247,6 @@ strong.c-000000 { color: #000000; font-weight: inherit; }
   background: #0d393b;
   border: none;
   border-bottom: 4px solid #879fa0;
-  border-left: 1px solid #ff3b21;
-  border-right: 1px solid #ff3b21;
-  border-top: 1px solid #ff3b21;
-}
-
-[data-nid="n11bb38898b"] {
-  background: #0d393b;
-  border: none;
-  border-bottom: 4px solid #d1d7e8;
-  border-left: 1px solid #ff3b21;
-  border-top: 1px solid #ff3b21;
-}
-
-[data-nid="n1d6e1bdc66"] {
-  background: #0d393b;
-  border: none;
-  border-bottom: 4px solid #daf0de;
   border-left: 1px solid #ff3b21;
   border-right: 1px solid #ff3b21;
   border-top: 1px solid #ff3b21;

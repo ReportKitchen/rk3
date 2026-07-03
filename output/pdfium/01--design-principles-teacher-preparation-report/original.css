@@ -43,38 +43,9 @@ a {
 a:hover { text-decoration: underline; }
 
 [data-nid="nd3fecc6bb4"] a,
-[data-nid="ne6479f19cb"] a,
-[data-nid="naa8e862520"] a,
-[data-nid="nb66c4c2ba4"] a,
-[data-nid="n820fefb987"] a,
-[data-nid="nf76103c381"] a,
-[data-nid="n01725edcb4"] a,
-[data-nid="n7a8e292ce8"] a,
-[data-nid="nc959cf3bc5-4"] a,
-[data-nid="n0d98b653db"] a,
-[data-nid="nf5b4d30725"] a,
-[data-nid="n0fd1baaaab"] a,
-[data-nid="nb9b9084a95"] a,
-[data-nid="nc837104144"] a,
-[data-nid="n0d98b653db-2"] a,
-[data-nid="n6f72d8a662"] a,
-[data-nid="n0fd1baaaab-2"] a,
-[data-nid="n2c0525753c"] a,
-[data-nid="nbc7e64deb7"] a,
-[data-nid="ndd5898a9a4"] a,
-[data-nid="n0d98b653db-3"] a,
-[data-nid="na85f308a5e"] a,
-[data-nid="n0fd1baaaab-3"] a,
-[data-nid="n2cf3bc3830"] a,
-[data-nid="nee7a287711"] a,
-[data-nid="na8002f7a0b"] a { color: #000000; }
-
-[data-nid="n415db423f9"] a { color: #addabe; }
+[data-nid="ne6479f19cb"] a { color: #000000; }
 
 strong.c-231f20 { color: #231f20; font-weight: inherit; }
-strong.c-a8def3 { color: #a8def3; font-weight: inherit; }
-strong.c-addabe { color: #addabe; font-weight: inherit; }
-strong.c-cabfd9 { color: #cabfd9; font-weight: inherit; }
 
 .fine {
   font-size: 0.86em;
@@ -181,46 +152,6 @@ strong.c-cabfd9 { color: #cabfd9; font-weight: inherit; }
 .strong-alt {
   font-family: var(--rkf-lato, "Lato", sans-serif);
   font-weight: 800;
-}
-
-.sm-medium-alt-2 {
-  font-family: var(--rkf-lato, "Lato", sans-serif);
-  font-weight: 500;
-  font-size: 0.47em;
-}
-
-.sm-strong-alt {
-  font-family: var(--rkf-lato, "Lato", sans-serif);
-  font-weight: 800;
-  font-size: 0.71em;
-}
-
-.sm-alt-6 {
-  font-family: var(--rkf-lato, "Lato", sans-serif);
-  font-size: 0.55em;
-}
-
-.sm-strong-alt-2 {
-  font-family: var(--rkf-lato, "Lato", sans-serif);
-  font-weight: 800;
-  font-size: 0.63em;
-}
-
-.sm-alt-7 {
-  font-family: var(--rkf-lato, "Lato", sans-serif);
-  font-size: 0.02em;
-}
-
-.sm-alt-8 {
-  font-family: var(--rkf-lato, "Lato", sans-serif);
-  color: #000000;
-  font-size: 0.41em;
-}
-
-[data-nid="nd21b21226f"] .soft-header {
-  font-family: var(--rkf-lato, "Lato", sans-serif);
-  font-weight: 800;
-  color: #000000;
 }
 
 [data-nid="n36d673ebcd"] {
@@ -342,15 +273,6 @@ strong.c-cabfd9 { color: #cabfd9; font-weight: inherit; }
 [data-nid="nc71864c4c1"] {
   background: #f5f2ee;
   border: none;
-}
-
-[data-nid="nee3aba98f1"] {
-  color: #231f20;
-}
-
-[data-nid="nb7bdcd25bd"] {
-  background: transparent;
-  border: 1px solid #d8dad9;
 }
 
 [data-nid="n601493e702"] {

@@ -50,20 +50,6 @@ h6 {
   font-size: 1.27rem;
 }
 
-a {
-  color: #025881;
-  text-decoration: none;
-}
-a:hover { text-decoration: underline; }
-
-[data-nid="ncf7a9df11c"] a,
-[data-nid="n446f0303a6"] a { color: #149a7c; }
-
-[data-nid="nddfb0ac5c0"] a,
-[data-nid="nb9afda7afa"] a { color: #1f8ca5; }
-
-[data-nid="n4468e7e039"] a { color: #eabf60; }
-
 strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
 
 .strong-alt {
@@ -75,10 +61,6 @@ strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
   font-family: "Karla", sans-serif;
   font-weight: 700;
   font-size: 1.09em;
-}
-
-.centered {
-  text-align: center;
 }
 
 .fine {
@@ -98,49 +80,8 @@ strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
   font-size: 1.18em;
 }
 
-.xl-strong-alt {
-  font-family: "Karla", sans-serif;
-  font-weight: 700;
-  font-size: 2.33em;
-}
-
-.large {
-  font-size: 1.15em;
-}
-
 .fine-2 {
   font-size: 0.73em;
-}
-
-.xl-strong-alt-2 {
-  font-family: "Karla", sans-serif;
-  font-weight: 700;
-  font-size: 3.44em;
-}
-
-.lg-strong-alt-2 {
-  font-family: "Karla", sans-serif;
-  font-weight: 700;
-  font-size: 1.36em;
-}
-
-.xl-strong-alt-3 {
-  font-family: "Karla", sans-serif;
-  font-weight: 700;
-  font-size: 3.35em;
-}
-
-.lg-strong-alt-3 {
-  font-family: "Karla", sans-serif;
-  font-weight: 700;
-  font-size: 1.33em;
-}
-
-.xl-strong-alt-4 {
-  font-family: "Karla", sans-serif;
-  font-weight: 700;
-  color: #283434;
-  font-size: 3.35em;
 }
 
 .strong-center-alt {
@@ -171,13 +112,6 @@ strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
   color: #1f8ca5;
 }
 
-[data-nid="n8334428938"] {
-  background: #ea581d;
-  border: none;
-  border-bottom: 5px solid #ffffff;
-  border-left: 5px solid #ffffff;
-}
-
 [data-nid="n6e9d74456d"] {
   background: #ccdae4;
   border: none;
@@ -202,12 +136,6 @@ strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
 [data-nid="nd9570652cb"] {
   background: #dc5e6c;
   padding: 0.4em 0.6em;
-}
-
-[data-nid="n2d7f431868"] {
-  background: #a7aeab;
-  border: none;
-  border-left: 1px solid #025881;
 }
 
 [data-nid="n8227202d49"] {
@@ -236,11 +164,6 @@ strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
   border: none;
 }
 
-[data-nid="n996fed425b"] {
-  background: #a7aeab;
-  border: none;
-}
-
 [data-nid="nc6da7fd7b9"] {
   background: #f8dfe2;
   border: none;
@@ -260,11 +183,6 @@ strong.c-2a3535 { color: #2a3535; font-weight: inherit; }
   float: right;
   width: 28%;
   margin: 0 0 1rem 1.5rem;
-}
-
-[data-nid="ncb3ddfa2c3"] {
-  background: #a7aeab;
-  border: none;
 }
 
 [data-nid="n6f59e97255"] {

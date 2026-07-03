@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 187
+VERSION = 196
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -346,6 +346,14 @@ def run(ctx):
     for reg in regions:
         for bi in reg["blockIdx"]:
             absorbed[bi] = reg
+    # figures plan, #vision batch — the owner's assembly rule: a figure
+    # STARTS WITH ITS TITLE and ENDS WITH ITS CAPTION, everything between
+    # belongs to it. Titled charts assemble as one region each (merging
+    # sliver crops and interior mini-asides); untitled charts still grow
+    # from their graphics cluster.
+    regions = _assemble_titled_figures(ctx, regions, blocks, texts,
+                                       body_size, absorbed)
+    _grow_chart_regions(ctx, regions, blocks, texts, body_size, absorbed)
     _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles)
     absorbed.update(dict.fromkeys(skip))
 
@@ -1051,6 +1059,43 @@ def _classify_cluster(ctx, page, cluster, blocks, texts, body_size, top_size=Non
     else:
         return None
 
+    # a figure crop RASTERS everything in its bbox: live body prose (text we
+    # are NOT absorbing) must never appear in it, or the render shows that
+    # text twice — pixels + live (race p10: a decorative header band CLIPPED
+    # the opening paragraph's first line into its crop, the vision scan's
+    # "truncated duplicate"). Trim the bbox edge away from clipped prose;
+    # drop the region entirely when prose overlaps it deeply.
+    if kind == "figure":
+        area = max((bbox[2] - bbox[0]) * (bbox[3] - bbox[1]), 1.0)
+        leak = 0.0
+        bbox = list(bbox)
+        for i, blk in enumerate(blocks):
+            if blk["page"] != page["n"] or i in inside:
+                continue
+            bb = blk["bbox"]
+            ov = (max(0.0, min(bb[2], bbox[2]) - max(bb[0], bbox[0]))
+                  * max(0.0, min(bb[3], bbox[3]) - max(bb[1], bbox[1])))
+            if ov <= 0 or len(texts[i]) <= 60 \
+                    or not re.search(r"[.!?]", texts[i]) \
+                    or _dominant_size(blk) >= 1.25 * body_size:
+                continue
+            cy = (bb[1] + bb[3]) / 2
+            if cy < bbox[1]:               # prose hangs off the bottom edge
+                bbox[1] = min(bbox[3], bb[3] + 2)
+                ctx.log.entry("region-trimmed", page=page["n"],
+                              edge="bottom", clear_of=texts[i][:50])
+            elif cy > bbox[3]:             # prose hangs off the top edge
+                bbox[3] = max(bbox[1], bb[1] - 2)
+                ctx.log.entry("region-trimmed", page=page["n"],
+                              edge="top", clear_of=texts[i][:50])
+            else:
+                leak += ov
+        if leak > 0.25 * area:
+            ctx.log.entry("region-decoration", page=page["n"],
+                          bbox=[round(v, 1) for v in bbox],
+                          reason="figure crop would raster live body prose")
+            return None
+
     # big text is excluded only from figures (hero-photo titles must survive
     # the crop); a callout's oversized text is its headline and belongs inside
     absorbed_idx = inside if kind == "figure" else sorted(inside + big_inside)
@@ -1062,7 +1107,8 @@ def _classify_cluster(ctx, page, cluster, blocks, texts, body_size, top_size=Non
                        reason=(why or f"images={n_images} shadings={n_shade} "
                                f"paths={n_paths} chars_inside={chars_inside}"))
     return {"kind": kind, "page": page["n"], "bbox": bbox, "rk": rk,
-            "uncertain": uncertain, "blockIdx": absorbed_idx, **style}
+            "uncertain": uncertain, "blockIdx": absorbed_idx,
+            "nPaths": n_paths, "nImages": n_images, **style}
 
 
 SEG_LINETO, SEG_MOVETO = 0, 2
@@ -1132,6 +1178,203 @@ def _seg_sides(segs, bbox, tol):
         if close and cur and start:
             classify(cur, start)
     return sides
+
+
+_FIG_TITLE = re.compile(r"(figure|fig\.|exhibit|chart)\s*(\d+|[A-Z]+\.?\d*)?\s*[|:.]",
+                        re.I)
+
+
+def _assemble_titled_figures(ctx, regions, blocks, texts, body_size, absorbed):
+    """The owner's figure rule (race-to-lead #vision batch): a figure STARTS
+    WITH ITS TITLE ('figure 2 | race/ethnicity') and ENDS WITH ITS CAPTION —
+    everything in between belongs to it. For each title kicker, the band
+    runs from the title down to the first body-prose block or the next
+    title; every block, sliver figure region, and mini-aside inside the
+    band merges into ONE figure region whose crop covers the whole chart.
+    Titles at the same height (side-by-side charts: fig 3 | fig 4) split
+    the band at their x boundaries."""
+    # title candidates: short kicker lines matching the figure-label shape.
+    # A kicker often sits INSIDE its chart's graphics cluster and was
+    # absorbed by that region (race p15/p17: fig 10/12) — those count too;
+    # the holding region is consumed into the assembly below.
+    titles = []   # (block idx, bbox, holding region or None)
+    for i, blk in enumerate(blocks):
+        holder = absorbed.get(i)
+        if holder is not None and (holder.get("assembled")
+                                   or holder.get("hero")
+                                   or holder["kind"] not in ("figure",
+                                                             "callout")):
+            continue
+        if len(texts[i]) <= 90 and _FIG_TITLE.match(texts[i]):
+            titles.append((i, blk["bbox"], holder))
+    if not titles:
+        return regions
+
+    def prose(i):
+        return (len(texts[i]) > 60 and re.search(r"[.!?]", texts[i])
+                and _dominant_size(blocks[i]) >= 0.9 * body_size)
+
+    assembled = []
+    consumed_regions = set()
+    by_page = {}
+    for ti, tb, hold in titles:
+        by_page.setdefault(blocks[ti]["page"], []).append((ti, tb, hold))
+    for page_n, page_titles in by_page.items():
+        page_titles.sort(key=lambda t: -t[1][3])   # top-down
+        for ti, tb, hold in page_titles:
+            # side-by-side partners: other titles overlapping this one in y
+            partners = [ob for oi, ob, _h in page_titles
+                        if oi != ti and min(tb[3], ob[3]) - max(tb[1], ob[1]) > 0]
+            # the kicker sits at its chart's left edge: anchoring the band
+            # there keeps a side column of body prose from flooring the band
+            # (race p13: fig 8 fills the tall right column, text runs left)
+            x_lo = tb[0] - 12.0
+            x_hi = 10_000.0
+            for ob in partners:
+                if ob[0] > tb[0]:            # partner to the right
+                    x_hi = min(x_hi, ob[0] - 2)
+                elif ob[0] < tb[0]:          # partner to the left
+                    x_lo = max(x_lo, ob[2] + 2)
+            # band floor: nearest body-prose block or lower title below us
+            floor = 0.0
+            for i, blk in enumerate(blocks):
+                if blk["page"] != page_n or blk["bbox"][3] >= tb[1]:
+                    continue
+                if blk["bbox"][2] <= x_lo or blk["bbox"][0] >= x_hi:
+                    continue
+                if prose(i):
+                    floor = max(floor, blk["bbox"][3])
+            for oi, ob, _h in page_titles:
+                if oi != ti and ob[3] < tb[1] and ob[2] > x_lo and ob[0] < x_hi:
+                    floor = max(floor, ob[3] + 1)
+            band = (x_lo, floor, x_hi, tb[1])
+
+            def inside(bb):
+                cx, cy = (bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2
+                return (band[0] <= cx <= band[2]
+                        and band[1] < cy < band[3])
+
+            members = [i for i, blk in enumerate(blocks)
+                       if blk["page"] == page_n and i not in absorbed
+                       and not prose(i) and inside(blk["bbox"])
+                       and not _noteish_block(blk, texts[i])
+                       # caption material stays LIVE for binding — a small
+                       # "Source: …" line inside the band must become the
+                       # figure's caption leaf, not crop pixels (oxfam p13,
+                       # dp p10's Source line)
+                       and not re.match(r"(source|note)s?\s*[:.]", texts[i],
+                                        re.I)
+                       and not _FIG_TITLE.match(texts[i])]
+            sub_regs = [r for r in regions
+                        if id(r) not in consumed_regions
+                        and r["page"] == page_n and r["kind"] in ("figure",
+                                                                  "callout")
+                        and not r.get("hero") and inside(r["bbox"])]
+            if hold is not None and id(hold) not in consumed_regions \
+                    and not any(r is hold for r in sub_regs):
+                sub_regs.append(hold)   # the region holding the kicker
+            if not members and not sub_regs:
+                continue
+            # the title renders LIVE as the figure's caption leaf — it stays
+            # out of the crop's blocks and bbox (else it appears twice:
+            # pixels + text, the F2 duplicate all over again)
+            bbox = None
+            block_idx = [i for i in members if i != ti]
+            for r in sub_regs:
+                consumed_regions.add(id(r))
+                block_idx.extend(i for i in r["blockIdx"] if i != ti)
+                bbox = _union(bbox, r["bbox"]) if bbox else list(r["bbox"])
+            for i in block_idx:
+                bbox = _union(bbox, blocks[i]["bbox"]) if bbox \
+                    else list(blocks[i]["bbox"])
+            if bbox is None:
+                continue
+            bbox[3] = min(bbox[3], tb[1] - 1)  # crop starts below the kicker
+            if bbox[3] <= bbox[1]:
+                continue
+            rk = ctx.log.entry(
+                "figure", page=page_n, bbox=[round(v, 1) for v in bbox],
+                reason=f"assembled from title kicker: {texts[ti][:50]!r} "
+                       f"({len(block_idx)} blocks, {len(sub_regs)} regions)")
+            reg = {"kind": "figure", "page": page_n, "bbox": bbox, "rk": rk,
+                   "uncertain": False, "blockIdx": block_idx,
+                   "title": texts[ti], "titleIdx": ti,
+                   "titleBlock": blocks[ti]["rk"], "assembled": True,
+                   "nPaths": 0, "nImages": 0}
+            absorbed[ti] = reg
+            for i in block_idx:
+                absorbed[i] = reg
+            assembled.append(reg)
+    if not assembled:
+        return regions
+    return [r for r in regions if id(r) not in consumed_regions] + assembled
+
+
+def _grow_chart_regions(ctx, regions, blocks, texts, body_size, absorbed):
+    """Region detection clusters a chart's GRAPHICS; its axis, legend, and
+    value labels are typeset outside the cluster and were left as flow
+    paragraphs orbiting a sliver crop (race-to-lead p10-17, the owner's
+    #vision batch — the phase-3 label-soup rule relabeled the slivers
+    without capturing the satellites). Grow each figure region to swallow
+    LABEL-SHAPED text within reach, iterating to a fixed point; the crop
+    then covers the whole chart and its labels render as pixels.
+
+    What never gets swallowed: sentence prose (the body paragraph pressed
+    against a chart), note-shaped blocks (footnote recovery's), and
+    meta/caption lines ('figure 2 | …' — caption binding wants those as
+    live title leaves)."""
+    # only CHART-LIKE figures grow: a vector chart draws many path marks
+    # (bars, gridlines, bubbles). Decorative side graphics and photos have
+    # few or none — growing them ate gates p5's section subheads and the
+    # p6 signature lines as "labels" in the first cut.
+    figs = [r for r in regions
+            if r["kind"] == "figure" and r.get("nPaths", 0) >= 8]
+    if not figs:
+        return
+
+    def gap(bb, rb):
+        dx = max(rb[0] - bb[2], bb[0] - rb[2], 0.0)
+        dy = max(rb[1] - bb[3], bb[1] - rb[3], 0.0)
+        return max(dx, dy)
+
+    def label_shaped(i):
+        blk, text = blocks[i], texts[i]
+        if len(text) > 25 and re.search(r"[.!?]", text):
+            # sentence-lets are prose or CAPTIONS ("Beijing skyline, China.
+            # Photo by Li Yang/Unsplash." — oxfam p4's bound caption must
+            # not be eaten as a chart label); genuine chart labels almost
+            # never carry periods ("childofu.s." stays under the length bar)
+            return False
+        if re.match(r"(figure|fig\.|table|chart|exhibit|box)\b", text, re.I) \
+                or re.match(r"(source|note)s?\s*[:.]", text, re.I):
+            return False           # caption material stays live
+        if _noteish_block(blk, text):
+            return False           # note recovery owns it
+        if _dominant_size(blk) >= 1.05 * body_size:
+            return False           # heading-scale text is never a chart label
+        return (len(text) <= 40 or _dominant_size(blk) < 0.9 * body_size
+                or (blk.get("lines") and max(
+                    _alnum(ln.get("text", "")) for ln in blk["lines"]) <= 20))
+
+    for _ in range(8):
+        grew = False
+        for i, blk in enumerate(blocks):
+            if i in absorbed or not label_shaped(i):
+                continue
+            near = [(gap(blk["bbox"], r["bbox"]), r) for r in figs
+                    if r["page"] == blk["page"]]
+            near = [(g, r) for g, r in near if g <= 28.0]
+            if not near:
+                continue
+            g, reg = min(near, key=lambda x: x[0])
+            reg["blockIdx"].append(i)
+            reg["bbox"] = _union(reg["bbox"], blk["bbox"])
+            absorbed[i] = reg
+            ctx.log.entry("figure-grown", page=blk["page"], region=reg["rk"],
+                          gap=round(g, 1), text=texts[i][:50])
+            grew = True
+        if not grew:
+            break
 
 
 def _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles):
@@ -2246,6 +2489,12 @@ def _figure_float_evidence(ctx, nodes):
     it later."""
     for n in nodes:
         if n.get("type") != "figure" or (n.get("data") or {}).get("hero"):
+            continue
+        # owner rule: figures are ALMOST NEVER floated. Only bare photos
+        # keep float eligibility — anything with anatomy (a titled chart)
+        # or a vector-svg sidecar (a drawn chart) renders in flow, because
+        # floating chart pieces is what jumbled race-to-lead p10.
+        if n.get("children") or (n.get("data") or {}).get("svg"):
             continue
         m = (getattr(ctx, "column_model", None) or {}).get(n["page"])
         cols = [c for band in (m["bands"] if m else []) for c in band["cols"]]
