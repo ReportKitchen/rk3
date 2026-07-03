@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 168
+VERSION = 170
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -366,6 +366,9 @@ def run(ctx):
     notes, note_idx, notes_place = _find_notes(ctx, pages, blocks, texts,
                                                  note_skip, body_size)
     absorbed.update(dict.fromkeys(note_idx))
+
+    # explicit per-region figure evidence (figures plan phase 1, log-only)
+    _figure_model(ctx, pages, blocks, texts, regions, body_size, note_idx)
 
     main_idx = [i for i in range(len(blocks)) if i not in absorbed]
     levels = _heading_levels(ctx, [blocks[i] for i in main_idx],
@@ -1018,6 +1021,91 @@ def _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles):
                               figure=reg["rk"], gap=round(gap, 1),
                               text=text[:80])
                 break
+
+
+def _figure_model(ctx, pages, blocks, texts, regions, body_size, note_idx):
+    """Phase 1 of plans/figures.md: an EXPLICIT, logged, per-region FIGURE
+    EVIDENCE MODEL — the discipline that made the column flip and the lists
+    sprint safe. LOG-ONLY: one `figure-model` event per region; nothing
+    consumes it until the logged models have been eyeballed against the
+    specimen pages (dp p10 wheel, atlantic p10/p12, tenure p13/p14,
+    good-food p8, gates p61). Evidence captured:
+
+    - images: page-space bbox, coverage fraction of the region, paint index
+      (z among graphics; text layering isn't extracted)
+    - background candidates: an image/fill covering >=0.8 of the region —
+      text over it is designed content, not figure labels (F3)
+    - interior text taxonomy (geometric, not semantic): title / sourceline /
+      note / label / prose per absorbed block, with size ratio and page
+      column-grid alignment — label-vs-prose balance is the F4
+      figure-or-callout discriminator, grid-aligned prose the F3 dissolve
+      signal
+    - the existing single-block title/caption bindings (F1 anatomy seeds)"""
+    for reg in regions:
+        page = pages[reg["page"]]
+        rb = reg["bbox"]
+        ra = max((rb[2] - rb[0]) * (rb[3] - rb[1]), 1.0)
+        imgs, bg = [], []
+        for zi, o in enumerate(page.get("objects", [])):
+            l, b_, r, t = o[1], o[2], o[3], o[4]
+            oa = max((r - l) * (t - b_), 1.0)
+            ov = (max(0.0, min(r, rb[2]) - max(l, rb[0]))
+                  * max(0.0, min(t, rb[3]) - max(b_, rb[1])))
+            if ov < 0.5 * oa:
+                continue
+            cov = round(oa / ra, 2)
+            if o[0] == OBJ_IMAGE:
+                imgs.append({"bbox": [round(v, 1) for v in (l, b_, r, t)],
+                             "cov": cov, "z": zi})
+            if cov >= 0.8 and (o[0] == OBJ_IMAGE
+                               or (o[0] == OBJ_PATH and o[7])):
+                # resolve the fill to its actual color: paleness-vs-page is
+                # the owner-proposed decoration/callout discriminator
+                # (tenure p13 note: "sample bgcolor in multiple places");
+                # image backgrounds get sampled in phase 3
+                color = None
+                if o[5] is not None and o[5] < len(ctx.colors):
+                    color = ctx.colors[o[5]]
+                bg.append({"type": "image" if o[0] == OBJ_IMAGE else "fill",
+                           "cov": cov, "colorIdx": o[5], "color": color,
+                           "z": zi})
+        cols = []
+        m = (getattr(ctx, "column_model", None) or {}).get(reg["page"])
+        if m:
+            cols = [c for band in m["bands"] for c in band["cols"]]
+        blks = []
+        for bi in reg["blockIdx"]:
+            blk, text = blocks[bi], texts[bi]
+            size = _dominant_size(blk)
+            rel = round(size / max(body_size, 1.0), 2)
+            if bi in note_idx or _noteish_block(blk, text):
+                kind = "note"
+            elif re.match(r"(figure|fig\.|table|chart|exhibit|box)\b", text, re.I):
+                kind = "title"
+            elif re.match(r"(source|note)s?\s*[:.]", text, re.I):
+                kind = "sourceline"
+            elif (len(text) <= 30 or rel < 0.85
+                  or (blk.get("lines") and max(
+                      _alnum(l.get("text", "")) for l in blk["lines"]) <= 20)):
+                kind = "label"
+            else:
+                kind = "prose"
+            grid = any(abs(blk["bbox"][0] - c[0]) <= 8 for c in cols)
+            blks.append({"kind": kind, "rel": rel, "chars": _alnum(text),
+                         "grid": grid, "text": text[:40]})
+        agg = Counter(b["kind"] for b in blks)
+        ctx.log.entry(
+            "figure-model", page=reg["page"], region=reg["rk"],
+            kind=reg["kind"], uncertain=bool(reg.get("uncertain")),
+            images=imgs[:6], n_images=len(imgs), background=bg,
+            title=(reg.get("title") or "")[:60],
+            caption=(reg.get("caption") or "")[:60],
+            text_blocks=blks[:14],
+            counts=dict(agg),
+            prose_chars=sum(b["chars"] for b in blks if b["kind"] == "prose"),
+            label_chars=sum(b["chars"] for b in blks if b["kind"] == "label"),
+            grid_prose=sum(1 for b in blks
+                           if b["kind"] == "prose" and b["grid"]))
 
 
 def _h_overlap(a, b):
@@ -1791,6 +1879,12 @@ def _crop(ctx, reg, page, fig_count):
     name = f"images/fig-{fig_count:03d}.png"
     crop = img.crop(box)
     crop.save(ctx.outdir / name)
+    # image ledger (figures plan, owner directive): every asset logged with
+    # dims/format/bytes so cross-corpus analysis can aggregate. kind will
+    # grow native-jpeg/native-png/svg when phase-4 extraction lands.
+    ctx.log.entry("image-asset", page=reg["page"], src=name,
+                  kind="crop-png", w=crop.width, h=crop.height,
+                  bytes=(ctx.outdir / name).stat().st_size)
     return name, crop.width, crop.height
 
 
