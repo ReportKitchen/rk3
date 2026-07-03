@@ -220,6 +220,20 @@ surroundings, meta-title + vivid-ink + sentence-prose guards), table
 conversions keep bound titles as <figcaption>, question gains the
 "text"/dissolve option. 11/12 figure golds green; the holdout (tenure
 p14 order 4<5) is TAG-ORDER arbitration, filed to reading-order.
-NEXT: phase 4 native extraction (+ vector/SVG keep, ledger kinds) —
-likely the PyMuPDF adoption decision; phase 5 placement/floats (co-
-design the op with container ops); phase 6 reproduction tiers.
+Phases 4-5 SHIPPED 2026-07-03 (v181-187, render 79, commits c4e5fe0 /
+7ba7d64). Phase 4: PyMuPDF adopted (pinned 1.27.2.3); native payloads
+when one image mutually fits the crop and out-resolves the raster (raw
+RGB JPEG/PNG byte-for-byte; smask/CMYK via Pixmap capped 3x/1600px);
+cropped SVG sidecars for vector figures (viewBox re-window, data.svg);
+image-asset ledger (native-jpg/png, crop-png, svg + dims/bytes/xref);
+stale-asset purge; HERO pages (full-page photo by pixel variance, ONE
+per page — clip-frame layouts draw collage tiles page-sized — raster
+composite only; tenure p11 fixed). Phase 5 (engine side): float/wide
+from PAGE-CONTENT-width evidence → fig-float-*/fig-wide CSS (tenure
+p25/p30 verified); figures never split a running sentence (atlantic
+p20 class, healed edf); page-leading figures anchor AFTER the opening
+heading (atlantic p14). The placement OP + editor affordance remain
+deferred to the joint container-ops UI pass. NEXT: phase 6
+reproduction tiers (dashboard offers; pattern-track hook), asset-
+hygiene recommendations off the ledger, the placement/container ops
+UI pass with the owner.
