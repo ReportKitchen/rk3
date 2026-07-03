@@ -158,10 +158,19 @@ Eyeball the logged models against every specimen page above before phase
   already in the repo root) → full-resolution asset instead of the page-
   DPI crop. Fixes the F5 quality ceiling and edf's missing signature
   images; diagnose tenure p11's dropped photo here.
-- Vector-only figures: keep the raster crop for now; SVG extraction is
-  an F10 opportunity, not a default.
-- Asset hygiene rides along: size/format recommendations (dp p44) as
-  dashboard items.
+- Vector figures (owner directive 2026-07-02): when the graphics are
+  vector, KEEP A VECTOR VERSION alongside whatever we render — diagrams
+  are far more workable with (or convertible to) SVG. pdfium has no SVG
+  export; PyMuPDF's `page.get_svg_image(clip=…)` does exactly this, which
+  strengthens the adopt-PyMuPDF case for this phase. The raster stays the
+  rendering default; the SVG is the preserved asset the F10 tier builds
+  on.
+- **Image ledger** (owner directive): log every extracted/cropped asset —
+  count, pixel dims, native vs crop, source format (jpeg/png/vector),
+  bytes — as structured `image-asset` log events per doc, so the
+  cross-corpus analysis can aggregate them (the pattern-track/market-
+  research angle). Asset hygiene recommendations (dp p44: compression/
+  format) read straight off this ledger.
 
 ### Phase 5 — placement and floats
 
