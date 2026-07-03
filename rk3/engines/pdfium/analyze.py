@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 180
+VERSION = 185
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -728,10 +728,26 @@ def _detect_regions(ctx, pages, blocks, texts, body_size, toc_pages=(),
         w, h = page["width"], page["height"]
         page_area = w * h
         graphics = []
+        hero_seen = False
         for o in page.get("objects", []):
             area = max(0.0, (o[OR_] - o[OL])) * max(0.0, (o[OTOP] - o[OB]))
             if area > 0.85 * page_area:
-                continue  # full-page background
+                # full-page background — EXCEPT a full-page PHOTO (tenure
+                # p11: a section-opener hero with the title overlaid was
+                # silently dropped; owner note fe05853b "just missing the
+                # photo"). Flat tints/textures have low pixel variance;
+                # photos don't. ONE hero per page: layout tools draw collage
+                # tiles as page-sized image objects under clip frames (rwjf
+                # p34 has ten), and the displayed composite is a single
+                # visual.
+                if (not hero_seen and o[OT] == OBJ_IMAGE
+                        and _okey(page["n"], o) not in repeated
+                        and _pixel_variance(ctx, page, o) >= 25):
+                    hero_seen = True
+                    reg = _hero_region(ctx, page, o, blocks, texts, body_size)
+                    if reg:
+                        regions.append(reg)
+                continue
             if o[OT] == OBJ_IMAGE and _okey(page["n"], o) in repeated:
                 ctx.log.entry("strip-decoration", page=page["n"],
                               bbox=o[OL:OTOP + 1], reason="same image bbox repeats across pages")
@@ -755,6 +771,49 @@ def _detect_regions(ctx, pages, blocks, texts, body_size, toc_pages=(),
                     if reg:
                         regions.append(reg)
     return regions
+
+
+def _pixel_variance(ctx, page, o):
+    """Std-dev of a coarse pixel grid over the object's area on the rendered
+    page — a flat background tint reads near 0, a photo far above it."""
+    try:
+        img = Image.open(ctx.outdir / "pages" / f"page-{page['n']:04d}.png")
+        scale = img.width / page["width"]
+        H = page["height"]
+        vals = []
+        for fx in (0.15, 0.38, 0.62, 0.85):
+            for fy in (0.15, 0.38, 0.62, 0.85):
+                x = int((o[OL] + fx * (o[OR_] - o[OL])) * scale)
+                y = int((H - (o[OB] + fy * (o[OTOP] - o[OB]))) * scale)
+                px = img.getpixel((max(0, min(img.width - 1, x)),
+                                   max(0, min(img.height - 1, y))))
+                vals.extend(px[:3])
+        mean = sum(vals) / len(vals)
+        return (sum((v - mean) ** 2 for v in vals) / len(vals)) ** 0.5
+    except Exception:
+        return 0.0
+
+
+def _hero_region(ctx, page, o, blocks, texts, body_size):
+    """A full-page photo becomes a figure region directly: small text over
+    it (the photo credit) is absorbed into the crop pixels; headline-scale
+    text (the section title set over the hero) stays live."""
+    bbox = [max(0.0, o[OL]), max(0.0, o[OB]),
+            min(page["width"], o[OR_]), min(page["height"], o[OTOP])]
+    inside = [i for i, blk in enumerate(blocks)
+              if blk["page"] == page["n"]
+              and bbox[0] <= (blk["bbox"][0] + blk["bbox"][2]) / 2 <= bbox[2]
+              and bbox[1] <= (blk["bbox"][1] + blk["bbox"][3]) / 2 <= bbox[3]
+              and _dominant_size(blk) <= 1.25 * body_size]
+    rk = ctx.log.entry("figure", page=page["n"],
+                       bbox=[round(v, 1) for v in bbox],
+                       reason="full-page hero photo (pixel variance)",
+                       text_blocks=len(inside))
+    # hero = the page's rendered COMPOSITE: clip-framed layouts make any
+    # single native payload the UNCLIPPED source (wrong content), so the
+    # raster crop is the honest asset; a page-wide SVG is equally moot
+    return {"kind": "figure", "page": page["n"], "bbox": bbox, "rk": rk,
+            "uncertain": False, "blockIdx": inside, "hero": True}
 
 
 def _too_big(bbox, w, h):
@@ -2089,7 +2148,8 @@ def _figure_node(ctx, reg, pages, fig_count, blocks, rich):
             "height": round(reg["bbox"][3] - reg["bbox"][1]),
             "alt": title or caption or f"Figure from page {reg['page']}",
             "page": reg["page"], "bbox": reg["bbox"], "rk": rk,
-            "data": {"region": reg["rk"]}}
+            "data": {"region": reg["rk"],
+                     **({"svg": reg["svg"]} if reg.get("svg") else {})}}
     node["nid"] = _stable_id("n", ctx.nids, "figure", node["page"], node["bbox"])
     # unified container model: title/caption are caption containers holding a
     # paragraph leaf built from the source block's rich runs — a superscript
@@ -2108,7 +2168,55 @@ def _figure_node(ctx, reg, pages, fig_count, blocks, rich):
     return node
 
 
+def _fitz_doc(ctx):
+    """Lazy PyMuPDF handle on the source PDF — the native-asset side of
+    figure extraction (figures plan phase 4). pdfium stays the extraction
+    engine; PyMuPDF supplies what it can't: original image payloads and SVG
+    export."""
+    doc = getattr(ctx, "_fitz", None)
+    if doc is None:
+        import pymupdf
+        doc = ctx._fitz = pymupdf.open(ctx.source)
+    return doc
+
+
 def _crop(ctx, reg, page, fig_count):
+    """Figure asset, best source first (figures plan phase 4): when ONE
+    native image object matches the crop region, its ORIGINAL payload is the
+    asset — full source resolution, no recompression for plain RGB
+    JPEG/PNGs; otherwise the raster crop of the rendered page. Vector-drawn
+    regions additionally keep a cropped SVG SIDECAR (owner directive:
+    diagrams are workable when you have — or can convert to — vector; the
+    sidecar is the preserved asset the reproduction tier builds on). Every
+    asset written lands in the image-asset ledger."""
+    (ctx.outdir / "images").mkdir(exist_ok=True)
+    if not getattr(ctx, "_images_purged", False):
+        # figure numbering restarts every run: stale fig-* from earlier
+        # versions would otherwise accumulate forever (85 MB on tenure)
+        ctx._images_purged = True
+        for old in (ctx.outdir / "images").glob("fig-*"):
+            old.unlink()
+    name = w_px = h_px = None
+    if not reg.get("hero"):
+        try:
+            name, w_px, h_px = _native_image(ctx, reg, page, fig_count)
+        except Exception as e:  # never fail a conversion over an asset
+            ctx.log.entry("native-extract-failed", page=reg["page"],
+                          error=str(e)[:160])  # — but never silently either
+    if name is None:
+        name, w_px, h_px = _raster_crop(ctx, reg, page, fig_count)
+    if not reg.get("hero"):
+        try:
+            svg = _vector_sidecar(ctx, reg, page, fig_count)
+            if svg:
+                reg["svg"] = svg
+        except Exception as e:
+            ctx.log.entry("svg-sidecar-failed", page=reg["page"],
+                          error=str(e)[:160])
+    return name, w_px, h_px
+
+
+def _raster_crop(ctx, reg, page, fig_count):
     img = Image.open(ctx.outdir / "pages" / f"page-{reg['page']:04d}.png")
     scale = img.width / page["width"]
     l, b, r, t = reg["bbox"]
@@ -2117,17 +2225,120 @@ def _crop(ctx, reg, page, fig_count):
            max(0, int((page["height"] - t) * scale) - pad),
            min(img.width, int(r * scale) + pad),
            min(img.height, int((page["height"] - b) * scale) + pad))
-    (ctx.outdir / "images").mkdir(exist_ok=True)
     name = f"images/fig-{fig_count:03d}.png"
     crop = img.crop(box)
     crop.save(ctx.outdir / name)
-    # image ledger (figures plan, owner directive): every asset logged with
-    # dims/format/bytes so cross-corpus analysis can aggregate. kind will
-    # grow native-jpeg/native-png/svg when phase-4 extraction lands.
     ctx.log.entry("image-asset", page=reg["page"], src=name,
                   kind="crop-png", w=crop.width, h=crop.height,
                   bytes=(ctx.outdir / name).stat().st_size)
     return name, crop.width, crop.height
+
+
+def _native_image(ctx, reg, page, fig_count):
+    """The original image payload, when exactly one native image object fits
+    the crop region (mutual coverage >=85%) AND beats the page raster's
+    resolution. Plain RGB JPEG/PNG payloads are written byte-for-byte;
+    soft-masked or exotic-colorspace images go through a Pixmap (alpha
+    composited, converted to RGB). Returns (None, 0, 0) when the region
+    isn't a single-image figure."""
+    import pymupdf
+    l, b, r, t = reg["bbox"]
+    H = page["height"]
+    doc = _fitz_doc(ctx)
+    fpage = doc[page["n"] - 1]
+    clip = pymupdf.Rect(l, H - t, r, H - b)
+    best = None
+    for info in fpage.get_image_info(xrefs=True):
+        if not info.get("xref"):
+            continue  # inline images have no extractable stream
+        ib = pymupdf.Rect(info["bbox"])
+        inter = ib & clip
+        if inter.is_empty:
+            continue
+        if (inter.get_area() / max(clip.get_area(), 1.0) >= 0.85
+                and inter.get_area() / max(ib.get_area(), 1.0) >= 0.85):
+            best = info
+            break
+    if best is None:
+        return None, 0, 0
+    # quality gate: the payload must out-resolve the rendered-page crop
+    scale = ctx.cfg["input"].get("pageImageScale", 2)
+    if best["width"] < 0.9 * (r - l) * scale:
+        return None, 0, 0
+    ext = doc.extract_image(best["xref"])
+    plain_rgb = (not ext.get("smask")
+                 and ext.get("colorspace", 3) <= 3
+                 and ext.get("ext") in ("jpeg", "jpg", "png"))
+    if plain_rgb:
+        suffix = "jpg" if ext["ext"].startswith("j") else "png"
+        name = f"images/fig-{fig_count:03d}.{suffix}"
+        (ctx.outdir / name).write_bytes(ext["image"])
+        w_px, h_px, kind = ext["width"], ext["height"], f"native-{suffix}"
+    else:
+        pix = pymupdf.Pixmap(doc, best["xref"])
+        if ext.get("smask"):
+            pix = pymupdf.Pixmap(pix, pymupdf.Pixmap(doc, ext["smask"]))
+        if pix.n - pix.alpha > 3:
+            pix = pymupdf.Pixmap(pymupdf.csRGB, pix)
+        # this path RE-ENCODES (composite/convert), so unlike the raw-payload
+        # path there's nothing sacred about source resolution: cap at 3x the
+        # display size or a full-res smask photo lands as an 8 MB PNG
+        # (tenure p17). Alpha keeps PNG; opaque re-encodes as JPEG.
+        mode = "RGBA" if pix.alpha else "RGB"
+        img = Image.frombytes(mode, (pix.width, pix.height), pix.samples)
+        target_w = min(int((r - l) * 3), 1600)
+        if img.width > target_w:
+            img.thumbnail((target_w, int(img.height * target_w / img.width)))
+        if pix.alpha:
+            name = f"images/fig-{fig_count:03d}.png"
+            img.save(ctx.outdir / name)
+            kind = "native-png"
+        else:
+            name = f"images/fig-{fig_count:03d}.jpg"
+            img.save(ctx.outdir / name, quality=88)
+            kind = "native-jpg"
+        w_px, h_px = img.width, img.height
+    ctx.log.entry("image-asset", page=reg["page"], src=name, kind=kind,
+                  w=w_px, h=h_px, xref=best["xref"],
+                  bytes=(ctx.outdir / name).stat().st_size)
+    return name, w_px, h_px
+
+
+def _vector_sidecar(ctx, reg, page, fig_count):
+    """A cropped SVG of a vector-drawn figure region: the page's SVG export
+    (cached per page), re-windowed onto the region via the root viewBox.
+    Only regions with substantial vector content and no dominant native
+    image qualify — photos gain nothing from an SVG wrapper."""
+    l, b, r, t = reg["bbox"]
+    vec = sum(1 for o in ctx.page_objs.get(page["n"], [])
+              if o[0] in (OBJ_PATH, OBJ_SHADING)
+              and l <= (o[1] + o[3]) / 2 <= r and b <= (o[2] + o[4]) / 2 <= t)
+    if vec < 6:
+        return None
+    doc = _fitz_doc(ctx)
+    cache = getattr(ctx, "_page_svg", None)
+    if cache is None:
+        cache = ctx._page_svg = {}
+    svg = cache.get(page["n"])
+    if svg is None:
+        svg = cache[page["n"]] = doc[page["n"] - 1].get_svg_image()
+    H = page["height"]
+    w, h = r - l, t - b
+    crop, nsub = re.subn(
+        r'width="[^"]*" height="[^"]*" viewBox="[^"]*"',
+        f'width="{w:.1f}" height="{h:.1f}" '
+        f'viewBox="{l:.1f} {H - t:.1f} {w:.1f} {h:.1f}"',
+        svg, count=1)
+    if not nsub:
+        ctx.log.entry("svg-sidecar-failed", page=reg["page"],
+                      error="svg root shape unexpected (no viewBox rewrite)")
+        return None
+    name = f"images/fig-{fig_count:03d}.svg"
+    (ctx.outdir / name).write_text(crop)
+    ctx.log.entry("image-asset", page=reg["page"], src=name, kind="svg",
+                  w=round(w), h=round(h),
+                  bytes=(ctx.outdir / name).stat().st_size)
+    return name
 
 
 def _color_segments(line):
@@ -2459,7 +2670,8 @@ def _aside_images(ctx, reg, node, pages, fig_count):
                "alt": (title_c or cap_c or {}).get("text")
                       or f"Image from page {page['n']}",
                "page": page["n"], "bbox": crop_bb, "rk": rk,
-               "data": {"region": reg["rk"]},
+               "data": {"region": reg["rk"],
+                        **({"svg": sub["svg"]} if sub.get("svg") else {})},
                "nid": _stable_id("n", ctx.nids, "figure", page["n"],
                                  crop_bb)}
         anatomy = []

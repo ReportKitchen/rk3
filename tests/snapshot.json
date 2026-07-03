@@ -1007,7 +1007,7 @@
     "counts": {
       "aside": 46,
       "columns": 1,
-      "figure": 41,
+      "figure": 48,
       "flag": 1,
       "footnotes": 1,
       "heading": 176,
@@ -1900,7 +1900,7 @@
     ],
     "counts": {
       "aside": 18,
-      "figure": 10,
+      "figure": 12,
       "flag": 1,
       "footnotes": 1,
       "heading": 30,
@@ -2416,7 +2416,7 @@
     ],
     "counts": {
       "aside": 41,
-      "figure": 26,
+      "figure": 31,
       "footnotes": 1,
       "heading": 106,
       "paragraph": 908
@@ -2568,7 +2568,7 @@
     ],
     "counts": {
       "aside": 12,
-      "figure": 27,
+      "figure": 28,
       "footnotes": 2,
       "heading": 31,
       "list": 7,
@@ -2838,14 +2838,14 @@
     ],
     "counts": {
       "aside": 1,
-      "figure": 38,
+      "figure": 40,
       "heading": 36,
-      "paragraph": 89
+      "paragraph": 86
     },
     "asideChildren": 3,
     "notes": [],
     "questions": 15,
-    "textChars": 34451
+    "textChars": 34171
   },
   "02--foia-basics-for-activists-may-2019": {
     "status": "done",
@@ -3115,15 +3115,7 @@
       ],
       [
         6,
-        "“Low-tech is highly scalable and very affordable.”"
-      ],
-      [
-        6,
         "Case study: Embracing protein diversification to save the family farm in North C"
-      ],
-      [
-        6,
-        "“[Because] we care about our neighbors, my brother and I took an oath to do what"
       ],
       [
         6,
@@ -3152,15 +3144,15 @@
     ],
     "counts": {
       "aside": 19,
-      "figure": 10,
-      "heading": 30,
+      "figure": 14,
+      "heading": 28,
       "list": 18,
-      "paragraph": 80
+      "paragraph": 74
     },
     "asideChildren": 39,
     "notes": [],
-    "questions": 9,
-    "textChars": 40688
+    "questions": 6,
+    "textChars": 38898
   },
   "02--invest-in-black-led": {
     "status": "done",
@@ -3665,7 +3657,7 @@
     ],
     "counts": {
       "aside": 16,
-      "figure": 32,
+      "figure": 38,
       "flag": 1,
       "footnotes": 2,
       "heading": 76,
@@ -5004,12 +4996,12 @@
     "counts": {
       "aside": 37,
       "columns": 1,
-      "figure": 29,
+      "figure": 30,
       "flag": 1,
       "footnotes": 1,
       "heading": 55,
       "list": 10,
-      "paragraph": 95
+      "paragraph": 94
     },
     "asideChildren": 97,
     "notes": [
@@ -5019,7 +5011,7 @@
       1024
     ],
     "questions": 31,
-    "textChars": 49077
+    "textChars": 49008
   },
   "02--tenure-annual-report": {
     "status": "done",
@@ -5268,12 +5260,12 @@
     ],
     "counts": {
       "aside": 20,
-      "figure": 43,
+      "figure": 48,
       "flag": 1,
       "footnotes": 1,
       "heading": 60,
       "list": 3,
-      "paragraph": 306,
+      "paragraph": 301,
       "table": 4
     },
     "asideChildren": 110,
@@ -5302,7 +5294,7 @@
       1007
     ],
     "questions": 15,
-    "textChars": 125559
+    "textChars": 125403
   },
   "02--chep-300pages": {
     "status": "done",
@@ -8274,7 +8266,7 @@
     ],
     "counts": {
       "aside": 54,
-      "figure": 53,
+      "figure": 61,
       "heading": 115,
       "list": 26,
       "paragraph": 461
@@ -9594,7 +9586,7 @@
     ],
     "counts": {
       "aside": 6,
-      "figure": 22,
+      "figure": 23,
       "heading": 28,
       "paragraph": 69
     },
@@ -10206,10 +10198,6 @@
         "56% expressed a sense of pride in"
       ],
       [
-        6,
-        "Yorkshire and the Humber"
-      ],
-      [
         4,
         "Focus on England"
       ],
@@ -10232,10 +10220,10 @@
     ],
     "counts": {
       "aside": 22,
-      "figure": 28,
+      "figure": 37,
       "footnotes": 1,
-      "heading": 23,
-      "paragraph": 70
+      "heading": 22,
+      "paragraph": 62
     },
     "asideChildren": 124,
     "notes": [
@@ -10243,7 +10231,7 @@
       2,
       3
     ],
-    "questions": 18,
-    "textChars": 25679
+    "questions": 19,
+    "textChars": 24965
   }
 }

@@ -165,13 +165,6 @@ strong.c-088d92 { color: #088d92; font-weight: inherit; }
   font-size: 0.9em;
 }
 
-.lg-italic-alt {
-  font-family: "IBM Plex Sans", sans-serif;
-  font-style: italic;
-  color: #444746;
-  font-size: 1.2em;
-}
-
 .styled {
   font-size: 1.1em;
 }
@@ -280,20 +273,6 @@ strong.c-088d92 { color: #088d92; font-weight: inherit; }
   border: none;
   border-bottom: 4px solid #fade00;
   border-left: 4px solid #fade00;
-}
-
-[data-nid="n8e489109a1"] {
-  color: #005963;
-}
-
-[data-nid="n66bd13d218"] {
-  float: right;
-  width: 39%;
-  margin: 0 0 1rem 1.5rem;
-}
-
-[data-nid="n7761804b74"] {
-  color: #005963;
 }
 
 [data-nid="n7ca3fe0a18"] {
