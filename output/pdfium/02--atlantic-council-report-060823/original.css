@@ -5,7 +5,6 @@
 @import url("https://use.typekit.net/qmh3dop.css");
 @import url("https://fonts.googleapis.com/css2?family=Caladea&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Caladea:ital,wght@0,400;0,700;1,400;1,700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Carlito&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=gotham&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=gotham:wght@400;700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=proxima-nova&display=swap");
@@ -97,29 +96,15 @@ strong.c-005596 { color: #005596; font-weight: inherit; }
   font-size: 1.26em;
 }
 
-.sm-alt-2 {
-  font-family: "Carlito", sans-serif;
-  color: #808285;
-  font-size: 0.84em;
-}
-
 .sm-accent-2 {
   color: #58595b;
   font-size: 0.74em;
 }
 
-.sm-alt-3 {
+.sm-alt-2 {
   font-family: "proxima-nova", sans-serif;
   font-weight: 300;
   font-size: 0.68em;
-}
-
-.lg-strong-panel-alt {
-  font-family: "proxima-nova", sans-serif;
-  font-weight: 700;
-  background: #e0e8f2;
-  padding: 0.6em 0.8em;
-  font-size: 1.26em;
 }
 
 .lg-strong-alt-4 {

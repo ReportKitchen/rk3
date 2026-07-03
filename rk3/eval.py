@@ -212,13 +212,29 @@ def _check_in_figure(slug, c):
     return False, "snippets found only across DIFFERENT figures (anatomy split)"
 
 
+def _all_ir_text(slug):
+    """Every text leaf in the IR, footnotes included — existence tests for
+    content that may legitimately live outside paragraph/heading nodes
+    (footnotes nodes carry their notes in a `notes` list, not children)."""
+    ir = _artifact(slug, "analyze") or {}
+    parts = []
+    for n in _walk(ir.get("body", [])):
+        if n.get("text"):
+            parts.append(n["text"])
+        for note in n.get("notes") or []:  # footnotes containers
+            if isinstance(note, dict) and note.get("text"):
+                parts.append(note["text"])
+    return _norm(" ".join(parts))
+
+
 def _check_not_in_figure(slug, c):
-    """Snippets exist as live text and sit in NO figure subtree — the
-    negative control for figure claiming (figures.md F7: doc footnotes must
-    not be swallowed by a chart's crop region)."""
+    """Snippets exist somewhere in the IR (footnotes count) and sit in NO
+    figure subtree — the negative control for figure claiming (figures.md
+    F7: doc footnotes must not be swallowed by a chart's crop region)."""
     fig_texts = _region_texts(slug, ("figure",))
+    everything = _all_ir_text(slug)
     for s in c["not_in_figure"]:
-        if _find(_stage_seq(slug, "analyze"), s) < 0:
+        if _norm(s) not in everything:
             return False, f"{s!r} not found at all — {_localize(slug, s)}"
         if any(_norm(s) in t for t in fig_texts):
             return False, f"{s!r} was swallowed by a figure"

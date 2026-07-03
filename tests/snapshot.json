@@ -1565,15 +1565,15 @@
     ],
     "counts": {
       "aside": 13,
-      "figure": 29,
+      "figure": 30,
       "flag": 1,
       "footnotes": 1,
       "heading": 84,
       "list": 12,
-      "paragraph": 178,
+      "paragraph": 176,
       "table": 6
     },
-    "asideChildren": 63,
+    "asideChildren": 56,
     "notes": [
       1,
       2,
@@ -1702,8 +1702,8 @@
       125,
       126
     ],
-    "questions": 29,
-    "textChars": 155673
+    "questions": 27,
+    "textChars": 155725
   },
   "02--baystate-case-study-021624": {
     "status": "done",
@@ -5317,8 +5317,8 @@
       1006,
       1007
     ],
-    "questions": 16,
-    "textChars": 125783
+    "questions": 15,
+    "textChars": 125559
   },
   "02--chep-300pages": {
     "status": "done",
@@ -6143,7 +6143,7 @@
     ],
     "counts": {
       "aside": 181,
-      "figure": 95,
+      "figure": 96,
       "flag": 1,
       "footnotes": 1,
       "heading": 204,
@@ -6151,7 +6151,7 @@
       "paragraph": 716,
       "table": 24
     },
-    "asideChildren": 462,
+    "asideChildren": 447,
     "notes": [
       1,
       1001,
@@ -6199,8 +6199,8 @@
       1016,
       1016
     ],
-    "questions": 122,
-    "textChars": 628971
+    "questions": 121,
+    "textChars": 628853
   },
   "02--compelling-investment-case-climate-adaptation": {
     "status": "done",
@@ -7820,8 +7820,8 @@
       425,
       426
     ],
-    "questions": 43,
-    "textChars": 404185
+    "questions": 36,
+    "textChars": 402293
   },
   "02--rwjf-futures": {
     "status": "done",
@@ -8290,7 +8290,7 @@
     ],
     "counts": {
       "aside": 54,
-      "figure": 43,
+      "figure": 53,
       "heading": 115,
       "list": 26,
       "paragraph": 461
@@ -9420,7 +9420,7 @@
     "counts": {
       "aside": 46,
       "deflist": 1,
-      "figure": 16,
+      "figure": 18,
       "flag": 1,
       "footnotes": 1,
       "heading": 278,
@@ -10258,13 +10258,13 @@
       "paragraph": 71,
       "table": 1
     },
-    "asideChildren": 133,
+    "asideChildren": 124,
     "notes": [
       1,
       2,
       3
     ],
-    "questions": 24,
-    "textChars": 26243
+    "questions": 23,
+    "textChars": 26096
   }
 }

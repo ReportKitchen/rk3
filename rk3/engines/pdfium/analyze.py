@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 170
+VERSION = 175
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -369,6 +369,10 @@ def run(ctx):
 
     # explicit per-region figure evidence (figures plan phase 1, log-only)
     _figure_model(ctx, pages, blocks, texts, regions, body_size, note_idx)
+    # figures plan phase 2: a figure region holding SEVERAL chart images is
+    # N figures in a trench coat — split, and bind each image's own title
+    regions = _split_multi_image_figures(ctx, regions, pages, blocks, texts,
+                                         absorbed)
 
     main_idx = [i for i in range(len(blocks)) if i not in absorbed]
     levels = _heading_levels(ctx, [blocks[i] for i in main_idx],
@@ -983,6 +987,12 @@ def _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles):
             if not _h_overlap(reg["bbox"], blk["bbox"]):
                 continue
             text = texts[i]
+            # a NOTE-SHAPED block under a figure is a document footnote that
+            # happens to sit below a chart, not the chart's caption — leave
+            # it for note recovery (gates p61: doc note 256 was bound as the
+            # Nestlé figure's caption and swallowed into the crop subtree)
+            if _noteish_block(blk, text):
+                continue
             keyword = re.match(r"(figure|fig\.|table|chart|exhibit|source[:.])",
                                text, re.I)
             tagged_caption = roles[i][0] == "Caption" and roles[i][1] > 0.5
@@ -1021,6 +1031,116 @@ def _find_captions(ctx, regions, blocks, texts, absorbed, body_size, roles):
                               figure=reg["rk"], gap=round(gap, 1),
                               text=text[:80])
                 break
+
+
+def _split_multi_image_figures(ctx, regions, pages, blocks, texts, absorbed):
+    """A figure region backed by one decorative panel but containing SEVERAL
+    substantial chart images is N figures fused into one crop (atlantic p12:
+    Figure 2 + Figure 3 share a tinted panel — one crop bakes both titles
+    while each chart's SOURCE line sits inside). Split on the non-background
+    image objects: each image seeds a sub-figure; absorbed interior text
+    joins the image whose y-interval it overlaps most; a title-shaped live
+    block directly above each image binds as that sub-figure's title, and a
+    source/caption-shaped assigned block binds as its caption (live leaf,
+    outside the crop)."""
+    out = []
+    for reg in regions:
+        if reg["kind"] != "figure":
+            out.append(reg)
+            continue
+        page = pages[reg["page"]]
+        rb = reg["bbox"]
+        ra = max((rb[2] - rb[0]) * (rb[3] - rb[1]), 1.0)
+        imgs = []
+        for o in page.get("objects", []):
+            if o[0] != OBJ_IMAGE:
+                continue
+            l, b_, r, t = o[1], o[2], o[3], o[4]
+            oa = (r - l) * (t - b_)
+            if oa < 2000 or oa >= 0.8 * ra:   # icons / the background panel
+                continue
+            cx, cy = (l + r) / 2, (b_ + t) / 2
+            if rb[0] <= cx <= rb[2] and rb[1] <= cy <= rb[3]:
+                imgs.append([l, b_, r, t])
+        # only split when the images are y-disjoint (stacked charts): the
+        # unambiguous case; overlapping collages stay one figure
+        imgs.sort(key=lambda bb: -bb[3])
+        if len(imgs) < 2 or any(a[1] < b[3] for a, b in zip(imgs, imgs[1:])):
+            out.append(reg)
+            continue
+
+        def yov(bb, im):
+            return max(0.0, min(bb[3], im[3]) - max(bb[1], im[1]))
+
+        parts = [{"img": im, "blocks": []} for im in imgs]
+        for bi in reg["blockIdx"]:
+            bb = blocks[bi]["bbox"]
+            best = max(parts, key=lambda p: (yov(bb, p["img"]),
+                                             -abs((bb[1] + bb[3]) / 2
+                                                  - (p["img"][1] + p["img"][3]) / 2)))
+            best["blocks"].append(bi)
+        ctx.log.entry("figure-split", page=reg["page"], region=reg["rk"],
+                      parts=len(parts))
+        # the original region's own bindings follow the geometry: its title
+        # (above everything) to the TOP part, its caption (below) to the
+        # BOTTOM part — never left dangling in `absorbed`
+        inherit = {}
+        if reg.get("titleIdx") is not None:
+            inherit[0] = ("title", reg)
+        if reg.get("captionIdx") is not None:
+            inherit[len(parts) - 1] = ("caption", reg)
+        for pi, part in enumerate(parts):
+            im = part["img"]
+            crop_bb = list(im)
+            sub = {"kind": "figure", "page": reg["page"], "uncertain": False,
+                   "blockIdx": [], **{k: reg[k] for k in ("fillIdx", "strokeIdx",
+                                                          "borders") if k in reg}}
+            for bi in part["blocks"]:
+                if re.match(r"(source|note)s?\s*[:.]", texts[bi], re.I) \
+                        and "captionIdx" not in sub:
+                    sub["caption"] = texts[bi]
+                    sub["captionIdx"] = bi
+                    sub["captionBlock"] = blocks[bi]["rk"]
+                    absorbed[bi] = sub
+                else:
+                    sub["blockIdx"].append(bi)
+                    absorbed[bi] = sub
+                    crop_bb = _union(crop_bb, blocks[bi]["bbox"])
+            # nearest title-shaped LIVE block above the image (the panel kept
+            # it out of the region because figure regions exclude big text)
+            best_t, best_gap = None, 80.0
+            for i, blk in enumerate(blocks):
+                if i in absorbed or blk["page"] != reg["page"]:
+                    continue
+                gap = blk["bbox"][1] - im[3]   # block bottom above image top
+                if not (-2 <= gap <= best_gap):
+                    continue
+                if not _h_overlap(im, blk["bbox"]):
+                    continue
+                if re.match(r"(figure|fig\.|table|chart|exhibit)\b",
+                            texts[i], re.I):
+                    best_t, best_gap = i, gap
+            if best_t is not None:
+                sub["title"] = texts[best_t]
+                sub["titleIdx"] = best_t
+                sub["titleBlock"] = blocks[best_t]["rk"]
+                absorbed[best_t] = sub
+            if pi in inherit:
+                variant, src = inherit[pi]
+                for key in (variant, variant + "Idx", variant + "Block",
+                            *(("captionWeak",) if variant == "caption" else ())):
+                    if key in src and key not in sub:
+                        sub[key] = src[key]
+                if src.get(variant + "Idx") is not None:
+                    absorbed[src[variant + "Idx"]] = sub
+            sub["bbox"] = crop_bb
+            sub["rk"] = ctx.log.entry(
+                "figure", page=reg["page"], bbox=[round(v, 1) for v in crop_bb],
+                reason=f"split from {reg['rk']} ({len(parts)} images)",
+                title=(sub.get("title") or "")[:60],
+                caption=(sub.get("caption") or "")[:60])
+            out.append(sub)
+    return out
 
 
 def _figure_model(ctx, pages, blocks, texts, regions, body_size, note_idx):
@@ -2127,10 +2247,17 @@ def _try_table(ctx, reg, blocks, rich, pages, strict=False):
 
 def _aside_images(ctx, reg, node, pages, fig_count):
     """Images inside a callout region become figure children (the logo /
-    photo lives in the box, not lost to it)."""
+    photo lives in the box, not lost to it) — WITH anatomy (figures plan
+    phase 2): an adjacent title-shaped sibling above binds as the figure's
+    title leaf, a Source-shaped sibling below as its caption leaf, and
+    punctuation-free label siblings hugging the image (a chart legend
+    authored as page text — atlantic p10 'optimists pessimists') are
+    claimed into an EXTENDED crop so the chart keeps its legend."""
     page = pages[reg["page"]]
     repeated = _repeated_images(pages)
     figs = []
+    taken = set()   # ids of children consumed by anatomy/claims
+    kids = node.get("children") or []
     for o in page.get("objects", []):
         if o[0] != OBJ_IMAGE or _okey(page["n"], o) in repeated:
             continue
@@ -2140,19 +2267,91 @@ def _aside_images(ctx, reg, node, pages, fig_count):
             continue
         if (o[3] - o[1]) * (o[4] - o[2]) < 400:
             continue  # icons
+        im = [o[1], o[2], o[3], o[4]]
+        # a box-filling image is the callout's BACKGROUND: text over it is
+        # designed content (good-food p8's heading), never a chart legend —
+        # same guard as the overlay filter below
+        background = ((im[2] - im[0]) * (im[3] - im[1])
+                      >= 0.8 * (reg["bbox"][2] - reg["bbox"][0])
+                      * (reg["bbox"][3] - reg["bbox"][1]))
+        title_c = cap_c = None
+        candidates = []
+        for c in kids:
+            if id(c) in taken or c.get("type") == "figure" \
+                    or not c.get("text") or c["page"] != page["n"]:
+                continue
+            bb = c["bbox"]
+            if not _h_overlap(im, bb):
+                continue
+            gap_above = bb[1] - im[3]     # child bottom vs image top
+            gap_below = im[1] - bb[3]     # image bottom vs child top
+            t = c["text"]
+            if (title_c is None and -2 <= gap_above <= 60
+                    and re.match(r"(figure|fig\.|table|chart|exhibit)\b",
+                                 t, re.I)):
+                title_c = c
+            elif (cap_c is None and -2 <= gap_below <= 60
+                    and re.match(r"(source|note)s?\s*[:.]", t, re.I)):
+                cap_c = c
+            else:
+                candidates.append(c)
+        # legend claims, AFTER anatomy binding: short punctuation-free text
+        # that either overlaps the chart's y-range or is SANDWICHED between
+        # the image and its bound Source-caption is figure interior (atlantic
+        # p10 "optimists pessimists"). Text merely below an image with no
+        # caption beneath it is caption territory and stays live (tenure p31
+        # "THAKUR PRASAD BHANDARI,"); a box-filling background image never
+        # claims (good-food p8's heading).
+        claims = []
+        for c in candidates:
+            bb, t = c["bbox"], c["text"]
+            if background or len(t) > 40 or re.search(r"[.!?]", t):
+                continue
+            if re.match(r"^\d{1,3}\s", t):
+                # a footnote body sitting over a map ("2 UK Giving Report
+                # 2026, CAF") is note recovery's, never a chart legend
+                continue
+            overlaps = bb[1] < im[3] and bb[3] > im[1]
+            sandwiched = (cap_c is not None
+                          and bb[3] <= im[1] + 2
+                          and bb[1] >= cap_c["bbox"][3] - 2)
+            if overlaps or sandwiched:
+                claims.append(c)
+        crop_bb = list(im)
+        for c in claims:
+            crop_bb = _union(crop_bb, c["bbox"])
+            taken.add(id(c))
+            ctx.audit_claimed[c["page"]] += _alnum(c["text"])
+            ctx.log.entry("figure-legend-claim", page=c["page"],
+                          region=reg["rk"], text=c["text"][:50])
         fig_count += 1
-        sub = {"page": page["n"], "bbox": [o[1], o[2], o[3], o[4]]}
+        sub = {"page": page["n"], "bbox": crop_bb}
         src, w_px, h_px = _crop(ctx, sub, page, fig_count)
         rk = ctx.log.entry("aside-image", page=page["n"], src=src,
-                           bbox=sub["bbox"], region=reg["rk"])
-        figs.append({"type": "figure", "src": src,
-                     "width": round(o[3] - o[1]),
-                     "height": round(o[4] - o[2]),
-                     "alt": f"Image from page {page['n']}",
-                     "page": page["n"], "bbox": sub["bbox"], "rk": rk,
-                     "data": {"region": reg["rk"]},
-                     "nid": _stable_id("n", ctx.nids, "figure", page["n"],
-                                       sub["bbox"])})
+                           bbox=sub["bbox"], region=reg["rk"],
+                           title=(title_c or {}).get("text", "")[:60],
+                           caption=(cap_c or {}).get("text", "")[:60])
+        fig = {"type": "figure", "src": src,
+               "width": round(crop_bb[2] - crop_bb[0]),
+               "height": round(crop_bb[3] - crop_bb[1]),
+               "alt": (title_c or cap_c or {}).get("text")
+                      or f"Image from page {page['n']}",
+               "page": page["n"], "bbox": crop_bb, "rk": rk,
+               "data": {"region": reg["rk"]},
+               "nid": _stable_id("n", ctx.nids, "figure", page["n"],
+                                 crop_bb)}
+        anatomy = []
+        for variant, c in (("title", title_c), ("caption", cap_c)):
+            if c is None:
+                continue
+            taken.add(id(c))
+            anatomy.append(_container(ctx, "caption", [c], c["page"],
+                                      c["bbox"], rk, variant=variant))
+        if anatomy:
+            fig["children"] = anatomy
+        figs.append(fig)
+    if taken:
+        node["children"] = [c for c in kids if id(c) not in taken]
     if figs:
         # INSERT each figure at its y-position without re-sorting the text
         # children — their order is the reading order (possibly column-aware
@@ -2209,10 +2408,12 @@ def _aside_images(ctx, reg, node, pages, fig_count):
                               region=reg["rk"], text=c["text"][:50])
                 continue
             kept.append(c)
-        if len(kept) < len(node["children"]):
-            # the claimed overlay may have sat between a paragraph and its
-            # continuation (the aside's own join pass ran before figures
-            # existed) — rejoin now that they're adjacent
+        if len(kept) < len(node["children"]) or taken:
+            # a claimed overlay OR legend/anatomy pull may have sat between a
+            # paragraph and its continuation (the aside's own join pass ran
+            # before figures existed) — rejoin now that they're adjacent
+            # (tenure p48: "Photo credit: SRUTI" is legend-claimed upstream,
+            # so the trigger must count `taken`, not just overlay removals)
             kept = _join_broken_paragraphs(ctx, kept)
         node["children"] = kept
     return fig_count
