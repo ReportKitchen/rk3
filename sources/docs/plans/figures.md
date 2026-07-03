@@ -208,7 +208,18 @@ anatomy, F2 duplicates) and de-risk everything after. Phase 3 closes the
 class the owner hits most while reviewing (F3/F4). Phases 4-6 are
 independent after that and can interleave with other tracks.
 
-**PROGRESS:** plan drafted (2026-07-02). Pre-work already landed: aside-
-interior overlay claim + background guard + wide-figure insert
-(v165-168), watermark dissolve via regionOverride (tenure p13),
-spanning-caption ordering (v157). Next: phase 0 gold stakes.
+**PROGRESS:** plan drafted 2026-07-02; phases 0-3 SHIPPED same evening
+(v169-180, census 66/6, commits da25b20 / 36c9add / ebdcec5 / ea4b652).
+Phase 0: 4 eval kinds (in_figure w/ not_with, not_in_figure, in_flow,
+claimed) + 12 stakes. Phase 1: figure-model log events + image-asset
+ledger. Phase 2: noteish captions → note recovery, multi-image figure
+SPLITTING w/ per-image title binding, aside-figure anatomy + legend
+claims (background / noteish / sandwich guards). Phase 3: label-soup
+diagram rule + local-color dissolve rule (paleness vs ring-sampled
+surroundings, meta-title + vivid-ink + sentence-prose guards), table
+conversions keep bound titles as <figcaption>, question gains the
+"text"/dissolve option. 11/12 figure golds green; the holdout (tenure
+p14 order 4<5) is TAG-ORDER arbitration, filed to reading-order.
+NEXT: phase 4 native extraction (+ vector/SVG keep, ledger kinds) —
+likely the PyMuPDF adoption decision; phase 5 placement/floats (co-
+design the op with container ops); phase 6 reproduction tiers.
