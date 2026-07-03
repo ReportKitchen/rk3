@@ -175,29 +175,6 @@ a:hover { text-decoration: underline; }
   font-size: 0.84em;
 }
 
-.xl-strong-alt-2 {
-  font-family: "Montserrat", sans-serif;
-  font-weight: 800;
-  font-size: 1.89em;
-}
-
-.strong-center-alt {
-  font-family: "Montserrat", sans-serif;
-  font-weight: 800;
-  text-align: center;
-}
-
-.lg-medium-alt {
-  font-family: "Montserrat", sans-serif;
-  font-weight: 500;
-  font-size: 1.32em;
-}
-
-.medium-alt {
-  font-family: "Montserrat", sans-serif;
-  font-weight: 500;
-}
-
 .strong-alt-4 {
   font-family: "Montserrat", sans-serif;
   font-weight: 700;
@@ -233,7 +210,7 @@ a:hover { text-decoration: underline; }
   font-size: 1.68em;
 }
 
-.lg-medium-alt-2 {
+.lg-medium-alt {
   font-family: "DM Sans", sans-serif;
   font-weight: 500;
   font-size: 1.26em;
@@ -383,15 +360,6 @@ a:hover { text-decoration: underline; }
 [data-nid="n7a3780c851"] {
   background: #f3ffb7;
   padding: 0.4em 0.6em;
-}
-
-[data-nid="n6bf0dc1b51"] {
-  background: #345f5d;
-  border: none;
-  border-bottom: 1px solid #345f5d;
-  border-left: 1px solid #fdfff1;
-  border-right: 1px solid #345f5d;
-  border-top: 1px solid #345f5d;
 }
 
 [data-nid="n7a9221d71d"] {

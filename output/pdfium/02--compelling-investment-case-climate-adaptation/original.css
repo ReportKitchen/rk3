@@ -49,7 +49,6 @@ h5 {
 }
 
 strong.c-191818 { color: #191818; font-weight: inherit; }
-strong.c-808285 { color: #808285; font-weight: inherit; }
 
 .sm-panel-alt {
   font-family: "Source Sans 3", sans-serif;
@@ -84,12 +83,6 @@ strong.c-808285 { color: #808285; font-weight: inherit; }
   font-size: 0.7em;
 }
 
-.sm-alt-2 {
-  font-family: "Source Sans 3", sans-serif;
-  color: #191818;
-  font-size: 0.7em;
-}
-
 .sm-right-alt {
   font-family: "Source Sans 3", sans-serif;
   color: #808285;
@@ -102,7 +95,7 @@ strong.c-808285 { color: #808285; font-weight: inherit; }
   color: #191818;
 }
 
-.sm-alt-3 {
+.sm-alt-2 {
   font-family: "Source Sans 3", sans-serif;
   font-weight: 300;
   color: #58595b;
@@ -116,7 +109,7 @@ strong.c-808285 { color: #808285; font-weight: inherit; }
   font-size: 1.05em;
 }
 
-.sm-alt-4 {
+.sm-alt-3 {
   font-family: "Source Sans 3", sans-serif;
   color: #808285;
   font-size: 0.8em;
@@ -143,12 +136,6 @@ strong.c-808285 { color: #808285; font-weight: inherit; }
 [data-nid="n96a4b08157"] {
   background: #eff5f6;
   padding: 0.4em 0.6em;
-}
-
-[data-nid="n413367c3f9"] {
-  background: #328749;
-  border: none;
-  border-left: 1px solid #e7e7e7;
 }
 
 [data-nid="n88b7ffd781"] {

@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 175
+VERSION = 180
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -476,6 +476,21 @@ def run(ctx):
             node = _try_table(ctx, ref, blocks, rich, pages, strict=True)
             if node is not None:
                 ref["kind"] = "table"
+                # a title/caption bound to the region survives the table
+                # conversion as caption containers (baystate p12: "Table 1.
+                # Workforce Programming" was absorbed by the binding and
+                # silently dropped when the figure became a table)
+                for variant, key in (("title", "titleIdx"),
+                                     ("caption", "captionIdx")):
+                    bi = ref.get(key)
+                    if bi is None:
+                        continue
+                    leaf = _leaf(ctx, "paragraph", rich[bi],
+                                 ref["page"], blocks[bi]["bbox"], node["rk"])
+                    node["children"].append(
+                        _container(ctx, "caption", [leaf], ref["page"],
+                                   blocks[bi]["bbox"], node["rk"],
+                                   variant=variant))
             else:
                 fig_count += 1
                 node = _figure_node(ctx, ref, pages, fig_count, blocks, rich)
@@ -490,13 +505,18 @@ def run(ctx):
             prompt = (
                 "This region is currently a cropped figure image, but it "
                 "contains a lot of text. Make it a callout with real, "
-                "selectable text instead?"
+                "selectable text — or is the graphic just page decoration "
+                "and the text ordinary flow?"
                 if ref["kind"] == "figure" else
                 "This region is currently a callout (styled text box). "
-                "Should it be a cropped image of the original region "
-                "instead?")
+                "Should it be a cropped image of the original region — or "
+                "is the box just page decoration and the text ordinary "
+                "flow?")
+            # "text" = dissolve (regionOverride kind=text): the third answer
+            # the owner has asked for three separate ways (dp p16, tenure
+            # p13/p14, good-food p10)
             _question(ctx, "figure-or-callout", node, prompt,
-                      ["figure", "callout"], ref["kind"])
+                      ["figure", "callout", "text"], ref["kind"])
         if ref.get("captionWeak") and ref.get("caption"):
             _question(ctx, "caption", node,
                       f"Is “{ref['caption'][:60]}” a caption for this "
@@ -878,10 +898,84 @@ def _classify_cluster(ctx, page, cluster, blocks, texts, body_size, top_size=Non
         return None
 
     uncertain = False
+    why = None
+    # ---- figures plan phase 3: model-driven three-way call. The interior
+    # text taxonomy (mirrors _figure_model) drives two rules BEFORE the
+    # char-count fallback: label-vs-prose balance and background paleness.
+    kinds = {}
+    for i in inside:
+        blk, text = blocks[i], texts[i]
+        if re.match(r"(figure|fig\.|table|chart|exhibit|box)\b", text, re.I) \
+                or re.match(r"(source|note)s?\s*[:.]", text, re.I):
+            kinds[i] = "meta"
+        elif len(text) > 60 and re.search(r"[.!?]", text):
+            # sentences are prose whatever the font size — nff p5's small-
+            # print infographic tiles are readable content, not chart labels
+            kinds[i] = "prose"
+        elif (len(text) <= 30 or _dominant_size(blk) < 0.85 * body_size
+              or (blk.get("lines") and max(
+                  _alnum(ln.get("text", "")) for ln in blk["lines"]) <= 20)):
+            kinds[i] = "label"
+        else:
+            kinds[i] = "prose"
+    prose_idx = [i for i in inside if kinds[i] == "prose"]
+    prose_chars = sum(_alnum(texts[i]) for i in prose_idx)
+    label_chars = sum(_alnum(texts[i]) for i in inside if kinds[i] == "label")
+
+    # (a) DISSOLVE (F3): a full-coverage vector fill in (near) the PAGE'S
+    # OWN background color is decoration (a watermark), and body-scale
+    # prose over it that aligns to the page's column grid is ordinary flow
+    # — tenure p13/p14. Guards, each from a real mis-dissolve: paleness is
+    # RELATIVE to the page background (gates p2's white card on a dark
+    # green page is a designed box — the owner's "sample bgcolor" note);
+    # a meta-titled interior ("BOX 4: …", tenure p26) is designed; image
+    # backgrounds and bordered boxes stay callout material.
+    titled = any(k == "meta" for k in kinds.values())
+    if inside and prose_idx and not borders and n_images == 0 and not titled:
+        area = max((bbox[2] - bbox[0]) * (bbox[3] - bbox[1]), 1.0)
+        page_bg = _local_bg(ctx, page, bbox)
+        pale_bg = any(
+            o[OT] == OBJ_PATH and o[7] and o[5] is not None
+            and (o[3] - o[1]) * (o[4] - o[2]) >= 0.8 * area
+            and o[5] < len(ctx.colors)
+            and max(abs(a - b) for a, b in
+                    zip(ctx.colors[o[5]][:3], page_bg)) < 12
+            for o in cluster["objs"])
+        # vivid ink anywhere in the cluster means CONTENT graphics, not
+        # decoration (respond p7: the chart's orange bars sit on a pale
+        # panel — dissolving freed the bar labels into flow)
+        vivid = any(
+            o[OT] == OBJ_PATH and o[7] and o[5] is not None
+            and (o[3] - o[1]) * (o[4] - o[2]) >= 400
+            and o[5] < len(ctx.colors)
+            and max(abs(a - b) for a, b in
+                    zip(ctx.colors[o[5]][:3], page_bg)) >= 40
+            for o in cluster["objs"])
+        pale_bg = pale_bg and not vivid
+        m = (getattr(ctx, "column_model", None) or {}).get(page["n"])
+        cols = [c for band in (m["bands"] if m else []) for c in band["cols"]]
+        grid = sum(1 for i in prose_idx
+                   if any(abs(blocks[i]["bbox"][0] - c[0]) <= 8 for c in cols))
+        if pale_bg and grid >= max(1, (len(prose_idx) + 1) // 2) \
+                and label_chars <= 0.2 * max(prose_chars, 1):
+            ctx.log.entry("region-dissolved", page=page["n"],
+                          bbox=[round(v, 1) for v in bbox],
+                          reason=f"pale full-coverage fill behind {grid}/"
+                                 f"{len(prose_idx)} column-aligned prose blocks")
+            return None
+
+    # (b) LABEL-SOUP DIAGRAM (F4): a graphics-heavy region whose text is
+    # overwhelmingly short labels is a figure no matter the char total —
+    # dp p10's wheel (34 labels, 325 chars) read as a callout by the
+    # char-count rule and rendered as letter soup on a teal box.
+    if graphic and sum(1 for k in kinds.values() if k == "label") >= 5 \
+            and label_chars >= 3 * max(prose_chars, 1) and prose_chars < 100:
+        kind = "figure"
+        why = "label-soup diagram"
     # text-rich regions are callouts even when they contain an image (logo
     # sidebars); genuine figures carry at most label-scale text
-    if graphic and (chars_inside <= 150 or
-                    (n_images == 0 and chars_inside <= 400)):
+    elif graphic and (chars_inside <= 150 or
+                      (n_images == 0 and chars_inside <= 400)):
         kind = "figure"
         # text-bearing vector region: the figure/callout call is genuinely close
         uncertain = n_images == 0 and chars_inside > 100
@@ -899,8 +993,8 @@ def _classify_cluster(ctx, page, cluster, blocks, texts, body_size, top_size=Non
                        text_blocks=len(absorbed_idx), chars_inside=chars_inside,
                        kept_big_text=[texts[i][:40] for i in big_inside]
                                      if kind == "figure" else [],
-                       reason=f"images={n_images} shadings={n_shade} paths={n_paths} "
-                              f"chars_inside={chars_inside}")
+                       reason=(why or f"images={n_images} shadings={n_shade} "
+                               f"paths={n_paths} chars_inside={chars_inside}"))
     return {"kind": kind, "page": page["n"], "bbox": bbox, "rk": rk,
             "uncertain": uncertain, "blockIdx": absorbed_idx, **style}
 
@@ -1141,6 +1235,34 @@ def _split_multi_image_figures(ctx, regions, pages, blocks, texts, absorbed):
                 caption=(sub.get("caption") or "")[:60])
             out.append(sub)
     return out
+
+
+def _local_bg(ctx, page, bbox):
+    """The color IMMEDIATELY SURROUNDING a region, sampled from the rendered
+    page PNG in a ring just outside the bbox (median per channel) — the
+    owner's 'sample bgcolor in multiple places'. Page corners are the wrong
+    reference: a tinted quote box on a white card inside a blue page
+    (toolkit p26) must compare against the CARD it sits on."""
+    try:
+        img = Image.open(ctx.outdir / "pages" / f"page-{page['n']:04d}.png")
+        scale = img.width / page["width"]
+        l, b, r, t = bbox
+        h = page["height"]
+
+        def px(x, y_pdf):
+            xi = max(0, min(img.width - 1, int(x * scale)))
+            yi = max(0, min(img.height - 1, int((h - y_pdf) * scale)))
+            return img.getpixel((xi, yi))[:3]
+
+        pad = 6
+        pts = [px((l + r) / 2, t + pad), px((l + r) / 2, b - pad),
+               px(l - pad, (t + b) / 2), px(r + pad, (t + b) / 2),
+               px(l - pad, t + pad), px(r + pad, t + pad),
+               px(l - pad, b - pad), px(r + pad, b - pad)]
+        return tuple(sorted(c[i] for c in pts)[len(pts) // 2]
+                     for i in range(3))
+    except Exception:
+        return (255, 255, 255)
 
 
 def _figure_model(ctx, pages, blocks, texts, regions, body_size, note_idx):

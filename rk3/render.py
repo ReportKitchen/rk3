@@ -12,7 +12,7 @@ from pathlib import Path
 
 from . import irwalk
 
-VERSION = 77
+VERSION = 78
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -685,12 +685,21 @@ def _render_node(ctx, node, pages, state):
         # figure or a list) — no cell-specific text handling. Rows/cells carry
         # only data-nid (addressable by ops/feedback); page/rk provenance lives
         # on the enclosing figure.
-        rows = node["children"]
+        # a table region's bound title/caption ride as caption containers
+        # among the children (baystate p12); rows are selected by type
+        rows = [c for c in node["children"] if c.get("type") == "row"]
+        caps = [c for c in node["children"] if c.get("type") == "caption"]
 
         def _cell(c, tag):
             inner = "".join(_render_node(ctx, ch, pages, state)
                             for ch in c.get("children", []))
             return f'<{tag} data-nid="{c["nid"]}">{inner}</{tag}>'
+
+        def _figcap(c):
+            inner = "".join(_render_node(ctx, ch, pages, state)
+                            for ch in c.get("children", []))
+            return (f'<figcaption class="{c.get("variant", "caption")}" '
+                    f'data-nid="{c["nid"]}">{inner}</figcaption>\n')
 
         head = ""
         body_rows = rows
@@ -703,8 +712,13 @@ def _render_node(ctx, node, pages, state):
             f'  <tr data-nid="{r["nid"]}">'
             + "".join(_cell(c, "td") for c in r["children"]) + "</tr>"
             for r in body_rows)
-        return (f'<figure class="table" {_attrs(node, pages)}>\n<table>\n'
-                f'{head}<tbody>\n{body}\n</tbody>\n</table>\n</figure>')
+        title_caps = "".join(_figcap(c) for c in caps
+                             if c.get("variant") == "title")
+        tail_caps = "".join(_figcap(c) for c in caps
+                            if c.get("variant") != "title")
+        return (f'<figure class="table" {_attrs(node, pages)}>\n{title_caps}'
+                f'<table>\n{head}<tbody>\n{body}\n</tbody>\n</table>\n'
+                f'{tail_caps}</figure>')
     if t == "aside":
         children = "\n".join(_render_node(ctx, c, pages, state)
                              for c in node["children"])

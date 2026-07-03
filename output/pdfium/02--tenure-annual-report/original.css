@@ -133,11 +133,6 @@ h6 {
 
 [data-nid="ncedb3b364e"] th, [data-nid="ncedb3b364e"] td { border-color: #003849; }
 
-[data-nid="nc973388638"] {
-  background: #f6f5fb;
-  border: none;
-}
-
 [data-nid="n1cd28fc100"] {
   background: #ddd8d4;
   border: none;
@@ -181,14 +176,6 @@ h6 {
   background: transparent;
   border: none;
   border-bottom: 1px solid #003849;
-}
-
-[data-nid="nc8fc6dc777"] {
-  background: #f6f5fb;
-  border: none;
-  float: right;
-  width: 49%;
-  margin: 0 0 1rem 1.5rem;
 }
 
 [data-nid="nf5cca42688"] {

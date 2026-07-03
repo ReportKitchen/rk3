@@ -145,14 +145,6 @@ strong.c-f78813 { color: #f78813; font-weight: inherit; }
   font-size: 0.8em;
 }
 
-.sm-strong-right-alt {
-  font-family: "helvetica-lt-pro", sans-serif;
-  font-weight: 700;
-  color: #5c6f7b;
-  font-size: 0.7em;
-  text-align: right;
-}
-
 .alt-2 {
   font-family: "helvetica-lt-pro", sans-serif;
   color: #5c6f7b;
@@ -246,13 +238,6 @@ strong.c-f78813 { color: #f78813; font-weight: inherit; }
 [data-nid="nde8c93834c"] {
   background: #466bb3;
   padding: 0.4em 0.6em;
-}
-
-[data-nid="ne7f5c0a482"] {
-  background: #3d6bba;
-  border: none;
-  border-bottom: 0px solid #a6a8ab;
-  border-left: 0px solid #ccd4db;
 }
 
 [data-nid="n27a3f4cf8b"] {
