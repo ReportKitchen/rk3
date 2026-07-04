@@ -488,6 +488,18 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§1.1 scoreboard built** (2026-07-03). `tools/scoreboard.py` → one
+  `output/pdfium/<slug>/scoreboard.json` per doc, one record per page:
+  `{page, class, visionIssues:{crit,high,med,low}, stakes:{green,red},
+  openOwnerNotes}`. Stakes live from `checks_with_status` (no reconvert),
+  attributed to a page by anchoring-nid page → `pNN` note → doc-level
+  (`page:null`) bucket; vision issues = OPEN `source:vision-qa` records by
+  severity; owner notes = `type:comment/answer` w/o `source`, `status!=cleared`.
+  Preserves any prior triage `class`. Invocation: `python tools/scoreboard.py
+  [slug]`. Ran corpus-wide: **26 docs** (race p10/12/13/15/17/20 carry the
+  vision load, tenure too; verified per-page attribution). NOTE: scoreboard.json
+  is auto-gitignored (`output/pdfium/*/*` whitelist), so it's local state — the
+  stakes tab (§1.3) and §7 read it; nothing to commit but the tool.
 - **§1.4 tools promoted** (2026-07-03). `tools/nodediff.py` (leaf-walk
   differ: `python tools/nodediff.py <slug> [--ref REF]` → unified diff of
   `p{page} {type}: text[:110]` lines, HEAD vs working tree — verified clean
