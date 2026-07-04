@@ -488,6 +488,27 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§4.5 pilot verdict: "§5 FIRST" (graceful-degradation PARK, NOT no-go)**
+  (2026-07-04). Demonstrated the full loop on pilot points-of-light p25
+  (SUMMARY callout + pull-quote page): scan→prescribe→apply→reconvert→rescan,
+  2 iters, **$0.43**. FINDINGS: (1) the machinery works end-to-end and the
+  oscillation safety rail FIRED correctly (refused a conflicting iter-2
+  orderPin). (2) Prescriber quality is HIGH — it emitted 3 correct minimal
+  structural overrides (orderPin: SUMMARY box reads after the heading; floatPin:
+  pull-quote left; headingOverride: "NONPROFIT LEADER" is an attribution not a
+  heading), each the right lever with accurate page-grounded reasoning. This
+  validates the owner's core thesis. (3) BUT apply-all was MIXED: the orderPin
+  genuinely fixed the SUMMARY ordering, yet applying also lost the SUMMARY
+  label, stripped the pull-quote's decoration (quote-mark/green → plain), and
+  shuffled order; severe only 5→4, and the page did NOT "look genuinely right"
+  (§4.5 bar). Config REVERTED (eyeballed, restored clean; never degrade w/o
+  approval). DIAGNOSIS: dominant residuals are STYLING (callout label/color,
+  pull-quote decoration) — the structural levers can't express them; §5 owns
+  them. Also a convergence-criteria gap: don't apply an override that trades one
+  medium+ issue for another (needs a net-improvement gate). VERDICT per §4.5:
+  the mechanism + prescriber are sound, so this is not a NO-GO — it is **PARK
+  the corpus loop rollout until §5 lands**, then the loop's structural fixes
+  land atop correct styling. Machinery banked for reuse.
 - **§4.1–4.4 vision-loop machinery BUILT + validated** (2026-07-03).
   §4.1 `rk3.visionqa.prescribe(slug, page)` — feeds the model the original page
   PNG + our render crop (shoot) + the IR skeleton (`ir_skeleton`) + the lever
@@ -612,4 +633,17 @@ doubt: smaller scope, PARK, keep moving.
 
 ## PARKED
 
-*(empty)*
+- [§4.5] Corpus vision-loop rollout | the pilot (points-of-light p25) proved the
+  machinery + prescriber but apply-all traded structural fixes for STYLING
+  losses (callout label/color, pull-quote decoration) → page didn't "look
+  genuinely right" | do §5 (styles baseline) FIRST, then re-run pilots; the
+  loop's structural fixes land atop correct styling instead of degrading it.
+- [§4.3] Convergence-criteria gap | the loop applies any override the prescriber
+  returns, even one that trades one medium+ issue for another (p25 went 5→4, not
+  to 0) | add a NET-IMPROVEMENT gate: re-scan after apply and KEEP the override
+  only if severe-count strictly drops; else roll it back (an auto-revert rail in
+  converge_page).
+- [§2] Triage under-calls engine-flattened styling pages (race p20 pull-quote,
+  gates p8 hero banner) → classified easy, no deterministic signal exists |
+  resolves automatically once §5 makes pull-quotes / banners real nodes; until
+  then §4.3's easy-sample verification scan is the net.
