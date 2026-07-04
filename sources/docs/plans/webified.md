@@ -289,10 +289,15 @@ non-decreasing. Full §0.1 ritual per lever. Commit per lever.
 *Purpose: the core of the owner's proposal. Vision stops complaining and
 starts PRESCRIBING. Prove convergence on three pilot docs end-to-end.*
 
-**Pilots**: `02--race-to-lead` (simple charts, our best-instrumented),
-`02--tenure-annual-report` (watermarks/photos/tables/tagged-order), and
-`02--atlantic-council-report-060823` (image charts, tables, signature
-pages — currently ugliest census resident).
+**Pilots (owner-selected, easy-first — do not substitute)**:
+`02--race-to-lead` (simple vector charts, our best-instrumented),
+`02--points-of-light` (clean text-and-pull-quote layout), and
+`02--edf-ir23-digital-pages` (moderate: photos, wrapped images,
+signatures). The owner's directive: **nail the easy stuff beautifully
+before progressing** — a converged easy page must look genuinely right,
+not merely pass. The hard docs (tenure, atlantic, chep) come only in §7,
+in ascending difficulty order, after the pilots have proven the loop on
+gentle material.
 
 **4.1 The prescriber.** Extend `rk3/visionqa.py` with a second mode:
 `prescribe(slug, page) -> {"overrides": [...], "ops": [...],
@@ -333,8 +338,10 @@ one record per iteration — page, issues before/after by severity,
 overrides applied, spend. The scoreboard picks these up.
 
 **4.5 Pilot exit criteria (the go/no-go for the rest of the run):**
-- Each pilot doc: ≥70% of its hard pages reach PASS within budget, and
-  ZERO regressions on its stakes, and the doc-level census stays green.
+- Each pilot doc: **every easy page passes AND looks beautiful under your
+  own eyeball** (this bar comes first — the owner's directive), ≥70% of
+  its hard pages reach PASS within budget, ZERO regressions on its
+  stakes, and the doc-level census stays green.
 - Eyeball five converged hard pages per pilot against their source PNGs
   yourself and record verdicts in the ledger.
 - If a pilot fails these bars: STOP the loop rollout. Write a diagnosis
@@ -422,10 +429,16 @@ figure+question on one deliberately-broken case; census non-decreasing.
 
 ## §7 — Stage 7: The corpus run
 
-With the loop proven (or parked), run the full pipeline over all 27 docs:
-reconvert → triage → vision loop on hard pages (if enabled) → scoreboard.
-Then the final sweep: §1.2 again (close what converged), refresh the
-stakes tab data, and regenerate every scoreboard.
+With the loop proven (or parked), run the full pipeline over all 27 docs
+**in ascending difficulty order** (rank docs by their share of hard pages
+from §2 triage; easiest first). The owner's easy-first directive applies
+corpus-wide: a doc is not "done" because its hard pages converged — its
+easy pages must look beautiful, and they are cheap to verify, so verify
+them first and fix any easy-page blemish before spending budget on that
+doc's hard pages. Reconvert → triage → easy-page verification → vision
+loop on hard pages (if enabled) → scoreboard. Then the final sweep: §1.2
+again (close what converged), refresh the stakes tab data, and regenerate
+every scoreboard.
 
 Produce `output/CORPUS-SCOREBOARD.md`: per doc — pages passed/total, issue
 counts by severity, spend, top residual categories. This file is the
