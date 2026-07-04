@@ -5,6 +5,7 @@
         "minion": "Source Serif 4",
         "publicsans": "Public Sans"
       }
-    }
+    },
+    "embedFonts": false
   }
 }
