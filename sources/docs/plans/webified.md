@@ -488,6 +488,16 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§1.2 stale vision sweep DONE** (2026-07-03). `tools/sweepvision.py`
+  (durable, reused in §7): fresh batched rescan of the pages an OPEN
+  `vision-qa` record references → mark non-reproduced (same page+category,
+  text-sim <0.45) as `disposition:fixed` w/ auto-swept note; owner notes never
+  touched. Only 2 docs had vision records. Result: race-to-lead 66→**17** open
+  (49 swept; its board was inflated by two same-day scans stacking
+  near-duplicates), tenure 22→**11** open (11 swept). Board shrank 88→28.
+  Owner notes intact (race 20, tenure 28). Vision spend **$0.97** total
+  (opus reviewer, 11 page-scans). feedback/ is gitignored → local state only;
+  scoreboards for both docs refreshed. Commit = the tool + this ledger.
 - **§1.1 scoreboard built** (2026-07-03). `tools/scoreboard.py` → one
   `output/pdfium/<slug>/scoreboard.json` per doc, one record per page:
   `{page, class, visionIssues:{crit,high,med,low}, stakes:{green,red},
