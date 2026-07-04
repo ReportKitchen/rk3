@@ -488,6 +488,21 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§4.1–4.4 vision-loop machinery BUILT + validated** (2026-07-03).
+  §4.1 `rk3.visionqa.prescribe(slug, page)` — feeds the model the original page
+  PNG + our render crop (shoot) + the IR skeleton (`ir_skeleton`) + the lever
+  catalog; returns `{overrides:[{lever,entry,why}], ops, residuals:[{issue,
+  missingLever}]}`. The API caps schema complexity, so entry/ops are JSON-string
+  encoded and parsed (`_parse_entries`); reject+retry once. Validated on race
+  p12 → valid empty response (structurally faithful; styling isn't its remit).
+  §4.2–4.4 `tools/visionloop.py` (replaces the stub): `apply_prescription`
+  safety rails — known-lever-only, page-scope guard (never touches another
+  page), `_source` provenance stamp, append-only merge (owner entries never
+  deleted), oscillation refusal (target-sig vs value-sig), idempotent dupes;
+  `converge_page` runs scan→prescribe→apply→reconvert up to 3 iters (medium+ =
+  fail); `run` does triage→cluster→one-rep-per-cluster within a page budget;
+  bookkeeping to `output/pdfium/<slug>/visionloop.jsonl` (§4.4). Imports clean,
+  all 8 list-levers wired.
 - **§3.4 floatPin lever DONE — §3 substantially complete** (2026-07-03).
   `structure.floatPins` [{nid|textPrefix, float: left|right|none|wide}] →
   `_apply_float_pins` overrides a figure node's data.float after

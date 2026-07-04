@@ -7,8 +7,10 @@ is injected so the model tells an intentional transform (single column, no page
 breaks, dropped underlines …) from a real error.
 """
 
+import json
 from pathlib import Path
 
+from rk3 import irwalk
 from rk3.ai import vision_json
 from rk3.documents import output_dir
 
@@ -135,3 +137,156 @@ def qa_doc(slug, pages=None, model=None):
             f["page"] = page
             out.append(f)
     return out
+
+
+# ---------------------------------------------------------------------------
+# The prescriber (webified §4.1): vision stops complaining and starts
+# PRESCRIBING. Given the original page, our render, the page's IR skeleton and
+# the lever catalog, it returns the MINIMAL set of per-document overrides that
+# would make our structure match the original — anything no lever expresses
+# goes to `residuals` with a named missingLever.
+# ---------------------------------------------------------------------------
+
+# lever names the prescriber may target; apply-time (§4.2) re-validates each
+LEVER_NAMES = ["regionOverrides", "figureBands", "orderPins", "floatPins",
+               "headingOverrides", "breakOverrides", "indentOverrides",
+               "tablePins"]
+
+_LEVER_CATALOG = """AVAILABLE OVERRIDE LEVERS (each is a per-document config entry; write the
+MINIMAL set; anything you cannot express goes to `residuals`):
+
+- regionOverrides {"page":n,"bbox":[l,b,r,t],"kind":"figure"|"callout"|"text"}
+    reclassify a detected region. kind="text" DISSOLVES decoration (a watermark
+    / faint shape mis-read as a box) back into ordinary flow.
+- figureBands {"page":n,"bbox":[l,b,r,t],"title":"text-prefix"|null,"floor":y|null}
+    force a chart/figure to assemble as ONE figure over the bbox (for charts the
+    kicker heuristic misses — bubble charts, unkickered charts).
+- orderPins {"page":n,"sequence":["text-prefix",...]}
+    fix a page's reading order; list the blocks in the order they should read.
+- floatPins {"nid":"..." | "textPrefix":"...","float":"left"|"right"|"none"|"wide"}
+    set a figure's float side (or none = full-width in flow).
+- headingOverrides {"textPrefix":"...","level":1..6}  (level 0 = NOT a heading)
+- breakOverrides {"textPrefix":"...","breaks":true|false}   keep/join hard line breaks
+- indentOverrides {"textPrefix":"...","mode":"preserve"|"remove"}
+- tablePins {"page":n,"bbox":[l,b,r,t],"cols":[x-cut,...]|null,"headerRows":0|1}
+    force a bbox to render as a real table.
+
+bbox coordinates are PDF points (origin bottom-left), matching the IR skeleton
+below. Prefer a text-prefix match over a bbox when the target has text."""
+
+_PRESCRIBE_SYSTEM = (
+    "You are the PRESCRIBER for a PDF-to-HTML conversion engine. You see the "
+    "ORIGINAL page (IMAGE 1) and OUR current render of it (IMAGE 2), plus our "
+    "internal structure (the IR skeleton) and a catalog of override levers.\n\n"
+    "Your job: emit the MINIMAL set of per-document OVERRIDES that would make our "
+    "render's STRUCTURE match the original — correct reading order, figure "
+    "membership, region classification, headings, table-vs-image. Do NOT fix "
+    "intentional web transforms (single column, no page breaks, dropped link "
+    "underlines, TOC removed) — those are correct.\n\n"
+    "Return JSON: `overrides` (each {\"lever\": <one of the catalog names>, "
+    "\"entry\": <the lever's config object ENCODED AS A JSON STRING>, \"why\": "
+    "...}), `ops` (rare per-element edits, each a JSON-string edit object), "
+    "and `residuals` (each {\"issue\": ..., \"missingLever\": <a short name for "
+    "the capability we'd need>}). Prefer text-prefix matches; keep prefixes long "
+    "enough to be unique. If our render already matches the original's structure, "
+    "return empty arrays. Be conservative: never invent content, never reorder "
+    "correct pages, propose the fewest entries that fix real structural defects."
+)
+
+# The API caps json_schema complexity, so `entry`/`op` are JSON-OBJECT-encoded
+# STRINGS (parsed in prescribe()); apply-time (§4.2) validates each per lever.
+_PRESCRIBE_SCHEMA = {
+    "type": "object", "additionalProperties": False,
+    "properties": {
+        "overrides": {"type": "array", "items": {
+            "type": "object", "additionalProperties": False,
+            "properties": {
+                "lever": {"type": "string", "enum": LEVER_NAMES},
+                "entry": {"type": "string"},
+                "why": {"type": "string"},
+            },
+            "required": ["lever", "entry"]}},
+        "ops": {"type": "array", "items": {"type": "string"}},
+        "residuals": {"type": "array", "items": {
+            "type": "object", "additionalProperties": False,
+            "properties": {"issue": {"type": "string"},
+                           "missingLever": {"type": "string"}},
+            "required": ["issue", "missingLever"]}},
+    },
+    "required": ["overrides", "ops", "residuals"],
+}
+
+
+def _parse_entries(res):
+    """Turn the model's JSON-string `entry`/`ops` back into dicts; drop
+    unparseable ones (logged into residuals)."""
+    good = []
+    for ov in res.get("overrides", []):
+        try:
+            ov["entry"] = json.loads(ov["entry"]) if isinstance(ov.get("entry"), str) \
+                else ov.get("entry")
+            good.append(ov)
+        except (json.JSONDecodeError, TypeError):
+            res.setdefault("residuals", []).append(
+                {"issue": f"unparseable entry for {ov.get('lever')}",
+                 "missingLever": "prescriber-json"})
+    res["overrides"] = good
+    ops = []
+    for op in res.get("ops", []):
+        try:
+            ops.append(json.loads(op) if isinstance(op, str) else op)
+        except (json.JSONDecodeError, TypeError):
+            pass
+    res["ops"] = ops
+    return res
+
+
+def ir_skeleton(slug, page, limit=60):
+    """One line per IR node on `page`: `{nid} p{page} {type} [l,b,r,t]: text`.
+    The prescriber's map of what we currently produce."""
+    ir_path = output_dir(slug) / "ir.json"
+    if not ir_path.exists():
+        return "(no IR)"
+    ir = json.loads(ir_path.read_text())
+    lines = []
+    for n in irwalk.walk(ir.get("body", [])):
+        if n.get("page") != page:
+            continue
+        bb = n.get("bbox") or [0, 0, 0, 0]
+        txt = irwalk.subtree_text(n)[:limit] if not n.get("text") else n["text"][:limit]
+        lines.append(f"{n.get('nid','?')} {n.get('type')} "
+                     f"[{','.join(str(round(v)) for v in bb)}]: {txt}")
+    return "\n".join(lines) or "(no nodes on this page)"
+
+
+def prescribe(slug, page, our_png=None, model=None):
+    """Vision prescription for one page (webified §4.1): returns
+    {"overrides":[{lever,entry,why}], "ops":[...], "residuals":[{issue,missingLever}]}.
+    Rejects+retries once on invalid JSON. Analysis-only — writes nothing (the
+    §4.2 apply path, gated by safety rails, does the writing)."""
+    orig = output_dir(slug) / "pages" / f"page-{page:04d}.png"
+    if our_png is None:
+        shots = shoot(slug, pages=[page])
+        our_png = shots.get(page)
+    if our_png is None or not Path(our_png).exists():
+        return {"overrides": [], "ops": [],
+                "residuals": [{"issue": "our render produced no content for this page",
+                               "missingLever": "render-empty"}]}
+    user = (f"IMAGE 1 is the ORIGINAL page {page}. IMAGE 2 is OUR render of that "
+            f"page's content.\n\nOUR IR SKELETON (page {page}):\n{ir_skeleton(slug, page)}"
+            f"\n\n{_LEVER_CATALOG}\n\nEmit the minimal overrides/ops that fix real "
+            "structural mismatches; everything else → residuals.")
+    for attempt in range(2):
+        try:
+            res = vision_json(_PRESCRIBE_SYSTEM, user, [orig, our_png],
+                              _PRESCRIBE_SCHEMA, max_tokens=4000, model=model)
+            res.setdefault("overrides", [])
+            res.setdefault("ops", [])
+            res.setdefault("residuals", [])
+            return _parse_entries(res)
+        except Exception as e:
+            if attempt == 1:
+                return {"overrides": [], "ops": [],
+                        "residuals": [{"issue": f"prescribe failed: {e}",
+                                       "missingLever": "prescriber-error"}]}
+    return {"overrides": [], "ops": [], "residuals": []}
