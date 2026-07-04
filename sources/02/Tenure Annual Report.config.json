@@ -7,6 +7,22 @@
         "kind": "text",
         "_source": "owner p13 order assertions (2026-07-02) + source page image: the detected 'callout' (4 paths, no box, no border) is the pale decorative leaf watermark behind ordinary two-column body text — 'They persuaded 17 municipalities…' and 'It is a golden moment…' are body flow, not an aside"
       }
+    ],
+    "orderPins": [
+      {
+        "page": 14,
+        "sequence": [
+          "We start off this report",
+          "In Section 2, we turn",
+          "In Section 3",
+          "In Section 4",
+          "In Section 5",
+          "In Section 6",
+          "In the final Section 7",
+          "And for those who might still"
+        ],
+        "_source": "plan §3.2 known tag-order defect: the two-column section rundown reads left column (Why, Sections 2-4) then right column (Sections 5-7, appendices); the engine interleaved Section 5 after Section 2. Source page image confirms the sections run 2→7 in order."
+      }
     ]
   },
   "output": {

@@ -28,6 +28,12 @@ DEFAULTS = {
         # answers to figure-or-callout questions, applied on re-run:
         # [{"page": n, "bbox": [l,b,r,t], "kind": "figure"|"callout"}]
         "regionOverrides": [],
+        # orderPin (webified §3.2): page-scoped reading-order override at the
+        # ANALYZE level. [{"page": n, "sequence": ["text-prefix", ...]}] — the
+        # matched top-level nodes lead in the given order; unmatched nodes keep
+        # engine order, interpolated after their predecessor. For tag-order
+        # defects no figure/column lever can express (tenure p14 sections 4<5).
+        "orderPins": [],
         # design-element numerals glued to headings ("4Institutional"):
         # "styled" (separate <span class="section-number">), "inline" ("4. X"),
         # or "removed"

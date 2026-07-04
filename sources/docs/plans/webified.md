@@ -488,6 +488,19 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§3.2 orderPin lever DONE — flips a standing red** (2026-07-03). Schema in
+  config.py DEFAULTS (`structure.orderPins`); consumption `_apply_order_pins`
+  in analyze.py (page-scoped reorder after `_upgrade_lists`, matched by
+  normalized text prefix, render.py reorder-op interpolation semantics for
+  unmatched nodes; idempotent). Gold = tenure p14 "sections read in order (4
+  before 5)", the known tag-order red — added the pin to Tenure's config.json
+  with `_source`. Full §0.1 ritual: VERSION 196→**197**; tenure **9/1→10/0**;
+  census **71/6 → 72/5** (greens non-decreasing, ZERO regressions); pytest 33
+  green; nodediff shows the ONLY change is p14 (Section 5 moved from pos 3 → pos
+  5, giving Why→S2→S3→S4→S5→S6→S7→appendices); eyeballed the rendered p14 — reads
+  in order. NOTE: the VERSION bump reconverted all docs; 12 pinless docs'
+  ir.json are byte-different but **deep-equal** (verified `cur==old`) — pure
+  serialization churn from stale committed baselines, discarded (not my change).
 - **§2 page triage DONE** (2026-07-03). `rk3/triage.py` (read-only; no
   VERSION bump, census untouched) classifies each page easy/moderate/hard from
   ir.json node types + debug-analyze events (figure `reason` = label-soup/

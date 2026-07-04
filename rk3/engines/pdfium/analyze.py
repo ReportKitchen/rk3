@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 196
+VERSION = 197
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -83,6 +83,66 @@ def _override_for(overrides, text):
         if p and low.startswith(p.lower()):
             return ov
     return None
+
+
+def _pin_norm(s):
+    """Match key for orderPin prefixes: lowercase, whitespace collapsed
+    (punctuation kept, like eval._norm) so a distinctive prefix matches the
+    START of a node's text."""
+    return re.sub(r"\s+", " ", (s or "")).strip().lower()
+
+
+def _node_lead_text(n):
+    """A node's leading text for prefix matching: its own text, else its first
+    descendant leaf's text, else a figure title."""
+    if n.get("text"):
+        return _pin_norm(n["text"])
+    for c in n.get("children") or []:
+        t = _node_lead_text(c)
+        if t:
+            return t
+    return _pin_norm(n.get("title") or "")
+
+
+def _apply_order_pins(ctx, nodes):
+    """orderPin (webified §3.2): page-scoped reading-order override at the
+    ANALYZE level. Each pin {"page": n, "sequence": ["text-prefix", ...]}
+    reorders that page's top-level nodes so the matched ones lead in the given
+    order; an unmatched node keeps engine order, interpolated right after its
+    engine-order predecessor (the render.py reorder-op semantics, matched by
+    normalized text prefix instead of nid). Idempotent — re-running with the
+    same pin yields the same order."""
+    pins = ctx.cfg["structure"].get("orderPins", [])
+    if not pins:
+        return nodes
+    for pin in pins:
+        page = pin.get("page")
+        seq = [_pin_norm(s) for s in (pin.get("sequence") or []) if s]
+        if page is None or not seq:
+            continue
+        slots = [k for k, n in enumerate(nodes) if n.get("page") == page]
+        if not slots:
+            continue
+
+        def _rank(node):
+            key = _node_lead_text(node)
+            return next((r for r, pref in enumerate(seq) if key.startswith(pref)),
+                        None)
+
+        keys, last, frac, matched = {}, -1, 0, 0
+        for k in slots:
+            r = _rank(nodes[k])
+            if r is not None:
+                keys[k], last, frac = (r, 0), r, 0
+                matched += 1
+            else:
+                frac += 1
+                keys[k] = (last, frac)
+        picked = [nodes[k] for k in sorted(slots, key=lambda j: keys[j])]
+        for slot, node in zip(slots, picked):
+            nodes[slot] = node
+        ctx.log.entry("order-pin", page=page, matched=matched, count=len(slots))
+    return nodes
 
 ROMAN = {}
 for _n, _r in enumerate(
@@ -594,6 +654,10 @@ def run(ctx):
     # runs-dicts) and become item containers holding leaf children, so render/
     # ops/refs/audit see one shape and any content can nest inside an item
     nodes = _upgrade_lists(ctx, nodes)
+
+    # orderPin (webified §3.2): page-scoped reading-order override for tag-order
+    # defects no figure/column lever can express (tenure p14 sections 4<5)
+    nodes = _apply_order_pins(ctx, nodes)
 
     # flood guard: questionnaire-style documents raise the same per-block
     # question hundreds of times (the survey: 174 figure-or-callout, 131

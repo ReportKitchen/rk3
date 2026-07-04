@@ -24,7 +24,15 @@ The clutter is not all the same kind of thing:
 
 ## INBOX (webified executor: PARK cleanup candidates here as you work)
 
-*(empty)*
+- Committed `output/pdfium/*/ir.json` baselines drift out of serialization sync
+  with current code: a VERSION bump reconverts every doc and ~12 pinless docs
+  emit byte-different but **content-deep-equal** ir.json (old key-order vs new).
+  Harmless (nodediff/leaf-walk is clean) but noisy in `git status`. Evidence for
+  the `output/`-in-git DECISION (Stage 1). Fix path: reconvert+recommit all
+  baselines once at the final §7 state, or gitignore ir.json per that decision.
+- `coursecorrected` on tenure p14 (source hyphenated "course-corrected" across a
+  line break; caps/hyphen dehyphenation joined it WITHOUT the hyphen). Minor,
+  pre-existing, unrelated to orderPin — a dehyphenation edge case.
 
 ---
 
