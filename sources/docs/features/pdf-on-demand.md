@@ -1,3 +1,5 @@
+> **STATUS:** ASPIRATIONAL — not built (no paged-PDF export path in rk3/ or app/); the doc itself flags it as not a development priority.
+
 # PDF on demand
 
 A feature of some RK1 and RK2 sites is the ability to export the content to a new PDF.  This is typically used when the document was not designed, and we were given Word or Google Docs source.

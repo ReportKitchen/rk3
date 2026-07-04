@@ -1,3 +1,5 @@
+> **STATUS:** PARTIAL — a QA/review mode shipped via a DIFFERENT mechanism (vision-QA reviewer: rk3/visionqa.py, `/api/qa/{slug}/run`, ReviewBoard.jsx). The formatting toggles, deterministic checks, and "things we removed" list described here are NOT the shipped implementation.
+
 # A mode for users to perform QA in
 
 ## tools for the user

@@ -1,4 +1,6 @@
 
+> **STATUS:** SPEC (pattern-track agent's territory). PARTIAL — of the sketched event-frames only `funding_event` is built (patterns/registry + detectors); the generalized event-frame machinery and the scope / question-function dimensions are ASPIRATIONAL.
+
 # Could we identify activities related to some of our client's core concerns?
 
 # Workforce: hiring, firing, training, expansion, recruitment

@@ -1,3 +1,5 @@
+> **STATUS:** ASPIRATIONAL — the persistent per-report metrics library it proposes is not built (patterns/corpus holds IR snapshots, not report demographics).
+
 # Claude suggests linters.  Let's turn that into data.
 
 I'd love to be able to report on some quantitative aspects of our reports.

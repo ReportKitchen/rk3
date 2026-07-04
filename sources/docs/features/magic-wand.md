@@ -1,3 +1,5 @@
+> **STATUS:** ASPIRATIONAL — not built (no magic/wand code in rk3/ or app/). The proposals-layer design + vision-QA triage are the nearest shipped machinery.
+
 # Magic Wand
 
 If AI >= analyze, show a "magic wand" tool.  

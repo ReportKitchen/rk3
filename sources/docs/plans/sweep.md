@@ -155,6 +155,16 @@ and repo size / route count / dead-code deltas.
 
 *(newest on top)*
 
+- **Stage 0.3 — spec/feature status headers DONE** (2026-07-03). Added a
+  first-line `> **STATUS:**` header to all 11 docs in
+  `sources/docs/specifications/` (2) and `sources/docs/features/` (9), each
+  verdict verified against code (Explore fan-out). Tally: IMPLEMENTED ×1
+  (footnotes — analyze.py `_reconcile_notes`); PARTIAL ×3 (both taxonomy
+  specs = pattern-track Layers 0-2 built / 3-5 aspirational; qa-review-mode
+  shipped as vision-QA reviewer via a different mechanism); ASPIRATIONAL ×7
+  (content-reuse, cover-page, crazy-fantasy, linter-becomes-data, magic-wand,
+  page-breaks=open-question, pdf-on-demand). Content untouched. Docs-only.
+
 - **Stage 0.2 — root docs DONE** (2026-07-03). README.md, AGENTS.md,
   CLAUDE.md audited line-by-line: all current (port 8300, `.venv/bin/python`,
   systemd `rk3` + `--reload` scoping, `npm run build`, AI tiers, default

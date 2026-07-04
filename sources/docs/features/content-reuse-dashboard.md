@@ -1,3 +1,5 @@
+> **STATUS:** ASPIRATIONAL — not built (no reuse / repurpose / share-format route or component exists in rk3/ or app/).
+
 # Content Reuse Dashboard
 
 - identify content that's suited for repurposing

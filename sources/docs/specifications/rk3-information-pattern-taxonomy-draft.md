@@ -1,3 +1,5 @@
+> **STATUS:** SPEC (pattern-track agent's territory). PARTIAL — taxonomy Layers 0-2 are built as the `patterns/**` package (registry + detectors + component recommendations); Layers 3-5 (modules / archetypes) are ASPIRATIONAL.
+
 # RK3 Information Pattern Taxonomy and LLM Recognition Prompts
 
 Draft version: 0.1  

@@ -1,3 +1,5 @@
+> **STATUS:** IMPLEMENTED — footnotes are fielded data with reconciliation (analyze.py `_note_marker`; `footnotes` inline+data variants; `_reconcile_notes` emits a footnote-mismatch banner node).
+
 # Footnotes are data
 
 Footnotes (aka endnotes) consist of 2 parts: a referece and a note.
