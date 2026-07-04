@@ -1,3 +1,5 @@
+> **STATUS:** ACTIVE — owned by the separate pattern-track agent. patterns/** is off-limits to the webified/sweep cycle ([webified.md](webified.md) §0.3). Identification-only; reads the IR, never edits the pipeline.
+
 # RK3 Parallel Work Track: Pattern Identification Process
 
 Draft version: 0.2 (0.1 revised by the RK3 main agent 2026-07-02: hard

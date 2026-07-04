@@ -1,3 +1,5 @@
+> **STATUS:** PROPOSED — **not built.** The viewer still renders the original as a PNG page stack (output/pdfium/<slug>/pages/page-NNNN.png); no pdfjs-dist dependency or PdfJsPane component exists.
+
 # Replace Original PDF PNG Stack With PDF.js
 
 ## Summary

@@ -1,3 +1,5 @@
+> **STATUS:** SHIPPED (2026-07-02, commits 3988053 / 02fa59b / 0a25f6e / 292783b + shim-removal). This plan is complete; kept as the IR contract of record.
+
 # Plan: Unified node / container model
 
 Status: IMPLEMENTED (2026-07-02, owner approved; five eval-gated commits).

@@ -1,3 +1,5 @@
+> **STATUS:** PARTIALLY SHIPPED. §1 IR stabilization (irVersion in analyze.py; legacy-shim removal via [done/unified-container-model.md](done/unified-container-model.md)) and §2 rk3.irwalk toolkit are **DONE**. §3 analyze pass-manifest split and §4 durable-state hardening are **OPEN** (analyze.py is still one module).
+
 # Plan: Post-container consolidation and readiness work
 
 Status: proposed (for the pause after the unified node / container model lands).

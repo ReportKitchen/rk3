@@ -1,3 +1,5 @@
+> **STATUS:** ACTIVE — executing this cycle (Claude Opus). The LEDGER + PARKED at the bottom are the durable state; keep current after every work item.
+
 # WEBIFIED: the long cycle to "that's my document, only webified"
 
 *(Authored by Fable 2026-07-03 for execution by Claude Opus in one long,

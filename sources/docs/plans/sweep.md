@@ -1,3 +1,5 @@
+> **STATUS:** ACTIVE — companion to [webified.md](webified.md). Stage 0 (truth pass) runs before the webified cycle; Stages 1-6 run after the webified verdict. The LEDGER at the bottom is durable state.
+
 # SWEEP: root out the old, the inaccurate, and the disused
 
 *(Authored by Fable 2026-07-03. Companion to plans/webified.md. Stage 0
@@ -151,7 +153,21 @@ and repo size / route count / dead-code deltas.
 
 ## LEDGER
 
-*(empty — not started)*
+*(newest on top)*
+
+- **Stage 0.1 — plan status headers DONE** (2026-07-03). Added a first-line
+  `> **STATUS:**` blockquote to every file in `sources/docs/plans/` (10 files
+  + this file + webified.md). Statuses verified against `git log` and code,
+  not the PROGRESS blocks: columns 0-2+sweep SHIPPED / 3-5 open (order-pin
+  SUPERSEDED by webified §3.2); figures 0-5 SHIPPED (v169-196) / 6 absorbed
+  into webified §5-6; lists L1-L6 SHIPPED / residue named; proposals-layer
+  DESIGN-not-built (verified zero `proposals` refs in rk3/); pdf-js PROPOSED-
+  not-built (no pdfjs-dist / PdfJsPane); post-container §1-2 SHIPPED (irVersion
+  @ analyze.py:670, rk3/irwalk.py exists) / §3-4 open; pattern-track ACTIVE
+  (other agent); unified-container SHIPPED. Baseline census locked at **71
+  passed / 6 failed** (doc-only edits cannot move it). Reds: atlantic p6,
+  foia p4, edf running-footer, covid p7, jhu p20 endnotes, tenure p14 order
+  4<5 (the webified §3.2 orderPin target).
 
 ## PARKED
 

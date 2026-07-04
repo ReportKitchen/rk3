@@ -1,3 +1,5 @@
+> **STATUS:** DESIGN, owner-approved (proposals-QA.md, 2026-07-02); **NOT BUILT.** Converter QUESTIONS exist in the engine, but the proposals/ store and a 'proposals' op kind do **NOT** (verified: zero 'proposals' references in rk3/). The shipped stand-in is vision-QA triage (feedback records with source: vision-qa).
+
 # Plan: The proposals layer
 
 Status: designed on paper (2026-07-02); **owner signed off on all six Q&A

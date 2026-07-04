@@ -1,3 +1,5 @@
+> **STATUS:** L1-L6 **SHIPPED** (v151-168, commits fe57cb4..d08a933). **OPEN residue:** L2 enabler-nesting under a split-off parent (gates p17), L5 interior item breaks, L7 marker-spacing, L11 TOC residue. Styling residue → [webified.md](webified.md) §5. See the PROGRESS block below.
+
 # Plan: Lists — the second structure keystone
 
 Status: proposed 2026-07-02 (researched during the owner's doc-by-doc column

@@ -1,3 +1,5 @@
+> **STATUS:** phases 0-5 **SHIPPED** (v169-196, commits da25b20..08fef28). Phase 6 (reproduction tiers) **OPEN** — absorbed into [webified.md](webified.md) §5 (styles) / §6 (tables). See the PROGRESS block near the bottom.
+
 # Figures: images, charts, and their blast radius
 
 *(drafted 2026-07-02 from the owner's ~60 figure notes; specimen note ids

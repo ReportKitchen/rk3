@@ -1,3 +1,5 @@
+> **STATUS:** phases 0-2 + sweep **SHIPPED** (v149; tiered reading order + column model). Phases 3-5 (flag→proposal, order-pin op, ML residue) **OPEN** — the order-pin op is **SUPERSEDED by [webified.md](webified.md) §3.2 orderPin** (page-scoped, analyze-level). Research: docs/research/reading-order.md.
+
 # Plan: Columns / reading order — the keystone sprint
 
 Status: proposed 2026-07-02 (owner asked for the plan; research already done in
