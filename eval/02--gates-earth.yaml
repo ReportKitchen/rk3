@@ -6,13 +6,13 @@ doc: 02--gates-earth
 # undermine..."), so the page reads scrambled even though it's detected as two
 # columns. The bold lede is also mis-typed as a heading.
 #
-# This is a SEPARATE, pre-existing bug from the column-detection port. Page 8 IS
+# This WAS a SEPARATE, pre-existing bug from the column-detection port. Page 8 IS
 # detected as two-column (split 328.9); the stage pairing below localizes the
-# fault to analyze: PASS at assemble (blocks correctly ordered) but FAIL in the
-# IR. Likely cause — a merged cross-column line ("...the world has pursued these
-# investments undermine...") yields a wide block that _flow_order mistakes for a
-# full-width band separator, breaking the left→right flow. Pinned for the
-# find-and-fix spree; expected to FAIL until then.
+# fault to analyze: it PASSED at assemble (blocks correctly ordered) but FAILED in
+# the IR. Cause was a merged cross-column line ("...the world has pursued these
+# investments undermine...") yielding a wide block that _flow_order mistook for a
+# full-width band separator, breaking the left→right flow. Now FIXED — both p8
+# order checks below PASS.
 checks:
   - note: "p8: left-column body precedes the right column (at assemble)"
     stage: assemble

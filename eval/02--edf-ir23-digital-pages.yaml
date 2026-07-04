@@ -2,14 +2,14 @@ doc: 02--edf-ir23-digital-pages
 
 # EDF IR23 is a clean magazine-style annual report. Page 3 is a two-column
 # "Thank you" letter; pages 5–6 are image+text rows with drop caps. Our column
-# DETECTION mis-fires (a centered "THANK YOU" kicker straddles the gutter and
+# DETECTION mis-fired (a centered "THANK YOU" kicker straddles the gutter and
 # defeats the empty-gutter test), so the whole left column should read before
-# the right but currently interleaves.
+# the right; it interleaved before the multi-column port.
 #
 # The first two checks are the same order assertion at two stages: `assemble`
-# already has the columns as separate blocks in the right order (PASS today),
-# while `analyze` scrambles them (FAIL today) — pinning the bug to analyze. The
-# analyze order checks should flip to PASS after the multi-column port.
+# already had the columns as separate blocks in the right order, and since the
+# multi-column port `analyze` orders them correctly too — both PASS now. (Was
+# assemble-PASS / analyze-FAIL before the port, which pinned the bug to analyze.)
 checks:
   - note: "p3: assemble keeps the columns separate & ordered (left block before right)"
     stage: assemble

@@ -155,6 +155,22 @@ and repo size / route count / dead-code deltas.
 
 *(newest on top)*
 
+- **Stage 0 COMPLETE** (2026-07-03). Gate green: `python -m rk3 eval` = **71
+  passed / 6 failed** (unchanged from baseline); `pytest tests/` = 33 passed.
+  Truth pass shipped in 4 commits (0.1 plan headers, 0.2 root docs, 0.3
+  spec/feature headers, 0.4 eval comments). Stages 1-6 wait for the webified
+  verdict.
+- **Stage 0.4 — eval comment corrections DONE** (2026-07-03). Fixed 3 stale
+  prediction comments that named now-passing checks: gates-earth p8
+  ("expected to FAIL until then" → "Now FIXED, both PASS"); edf p3 order
+  ("FAIL today" → "both PASS since the multi-column port"); race-to-lead
+  doc-wide legend ("stays RED … p15/p33/p41" → "Now PASSES", with the
+  p15/p33/p41 bubble-chart legend leak preserved as a NOTE for §5). Historical
+  "red at plant (vNNN)" provenance comments left intact (required by webified
+  §0.1). The tenure "duplicated p13 pair" flagged by 0.4 was ALREADY resolved
+  by the owner's 2026-07-02 correction (yaml lines 3-10 document the
+  de-dup + backwards-pair fix) — nothing to add. Checks untouched; census 71/6.
+
 - **Stage 0.3 — spec/feature status headers DONE** (2026-07-03). Added a
   first-line `> **STATUS:**` header to all 11 docs in
   `sources/docs/specifications/` (2) and `sources/docs/features/` (9), each

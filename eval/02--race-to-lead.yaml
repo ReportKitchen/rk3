@@ -26,11 +26,12 @@ checks:
   - note: "GOLD(fig) p10 (target): fig-2 caption is the figure's own title"
     in_figure: ["figure 2 | race/ethnicity"]
 
-  # DOC-WIDE by design (claimed has no page scope): p13's own chart is
-  # coherent as of v188, but this stays RED while ANY chart in the doc
-  # leaks its legend into flow — currently p15/p33/p41, whose bubble
-  # charts arrive as mini-callouts with no figure region to grow
-  # (chart REASSEMBLY, a further step growth doesn't cover).
+  # DOC-WIDE by design (claimed has no page scope): asserts the targeted
+  # legend snippets ("peopleofcolor white", years) are claimed into a figure,
+  # never flow text. Now PASSES. NOTE: the p15/p33/p41 bubble charts arrive as
+  # mini-callouts with no figure region to grow (chart REASSEMBLY, which region
+  # growth doesn't cover) and may still leak their OWN legends — residue not
+  # captured by this snippet check. (Was RED at authoring, pre-v188.)
   - note: "GOLD(fig) doc-wide (target): chart legends/years are never flow text"
     claimed: ["peopleofcolor white", "20162019"]
 
