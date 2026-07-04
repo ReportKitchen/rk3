@@ -34,6 +34,17 @@ DEFAULTS = {
         # engine order, interpolated after their predecessor. For tag-order
         # defects no figure/column lever can express (tenure p14 sections 4<5).
         "orderPins": [],
+        # figureBand (webified §3.1): force a figure assembly band exactly,
+        # bypassing the kicker heuristic (bubble/unkickered charts it misses).
+        # [{"page": n, "title": "text-prefix"|null, "bbox": [l,b,r,t]|null,
+        #   "floor": y|null}] — a bbox defines the band outright; else the band
+        # spans page-content width from `floor` up to the matched title.
+        "figureBands": [],
+        # tablePin (webified §3.3): force a bbox to be treated as a table.
+        # [{"page": n, "bbox": [l,b,r,t], "cols": [x-cut,...]|null,
+        #   "headerRows": 0|1}] — optional explicit column cuts (column
+        # inference is _try_table's usual failure mode). Consumption in §6.
+        "tablePins": [],
         # design-element numerals glued to headings ("4Institutional"):
         # "styled" (separate <span class="section-number">), "inline" ("4. X"),
         # or "removed"
@@ -48,6 +59,17 @@ DEFAULTS = {
         # adaptive line pitch joins them into paragraphs. "preserve" keeps
         # the original breaks as <br> instead. One document-level question.
         "typedLines": "join",
+        # floatPin (webified §3.4): per-figure float override. Matched by nid
+        # or leading text. [{"nid"|"textPrefix": ..., "float":
+        # "left"|"right"|"none"|"wide"}] — overrides the engine's float evidence.
+        "floatPins": [],
+        # styleTokens (webified §3.5; SCHEMA here, CONSUMPTION in §5 styles):
+        # per-doc presentation overrides the vision loop can prescribe.
+        #   {"kickerCaps": bool,            # render all-caps figure kickers as caps
+        #    "headingColors": {"1": "#..", ...},  # per-level heading color
+        #    "quoteColor": "#..",           # pull-quote text color
+        #    "legendDots": bool}            # render legend swatch dots
+        "styleTokens": {},
     },
     "output": {
         "imageScale": 2,

@@ -1,4 +1,14 @@
 {
+  "structure": {
+    "figureBands": [
+      {
+        "page": 15,
+        "bbox": [-10.3, 517.6, 622.2, 687.3],
+        "title": "figure 10 | level of interest in taking a top lead",
+        "_source": "plan §3.1 figureBand regression gold: force fig-10's assembly band explicitly (the crop the kicker heuristic produces), proving the config path reproduces the assembly"
+      }
+    ]
+  },
   "output": {
     "fonts": {
       "map": {

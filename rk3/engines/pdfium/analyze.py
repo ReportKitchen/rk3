@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 197
+VERSION = 198
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -406,6 +406,9 @@ def run(ctx):
     for reg in regions:
         for bi in reg["blockIdx"]:
             absorbed[bi] = reg
+    # figureBand (webified §3.1): explicit config bands bypass the kicker
+    # heuristic below (their title/members are marked absorbed so it skips them)
+    regions = _apply_figure_bands(ctx, regions, blocks, texts, body_size, absorbed)
     # figures plan, #vision batch — the owner's assembly rule: a figure
     # STARTS WITH ITS TITLE and ENDS WITH ITS CAPTION, everything between
     # belongs to it. Titled charts assemble as one region each (merging
@@ -1246,6 +1249,88 @@ def _seg_sides(segs, bbox, tol):
 
 _FIG_TITLE = re.compile(r"(figure|fig\.|exhibit|chart)\s*(\d+|[A-Z]+\.?\d*)?\s*[|:.]",
                         re.I)
+
+
+def _apply_figure_bands(ctx, regions, blocks, texts, body_size, absorbed):
+    """figureBand (webified §3.1): force a figure assembly band explicitly,
+    bypassing the kicker heuristic (bubble/unkickered charts it misses). Each
+    {"page": n, "title": prefix|null, "bbox": [l,b,r,t]|null, "floor": y|null}:
+    an explicit bbox is the selection band AND the crop; else the band spans
+    page-content width from `floor` up to the matched title block and the crop
+    is the union of the claimed members. Non-prose, non-title blocks whose
+    centers fall inside the band are claimed into the crop; the title becomes
+    the figure's caption leaf. Idempotent."""
+    bands = ctx.cfg["structure"].get("figureBands", [])
+    if not bands:
+        return regions
+
+    def _prose(i):
+        return (len(texts[i]) > 60 and re.search(r"[.!?]", texts[i])
+                and _dominant_size(blocks[i]) >= 0.9 * body_size)
+
+    made, consumed_ids = [], set()
+    for spec in bands:
+        page = spec.get("page")
+        if page is None:
+            continue
+        pref = (spec.get("title") or "").lower()
+        ti = next((i for i, blk in enumerate(blocks)
+                   if blk["page"] == page and i not in absorbed
+                   and pref and texts[i].lower().startswith(pref)), None)
+        band = list(spec["bbox"]) if spec.get("bbox") else None
+        if band is None:
+            if ti is None:
+                ctx.log.entry("figure-band-miss", page=page, title=spec.get("title"))
+                continue
+            m = (getattr(ctx, "column_model", None) or {}).get(page)
+            cols = [c for bd in (m["bands"] if m else []) for c in bd["cols"]]
+            x_lo = min((c[0] for c in cols), default=0.0)
+            x_hi = max((c[1] for c in cols), default=10_000.0)
+            band = [x_lo, spec.get("floor") or 0.0, x_hi, blocks[ti]["bbox"][1] - 1]
+
+        def _inside(bb):
+            cx, cy = (bb[0] + bb[2]) / 2, (bb[1] + bb[3]) / 2
+            return band[0] <= cx <= band[2] and band[1] <= cy <= band[3]
+
+        members = [i for i, blk in enumerate(blocks)
+                   if blk["page"] == page and i not in absorbed and i != ti
+                   and _inside(blk["bbox"]) and not _prose(i)
+                   and not _FIG_TITLE.match(texts[i])
+                   and not re.match(r"(source|note)s?\s*[:.]", texts[i], re.I)]
+        block_idx = list(members)
+        crop = list(spec["bbox"]) if spec.get("bbox") else None
+        for r in regions:
+            if (id(r) not in consumed_ids and r["page"] == page
+                    and r["kind"] in ("figure", "callout") and not r.get("hero")
+                    and _inside(r["bbox"])):
+                consumed_ids.add(id(r))
+                block_idx.extend(i for i in r["blockIdx"]
+                                 if i != ti and i not in block_idx)
+                if crop is None:
+                    crop = _union(crop, r["bbox"]) if crop else list(r["bbox"])
+        if crop is None:  # derived band: crop = union of claimed member blocks
+            for i in block_idx:
+                crop = _union(crop, blocks[i]["bbox"]) if crop else list(blocks[i]["bbox"])
+            if crop is not None and ti is not None:
+                crop[3] = min(crop[3], blocks[ti]["bbox"][1] - 1)
+        if crop is None or crop[3] <= crop[1] or (not block_idx and ti is None):
+            ctx.log.entry("figure-band-empty", page=page, title=spec.get("title"))
+            continue
+        rk = ctx.log.entry("figure", page=page, bbox=[round(v, 1) for v in crop],
+                           reason="figureBand (config)")
+        reg = {"kind": "figure", "page": page, "bbox": crop, "rk": rk,
+               "uncertain": False, "blockIdx": block_idx,
+               "title": texts[ti] if ti is not None else "", "titleIdx": ti,
+               "titleBlock": blocks[ti]["rk"] if ti is not None else None,
+               "assembled": True, "nPaths": 0, "nImages": 0}
+        if spec.get("_source"):
+            reg["_source"] = spec["_source"]
+        if ti is not None:
+            absorbed[ti] = reg
+        for i in block_idx:
+            absorbed[i] = reg
+        made.append(reg)
+    return [r for r in regions if id(r) not in consumed_ids] + made
 
 
 def _assemble_titled_figures(ctx, regions, blocks, texts, body_size, absorbed):

@@ -42,3 +42,10 @@ checks:
   # region growth (it sits directly against the chart).
   - note: "GOLD(fig) p10 (guard): body text above the chart stays in flow"
     in_flow: ["The race/ethnicity breakdown of respondents (Figure 2) is within one percentage point"]
+
+  # webified §3.1 figureBand: fig-10's assembly band is FORCED via config
+  # (structure.figureBands, explicit bbox), bypassing the kicker heuristic.
+  # Asserting the title renders as the figure's own caption inside <figure>
+  # proves the config lever reproduces the heuristic's assembly.
+  - note: "GOLD(fig) p15 (target, §3.1 figureBand): fig-10 title is its figure's caption"
+    in_figure: ["figure 10 | level of interest in taking a top lead"]

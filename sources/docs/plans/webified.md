@@ -488,6 +488,20 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§3.1 figureBand + §3.5/§3.4/§3.3 schemas DONE** (2026-07-03). figureBand
+  (`structure.figureBands`) — a pre-pass `_apply_figure_bands` before
+  `_assemble_titled_figures` synthesizes a figure region from an explicit bbox
+  (or title+floor deriving the band), claims interior non-prose blocks, marks
+  the title absorbed so the kicker heuristic skips it; idempotent. Gold: race
+  p15 fig-10 forced via config bbox — `figureBand (config)` log FIRED,
+  in_figure gold green. VERSION 197→**198**; census **72→73** (non-decreasing);
+  pytest 33; nodediff = race leaf stream IDENTICAL to HEAD (lever reproduces the
+  heuristic exactly, ir.json differs only in figure provenance); eyeballed
+  race p15 (fig-10 title kicker + legend + bars, clean). Also added SCHEMAS
+  (config.py DEFAULTS, no consumption yet): floatPins (§3.4), tablePins (§3.3,
+  consumption→§6), styleTokens (§3.5, consumption→§5). Levers with full
+  consumption+gold: orderPin, figureBand. Churn from the VERSION bump
+  discarded (deep-equal).
 - **§3.2 orderPin lever DONE — flips a standing red** (2026-07-03). Schema in
   config.py DEFAULTS (`structure.orderPins`); consumption `_apply_order_pins`
   in analyze.py (page-scoped reorder after `_upgrade_lists`, matched by
