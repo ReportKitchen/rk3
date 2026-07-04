@@ -155,6 +155,14 @@ and repo size / route count / dead-code deltas.
 
 *(newest on top)*
 
+- **Stage 0.2 — root docs DONE** (2026-07-03). README.md, AGENTS.md,
+  CLAUDE.md audited line-by-line: all current (port 8300, `.venv/bin/python`,
+  systemd `rk3` + `--reload` scoping, `npm run build`, AI tiers, default
+  `claude-opus-4-8`, `python -m rk3 list/convert/remove`) — no stale lines.
+  `consider-PyMuPDF.txt` was already deleted by the owner (commit 506213a
+  "don't need this"); its one dangling reference in figures.md §Phase 4 fixed
+  to say ADOPTED (1.27.2.3). No census-affecting changes.
+
 - **Stage 0.1 — plan status headers DONE** (2026-07-03). Added a first-line
   `> **STATUS:**` blockquote to every file in `sources/docs/plans/` (10 files
   + this file + webified.md). Statuses verified against `git log` and code,

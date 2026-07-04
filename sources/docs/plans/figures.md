@@ -155,9 +155,9 @@ Eyeball the logged models against every specimen page above before phase
 
 - When ONE image object covers the graphics extent (the photo case):
   pull the native bitmap (pdfium `FPDFImageObj_GetRenderedBitmap` /
-  `GetImageDataDecoded`, or PyMuPDF `extract_image` if we adopt it —
-  leverage-libraries says use the mature lib; consider-PyMuPDF.txt is
-  already in the repo root) → full-resolution asset instead of the page-
+  `GetImageDataDecoded`, or PyMuPDF `extract_image` — ADOPTED (pinned
+  1.27.2.3; the leverage-libraries doctrine won; see PROGRESS below) →
+  full-resolution asset instead of the page-
   DPI crop. Fixes the F5 quality ceiling and edf's missing signature
   images; diagnose tenure p11's dropped photo here.
 - Vector figures (owner directive 2026-07-02): when the graphics are
