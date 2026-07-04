@@ -28,7 +28,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from rk3 import irwalk                                    # noqa: E402
+from rk3 import irwalk, triage                            # noqa: E402
 from rk3.documents import list_documents, output_dir     # noqa: E402
 from rk3.eval import checks_with_status                   # noqa: E402
 
@@ -86,20 +86,16 @@ def build(slug):
     pages = set(_page_pngs(slug)) | {p for p in nid_page.values() if p}
     pages = sorted(pages)
 
-    # preserve a prior triage's `class` values across re-runs
-    prior = {}
     sb_path = output_dir(slug) / "scoreboard.json"
-    if sb_path.exists():
-        try:
-            for rec in json.loads(sb_path.read_text()).get("pages", []):
-                prior[rec.get("page")] = rec.get("class")
-        except (json.JSONDecodeError, OSError):
-            pass
-
     board = {p: _blank_page(p) for p in pages}
     doclevel = _blank_page(None)
-    for p in board:
-        board[p]["class"] = prior.get(p)
+    # class from the deterministic triage (§2)
+    try:
+        for p, info in triage.triage_doc(slug).items():
+            if p in board:
+                board[p]["class"] = info["class"]
+    except Exception:
+        pass
 
     def rec_for(p):
         return board.get(p, doclevel)

@@ -488,6 +488,27 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§2 page triage DONE** (2026-07-03). `rk3/triage.py` (read-only; no
+  VERSION bump, census untouched) classifies each page easy/moderate/hard from
+  ir.json node types + debug-analyze events (figure `reason` = label-soup/
+  assembled/hero; `table`/`region-dissolved`/`callout`/`figure-grown` events;
+  `column-model` ncols+conf; region `question`s via nid→page). Key threshold
+  (§2.1): clean multi-column text is EASY — only asides/figures/callouts/tables
+  or a hard signal escalate; low-confidence (<0.55) multicol is hard.
+  `tools/scoreboard.py` now writes the `class`. **Calibration 18/20** (≥18 bar
+  MET): race p10/13/15/17 hard ✓, p16 easy ✓, tenure p1/8/13/14 hard ✓
+  (watermark-dissolve p14 eyeballed), tenure p3/10 easy ✓, gates p1/11 hard ✓
+  p7 easy ✓, foia p1/3 ✓, oxfam p6 moderate/p7 hard ✓. **2 misses**, both the
+  SAME class: race p20 (pull-quote sidebar) + gates p8 (hero banner) were
+  flattened by the engine to plain paragraphs — ZERO figure/aside events, so no
+  deterministic signal exists; both under-call to easy. §5 (pull-quotes/banner
+  extraction) resolves them structurally, after which triage auto-catches them;
+  §4.3's easy-sample verification scan is the safety net meanwhile. §2.3
+  clustering (`triage.clusters`): race's 31 hard pages → 18 clusters (top=6
+  pages), a ~42% cut in representative scans. Corpus distribution:
+  easy=757 / moderate=360 / hard=623; ascending-difficulty order for §7 =
+  covid(0 hard) → community-schools → baystate → points-of-light → … → the
+  03-- reports (near all-hard). PARKED nothing.
 - **§1.3 Stakes tab DONE** (2026-07-03). `GET /api/stakes/<slug>` (thin
   wrapper over `checks_with_status`, adds page hint from `pNN`) + `StakesPanel`
   tab beside Patterns: failing-first list of every gold check with green/red
