@@ -488,7 +488,18 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
-*(empty — run not started)*
+- **§1.4 tools promoted** (2026-07-03). `tools/nodediff.py` (leaf-walk
+  differ: `python tools/nodediff.py <slug> [--ref REF]` → unified diff of
+  `p{page} {type}: text[:110]` lines, HEAD vs working tree — verified clean
+  on race-to-lead), `tools/shoot.py` (playwright screenshotter: `--page N` /
+  `--selector CSS` / `--full` / `--svg FILE`; reuses visionqa's `_BBOX_JS`
+  page-crop; verified on race p10 — captured charts+legends), and
+  `tools/visionloop.py` (STUB until §4, raises NotImplementedError). No
+  engine edits; census untouched.
+- Stage 0 of the SWEEP companion (truth pass) ran first and is COMPLETE
+  (census 71/6, pytest 33). Baseline reds going into this run: atlantic p6,
+  foia p4, edf running-footer, covid p7 column-weld, jhu-p20 endnotes,
+  tenure p14 order 4<5 (the §3.2 orderPin target).
 
 ## PARKED
 
