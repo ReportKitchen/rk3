@@ -127,6 +127,11 @@ plan: append to the `PARKED` ledger at the bottom of this file — one line:
 `- [stage] <what> | why blocked | suggested lever/decision needed` — then
 continue with the next item. Never redesign mid-run. Never wait.
 
+Cleanup observations ("this code/doc/route looks dead or wrong") are NOT
+your job in this run: append them to the INBOX in
+`sources/docs/plans/sweep.md` (one line each) and move on. The sweep is
+a separate post-run cycle.
+
 ### 0.7 Budget controls (vision spend)
 - Vision calls only on pages triaged `hard` (§2), only on cluster
   representatives first (§2.3), max 3 loop iterations per page (§4.4),
