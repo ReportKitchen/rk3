@@ -164,6 +164,26 @@ def list_assertions(slug: str, response: Response):
     return {"checks": checks_with_status(slug)}
 
 
+_STAKE_PAGE = re.compile(r"\bp(\d{1,4})\b")
+
+
+@app.get("/api/stakes/{slug}")
+def get_stakes(slug: str, response: Response):
+    """Every gold stake on the doc, evaluated live against the current
+    artifacts (green/red) with its anchoring nid + a page hint — backs the
+    Stakes tab (webified §1.3). Thin wrapper over rk3.eval.checks_with_status
+    so the tab and `python -m rk3 eval` agree exactly."""
+    response.headers["Cache-Control"] = "no-store"
+    if source_for_slug(slug) is None:
+        raise HTTPException(404, f"unknown document {slug!r}")
+    checks = checks_with_status(slug)
+    for c in checks:
+        m = _STAKE_PAGE.search(c.get("note") or "")
+        c["page"] = int(m.group(1)) if m else None
+    green = sum(1 for c in checks if c.get("ok"))
+    return {"slug": slug, "green": green, "red": len(checks) - green, "checks": checks}
+
+
 @app.get("/api/assertions/{slug}/snapshot")
 def assertion_snapshot(slug: str, nid: str, response: Response):
     """The semantic content to freeze for one element — text + em/strong/a +

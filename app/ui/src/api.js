@@ -33,6 +33,10 @@ export const getBuildStatus = (slug) =>
 export const getAssertions = (slug) =>
   fetch(`/api/assertions/${slug}`, { cache: "no-store" }).then(json);
 
+// live gold-stake board (webified §1.3): every eval check green/red + nid + page
+export const getStakes = (slug) =>
+  fetch(`/api/stakes/${slug}`, { cache: "no-store" }).then(json);
+
 export const getSnapshot = (slug, nid) =>
   fetch(`/api/assertions/${slug}/snapshot?nid=${encodeURIComponent(nid)}`,
         { cache: "no-store" }).then(json);

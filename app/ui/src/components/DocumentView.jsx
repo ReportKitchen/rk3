@@ -8,6 +8,7 @@ import { saveOrderAssertion, saveReorderOp, saveMergeOp, saveMergeAssertion,
 import { reportError } from "../errorBus.js";
 import QuestionsPanel from "./QuestionsPanel.jsx";
 import PatternsPanel from "./PatternsPanel.jsx";
+import StakesPanel from "./StakesPanel.jsx";
 import TocCompare from "./TocCompare.jsx";
 import ReviewBoard from "./ReviewBoard.jsx";
 
@@ -20,6 +21,7 @@ const TABS = [
   { id: "convert", label: "Convert Document" },
   { id: "review", label: "Review" },
   { id: "patterns", label: "Patterns" },
+  { id: "stakes", label: "Stakes" },
   { id: "toc", label: "TOC ⇔ Headings" },
   { id: "landing", label: "Landing Page" },
 ];
@@ -852,6 +854,8 @@ export default function DocumentView({
         {tab === "review" && <ReviewBoard slug={doc.slug} />}
 
         {tab === "patterns" && <PatternsPanel doc={doc} />}
+
+        {tab === "stakes" && <StakesPanel doc={doc} />}
 
         {tab === "toc" && <TocCompare slug={doc.slug} />}
 

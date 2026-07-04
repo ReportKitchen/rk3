@@ -488,6 +488,16 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§1.3 Stakes tab DONE** (2026-07-03). `GET /api/stakes/<slug>` (thin
+  wrapper over `checks_with_status`, adds page hint from `pNN`) + `StakesPanel`
+  tab beside Patterns: failing-first list of every gold check with green/red
+  chip, note, kind·stage·page meta, jump-to-element, and pass/fail iframe
+  outlines; "hide passing" + refresh. Built (`npm run build`). VERIFIED by
+  screenshot + endpoint vs `python -m rk3 eval`: race **7/0**, gates **6/0**,
+  tenure **9/1** (the p14 FAIL row renders red with the exact CLI detail).
+  Counts match the CLI exactly. dist is gitignored; source committed.
+  **Stage 1 gate MET**: scoreboard corpus-wide ✓, sweep ✓, stakes tab live+
+  accurate ✓, tools committed ✓, no engine edits (census stays 71/6).
 - **§1.2 stale vision sweep DONE** (2026-07-03). `tools/sweepvision.py`
   (durable, reused in §7): fresh batched rescan of the pages an OPEN
   `vision-qa` record references → mark non-reproduced (same page+category,
