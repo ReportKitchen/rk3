@@ -496,7 +496,27 @@ def _check_freeze(slug, c):
     return False, f"element {anchor[:40]!r} not found — {_localize(slug, anchor)}"
 
 
+def _check_float(slug, c):
+    """A figure node's render float (data.float) — pins the floatPin lever
+    (webified §3.4). {nid|textPrefix: ..., is: left|right|wide|none}."""
+    spec = c["float"]
+    want = spec.get("is", "none")
+    nid = spec.get("nid")
+    pref = _norm(spec.get("textPrefix", ""))
+    ir = _artifact(slug, "analyze") or {}
+    for f in _walk(ir.get("body", [])):
+        if f.get("type") != "figure":
+            continue
+        if (nid and f.get("nid") == nid) or \
+                (pref and pref in _norm(irwalk.subtree_text(f))):
+            got = (f.get("data") or {}).get("float") or "none"
+            return (got == want), (f"figure floats {got}" if got == want
+                                   else f"figure floats {got!r}, expected {want!r}")
+    return False, f"no figure matches {(nid or spec.get('textPrefix'))!r}"
+
+
 EVALUATORS = {"order": _check_order, "role": _check_role, "list": _check_list,
+              "float": _check_float,
               "not_list": _check_not_list, "nested": _check_nested,
               "merge": _check_merge,
               "split": _check_split, "freeze": _check_freeze,

@@ -488,6 +488,20 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§3.4 floatPin lever DONE — §3 substantially complete** (2026-07-03).
+  `structure.floatPins` [{nid|textPrefix, float: left|right|none|wide}] →
+  `_apply_float_pins` overrides a figure node's data.float after
+  `_figure_float_evidence`; new `float:` eval kind (nid or caption match).
+  Gold: tenure p7 Nonette-Royo portrait — eyeballed the source (bottom-left),
+  pinned `left` by nid; `float-pin` log FIRED, gold green. VERSION 198→**199**;
+  census **73→74** (non-decreasing); pytest 33; idempotent. **§3 STATUS**:
+  fully-built levers with consumption+gold = orderPin(3.2), figureBand(3.1),
+  floatPin(3.4); schema-only (by design) = tablePin(3.3, consumption→§6),
+  styleTokens(3.5, consumption→§5). Existing levers (regionOverrides,
+  heading/break/indentOverrides, typedLines, ops, pullQuotes) remain green in
+  the census (their golds unaffected across VERSION 196→199). Levers now give
+  the §4 vision loop a real vocabulary. Reds remaining: 5 (atlantic p6, foia p4,
+  edf footer, covid p7, jhu-p20 endnotes).
 - **§3.1 figureBand + §3.5/§3.4/§3.3 schemas DONE** (2026-07-03). figureBand
   (`structure.figureBands`) — a pre-pass `_apply_figure_bands` before
   `_assemble_titled_figures` synthesizes a figure region from an explicit bbox

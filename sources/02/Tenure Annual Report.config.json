@@ -23,6 +23,13 @@
         ],
         "_source": "plan §3.2 known tag-order defect: the two-column section rundown reads left column (Why, Sections 2-4) then right column (Sections 5-7, appendices); the engine interleaved Section 5 after Section 2. Source page image confirms the sections run 2→7 in order."
       }
+    ],
+    "floatPins": [
+      {
+        "nid": "neb75eac908",
+        "float": "left",
+        "_source": "plan §3.4 floatPin regression gold: the Nonette Royo portrait sits bottom-left of p7 (source image); pin its float to left so the lever's path stays wired and the correct side is asserted."
+      }
     ]
   },
   "output": {

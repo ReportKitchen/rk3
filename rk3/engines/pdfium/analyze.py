@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 198
+VERSION = 199
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -645,6 +645,7 @@ def run(ctx):
     nodes = _unsplit_figure_interruptions(ctx, nodes)
     nodes = _anchor_figures_after_titles(ctx, nodes)
     _figure_float_evidence(ctx, nodes)
+    _apply_float_pins(ctx, nodes)   # floatPin (§3.4): override float evidence
     # a second pass: paragraphs that a floating pullquote/aside sat between are
     # now adjacent (the intruder has been extracted) — rejoin the split sentence
     nodes = _join_broken_paragraphs(ctx, nodes)
@@ -2628,6 +2629,33 @@ def _anchor_figures_after_titles(ctx, nodes):
         out.append(n)
     out.extend(pending)
     return out
+
+
+def _apply_float_pins(ctx, nodes):
+    """floatPin (webified §3.4): per-figure float override. Each
+    {"nid"|"textPrefix": ..., "float": "left"|"right"|"none"|"wide"} forces a
+    figure node's data.float (or removes it for "none"), overriding the
+    heuristic evidence from _figure_float_evidence. Matched by nid or the
+    figure's leading/caption text. Idempotent."""
+    pins = ctx.cfg["structure"].get("floatPins", [])
+    if not pins:
+        return
+    figs = [n for n in nodes if n.get("type") == "figure"]
+    for pin in pins:
+        val = pin.get("float")
+        if val not in ("left", "right", "none", "wide"):
+            continue
+        nid = pin.get("nid")
+        pref = _pin_norm(pin.get("textPrefix") or "")
+        for f in figs:
+            if (nid and f.get("nid") == nid) or (pref and _node_lead_text(f).startswith(pref)):
+                data = f.setdefault("data", {})
+                if val == "none":
+                    data.pop("float", None)
+                else:
+                    data["float"] = val
+                ctx.log.entry("float-pin", page=f.get("page"), rk=f.get("rk"),
+                              float=val)
 
 
 def _figure_float_evidence(ctx, nodes):

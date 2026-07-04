@@ -61,3 +61,9 @@ checks:
 
   - note: "GOLD(fig) p14 (target): sections read in order (6 before 7)"
     order: ["In Section 6, we describe the With What", "In the final Section 7, we look"]
+
+  # webified §3.4 floatPin: the p7 Nonette Royo portrait floats left (source
+  # image; bottom-left of the page). Pinned via config so the lever's override
+  # path stays wired and the correct float side is asserted.
+  - note: "GOLD(fig) p7 (target, §3.4 floatPin): the portrait floats left"
+    float: { nid: "neb75eac908", is: "left" }
