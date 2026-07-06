@@ -12,7 +12,7 @@ from pathlib import Path
 
 from . import irwalk
 
-VERSION = 81
+VERSION = 82
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -1104,6 +1104,29 @@ def _usable_color(hex_color):
     return None if min(r, g, b) > 225 else hex_color
 
 
+def _dark_callout_fg(node):
+    """The source text color a DARK callout painted its contents (webified §5.4).
+    _usable_color drops near-white text as unusable on the white page, so a dark
+    box's own children would fall back to body black — illegible on the fill. We
+    set the box's color to the dominant descendant source color when it is light,
+    so light-on-dark reads as the source intended instead of black-on-dark."""
+    votes = Counter()
+
+    def walk(n):
+        col = (n.get("data") or {}).get("color")
+        if col:
+            votes[col] += max(len(n.get("text", "") or ""), 1)
+        for c in n.get("children", []):
+            walk(c)
+
+    for c in node.get("children", []):
+        walk(c)
+    if not votes:
+        return None
+    col = votes.most_common(1)[0][0]
+    return col if not _dark(col) else None  # only restore genuinely light text
+
+
 def _style_profile(ir):
     fresh = lambda: {"font": None, "color": None, "size": None,
                      "_f": {}, "_c": {}, "_s": {}}
@@ -1538,11 +1561,17 @@ def _original_css(ctx, ir):
             own = _usable_color(d.get("color"))
             bg = d.get("bg")
             h_rules = []
+            on_dark = False
             if bg:
                 h_rules += [f"  background: {bg};", "  padding: 0.4em 0.6em;"]
                 if own is None and d.get("color") and _dark(bg):
                     own = d["color"]
-            if own and own != (lv_color if lv_color else None):
+                    on_dark = True
+            # a near-white color restored on a dark panel is NEVER carried by the
+            # level-wide h-rule (_usable_color drops white there), so emit it even
+            # when it equals the level's dominant color — else the heading falls
+            # back to body black on its dark band (§5.4 — clean-air p15 banner)
+            if own and (on_dark or own != (lv_color if lv_color else None)):
                 h_rules.append(f"  color: {own};")
             if h_rules:
                 out += [f'[data-nid="{n["nid"]}"] {{', *h_rules, "}", ""]
@@ -1574,9 +1603,17 @@ def _original_css(ctx, ir):
                             f"{{ {' '.join(props)} }}"]
             out += [""]
         rules = []
+        dark_fg = None
         if n["type"] == "aside":
             if d.get("fill") and d["fill"] not in ("#ffffff",):
                 rules.append(f"  background: {d['fill']};")
+                # dark callout: restore the light source text color its children
+                # carried (dropped by _usable_color) so they read light-on-dark,
+                # not body-black-on-dark (§5.4 — good-food p22 Conclusion box)
+                if _dark(d["fill"]):
+                    dark_fg = _dark_callout_fg(n)
+                    if dark_fg:
+                        rules.append(f"  color: {dark_fg};")
             else:
                 # no fill in the original: the box sits on the page background
                 rules.append("  background: transparent;")
@@ -1598,6 +1635,15 @@ def _original_css(ctx, ir):
                       f"  margin: {margin};"]
         if rules:
             out += [f'[data-nid="{n["nid"]}"] {{', *rules, "}", ""]
+        # links/headings inside a dark callout otherwise take the doc link/heading
+        # color (dark) and go illegible; the source painted them light like the
+        # rest of the box, so force the restored color on them too (§5.4)
+        if dark_fg:
+            out += [f'[data-nid="{n["nid"]}"] a, '
+                    f'[data-nid="{n["nid"]}"] h1, [data-nid="{n["nid"]}"] h2, '
+                    f'[data-nid="{n["nid"]}"] h3, [data-nid="{n["nid"]}"] h4, '
+                    f'[data-nid="{n["nid"]}"] h5, [data-nid="{n["nid"]}"] h6 '
+                    f'{{ color: {dark_fg}; }}', ""]
 
     # the original has no figure chrome; layer 2's box is greyscale dressing
     out += ["figure { border: none; padding: 0; }", ""]

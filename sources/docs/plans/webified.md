@@ -488,6 +488,26 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§5.4 callout fidelity DONE (white-on-dark)** (2026-07-06). Owner-flagged core:
+  text inside DARK callouts was rendering body-black (illegible) instead of the
+  source's near-white. Root cause: `_usable_color` drops near-white as unusable
+  on our white page, and the dark-bg restore only fired when `bg` sat on the node
+  itself — but a callout's fill lives on the ANCESTOR aside, so child paragraphs
+  never saw it. FIX (render-only): (1) `_dark_callout_fg(node)` samples the
+  dominant LIGHT descendant color; an aside with a dark fill emits `color:<fg>`
+  so children inherit light-on-dark; (2) a companion `[data-nid] a, …h1-h6` rule
+  forces that color on descendant links/headings (else a mis-detected styled-link
+  title — good-food "Conclusion" resolved to a self-anchor — takes the dark link
+  color); (3) the heading-with-bg path (clean-air p15 banner) emitted no color
+  when its LEVEL's dominant color was itself near-white (level rule drops white +
+  per-nid `own!=lv_color` guard both skipped it) → added an `on_dark` flag that
+  emits the restored near-white unconditionally. render VERSION 81→**82** (NO
+  analyze change → census provably unchanged: every eval kind reads the IR, not
+  CSS). census **75/5**; pytest 33. EYEBALLED good-food p22 (teal box: white
+  title+body ✓) + clean-air p15 ($330M red aside ✓ AND red banner heading ✓) vs
+  source. Committed render + both specimens; corpus refresh → §7. §5.4's other two
+  sub-items PARKED (rounded corners / text-over-image) — see PARKED. NEXT: §5.5
+  (verify kicker styling done) + §5.6 styleguide.json.
 - **§5.3 quote/attribution color DONE (blue names)** (2026-07-06). Named specimen
   edf p3 "blue names": signatory names (Amanda Leland / Fred Krupp / Mark Heising)
   are link-COLORED (#0033cc) with no link target — a deliberate color, but the
@@ -699,6 +719,19 @@ doubt: smaller scope, PARK, keep moving.
 
 ## PARKED
 
+- [§5.4] Rounded-corner / circle callouts | clean-air's $330M callout is a CIRCLE
+  in source, rendered as a rectangle; §5.4's "rounded corners when the box path
+  has arc segments" needs vector path-segment geometry that the region model does
+  not carry (grep of extract/blocks for arc/ellipse/radius = ~0 hits) | NAMED
+  MISSING LEVER: callout-shape geometry — extract arc/ellipse path segments in
+  the region model → emit border-radius (or clip-path for true circles). An
+  extraction-layer feature, not a §5 style token.
+- [§5.4] Full-page text-over-image callouts | clean-air p15's banner ("There has
+  been a recent slowdown…") overlays a hero image in the source; we render the
+  text color correctly (white) but as a separate solid band BELOW the image, not
+  overlaid on it | NAMED MISSING LEVER: hero-overlay layout — when a titled band
+  sits atop a full-bleed figure, position the text over the figure (absolute /
+  grid overlay) instead of stacking. A figures-track / layout concern.
 - [§5.2] Legend-swatch renderer | premise (a live legend LEAF needing swatch dots)
   has NO clean corpus specimen — legends are either claimed into figure pixels
   (race, atlantic: do nothing) or the chart is structurally fragmented (nff p12).

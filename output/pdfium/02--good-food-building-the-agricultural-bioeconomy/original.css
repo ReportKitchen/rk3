@@ -327,8 +327,11 @@ strong.c-088d92 { color: #088d92; font-weight: inherit; }
 
 [data-nid="nffce3d934c"] {
   background: #007c89;
+  color: #ffffff;
   border: none;
 }
+
+[data-nid="nffce3d934c"] a, [data-nid="nffce3d934c"] h1, [data-nid="nffce3d934c"] h2, [data-nid="nffce3d934c"] h3, [data-nid="nffce3d934c"] h4, [data-nid="nffce3d934c"] h5, [data-nid="nffce3d934c"] h6 { color: #ffffff; }
 
 figure { border: none; padding: 0; }
 
