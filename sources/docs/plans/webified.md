@@ -488,6 +488,17 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§5.2 SCOUTED (not yet built)** (2026-07-04). Pilot race's chart legends are
+  CLAIMED into the figure pixels (`figure-model counts {label:17/7/6}`; no live
+  "people of color / white" leaf) — so per §5.2's own rule ("legend claimed →
+  do nothing, pixels carry it") race needs NO swatch work. §5.2 only fires for
+  docs with LIVE legend leaves; its named specimen is **atlantic p10**. Build
+  path: for a live legend label leaf, associate each entry with the nearest
+  preceding vector-fill color from the figure region model / extract colors
+  table, render `<span class="swatch" style="background:…">`. Colour↔label
+  association is fuzzy — do it on atlantic p10 with before/after eyeball. §5.3
+  (quote/attribution) and §5.4 (callout) similarly need per-specimen color
+  sampling from the extract. NEXT: §5.2 on atlantic, then §5.3–5.6, §6, §7, §8.
 - **§5.1 caps mirroring DONE** (2026-07-04). Root cause: all-caps kickers/
   labels/headings are lowercase CODEPOINTS displayed caps by a small-caps font
   (confirmed `Whitney-MediumSC`) — extraction faithfully returns the lowercase
