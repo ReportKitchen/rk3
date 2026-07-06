@@ -488,6 +488,24 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§6.1 table census DONE (log-only)** (2026-07-06). `_try_table` now emits a
+  `table-model` event at every exit (success + each rejection w/ reason + grid
+  evidence: hlines/vlines/cols/rows/blocks/kind), suppressing the 0-1-block
+  strict figure-check noise. analyze VERSION 201→**202** (log-only → IR unchanged
+  → census 75/5, pytest 33). CORPUS MAP (tools scratchpad table_census.py):
+  **47 tables convert; 298 reject** — reasons {no-grid 148, too-few-blocks 108,
+  spans-pages 30, strict-sparse 12}. READING: (1) `spans-pages` (30) = the tenure
+  p8 class — a table split by column/page break whose fragments don't merge (6.2
+  target); (2) `no-grid` (148) is MIXED — real gridless tables that need column
+  inference AND charts/figures correctly rejected (kind=figure strict, many
+  blocks) — needs per-region eyeball to separate; (3) `too-few-blocks` (108) =
+  2-3 block small tables/near-misses. Per-doc load: advancing-mobility 65,
+  gates-earth 52, race 36, invest 29, atlantic 27, tenure 24. The census is the
+  instrument 6.2/6.3 read to pick+verify fixes. events → debug-analyze.jsonl
+  (gitignored); only the analyze code commits. NEXT: §6.2 specimen fixes (each
+  stake red→fix→green: tenure p8 spans-pages first) — DEEP table-reconstruction
+  surgery w/ high regression risk to the 47 converting tables; the plan brackets
+  this as the hard tail ("eyeball models BEFORE changing behavior" = §6.1 done).
 - **§5.6 styleguide.json DONE** (2026-07-06). New per-doc design-token digest
   emitted by the render stage (`render._styleguide(ir)` → `styleguide.json`):
   `{body:{font,size,color}, headings:{1..6:{font,size,color}}, linkColor,

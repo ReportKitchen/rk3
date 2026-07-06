@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 201
+VERSION = 202
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -2924,7 +2924,22 @@ def _try_table(ctx, reg, blocks, rich, pages, strict=False):
     mostly-filled cell lattice, so charts with gridlines and sparse axis
     labels never convert."""
     idx = reg["blockIdx"]
+
+    def _census(outcome, **ev):
+        # §6.1 table census (log-only): one table-model event per table-ish
+        # region with its grid evidence + outcome, so the specimen failures
+        # (page-spanning, no-grid, sparse) are visible before we fix behavior.
+        ctx.log.entry("table-model", page=reg["page"],
+                      bbox=[round(v, 1) for v in reg["bbox"]],
+                      region=reg["rk"], kind=reg.get("kind"), outcome=outcome,
+                      strict=strict, blocks=len(idx), **ev)
+
     if len(idx) < 4 or reg.get("endPage"):
+        # skip the census for 0-1 block regions with no page-split: those are
+        # figures speculatively tested in strict mode, not table-ish regions
+        if reg.get("endPage") or len(idx) >= 2:
+            _census("reject", reason="spans-pages" if reg.get("endPage")
+                    else "too-few-blocks")
         return None
     page = pages[reg["page"]]
     l0, b0, r0, t0 = reg["bbox"]
@@ -2950,6 +2965,7 @@ def _try_table(ctx, reg, blocks, rich, pages, strict=False):
         elif o[7] and o[5] is not None and r - l > 10 and t - b > 8:
             fills.append((l, b, r, t, o[5]))
     if hl < 3 or vl < 2:
+        _census("reject", reason="no-grid", hlines=hl, vlines=vl)
         return None
 
     # column ranges between internal boundaries (verticals + fill edges)
@@ -2976,6 +2992,7 @@ def _try_table(ctx, reg, blocks, rich, pages, strict=False):
         cols = list(zip(edges, edges[1:]))
     n_cols = len(cols)
     if n_cols < 2:
+        _census("reject", reason="no-columns", hlines=hl, vlines=vl, cols=n_cols)
         return None
 
     # cells: (col, top, bottom, runs, colorIdx); blocks spanning several
@@ -3042,10 +3059,15 @@ def _try_table(ctx, reg, blocks, rich, pages, strict=False):
     # plain-text view of the grid (header/lattice heuristics + nid input)
     rows = [[(r["text"] if r else "") for r in rr] for rr in rows_runs]
     if len(rows) < 2:
+        _census("reject", reason="too-few-rows", hlines=hl, vlines=vl,
+                cols=n_cols, rows=len(rows))
         return None
     if strict:
         filled = sum(1 for r in rows for c in r if c.strip())
         if len(rows) < 3 or filled < 0.6 * len(rows) * n_cols:
+            _census("reject", reason="strict-sparse", hlines=hl, vlines=vl,
+                    cols=n_cols, rows=len(rows),
+                    fillFrac=round(filled / max(len(rows) * n_cols, 1), 2))
             return None
 
     # style: header band fill, per-column fills and text colors, rule color
@@ -3088,6 +3110,8 @@ def _try_table(ctx, reg, blocks, rich, pages, strict=False):
     if border is not None:
         style["border"] = _hex(ctx.colors[border])
 
+    _census("table", hlines=hl, vlines=vl, cols=n_cols, rows=len(rows),
+            header=header, styled=bool(style))
     rk = ctx.log.entry("table", page=reg["page"], bbox=[round(v, 1) for v in reg["bbox"]],
                        cols=n_cols, rows=len(rows), header=header,
                        hlines=hl, vlines=vl, region=reg["rk"], style=style,
