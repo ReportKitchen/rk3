@@ -488,6 +488,23 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§5.1 caps mirroring DONE** (2026-07-04). Root cause: all-caps kickers/
+  labels/headings are lowercase CODEPOINTS displayed caps by a small-caps font
+  (confirmed `Whitney-MediumSC`) — extraction faithfully returns the lowercase
+  glyphs. Deterministic detector `assemble._line_caps` (glyph geometry: a run's
+  short x-height letters a/c/e/… all reach CAP height, which mixed-case never
+  shows) → `line["caps"]`; propagated `_join_block` runs["caps"] → `_leaf`
+  data.caps (paragraphs/captions) + heading `prov.caps` (hand-rolled runs dict);
+  render emits `data-caps` (figcaption hard-coded, others via `_attrs`); CSS
+  `[data-caps]{text-transform:uppercase}` + figcaption letter-spacing. VERSIONS
+  assemble 50→**51**, analyze 199→**200**, render 79→**80**. Detection: 125
+  clean hits on race, ZERO body false-fires. Eyeballed race p10 (FIGURE 2 |
+  RACE/ETHNICITY etc.) + p16 (CAREER SUPPORT) — mirror the source; body
+  unchanged. census **74/5** (non-decreasing — IR text stays lowercase so
+  text/freeze golds unaffected); pytest 33. RESIDUAL: mixed kicker+title lines
+  ("KEY FINDING 1: The Same Story") stay un-flagged (the LINE is mixed-case) —
+  a run-level (sub-line) caps refinement, filed for later. Committed code + CSS
+  + race output; other docs' caps output refreshes in §7.
 - **§4.5 pilot verdict: "§5 FIRST" (graceful-degradation PARK, NOT no-go)**
   (2026-07-04). Demonstrated the full loop on pilot points-of-light p25
   (SUMMARY callout + pull-quote page): scan→prescribe→apply→reconvert→rescan,

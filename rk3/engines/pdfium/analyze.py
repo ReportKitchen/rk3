@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 199
+VERSION = 200
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -236,6 +236,10 @@ def _leaf(ctx, type_, runs, page, bbox, rk, data=None, **extra):
     for k in _RUN_KEYS:
         if runs.get(k):
             node[k] = runs[k]
+    # caps mirroring (webified §5.1): an all-caps source run flags data.caps so
+    # render applies text-transform instead of showing the lowercase codepoints
+    if runs.get("caps"):
+        node.setdefault("data", {})["caps"] = True
     node.update(extra)
     node["nid"] = _stable_id("n", ctx.nids, type_, page, bbox, node["text"])
     return node
@@ -1850,6 +1854,11 @@ def _heading_node(ctx, blk, text, level, reason, prov, used_ids, sups=None):
     rk = ctx.log.entry("heading", level=level, page=blk["page"],
                        bbox=blk["bbox"], size=prov["size"], reason=reason,
                        text=text[:120], block=blk["rk"])
+    # caps mirroring (webified §5.1): a heading whose every line renders ALL-CAPS
+    # from lowercase codepoints (headings are built with a hand-rolled runs dict,
+    # so the rich caps flag doesn't reach them via _leaf)
+    if blk.get("lines") and all(l.get("caps") for l in blk["lines"]):
+        prov = {**prov, "caps": True}
     node = _leaf(ctx, "heading", {"text": text, "sups": sups}, blk["page"],
                  blk["bbox"], rk, data=prov, level=level, id=hid)
     if num and ctx.cfg["structure"].get("sectionNumbers", "styled") == "styled":
@@ -5181,8 +5190,14 @@ def _join_block(ctx, blk, link_colors=()):
     becomes a styled-link range (print PDFs often style cross-references as
     links without targets).
     Returns {"text", "sups": [[s,e]], "links": [[s,e,target]]}."""
-    return _build_runs(ctx, blk, blk["lines"], _block_font(ctx, blk["lines"]),
+    runs = _build_runs(ctx, blk, blk["lines"], _block_font(ctx, blk["lines"]),
                        link_colors)
+    # caps mirroring (webified §5.1): a block whose every line renders ALL-CAPS
+    # from lowercase codepoints carries a caps flag → render mirrors the source
+    # kicker/label/heading with a .caps class (text-transform), not lowercase.
+    if blk.get("lines") and all(l.get("caps") for l in blk["lines"]):
+        runs["caps"] = True
+    return runs
 
 
 def _build_runs(ctx, blk, lines, blk_font, link_colors=()):

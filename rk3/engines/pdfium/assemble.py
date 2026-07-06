@@ -12,7 +12,33 @@ Artifact: blocks.json
 import re
 from collections import Counter, defaultdict
 
-VERSION = 50
+VERSION = 51
+
+# lowercase letters with neither ascender nor descender — their glyph tops sit
+# at x-height in normal text but reach the CAP line when a display font renders
+# an all-caps run from lowercase codepoints (webified §5.1 caps mirroring)
+_SHORT_X = set("acemnorsuvwxz")
+
+
+def _line_caps(chars):
+    """True when a run is displayed ALL-CAPS from (usually) lowercase
+    codepoints: its short x-height letters all reach cap height — a signal a
+    normal mixed-case run never shows (an ordinary 'e'/'a'/'o' stops at
+    x-height). Lets render mirror the source's ALL-CAPS kickers/labels/headings
+    (race p9 'FIGURE 2 | RACE/ETHNICITY', 'KEY FINDING 1', 'IN THEIR OWN
+    WORDS'). Genuinely-uppercase codepoints have no short letters and return
+    False — they already render caps, no mirroring needed."""
+    alpha = [c for c in chars if c[UC].isalpha()]
+    if len(alpha) < 3:
+        return False
+    short = [c for c in alpha if c[UC] in _SHORT_X]
+    if not short:
+        return False
+    base = min(c[B] for c in alpha)
+    cap_h = max(c[T] for c in alpha) - base
+    if cap_h <= 0.5:
+        return False
+    return all((c[T] - base) >= 0.85 * cap_h for c in short)
 
 # chars: [uc, l, b, r, t, fontIdx, size, colorIdx]
 UC, L, B, R, T, FONT, SIZE, COLOR = range(8)
@@ -229,6 +255,8 @@ def _finish_line(chars, links, fills=()):
         line["spaceBefore"] = True
     if space_after:
         line["spaceAfter"] = True
+    if _line_caps(chars):
+        line["caps"] = True
     sups = _sup_ranges(src, dom_size)
     if sups:
         line["sups"] = sups

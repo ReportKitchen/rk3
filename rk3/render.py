@@ -12,7 +12,7 @@ from pathlib import Path
 
 from . import irwalk
 
-VERSION = 79
+VERSION = 80
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -663,16 +663,24 @@ def _render_node(ctx, node, pages, state):
                 if c.get("type") == "caption"]
         tnode = next((c for c in caps if c.get("variant") == "title"), None)
         cnode = next((c for c in caps if c.get("variant") == "caption"), None)
-        head = (f'  <figcaption data-nid="{tnode["nid"]}">'
+
+        def _capsattr(cn):
+            # caps mirroring (webified §5.1): the caption's inner leaf carries
+            # data.caps when the source kicker renders ALL-CAPS from lowercase
+            # codepoints (the figcaption is built by hand, not via _attrs)
+            leaf = next((c for c in cn.get("children", []) if c.get("text")), None)
+            return ' data-caps="1"' if leaf and (leaf.get("data") or {}).get("caps") else ""
+
+        head = (f'  <figcaption data-nid="{tnode["nid"]}"{_capsattr(tnode)}>'
                 f'{cap_inline(tnode)}</figcaption>\n') if tnode is not None \
             else ""
         if cnode is not None:
             body = cap_inline(cnode)
             # one figcaption per figure: a title heads it, the source/caption
             # line keeps its place below the image
-            tail = (f'\n  <p class="fig-source" data-nid="{cnode["nid"]}">'
+            tail = (f'\n  <p class="fig-source" data-nid="{cnode["nid"]}"{_capsattr(cnode)}>'
                     f'{body}</p>' if head else
-                    f'\n  <figcaption data-nid="{cnode["nid"]}">'
+                    f'\n  <figcaption data-nid="{cnode["nid"]}"{_capsattr(cnode)}>'
                     f'{body}</figcaption>')
         else:
             tail = ""
