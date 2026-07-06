@@ -488,17 +488,55 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
-- **§5.2 SCOUTED (not yet built)** (2026-07-04). Pilot race's chart legends are
-  CLAIMED into the figure pixels (`figure-model counts {label:17/7/6}`; no live
-  "people of color / white" leaf) — so per §5.2's own rule ("legend claimed →
-  do nothing, pixels carry it") race needs NO swatch work. §5.2 only fires for
-  docs with LIVE legend leaves; its named specimen is **atlantic p10**. Build
-  path: for a live legend label leaf, associate each entry with the nearest
-  preceding vector-fill color from the figure region model / extract colors
-  table, render `<span class="swatch" style="background:…">`. Colour↔label
-  association is fuzzy — do it on atlantic p10 with before/after eyeball. §5.3
-  (quote/attribution) and §5.4 (callout) similarly need per-specimen color
-  sampling from the extract. NEXT: §5.2 on atlantic, then §5.3–5.6, §6, §7, §8.
+- **§5.3 quote/attribution color DONE (blue names)** (2026-07-06). Named specimen
+  edf p3 "blue names": signatory names (Amanda Leland / Fred Krupp / Mark Heising)
+  are link-COLORED (#0033cc) with no link target — a deliberate color, but the
+  engine carried them as `{styled:true}` with NO color and the renderer flattened
+  them to body black. Root cause traced to `analyze._build_runs`: a link-colored
+  run without an anchor becomes a styled link but only the boolean survived.
+  FIX (2 lines of real change): `_build_runs` now stores `{styled:true,color:_hex}`
+  (the matched source color); `render._link_markup` emits `style="color:…"` on the
+  un-anchored `<span data-link-styled>`, gated by `_usable_color` (near-white link
+  colors, legible only on the PDF's dark panels, stay body color — no white-on-
+  white). Heading color was ALREADY faithful (level rule `h{lv}{color}` + per-nid
+  outlier rule) — EYEBALLED edf p3 before/after: blue headings already blue; only
+  the names were black→now blue (titles stay black). NEW eval kind `styleColor`
+  {nid|textPrefix, is:#hex} + gold on edf (RED-at-plant "color none" → GREEN).
+  VERSIONS analyze 200→**201**, render 80→**81**. census **75/5** (+1 gold, ZERO
+  regressions — the +1 check is the only delta; 5 reds unchanged). nodediff edf =
+  no leaf-stream change (purely additive styling). BLAST RADIUS eyeballed: 8 docs /
+  907 usable styled runs now colored; sampled advancing-mobility p11 — pull-quote
+  "The Partnership's collective ambition…" is blue-italic in SOURCE, renders blue
+  = faithful; stat numbers orange = faithful. (mobility's duplicate-quote + Venn-
+  label banners are PRE-EXISTING structural bugs, not color.) Committed code + eval
+  + edf output; corpus output refresh deferred to §7. NEXT: §5.4 callout fidelity
+  (clean-air full-bg, good-food p22 white-on-dark), §5.5 (mostly done), §5.6.
+- **§5.2 legend swatches → PARKED, no clean specimen** (2026-07-06). Investigated
+  all three candidate specimens; §5.2's premise (a live legend LEAF that merely
+  lost its swatch dots) matches NONE of them:
+  • **race p10** — legend claimed into the native figure SVG (pixels carry
+    "people of color / white"); §5.2's own rule says do nothing. ✓ verified prior.
+  • **atlantic p10** (owner note 75158669, now `orphaned:true`) — the chart is a
+    RASTER crop (`fig-001.png`); owner's flagged "optimists/pessimists" bracket
+    labels are DROPPED (no leaf in current IR: nid `nd580e4e92d` gone; crop bbox
+    excludes them). No live legend leaf; a figure-COMPLETENESS residual, not a
+    swatch gap. Eyeballed page-0010.png + fig-001.png.
+  • **nff p12** (`03--nff-2025-survey-report`, the ONLY corpus doc with a live
+    legend text leaf — found via corpus scan `scan_live_legends.py`) — the
+    "MAJOR CHALLENGE / MINOR CHALLENGE" legend IS live, BUT the whole chart is
+    STRUCTURALLY SHREDDED: two half-charts as separate bar-image figures
+    (`fig-021.svg` light-green MAJOR, `fig-022.svg` dark-green MINOR), the six
+    category labels split into standalone `<h6>` headings (an-000502..507), the
+    percentages into stray `<p>` ("18% 20%"), and the legend demoted to fig-022's
+    figcaption. Swatch dots here = lipstick on a decomposition bug.
+  ROOT CAUSE of the park: the IR has NO legend-region concept — no "legend" role,
+  no swatch↔label grouping in the figure region model — so §5.2's precondition
+  ("a legend line that is a live caption/label leaf") cannot be satisfied cleanly
+  anywhere. Building a figcaption→swatch detector would need the multi-guard
+  gating the plan warns against, and wouldn't move any page's PASS state (race
+  already correct; atlantic/nff broken upstream). PARKED with named missing lever
+  (see PARKED). NEXT: §5.3 (quote/attribution) — clean specimens exist (edf p3
+  blue names, race p20 quotes) — then §5.4, §5.5 (mostly done via §5.1), §5.6.
 - **§5.1 caps mirroring DONE** (2026-07-04). Root cause: all-caps kickers/
   labels/headings are lowercase CODEPOINTS displayed caps by a small-caps font
   (confirmed `Whitney-MediumSC`) — extraction faithfully returns the lowercase
@@ -661,6 +699,29 @@ doubt: smaller scope, PARK, keep moving.
 
 ## PARKED
 
+- [§5.2] Legend-swatch renderer | premise (a live legend LEAF needing swatch dots)
+  has NO clean corpus specimen — legends are either claimed into figure pixels
+  (race, atlantic: do nothing) or the chart is structurally fragmented (nff p12).
+  The IR models no legend region, so there is nothing to reliably hang swatches
+  on | NAMED MISSING LEVER: a **legend-region model** — detect swatch□+label
+  groups inside a figure's region model, expose them as legend leaves carrying
+  their associated vector-fill colors; THEN §5.2's renderer (`<span class="swatch"
+  style="background:…">`) becomes a trivial, safe consumer. A figures-track /
+  upstream-analysis job, not a §5 style token.
+- [figures] NFF p12 chart fragmentation | the "FINANCIAL CHALLENGES IN FY 2024"
+  paired-bar chart decomposes into 2 bar-image figures + 6 label `<h6>` + stray
+  `%` paragraphs + legend-as-figcaption, instead of one figure | NAMED MISSING
+  LEVER: chart-region unification (a multi-column chart whose bars are separate
+  vector groups but share one titled region should assemble as ONE figure, its
+  axis labels/legend absorbed). Hard; route to the §7 vision loop or a dedicated
+  figures-track pass, not §5.
+- [figures] Atlantic p10 dropped chart labels | owner note 75158669: the
+  "optimists/pessimists" bracket labels were live authoring-environment text
+  layered on a raster chart; current pipeline drops them (not in crop, not as
+  text) | NAMED MISSING LEVER: raster-figure text-overlap recovery — when a live
+  text leaf sits within a raster figure's bbox and is neither caption nor absorbed
+  into the crop, either extend the crop to include it or keep it as an in-figure
+  caption; never silently drop.
 - [§4.5] Corpus vision-loop rollout | the pilot (points-of-light p25) proved the
   machinery + prescriber but apply-all traded structural fixes for STYLING
   losses (callout label/color, pull-quote decoration) → page didn't "look

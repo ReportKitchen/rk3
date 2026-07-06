@@ -12,7 +12,7 @@ from pathlib import Path
 
 from . import irwalk
 
-VERSION = 80
+VERSION = 81
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -985,7 +985,12 @@ def _link_markup(text, s, e, payload, state):
             tid, tpage = target
             return ("wrap", f'<a href="#{tid}" data-link-styled="true" '
                     f'data-target-page="{tpage}">', "</a>")
-        return ("wrap", '<span data-link-styled="true">', "</span>")
+        # no anchor: reproduce the source color (webified §5.3 — blue signatory
+        # names, colored cross-refs). _usable_color drops near-white (legible only
+        # on the PDF's dark panels); those stay body color as before.
+        col = _usable_color(payload.get("color"))
+        style = f' style="color:{col}"' if col else ""
+        return ("wrap", f'<span data-link-styled="true"{style}>', "</span>")
     if uri:
         href = uri if "://" in uri or uri.startswith(("mailto:", "#")) \
             else "https://" + uri

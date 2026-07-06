@@ -515,8 +515,32 @@ def _check_float(slug, c):
     return False, f"no figure matches {(nid or spec.get('textPrefix'))!r}"
 
 
+def _check_style_color(slug, c):
+    """A link-styled (link-colored but un-anchored) run keeps its SOURCE color in
+    the IR payload, so the renderer can reproduce it (webified §5.3 — e.g. edf p3
+    blue signatory names). {nid|textPrefix: ..., is: "#rrggbb"}."""
+    spec = c["styleColor"]
+    want = (spec.get("is") or "").lower()
+    nid = spec.get("nid")
+    pref = _norm(spec.get("textPrefix", ""))
+    ir = _artifact(slug, "analyze") or {}
+    for n in _walk(ir.get("body", [])):
+        styled = [r for r in (n.get("links") or []) if len(r) > 2
+                  and (r[2] or {}).get("styled")]
+        if not styled:
+            continue
+        if (nid and n.get("nid") == nid) or \
+                (pref and pref in _norm(irwalk.subtree_text(n))):
+            got = ((styled[0][2] or {}).get("color") or "").lower()
+            return (got == want), (f"styled run color {got or 'none'}"
+                                   if got == want
+                                   else f"styled run color {got or 'none'!r}, "
+                                        f"expected {want!r}")
+    return False, f"no styled run matches {(nid or spec.get('textPrefix'))!r}"
+
+
 EVALUATORS = {"order": _check_order, "role": _check_role, "list": _check_list,
-              "float": _check_float,
+              "float": _check_float, "styleColor": _check_style_color,
               "not_list": _check_not_list, "nested": _check_nested,
               "merge": _check_merge,
               "split": _check_split, "freeze": _check_freeze,

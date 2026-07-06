@@ -60,3 +60,11 @@ checks:
   # welded at offset ~475 of the preceding node.
   - note: "GOLD(col) p7 (target): 'Day and evening' starts its own node (column weld)"
     split: ["through improved science, data", "Day and evening"]
+
+  # GOLD(§5.3 styles) p3: the signatory name "Amanda Leland" is link-colored
+  # (#0033cc) in the source but has no link target — a deliberate color choice.
+  # It was carried as {styled:true} with NO color, so the renderer dropped the
+  # blue (names rendered black). The styled payload must keep the source color.
+  # RED-AT-PLANT 2026-07-06: styled run color none (no color field yet).
+  - note: "GOLD(§5.3): 'Amanda Leland' link-styled name keeps source blue #0033cc"
+    styleColor: { textPrefix: "Amanda Leland", is: "#0033cc" }

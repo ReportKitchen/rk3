@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 200
+VERSION = 201
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -5281,13 +5281,16 @@ def _build_runs(ctx, blk, lines, blk_font, link_colors=()):
 
         styled = []
         if l["colorIdx"] in link_colors:
-            styled.append([base, base + len(t)])
+            styled.append([base, base + len(t), l["colorIdx"]])
         else:
-            styled.extend([s + base, e + base] for s, e, col in l.get("colors", [])
+            styled.extend([s + base, e + base, col] for s, e, col in l.get("colors", [])
                           if col in link_colors)
-        for s, e in styled:
+        for s, e, ci in styled:
             if not any(s < re_ and rs < e for rs, re_, _t in real):
-                links.append([s, e, {"styled": True}])
+                # carry the SOURCE color: a link-colored run with no anchor is a
+                # deliberate color choice (signatory names, print cross-refs) the
+                # renderer reproduces (webified §5.3), not a run to flatten to body
+                links.append([s, e, {"styled": True, "color": _hex(ctx.colors[ci])}])
 
         # colored-but-NOT-link inline runs (rubric §3): color used for emphasis.
         # Carried as [s, e, hex]; render promotes to <strong class="c-xxxxxx">
