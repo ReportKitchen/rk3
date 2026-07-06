@@ -488,6 +488,27 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§5.6 styleguide.json DONE** (2026-07-06). New per-doc design-token digest
+  emitted by the render stage (`render._styleguide(ir)` → `styleguide.json`):
+  `{body:{font,size,color}, headings:{1..6:{font,size,color}}, linkColor,
+  calloutPalette:[fills], quote}`. Serializes what layer-3 CSS already derives
+  (`_style_profile` + link/aside scans) — the styleTokens (§3.5) substrate the
+  §7 loop will adjust. A DERIVED LOCAL artifact like scoreboard.json (gitignored;
+  not whitelisted), regenerated each convert — only the CODE commits. render
+  VERSION 82→**83** (bump so the stage re-runs corpus-wide). Additive (no HTML/CSS
+  change) → census provably unchanged; pytest 33. VERIFIED by reading edf (blue
+  #0033cc scale) + nff (Univers 10pt body, #5c6f7b links, 8-color callout palette)
+  — both faithful. §5 STYLES BASELINE COMPLETE (5.1 caps ✓ / 5.2 PARK / 5.3 quote
+  color ✓ / 5.4 white-on-dark ✓ / 5.5 kicker ✓ / 5.6 tokens ✓). NEXT: §6 tables.
+- **§5.5 kicker styling DONE (verify-only, no code)** (2026-07-06). §5.1 already
+  delivers it: `data-caps`→`text-transform:uppercase` + `figcaption[data-caps]
+  {letter-spacing:0.03em}`, and figure kickers carry their source color/font
+  (Whitney-MediumSC via embedFonts). EYEBALLED race p10 — "FIGURE 2 |
+  RACE/ETHNICITY", "FIGURE 3 | IMMIGRATION EXPERIENCE", "FIGURE 4 | SEXUAL
+  ORIENTATION" render as proper uppercase muted-teal letter-spaced kickers; the
+  legends (PEOPLE OF COLOR ● WHITE) carry their swatch dots from the claimed
+  figure pixels (consistent w/ §5.2). No code change; race output not re-committed
+  (refreshes in §7).
 - **§5.4 callout fidelity DONE (white-on-dark)** (2026-07-06). Owner-flagged core:
   text inside DARK callouts was rendering body-black (illegible) instead of the
   source's near-white. Root cause: `_usable_color` drops near-white as unusable

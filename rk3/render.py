@@ -5,6 +5,7 @@ log key) and data-page (source page) plus any other provenance under data-*.
 """
 
 import html
+import json
 import re
 import shutil
 from collections import Counter
@@ -12,7 +13,7 @@ from pathlib import Path
 
 from . import irwalk
 
-VERSION = 82
+VERSION = 83
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -102,6 +103,13 @@ def run(ctx):
 </html>
 """
     (ctx.outdir / "index.html").write_text(doc, encoding="utf-8")
+
+    # design-token digest (webified §5.6): the palette/scale the doc uses, for
+    # inspection and as the styleTokens (§3.5) substrate. A derived local artifact
+    # like scoreboard.json — regenerated each convert, not a committed baseline.
+    (ctx.outdir / "styleguide.json").write_text(
+        json.dumps(_styleguide(ir), indent=2, ensure_ascii=False),
+        encoding="utf-8")
     ctx.log.entry("rendered", nodes=len(ir["body"]), css=CSS_FILES)
 
 
@@ -1157,6 +1165,55 @@ def _style_profile(ir):
             if tgt[bucket]:
                 tgt[key] = max(tgt[bucket], key=tgt[bucket].get)
     return body, heads
+
+
+def _styleguide(ir):
+    """Per-document design tokens distilled from the IR's style provenance — the
+    heading scale, body type, link color, callout palette and quote style the
+    document actually uses (webified §5.6). Emitted for inspection and as the
+    substrate the vision loop's styleTokens (§3.5) adjust; the renderer already
+    derives the same values inline for its CSS, so this is a serialization of
+    what layer 3 knows, not a new computation."""
+    body, heads = _style_profile(ir)
+    link_votes = Counter()
+    palette = Counter()
+    quote = None
+
+    def walk(n):
+        nonlocal quote
+        d = n.get("data") or {}
+        if n.get("type") == "paragraph":
+            own = _usable_color(d.get("color"))
+            links = n.get("links") or []
+            if links and own:
+                r, g, b = (int(own[i:i + 2], 16) for i in (1, 3, 5))
+                if max(r, g, b) - min(r, g, b) >= 24:  # greys aren't link styling
+                    span = sum(e - s for s, e, _t in links)
+                    if span >= 0.6 * max(len(n.get("text", "") or ""), 1):
+                        link_votes[own] += span
+        if n.get("type") == "aside":
+            fill = d.get("fill")
+            if fill and fill != "#ffffff":
+                palette[fill] += 1
+            if quote is None and (n.get("_cls") == "quote" or n.get("quoteOpen")):
+                quote = {"color": d.get("color"),
+                         "mark": n.get("quoteOpen")}
+        for c in n.get("children", []):
+            walk(c)
+
+    for n in ir["body"]:
+        walk(n)
+
+    return {
+        "body": {"font": body.get("font"), "size": body.get("size"),
+                 "color": _usable_color(body.get("color")) or body.get("color")},
+        "headings": {str(lv): {"font": h.get("font"), "size": h.get("size"),
+                               "color": h.get("color")}
+                     for lv, h in sorted(heads.items())},
+        "linkColor": link_votes.most_common(1)[0][0] if link_votes else None,
+        "calloutPalette": [c for c, _n in palette.most_common()],
+        "quote": quote,
+    }
 
 
 # nicer names for the common single-trait paragraph styles; multi-trait or
