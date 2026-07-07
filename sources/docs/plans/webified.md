@@ -488,6 +488,26 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§7.2 vision-loop pilot re-run (points-of-light p25) — §5-FIRST THESIS
+  CONFIRMED** (2026-07-07, bounded, $0.54 spend). Re-ran the loop on the SAME page
+  the §4.5 pilot failed on, now that §5 styling is in place. RESULT: the loop
+  applied orderPin (SUMMARY box → after heading) + floatPin (pull-quote left);
+  iter-2 rescan reported severe 4→5 and the oscillation rail fired — but EYEBALL
+  showed the render was UNCHANGED, so the 4→5 was vision-scan NOISE on a page the
+  overrides didn't move, NOT the §4.5-style styling DEGRADATION. THE KEY WIN:
+  applying structural overrides no longer strips the correct styling (heading
+  green, callout, colors, pull-quote decoration all stayed intact) — exactly the
+  §5-first bet. Diagnosed WHY the overrides didn't land: (1) orderPin prefix
+  "SUMMARY It is resource intensive" spanned TWO child nodes so the lead-text
+  matcher missed the callout (matched 5/6); a one-word hand-correction to
+  "SUMMARY" → matched 6/6 and the SUMMARY box MOVED correctly into place with zero
+  styling loss (kept, provenance-stamped, in Points-of-Light.config.json). (2)
+  floatPin is figures-only; the pull-quote is a paragraph → no-op (dropped). (3)
+  "NONPROFIT LEADER" stays a heading (prescriber flagged the residual). VERDICT:
+  the §5-first sequencing WORKS — the loop's structural fixes now land atop
+  correct styling instead of degrading it. The residual gaps are lever-COVERAGE
+  (prescriber prefix-matching, floatPin scope, attribution lever), PARKED. This
+  validates the owner's whole thesis end-to-end.
 - **§7.1 corpus output baselines REFRESHED** (2026-07-07). All §5.1–5.6 + §6.2
   deterministic wins were committed only for specimen docs; the rest sat at STALE
   pre-§5 committed output (each specimen commit did `git checkout -- output/` to
@@ -829,6 +849,23 @@ doubt: smaller scope, PARK, keep moving.
 
 ## PARKED
 
+- [§7.2] Prescriber orderPin prefix-matching | the loop's orderPin sequence used a
+  prefix ("SUMMARY It is resource intensive") that spanned TWO child nodes, so the
+  analyze lead-text matcher missed the callout (matched 5/6, no reorder); a
+  one-word fix ("SUMMARY") landed it | NAMED MISSING LEVER: make prescribe() emit
+  each sequence entry as either a nid or a prefix that matches ONE node's lead
+  text (its first line), not concatenated cross-node text; or make _apply_order_pins
+  match on subtree_text as a fallback. Cheap, high-leverage for the loop.
+- [§7.2] floatPin scope = figures only | the pull-quote on pol p25 is a PARAGRAPH
+  (not a figure/aside), so floatPin (sets data.float, consumed only for figures)
+  is a no-op on it | NAMED MISSING LEVER: extend float to paragraph/aside pull-
+  quotes — a floated side-quote is a common layout; the renderer needs a
+  `.para-float-left/right` path mirroring `.fig-float-*`.
+- [§7.2] attribution-label classification | "NONPROFIT LEADER" (a pull-quote
+  attribution) is classified as a heading; the prescriber correctly flagged the
+  residual but has no lever for it | NAMED MISSING LEVER: a headingOverride /
+  role-pin that demotes a mis-tagged heading to an attribution/label leaf bound to
+  its quote (the §4.5 pilot proposed this too — recurring, promotion candidate).
 - [§6.2/§6.3] Spans-pages table assembly | 30 corpus tables (census reason
   `spans-pages`) — incl. dp p40 (note 54b39020), tenure p8's "one table not two"
   MERGE (note edd55787), tenure p8→p9 continuation — are ONE table split by a

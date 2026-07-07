@@ -9,5 +9,21 @@
         "https://use.typekit.net/qmh3dop.css"
       ]
     }
+  },
+  "structure": {
+    "orderPins": [
+      {
+        "page": 25,
+        "sequence": [
+          "Full Cost of Volunteer Engagement",
+          "SUMMARY",
+          "Achieving the full potential",
+          "Nonprofits and intermediary organizations",
+          "\u201c Volunteer management touches",
+          "NONPROFIT LEADER"
+        ],
+        "_source": "vision-loop 2026-07-07 p25 iter1 (prefix hand-corrected SUMMARY)"
+      }
+    ]
   }
 }
