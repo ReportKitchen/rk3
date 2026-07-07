@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { getPatternsIndex, postPatternAnalyze, postPatternsAnalyzeAll } from "../api.js";
 import { reportError } from "../errorBus.js";
 
+const docHref = (slug) => `?doc=${encodeURIComponent(slug)}`;
+
 /** Admin page: the pattern-identification track's results across the corpus —
  *  one column per analyzed doc, one row per pattern type, counts in cells.
  *  Clicking a doc opens it (its Patterns tab has the per-candidate review). */
@@ -49,6 +51,12 @@ export default function PatternsAggregate({ onOpen }) {
       .finally(() => setBusy(false));
   };
 
+  const open = (slug) => (e) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    onOpen(slug);
+  };
+
   if (rows === null) return <div className="pane hint">Loading pattern reports…</div>;
   if (rows.length === 0) {
     return (
@@ -82,7 +90,7 @@ export default function PatternsAggregate({ onOpen }) {
             <th className="num">total</th>
             {rows.map((r) => (
               <th key={r.slug} className="doc-col">
-                <a href="#" onClick={(e) => { e.preventDefault(); onOpen(r.slug); }}
+                <a href={docHref(r.slug)} onClick={open(r.slug)}
                    title={`open ${r.slug}`}>
                   {r.slug.replace(/^0\d--/, "").slice(0, 18)}
                 </a>
