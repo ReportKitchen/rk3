@@ -4,18 +4,18 @@
 - title: Three Ways Foundations Can Invest in Black-Led Nonprofits for Lasting Change
 - pages: 54
 - irVersion: 1
-- convertedAt: 2026-07-02T22:17:01.147233+00:00
+- convertedAt: 2026-07-07T17:33:43.181804+00:00
 
 ## Inventory
 
-- callout: 37
-- date_time_period: 155
+- callout: 24
+- date_time_period: 115
 - definition: 1
 - funding_event: 1
 - geography_place: 3
-- impact_statement: 38
+- impact_statement: 36
 - key_finding: 2
-- metric_cluster: 27
+- metric_cluster: 23
 - named_entity: 7
 - process_step_list: 3
 - purpose_statement: 2
@@ -23,18 +23,18 @@
 - question_list: 6
 - quotation: 108
 - source_note_reference: 10
-- statistic: 227
+- statistic: 144
 
 ## Review Focus
 
-- `callout`: 37 candidate(s). Sample: I don’t want to just get a grant. I want to sustain the grant... but if I don’t get the support I need, that i s j u st n ot go i n g to happen.; When funders want to support your work and they truly believe in what you’re doing, they work very diligently and explicitly to eliminate barriers.; There is something about trusting us to be able to do the work that we have already determined in partnership with community. This is what community wants and needs.
-- `date_time_period`: 155 candidate(s). Sample: 2019; 2026; 1971
+- `callout`: 24 candidate(s). Sample: I don’t want to just get a grant. I want to sustain the grant... but if I don’t get the support I need, that i s j u st n ot go i n g to happen.; When funders want to support your work and they truly believe in what you’re doing, they work very diligently and explicitly to eliminate barriers.; There is something about trusting us to be able to do the work that we have already determined in partnership with community. This is what community wants and needs.
+- `date_time_period`: 115 candidate(s). Sample: 2019; 2026; 1971
 - `definition`: 1 candidate(s). Sample: Human-centered support
 - `funding_event`: 1 candidate(s). Sample: $1 million
 - `geography_place`: 3 candidate(s). Sample: United States; United States; United States
-- `impact_statement`: 38 candidate(s). Sample: impact | $7,214,399,690 | Grant funding awarded $979,979,199 $7,214,399,690; impact | $1 million | , total annual grantmaking greater than $1 million) than foundations that did not fund Black-led nonprofits.; impact | $979,979,199 | Grant funding awarded $979,979,199 $7,214,399,690
+- `impact_statement`: 36 candidate(s). Sample: impact | $7,214,399,690 | Grant funding awarded $979,979,199 $7,214,399,690; impact | $1 million | , total annual grantmaking greater than $1 million) than foundations that did not fund Black-led nonprofits.; impact | $979,979,199 | Grant funding awarded $979,979,199 $7,214,399,690
 - `key_finding`: 2 candidate(s). Sample: Key findings; Small Black-led nonprofits experienced a different reality.
-- `metric_cluster`: 27 candidate(s). Sample: 2 metric(s): 4.0, 4.0; 4 metric(s): 627, 246, 24, 3,642; 3 metric(s): 70%, 54%, 34%
+- `metric_cluster`: 23 candidate(s). Sample: 4 metric(s): 627, 246, 24, 3,642; 3 metric(s): 70%, 54%, 34%; 3 metric(s): 48 million, 51%, 51%
 - `named_entity`: 7 candidate(s). Sample: Interview and focus group methodology: Foundation representatives; GuideStar and Foundation Center; Association of Black Foundation Executives
 - `process_step_list`: 3 candidate(s). Sample: 3 step(s): Financial support: the money that nonprofits need to accomplish their work; Social support: the relationships that help nonprofits thrive; Human-centered support: the resources that nonprofit staff need to be healthy and carry out mission-driven work at full capacity; 3 step(s): Financial support: the money that nonprofits need to accomplish their work; Social support: the relationships that help nonprofits thrive; Human-centered support: the resources that nonprofit staff need to be healthy and carry out mission-driven work at full capacity; 3 step(s): between Black-led and other nonprofits; among different-sized nonprofits; as an interaction between nonprofit type and nonprofit size.
 - `purpose_statement`: 2 candidate(s). Sample: Following George Floyd’s murder and heightened focus on racial equity in 2020, many foundations pledged support for Black communities; similarly, many also increased giving to address pandemic-related urgent needs.; Current challenges in the philanthropic landscape inevitably make systemic change more difficult, but also more urgent.
@@ -42,7 +42,7 @@
 - `question_list`: 6 candidate(s). Sample: How many Black-led nonprofits have received grants from foundations? How much financial support have Black-led nonprofits received from foundations? How many foundations award grants to Black-led nonprofits? What proportion of Black-led no...; What percentage of Black-led nonprofits’ funding comes from existing foundation partners (as opposed to new funders)? How many funders do Black-led nonprofits typically have in a given year? How many Black-led nonprofits are supported by o...; What burdens do funder practices impose on Black-led nonprofits? What can foundations do to support the well-being of Black-led nonprofit leader and staff?
 - `quotation`: 108 candidate(s). Sample: I don’t want to just get a grant. I want to sustain the grant... but if I don’t get the support I need, that i s j u st n ot go i n g to happen.; When funders want to support your work and they truly believe in what you’re doing, they work very diligently and explicitly to eliminate barriers.; There is something about trusting us to be able to do the work that we have already determined in partnership with community. This is what community wants and needs.
 - `source_note_reference`: 10 candidate(s). Sample: In total, we analyzed:1; Compared to other nonprofits, Black-led nonprofits in our sample were more likely to be in the human services subsector, located in the South, founded in 2010 or later, and have smaller operating budgets.; 3 Mirroring the sector, over three-quarters (76%) of Black-led nonprofits in our sample were small organizations.
-- `statistic`: 227 candidate(s). Sample: 4.0 This work is licensed under a Creative Commons Attribution NoDerivatives; 4.0 org/licenses/by-nd/; 24 Interviews with
+- `statistic`: 144 candidate(s). Sample: 4.0 This work is licensed under a Creative Commons Attribution NoDerivatives; 24 Interviews with; 627 Historical grants data (2016-2023) for
 
 ## High Confidence Candidates
 
@@ -89,12 +89,10 @@
 
 ## Lower Confidence Candidates
 
-- `metric_cluster` p2 `patt_9b57be3ef9c9` (0.68): 2 metric(s): 4.0, 4.0 | source: This work is licensed under a Creative Commons Attribution NoDerivatives 4.0 International License, org/licenses/by-nd/4.0.
 - `named_entity` p2 `patt_747851f30627` (0.66): GuideStar and Foundation Center | source: Candid was formed in 2019 when GuideStar and Foundation Center merged.
 - `named_entity` p2 `patt_86fc6efda23a` (0.66): Association of Black Foundation Executives | source: Established in 1971 as the Association of Black Foundation Executives, the organization was credited with many of philanthropy’s early gains in diversity.
 - `named_entity` p2 `patt_bf5cea88c698` (0.66): Robert Wood Johnson Foundation. The | source: Support for this report was provided by the Robert Wood Johnson Foundation. The views expressed here do not necessarily reflect the views of the foundation.
 - `statistic` p2 `patt_02270716f1b7` (0.72): 4.0 This work is licensed under a Creative Commons Attribution NoDerivatives | source: This work is licensed under a Creative Commons Attribution NoDerivatives 4.0 International License,
-- `statistic` p2 `patt_82554950b884` (0.72): 4.0 org/licenses/by-nd/ | source: org/licenses/by-nd/4.0.
 - `quotation` p3 `patt_06523f37f427` (0.70): I remember hearing a Native American elder say, ‘Tell the story about the buffaloes on the plains during the winter. | source: “I remember hearing a Native American elder say, ‘Tell the story about the buffaloes on the plains during the winter.’
 - `impact_statement` p5 `patt_31afc99e59cf` (0.64): need | Human-centered support: the resources that nonprofit staff need to be healthy and carry out mission-driven work at full capacity | source: Human-centered support: the resources that nonprofit staff need to be healthy and carry out mission-driven work at full capacity
 - `impact_statement` p5 `patt_f4b2a3e14c2a` (0.64): need | Financial support: the money that nonprofits need to accomplish their work | source: Financial support: the money that nonprofits need to accomplish their work
@@ -129,6 +127,8 @@
 - `statistic` p10 `patt_15eb127a6ff1` (0.72): 627 Historical grants data (2016-2023) for | source: Historical grants data (2016-2023) for 627 Black-led nonprofits
 - `statistic` p10 `patt_1708033e1c77` (0.72): 68% Founded in 2010 or later | source: Founded in 2010 or later 68% 41%
 - `statistic` p10 `patt_225e6f694825` (0.72): 3,642 Historical grants data (2016-2023) for | source: Historical grants data (2016-2023) for 3,642 other (i.
+- `statistic` p10 `patt_37a3f29b261a` (0.72): 246 Survey questionnaires from | source: Survey questionnaires from 246 representatives of Black-led nonprofits
+- `statistic` p10 `patt_38126288cae4` (0.72): 62% Operating budget under $1 million 76% | source: Operating budget under $1 million 76% 62%
 
 ## Reviewer Questions
 

@@ -4,7 +4,7 @@
 - title: CASE STUDY
 - pages: 13
 - irVersion: 1
-- convertedAt: 2026-07-02T22:17:22.690282+00:00
+- convertedAt: 2026-07-07T17:59:52.746345+00:00
 
 ## Inventory
 

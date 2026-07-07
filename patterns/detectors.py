@@ -174,6 +174,7 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
             continue
         if is_chart_or_methodology_text(text):
             continue
+        evidence_leaf = is_evidence_bearing_text(text, node)
         legal_spans: list[tuple[int, int]] = []
         money_spans: list[tuple[int, int]] = []
         date_spans = [match.span() for match in DATE_RE.finditer(text)]
@@ -199,6 +200,8 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
         for match in MONEY_RE.finditer(text):
             amount = clean_money_amount(match.group("amount"))
             quote = sentence_around(text, match.start(), match.end())
+            if not evidence_leaf or not is_evidence_bearing_text(quote, node):
+                continue
             if not amount or not is_funding_context(quote):
                 continue
             money_spans.append(match.span())
@@ -255,7 +258,7 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
                     quote,
                 )
 
-        purpose = find_purpose_statement(text)
+        purpose = find_purpose_statement(text) if evidence_leaf else None
         if purpose:
             add(
                 "purpose_statement",
@@ -266,7 +269,7 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
                 purpose["statement_text"],
             )
 
-        impact = None if purpose or (money_spans and is_funding_context(text)) else find_impact_statement(text)
+        impact = None if purpose or not evidence_leaf or (money_spans and is_funding_context(text)) else find_impact_statement(text)
         if impact:
             add(
                 "impact_statement",
@@ -292,11 +295,13 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
             value = match.group("value").strip()
             if overlaps(match.span(), legal_spans) or overlaps(match.span(), money_spans) or overlaps(match.span(), date_spans):
                 continue
+            quote = sentence_around(text, match.start(), match.end())
+            if not evidence_leaf or not is_evidence_bearing_text(quote, node):
+                continue
             if should_skip_number(value, text, match.start(), node):
                 continue
             unit = infer_unit(text, match.end())
             label = infer_label(text, match.start())
-            quote = sentence_around(text, match.start(), match.end())
             add(
                 "statistic",
                 node,
@@ -919,6 +924,79 @@ def should_skip_quote_candidate(quote_text: str, full_text: str) -> bool:
         return True
     if len((quote_text or "").split()) <= 4 and is_resource_name(quote_text):
         return True
+    return False
+
+
+def is_evidence_bearing_text(text: str, node: dict | None = None) -> bool:
+    text = clean_quote(text, 320)
+    if not text:
+        return False
+    if node and node.get("type") == "heading":
+        return False
+    if is_citation_like_text(text) or is_url_like_text(text):
+        return False
+    if is_chart_or_methodology_text(text) or is_survey_admin_text(text):
+        return False
+    if is_question_evidence_text(text):
+        return False
+    if is_example_or_hypothetical_text(text):
+        return False
+    if is_definition_rule_or_threshold_text(text):
+        return False
+    if is_publication_title_like_text(text):
+        return False
+    return True
+
+
+def is_url_like_text(text: str) -> bool:
+    return bool(re.search(r"\b(?:https?://|www\.|[A-Za-z0-9.-]+\.(?:org|com|edu|gov|net)(?:/|\b))", text or "", re.I))
+
+
+def is_question_evidence_text(text: str) -> bool:
+    cleaned = (text or "").strip()
+    lowered = cleaned.lower()
+    if "?" in cleaned:
+        return True
+    return bool(
+        lowered.startswith(("ask yourself", "before you start", "consider whether"))
+        or re.search(r"\b(ask yourself|questions to ask|guiding questions|discussion questions)\b", lowered)
+    )
+
+
+def is_example_or_hypothetical_text(text: str) -> bool:
+    lowered = (text or "").strip().lower()
+    return bool(
+        lowered.startswith(("for example", "example:", "sample ", "hypothetical"))
+        or re.search(r"\b(example metric|for instance|e\.g\.|hypothetical|scenario|suppose|imagine)\b", lowered)
+    )
+
+
+def is_definition_rule_or_threshold_text(text: str) -> bool:
+    lowered = (text or "").strip().lower()
+    return bool(
+        re.search(r"\b(is defined as|are defined as|defined as|definition:|refers to|means)\b", lowered)
+        or re.search(r"\b(rule|threshold|limit|minimum|maximum|requirement|requires|required|must be|no more than|at least)\b", lowered)
+    )
+
+
+def is_survey_admin_text(text: str) -> bool:
+    lowered = (text or "").strip().lower()
+    return bool(
+        re.search(r"\b(survey respondents?|respondents? to (?:the|our) survey|survey sample|sample size|n=|demographic makeup)\b", lowered)
+        or re.search(r"\b(asked .* questions|closed- and open-ended questions|open-ended questions|responded to (?:the|our) survey)\b", lowered)
+    )
+
+
+def is_publication_title_like_text(text: str) -> bool:
+    cleaned = clean_entity_text(text)
+    if not cleaned or len(cleaned) > 120:
+        return False
+    lowered = cleaned.lower()
+    if re.search(r"\b(book|publication|article|chapter|report|guide|toolkit|housing 101|opportunity 360)\b", lowered):
+        if not re.search(r"\b(created|generated|served|reached|increased|decreased|funded|awarded|received|pledged|provided)\b", lowered):
+            return True
+    if len(cleaned.split()) <= 8 and cleaned.istitle() and not re.search(r"[.!?]", cleaned):
+        return bool(RESOURCE_HINT_RE.search(cleaned))
     return False
 
 

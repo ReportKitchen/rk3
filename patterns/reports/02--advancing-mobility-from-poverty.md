@@ -4,7 +4,7 @@
 - title: INTRODUCTION
 - pages: 140
 - irVersion: 1
-- convertedAt: 2026-07-02T22:16:13.049193+00:00
+- convertedAt: 2026-07-07T17:33:43.170490+00:00
 
 ## Inventory
 
@@ -13,10 +13,10 @@
 - date_time_period: 47
 - definition: 26
 - geography_place: 93
-- impact_statement: 65
+- impact_statement: 56
 - key_finding: 2
-- metric_cluster: 37
-- named_entity: 288
+- metric_cluster: 32
+- named_entity: 287
 - process_step_list: 1
 - purpose_statement: 2
 - question: 100
@@ -24,7 +24,7 @@
 - quotation: 9
 - resource: 89
 - source_note_reference: 390
-- statistic: 190
+- statistic: 131
 
 ## Review Focus
 
@@ -33,10 +33,10 @@
 - `date_time_period`: 47 candidate(s). Sample: 2020; 2018; 2020
 - `definition`: 26 candidate(s). Sample: Collective impact; Equity; Systems change
 - `geography_place`: 93 candidate(s). Sample: Tennessee; Wisconsin; Ohio
-- `impact_statement`: 65 candidate(s). Sample: accomplishment | $53 billion | Over more than 35 years, Enterprise has created 662,000 homes, invested nearly $53 billion and touched millions of lives.; need | $3.4 billion | Estimates place the current capital backlog of needed physical repairs and renovations at close to $70 billion,39 increasing by approximately $3.4 billion annually.; need | $70 billion | Estimates place the current capital backlog of needed physical repairs and renovations at close to $70 billion,39 increasing by approximately $3.
+- `impact_statement`: 56 candidate(s). Sample: accomplishment | $53 billion | Over more than 35 years, Enterprise has created 662,000 homes, invested nearly $53 billion and touched millions of lives.; need | $3.4 billion | Estimates place the current capital backlog of needed physical repairs and renovations at close to $70 billion,39 increasing by approximately $3.4 billion annually.; need | $70 billion | Estimates place the current capital backlog of needed physical repairs and renovations at close to $70 billion,39 increasing by approximately $3.
 - `key_finding`: 2 candidate(s). Sample: The availability and accessibility of TBVs relies on working directly with landlords in the private rental market, which can be challenging.; Education research has produced competing evidence about the aspects of education that are most important for achievement and attainment.
-- `metric_cluster`: 37 candidate(s). Sample: 6 metric(s): Households earning up to 80% of the Area Median Income (AMI),8 as long as the a..., A household is responsible for paying 30% of the qualifying household income (b..., Households earning no greater than 50% of AMI. Rent: A household is responsible..., Households earning no greater than 80% of AMI. Rent: A household is responsible..., Households earning no greater than 80% of AMI (and 40% of newly admitted famili..., The majority of households are responsible for paying 30% of their income towar...; 2 metric(s): Stakeholder mapping exercises are a way to create a visual representation of th..., Similar to stakeholder mapping, network and systems mapping helps to visualize...; 3 metric(s): One of HUD’s longest running programs, the CDBG program provides annual grants..., HOME is managed by HUD and provides grants to states and local jurisdictions to..., HUD allocates funds annually to a national Housing Trust Fund. States and other...
-- `named_entity`: 288 candidate(s). Sample: Jeff Edmondson Executive Director of Community Mobilization Ballmer Group; Being Valued in Community; Aligning National Partners to Support Local Solutions
+- `metric_cluster`: 32 candidate(s). Sample: 6 metric(s): Households earning up to 80% of the Area Median Income (AMI),8 as long as the a..., A household is responsible for paying 30% of the qualifying household income (b..., Households earning no greater than 50% of AMI. Rent: A household is responsible..., Households earning no greater than 80% of AMI. Rent: A household is responsible..., Households earning no greater than 80% of AMI (and 40% of newly admitted famili..., The majority of households are responsible for paying 30% of their income towar...; 2 metric(s): Stakeholder mapping exercises are a way to create a visual representation of th..., Similar to stakeholder mapping, network and systems mapping helps to visualize...; 3 metric(s): One of HUD’s longest running programs, the CDBG program provides annual grants..., HOME is managed by HUD and provides grants to states and local jurisdictions to..., HUD allocates funds annually to a national Housing Trust Fund. States and other...
+- `named_entity`: 287 candidate(s). Sample: Jeff Edmondson Executive Director of Community Mobilization Ballmer Group; Being Valued in Community; Aligning National Partners to Support Local Solutions
 - `process_step_list`: 1 candidate(s). Sample: 3 step(s): Community Development Block Grant (CDBG) Programs: One of HUD’s longest running programs, the CDBG program provides annual grants to states and local jurisdictions, including cities and counties. Governments are able to apply CDBG funds toward a range of community and economic development needs, including housing.43 At least 70 percent of CDBG funds awarded locally must be used for activities that benefit individuals with low and moderate incomes.44 States and localities set priorities for the allocation of CDBG funds through the Consolidated Planning process, which is required by HUD and occurs every five years, with annual updates.; Home Investment Partnerships Program (HOME):HOME is managed by HUD and provides grants to states and local jurisdictions to fund a range of affordable housing activities, including tenant-based rental assistance, housing construction and support for public housing, among other uses. These funds often are used in partnership with nonprofit organizations and can be used as grants, direct loans or security deposits, as well as loan guarantees or other forms of credit enhancement.45 State and local priorities for HOME funds also are set through the Consolidated Planning process, as seen in the CDBG program above.; Housing Trust Fund (HTF): HUD allocates funds annually to a national Housing Trust Fund. States and other state-designated entities are able to apply for grants through the Housing Trust Fund, which can be used for the production or preservation of affordable housing, with at least 80 percent of each annual grant dedicated to affordable rental housing.46
 - `purpose_statement`: 2 candidate(s). Sample: With growing wealth and income inequality, the need to improve economic mobility for households with lower incomes becomes more urgent each year.; Stage 5 emphasizes the need to secure ongoing resources and commitment to sustain the benefits of cross-sector work and pursue broader systems change for greater impact.
 - `question`: 100 candidate(s). Sample: Whom does this sector serve?; How is this work funded?; How is this sector defined?
@@ -44,7 +44,7 @@
 - `quotation`: 9 candidate(s). Sample: fixed, regular, and adequate nighttime residence.; An education model with an affordable housing solution,; Establishing a Governance Structure
 - `resource`: 89 candidate(s). Sample: American Community Survey | survey; Environmental Health Hazard Index | resource; American Housing Survey | survey
 - `source_note_reference`: 390 candidate(s). Sample: Wealth disparities are divided along racial lines, with the average white household earning 10 times more than the average Black household.; Examples of these disparities are illustrated in the graphic below.; 4 Throughout this toolkit, the term “economic mobility” is intended to reflect all three aspects of mobility from poverty.
-- `statistic`: 190 candidate(s). Sample: 18 months rprise Community Partners and StriveTogether have worked together over the last; 24% hold a bachelor’s; 34%
+- `statistic`: 131 candidate(s). Sample: 18 months rprise Community Partners and StriveTogether have worked together over the last; 34%; 10 rities are divided along racial lines, with the average white household earning
 
 ## High Confidence Candidates
 
@@ -107,14 +107,10 @@
 - `statistic` p7 `patt_b50dd48ebbb4` (0.72): 18 months rprise Community Partners and StriveTogether have worked together over the last | source: Enterprise Community Partners and StriveTogether have worked together over the last 18 months to support communities as they take on challenges across the education and housing sectors to improve outcomes for children and families in pract...
 - `geography_place` p10 `patt_0ede06d8a00d` (0.74): United States | source: Children and families across the United States experience racial and economic disparities that stem from a complex web of systems designed to perpetuate inequities.
 - `geography_place` p10 `patt_fe5ae2823f51` (0.74): United States | source: Evidence of these biased systems surrounds us and is readily apparent in the disparate housing and education outcomes experienced by families across the United States.
-- `metric_cluster` p10 `patt_0b39fdac892e` (0.68): 4 metric(s): 73%, 40%, 24%, 34% | source: 73% own a home, of white households 40% hold a bachelor’s 24% of white adults degree or higher, of Black adults compared to 34%
-- `statistic` p10 `patt_570a7b14e57b` (0.72): 24% hold a bachelor’s | source: hold a bachelor’s 24% of white adults degree or higher, of Black adults compared to
+- `metric_cluster` p10 `patt_d17c2139051f` (0.68): 2 metric(s): 40%, 34% | source: 40% 34%
 - `statistic` p10 `patt_946f7213dd4d` (0.72): 34%
-- `statistic` p10 `patt_aa19b34d9566` (0.72): 25 over the age of | source: over the age of 25
 - `statistic` p10 `patt_d2dc0064aea8` (0.72): 10 rities are divided along racial lines, with the average white household earning | source: Wealth disparities are divided along racial lines, with the average white household earning 10 times more than the average Black household.
-- `statistic` p10 `patt_da4485955876` (0.72): 25 over the age of | source: over the age of 25
 - `statistic` p10 `patt_e6afc980e4e3` (0.72): 40%
-- `statistic` p10 `patt_fd496f29a514` (0.72): 73% | source: 73% own a home, of white households
 - `named_entity` p11 `patt_2080c57ebc7b` (0.70): Being Valued in Community
 - `named_entity` p11 `patt_4cd64d8fa84f` (0.66): Gates Foundation and | source: The US Partnership on Mobility from Poverty, a partnership funded by the Gates Foundation and supported by the Urban Institute, expanded this definition through its collaborative work in 2018.
 - `named_entity` p11 `patt_f8b84a31f81f` (0.66): Urban Institute | source: The US Partnership on Mobility from Poverty, a partnership funded by the Gates Foundation and supported by the Urban Institute, expanded this definition through its collaborative work in 2018.
@@ -131,6 +127,10 @@
 - `named_entity` p13 `patt_12b3016d100c` (0.66): Urban Institute | source: This resource reflects the contribution of expertise and research from the Urban Institute, conducted in collaboration with Enterprise, and captured in the following brief: Aligning Housing and Education: Evidence of Promising Practices an...
 - `named_entity` p13 `patt_41775c00a530` (0.66): Urban Institute | source: Urban Institute is a nonprofit research organization focused on economic and social policy research.
 - `named_entity` p13 `patt_5505bb025389` (0.66): Enterprise Community Partners | source: Enterprise Community Partners, Inc.
+- `named_entity` p13 `patt_56c3e65194d4` (0.66): Aligning National Partners | source: Aligning National Partners to Support Local Solutions
+- `named_entity` p13 `patt_6afd001260dd` (0.70): Aligning National Partners to Support Local Solutions
+- `statistic` p13 `patt_6f124094c427` (0.72): 35 years Over more than | source: Over more than 35 years, Enterprise has created 662,000 homes, invested nearly $53 billion and touched millions of lives.
+- `statistic` p13 `patt_c88a254d76d7` (0.72): 662,000 Over more than 35 years, Enterprise has created | source: Over more than 35 years, Enterprise has created 662,000 homes, invested nearly $53 billion and touched millions of lives.
 
 ## Reviewer Questions
 

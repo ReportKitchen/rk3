@@ -4,7 +4,7 @@
 - title: Annual Report from Enterprise Community Partners
 - pages: 11
 - irVersion: 1
-- convertedAt: 2026-07-02T22:17:58.350271+00:00
+- convertedAt: 2026-07-07T18:04:21.640559+00:00
 
 ## Inventory
 
@@ -16,12 +16,12 @@
 - geography_place: 13
 - impact_statement: 7
 - key_finding: 1
-- metric_cluster: 6
+- metric_cluster: 5
 - named_entity: 43
 - purpose_statement: 2
 - quotation: 16
 - resource: 14
-- statistic: 22
+- statistic: 19
 
 ## Review Focus
 
@@ -33,12 +33,12 @@
 - `geography_place`: 13 candidate(s). Sample: Alaska; Alaska; Alaska
 - `impact_statement`: 7 candidate(s). Sample: need | Together with our partners, we focus on the greatest need – the massive shortage of affordable rental homes – to achieve three critical goals:; impact | 2001 | Since 2001, rents have increased by 13% while renter incomes only rose 0.5%.; impact | 40 | During the event, we were excited to honor 40 individuals who have made an enormous impact in housing over the last four decades.
 - `key_finding`: 1 candidate(s). Sample: Stories of Impact
-- `metric_cluster`: 6 candidate(s). Sample: 2 metric(s): 40, 40; 4 metric(s): 13%, 0.5%, 62%, 6%; 7 metric(s): 40, 1,000, 40, 40, 40, 40
+- `metric_cluster`: 5 candidate(s). Sample: 4 metric(s): 13%, 0.5%, 62%, 6%; 6 metric(s): 1,000, 40, 40, 40, 40, 40; 2 metric(s): 200, 90 percent
 - `named_entity`: 43 candidate(s). Sample: MARCIA FUDGE; COLLEEN DUSHKIN; ANDRE DICKENS
 - `purpose_statement`: 2 candidate(s). Sample: I want Cleveland to be safe for all children, and I know this is a problem we can solve.; Our mission is to make home and community places of pride, power and belonging, and platforms for resilience and upward mobility for all.
 - `quotation`: 16 candidate(s). Sample: We have to find ways to not only preserve housing but to preserve the people who live in that housing. We have to build neighborhoods.; Our partners came away with a deeper understanding of Alaska, our dynamic delivery system and housing community, and an energy to invest in the phenomenal work happening in our communities.; To meet my administration’s ambitious goal of creating or preserving 20,000 units of affordable housing, we will need the assistance of all facets of our community using all tools at our disposal. Thank you to Wells Fargo and Enterprise Co...
 - `resource`: 14 candidate(s). Sample: Annual Report | report; The Challenge | challenge; Department of Housing and Urban Development’s American Housing Survey | survey
-- `statistic`: 22 candidate(s). Sample: 40 years For; 40 years To the next; 6%
+- `statistic`: 19 candidate(s). Sample: 40 years For; 6%; 62%
 
 ## High Confidence Candidates
 
@@ -87,13 +87,11 @@
 
 - `named_entity` p1 `patt_003534b6b598` (0.66): Enterprise Community Partners | source: Annual Report from Enterprise Community Partners
 - `resource` p1 `patt_783b9119357b` (0.68): Annual Report | report | source: Annual Report from Enterprise Community Partners
-- `metric_cluster` p2 `patt_7bf8c4219df0` (0.68): 2 metric(s): 40, 40 | source: For 40 years, Enterprise Community Partners has been devoted to a single mission: to make home a place of pride, power and belonging. To the next 40 years!
 - `named_entity` p2 `patt_600931397355` (0.66): Board of Trustees Enterprise Community Partners | source: Vice Chair, Board of Trustees Enterprise Community Partners
 - `named_entity` p2 `patt_619c274178c1` (0.66): Enterprise Community Partners | source: In a country where for many, the prospect of an affordable home in a safe community is a distant dream, Enterprise Community Partners is committed to dismantling the enduring legacy of systemic racism and poverty.
 - `named_entity` p2 `patt_bc8e38ed56b5` (0.66): Enterprise Community Partners | source: For 40 years, Enterprise Community Partners has been devoted to a single mission: to make home a place of pride, power and belonging.
 - `named_entity` p2 `patt_bf89fb851cc8` (0.66): Board of Trustees Enterprise Community Partners | source: Chair, Board of Trustees Enterprise Community Partners
 - `statistic` p2 `patt_754324f30f41` (0.72): 40 years For | source: For 40 years, Enterprise Community Partners has been devoted to a single mission: to make home a place of pride, power and belonging.
-- `statistic` p2 `patt_9324d0152c0f` (0.72): 40 years To the next | source: To the next 40 years!
 - `impact_statement` p3 `patt_3efa3932b3bb` (0.64): need | Together with our partners, we focus on the greatest need – the massive shortage of affordable rental homes – to achieve three critical goals: | source: Together with our partners, we focus on the greatest need – the massive shortage of affordable rental homes – to achieve three critical goals:
 - `impact_statement` p3 `patt_4ecded3af6b0` (0.64): impact | 2001 | Since 2001, rents have increased by 13% while renter incomes only rose 0.5%. | source: Since 2001, rents have increased by 13% while renter incomes only rose 0.5%.
 - `metric_cluster` p3 `patt_cedcc8723b65` (0.68): 4 metric(s): 13%, 0.5%, 62%, 6% | source: Since 2001, rents have increased by 13% while renter incomes only rose 0. Since 2001, rents have increased by 13% while renter incomes only rose 0.5%. 62% of extremely low-income renters are people of color vs. 6% of white households.
@@ -103,7 +101,7 @@
 - `statistic` p3 `patt_dc3116c55905` (0.72): 13% Since 2001, rents have increased by | source: Since 2001, rents have increased by 13% while renter incomes only rose 0.
 - `statistic` p3 `patt_fd51ff02665d` (0.72): 0.5% Since 2001, rents have increased by 13% while renter incomes only rose | source: Since 2001, rents have increased by 13% while renter incomes only rose 0.5%.
 - `impact_statement` p6 `patt_80fd2f0d7e75` (0.64): impact | 40 | During the event, we were excited to honor 40 individuals who have made an enormous impact in housing over the last four decades. | source: During the event, we were excited to honor 40 individuals who have made an enormous impact in housing over the last four decades.
-- `metric_cluster` p6 `patt_73142a4b4bbb` (0.68): 7 metric(s): 40, 1,000, 40, 40, 40, 40 | source: Celebrating 40 Years of Breaking Barriers and Building Communities On October 20, 2022, we brought together nearly 1,000 housing leaders from across the country to discuss solutions to our most pressing challenges. Our 40 panelists, includ...
+- `metric_cluster` p6 `patt_8b35db6aa56e` (0.68): 6 metric(s): 1,000, 40, 40, 40, 40, 40 | source: On October 20, 2022, we brought together nearly 1,000 housing leaders from across the country to discuss solutions to our most pressing challenges. Our 40 panelists, including innovative thinkers like current HUD Secretary Marcia Fudge, co...
 - `named_entity` p6 `patt_7df66e47e9ef` (0.66): Community Development | source: President, Community Development, Enterprise
 - `named_entity` p6 `patt_870b82babc23` (0.66): Native American Advisory Council | source: We were also proud to launch our Native American Advisory Council, a cohort of native-led organizations that will help us better serve the country’s oldest sovereigns and land trust areas.
 - `quotation` p6 `patt_d5c032b83c45` (0.70): When we talk about equity, we | source: “ When we talk about equity, we’
@@ -112,7 +110,6 @@
 - `statistic` p6 `patt_10a74dd999dc` (0.72): 40 Our Impactful | source: Our Impactful 40 honorees gathered from across the country.
 - `statistic` p6 `patt_20b16d5aaaff` (0.72): 40 While our | source: While our 40th Anniversary National Conference was a celebration of what we’ve achieved, it was more importantly an invaluable opportunity to chart our course for the next 40 years.
 - `statistic` p6 `patt_2215ec443124` (0.72): 40 years Two of our honorees, Barbara Morre and Terry Flood inspired Jim Rouse more than | source: Two of our honorees, Barbara Morre and Terry Flood inspired Jim Rouse more than 40 years ago.
-- `statistic` p6 `patt_52122aa2cd08` (0.72): 40 years Celebrating | source: Celebrating 40 Years of Breaking Barriers and Building Communities
 - `statistic` p6 `patt_a90d38e27878` (0.72): 40 During the event, we were excited to honor | source: During the event, we were excited to honor 40 individuals who have made an enormous impact in housing over the last four decades.
 - `statistic` p6 `patt_c63bfa329a66` (0.72): 40 Our | source: Our 40 panelists, including innovative thinkers like current HUD Secretary Marcia Fudge, covered every aspect of our industry.
 - `statistic` p6 `patt_f29d4b3fdaef` (0.72): 40 years was more importantly an invaluable opportunity to chart our course for the next | source: While our 40th Anniversary National Conference was a celebration of what we’ve achieved, it was more importantly an invaluable opportunity to chart our course for the next 40 years.
@@ -124,7 +121,10 @@
 - `geography_place` p7 `patt_e1ce18241f5c` (0.74): Alaska | source: We partnered with the Association of Alaska Housing Authorities to bring together 200+ participants from across Alaska and the nation to strategize innovations to address Alaska’s unique affordable housing challenges.
 - `geography_place` p7 `patt_f77a01a9c1ac` (0.74): Alaska | source: According to a 2018 Alaska Housing Finance Corporation report, overall home construction needs to increase by 90 percent to meet the state’s needs.
 - `key_finding` p7 `patt_4d1954b2dae8` (0.62): Stories of Impact
-- `metric_cluster` p7 `patt_62ffb723a689` (0.68): 3 metric(s): 8,500, 200, 90 percent | source: Nearly 8,500 owner-occupied homes in Detroit are defined as “inadequate or severely inadequate,” by the Department of Housing and Urban Development’s American Housing Survey. We partnered with the Association of Alaska Housing Authorities...
+- `metric_cluster` p7 `patt_f082540f980d` (0.68): 2 metric(s): 200, 90 percent | source: We partnered with the Association of Alaska Housing Authorities to bring together 200+ participants from across Alaska and the nation to strategize innovations to address Alaska’s unique affordable housing challenges. According to a 2018 A...
+- `named_entity` p7 `patt_2bab45099ebf` (0.66): Detroit Home Repair Fund | source: Together with the Gilbert Family Foundation, ProMedica and DTE Energy, we launched the Detroit Home Repair Fund, a $20 million program designed to help build capacity for non-profit partners in order to provide critical home repairs to low...
+- `named_entity` p7 `patt_2ede2d7f882f` (0.66): Gilbert Family Foundation | source: Together with the Gilbert Family Foundation, ProMedica and DTE Energy, we launched the Detroit Home Repair Fund, a $20 million program designed to help build capacity for non-profit partners in order to provide critical home repairs to low...
+- `named_entity` p7 `patt_3d768250ec96` (0.66): Department of Housing and Urban Development’s American Housing | source: Nearly 8,500 owner-occupied homes in Detroit are defined as “inadequate or severely inadequate,” by the Department of Housing and Urban Development’s American Housing Survey.
 
 ## Reviewer Questions
 
