@@ -580,6 +580,22 @@ doubt: smaller scope, PARK, keep moving.
 
 ### CYCLE 2 (2026-07-07, from webified-report.md §5 restart order)
 
+- **Item 5: table tail SCOPED via census + eyeball → deep feature, PARKED with
+  evidence** (2026-07-07). Ran the §6.1 table-model census corpus-wide: 73 tables
+  convert, 573 rejects (no-grid 289, too-few-blocks 192, **spans-pages 41**,
+  too-few-rows 26, strict-sparse 25). All 41 spans-pages rejects are `kind=callout`
+  → they fall to `_aside_node`. Eyeballed 3 to test the "garbled table" premise:
+  **it's a MIX** — dp p40 "Table 1" (a worksheet/form) and tenure p26 (BOX 4/5
+  dashed callouts) render FINE as text boxes; advancing-mobility p35 is genuinely
+  BROKEN (dark worksheet → black box, scattered labels, scrambled Stage order). So
+  the auto-figure fallback must NOT be blind (it would turn dp p40's readable box
+  into an image); it needs a figure-vs-callout discriminator for SPANNING regions +
+  MULTI-PAGE figure cropping (`_figure_node` only crops one page). That is a deep,
+  regression-risky feature (73 converting tables at stake) — a dedicated per-specimen
+  pass, not a rushed heuristic. Refined the §6.2/§6.3 PARK entry with the census
+  numbers + the 3 exemplars (am p35 to fix; dp p40 + tenure p26 to NOT break). No
+  engine change; census 79/3 unchanged. Moving to item 3 (bounded pilot scan,
+  pre-authorized) — higher signal-per-effort than rushing the deep table feature.
 - **Item 4c: edf p7 join-heuristic tried then REVERTED; 3 reading-order golds
   PARKED** (2026-07-07). Doc mapping corrected: the 3 remaining golds are **edf
   p7** (column-weld SPLIT), **ecp-homeforgood p4** (aside/pullQuote MERGE — NOT
@@ -1160,15 +1176,29 @@ doubt: smaller scope, PARK, keep moving.
   residual but has no lever for it | NAMED MISSING LEVER: a headingOverride /
   role-pin that demotes a mis-tagged heading to an attribution/label leaf bound to
   its quote (the §4.5 pilot proposed this too — recurring, promotion candidate).
-- [§6.2/§6.3] Spans-pages table assembly | 30 corpus tables (census reason
-  `spans-pages`) — incl. dp p40 (note 54b39020), tenure p8's "one table not two"
-  MERGE (note edd55787), tenure p8→p9 continuation — are ONE table split by a
-  column/page break; `_try_table` early-returns on `reg.get("endPage")` and reads
-  grid objects from a SINGLE page (`pages[reg["page"]]`) with one bbox | NAMED
-  MISSING LEVER: cross-page/column table assembly — gather grid rules + blocks
-  from both fragments, build a unified grid, render one <table>. Deep; high
-  regression risk to the 47 converting tables. Owner suggests a Converter Question
-  for the tenure p8 case. Route via §7 loop (tablePin) or a dedicated pass.
+- [§6.2/§6.3] Spans-pages table assembly + auto-figure fallback | **item-5 scoped
+  2026-07-07** with the §6.1 census + eyeball evidence. Census: 41 `spans-pages`
+  rejects, ALL `kind=callout` (`_try_table` returns None at the `reg.get("endPage")`
+  early-return BEFORE gathering grid evidence, so we never learn which are real
+  tables). They FALL TO `_aside_node` (styled text box). KEY FINDING (eyeballed 3):
+  they are a MIX, not all garbled tables — (a) dp p40 "Table 1" is a WORKSHEET/form
+  (Unit title:, Changes needed:, questions) that renders FINE as a blue callout box
+  with selectable text; (b) tenure p26 BOX 4/5 = dashed-bordered text callouts,
+  FINE; (c) advancing-mobility p35 is genuinely BROKEN — a dark worksheet renders as
+  a black box with sparse scattered orange/blue labels, huge gaps, and SCRAMBLED
+  order (Stage One→Four→Two→Five→Three). So a BLIND figure fallback would HARM the
+  fine cases (turn readable text boxes into images) | NAMED MISSING LEVERS, two
+  separable: (1) **auto-figure fallback** — for a spans-pages callout, run the
+  figure-vs-callout discriminator (dark/complex fill + low text-density + scrambled
+  order ⇒ figure; text-dense + light fill ⇒ keep aside) and, when figure-like, crop
+  it as a MULTI-PAGE figure (deep: `_figure_node` crops ONE page bbox; a spanning
+  region needs two crops stitched). am p35 is the exemplar TO fix; dp p40 + tenure
+  p26 the exemplars to NOT break. (2) **cross-page/column table assembly** — for a
+  spans-pages region with real grid rules on both pages (tenure p8 "one table not
+  two", note edd55787), gather rules+blocks from both fragments → unified grid → one
+  <table>. Both DEEP, high regression risk to the 73 converting tables; do as a
+  dedicated pass with per-specimen stakes, NOT a rushed heuristic. Owner suggests a
+  Converter Question for tenure p8.
 - [§6.2] Hidden 2-col name table (tenure p54, note 9480e0a1) | the region is not
   detected as a table at all (guards exist per the note) — build one where none
   is found | NAMED MISSING LEVER: gridless-table DETECTION from aligned text
