@@ -15,6 +15,7 @@ OUT = PATTERNS / "out"
 REPORTS = PATTERNS / "reports"
 LOGS = PATTERNS / "logs"
 LLM_REVIEWS = PATTERNS / "llm-reviews"
+LLM_SCANS = PATTERNS / "llm-scans"
 REVIEW_DECISIONS = PATTERNS / "review-decisions"
 CORPUS_MANIFEST = PATTERNS / "corpus" / "manifest.json"
 REGISTRY = PATTERNS / "registry" / "patterns.json"
@@ -25,6 +26,7 @@ def ensure_dirs() -> None:
     REPORTS.mkdir(parents=True, exist_ok=True)
     LOGS.mkdir(parents=True, exist_ok=True)
     LLM_REVIEWS.mkdir(parents=True, exist_ok=True)
+    LLM_SCANS.mkdir(parents=True, exist_ok=True)
 
 
 def read_json(path: Path) -> Any:

@@ -20,6 +20,8 @@ python3 -m patterns graph 03--enterprise-annual-report-2022
 python3 -m patterns vet 02--clean-air-fund --pattern-type statistic --limit 12 --dry-run
 python3 -m patterns vet 02--clean-air-fund --pattern-type statistic --limit 12 --provider deepseek --model deepseek-chat --write
 python3 -m patterns vet-summary 02--clean-air-fund --markdown
+python3 -m patterns llm-scan 02--clean-air-fund --page 4 --page 5 --limit-findings 12 --provider deepseek --model deepseek-chat --write
+python3 -m patterns llm-scan-summary 02--clean-air-fund --markdown
 ```
 
 `pattern-id` is the command name used by the CLI help text; until a packaging
@@ -29,3 +31,8 @@ entry point exists, `python3 -m patterns` is the executable form.
 first-pass reviews of deterministic candidates and writes optional JSONL rows to
 `patterns/llm-reviews/`; `vet-summary` makes those rows easier to scan. Human
 review decisions in `patterns/review-decisions/` remain the source of truth.
+
+`llm-scan` is the complementary development helper: it asks the LLM to do its
+own document scan from the IR text and writes optional JSONL rows to
+`patterns/llm-scans/`; `llm-scan-summary` highlights likely deterministic
+overlap versus LLM-only findings.

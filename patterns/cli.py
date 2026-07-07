@@ -23,6 +23,7 @@ from .io import (
 )
 from .report import build_report, markdown_summary
 from .review import markdown_review_summary, summarize_review_decisions
+from .scan import markdown_llm_scan_summary, scan_document, summarize_llm_scans
 from .validate import validate_report_against_registry
 from .vet import markdown_llm_review_summary, summarize_llm_reviews, vet_candidates
 
@@ -57,6 +58,21 @@ def main(argv: list[str] | None = None) -> None:
     vet_summary = sub.add_parser("vet-summary", help="summarize LLM first-pass vetting rows")
     vet_summary.add_argument("document_id", nargs="?")
     vet_summary.add_argument("--markdown", action="store_true")
+
+    llm_scan = sub.add_parser("llm-scan", help="LLM-originated one-document pattern scan")
+    llm_scan.add_argument("document_id")
+    llm_scan.add_argument("--page", dest="pages", action="append", type=int)
+    llm_scan.add_argument("--pattern-type")
+    llm_scan.add_argument("--limit-findings", type=int, default=20)
+    llm_scan.add_argument("--max-chars", type=int, default=14000)
+    llm_scan.add_argument("--provider")
+    llm_scan.add_argument("--model")
+    llm_scan.add_argument("--write", action="store_true")
+    llm_scan.add_argument("--dry-run", action="store_true")
+
+    llm_scan_summary = sub.add_parser("llm-scan-summary", help="summarize LLM-originated scan rows")
+    llm_scan_summary.add_argument("document_id", nargs="?")
+    llm_scan_summary.add_argument("--markdown", action="store_true")
 
     graph = sub.add_parser("graph", help="emit a graph JSON from one or more pattern reports")
     graph.add_argument("document_id", nargs="*")
@@ -109,6 +125,24 @@ def main(argv: list[str] | None = None) -> None:
         summary = summarize_llm_reviews(args.document_id)
         if args.markdown:
             print(markdown_llm_review_summary(summary))
+        else:
+            print(json.dumps(summary, indent=2, sort_keys=True))
+    elif args.command == "llm-scan":
+        print(json.dumps(scan_document(
+            args.document_id,
+            pages=args.pages,
+            pattern_type=args.pattern_type,
+            limit_findings=args.limit_findings,
+            max_chars=args.max_chars,
+            dry_run=args.dry_run,
+            write=args.write,
+            provider=args.provider,
+            model=args.model,
+        ), indent=2, sort_keys=True))
+    elif args.command == "llm-scan-summary":
+        summary = summarize_llm_scans(args.document_id)
+        if args.markdown:
+            print(markdown_llm_scan_summary(summary))
         else:
             print(json.dumps(summary, indent=2, sort_keys=True))
     elif args.command == "graph":
