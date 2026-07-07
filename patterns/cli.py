@@ -24,7 +24,7 @@ from .io import (
 from .report import build_report, markdown_summary
 from .review import markdown_review_summary, summarize_review_decisions
 from .validate import validate_report_against_registry
-from .vet import vet_candidates
+from .vet import markdown_llm_review_summary, summarize_llm_reviews, vet_candidates
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -53,6 +53,10 @@ def main(argv: list[str] | None = None) -> None:
     review_summary = sub.add_parser("review-summary", help="summarize JSONL reviewer decisions")
     review_summary.add_argument("document_id", nargs="?")
     review_summary.add_argument("--markdown", action="store_true")
+
+    vet_summary = sub.add_parser("vet-summary", help="summarize LLM first-pass vetting rows")
+    vet_summary.add_argument("document_id", nargs="?")
+    vet_summary.add_argument("--markdown", action="store_true")
 
     graph = sub.add_parser("graph", help="emit a graph JSON from one or more pattern reports")
     graph.add_argument("document_id", nargs="*")
@@ -99,6 +103,12 @@ def main(argv: list[str] | None = None) -> None:
         summary = summarize_review_decisions(args.document_id)
         if args.markdown:
             print(markdown_review_summary(summary))
+        else:
+            print(json.dumps(summary, indent=2, sort_keys=True))
+    elif args.command == "vet-summary":
+        summary = summarize_llm_reviews(args.document_id)
+        if args.markdown:
+            print(markdown_llm_review_summary(summary))
         else:
             print(json.dumps(summary, indent=2, sort_keys=True))
     elif args.command == "graph":

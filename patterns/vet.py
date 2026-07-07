@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -202,3 +203,118 @@ def write_llm_reviews(document_id: str, reviews: list[dict[str, Any]]) -> Path:
         for review in reviews:
             handle.write(json.dumps(review, sort_keys=True) + "\n")
     return path
+
+
+def load_llm_reviews(document_id: str | None = None) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    rows: list[dict[str, Any]] = []
+    errors: list[dict[str, Any]] = []
+    paths = sorted(LLM_REVIEWS.glob("*.jsonl"))
+    if document_id:
+        paths = [path for path in paths if path.stem == document_id]
+
+    for path in paths:
+        for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+            if not line.strip():
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError as exc:
+                errors.append({"file": str(path), "line": line_number, "error": str(exc)})
+                continue
+            row.setdefault("document_id", path.stem)
+            row["_file"] = str(path)
+            row["_line"] = line_number
+            rows.append(row)
+    return rows, errors
+
+
+def summarize_llm_reviews(document_id: str | None = None) -> dict[str, Any]:
+    rows, errors = load_llm_reviews(document_id)
+    latest = latest_decisions(rows)
+    return {
+        "document_id": document_id,
+        "files_read": sorted({row["_file"] for row in rows}),
+        "row_count": len(rows),
+        "latest_pattern_count": len(latest),
+        "parse_errors": errors,
+        "latest_decisions": count_llm_rows(latest),
+        "non_evidence_reasons": count_non_evidence_reasons(latest),
+        "recent_reviews": recent_llm_reviews(latest),
+    }
+
+
+def count_llm_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    by_type_decision = Counter((row.get("pattern_type") or "unknown", row.get("decision") or "unknown") for row in rows)
+    by_type: dict[str, dict[str, int]] = defaultdict(dict)
+    for (pattern_type, decision), count in sorted(by_type_decision.items()):
+        by_type[pattern_type][decision] = count
+    return {
+        "by_decision": dict(sorted(Counter(row.get("decision") or "unknown" for row in rows).items())),
+        "by_type": dict(sorted(by_type.items())),
+    }
+
+
+def count_non_evidence_reasons(rows: list[dict[str, Any]], limit: int = 20) -> list[dict[str, Any]]:
+    counts: Counter[str] = Counter()
+    for row in rows:
+        for reason in row.get("non_evidence_reasons") or []:
+            counts[str(reason)] += 1
+    return [{"reason": reason, "count": count} for reason, count in counts.most_common(limit)]
+
+
+def recent_llm_reviews(rows: list[dict[str, Any]], limit: int = 30) -> list[dict[str, Any]]:
+    ordered = sorted(rows, key=lambda row: str(row.get("reviewed_at") or ""))
+    return [
+        {
+            "document_id": row.get("document_id"),
+            "pattern_id": row.get("pattern_id"),
+            "pattern_type": row.get("pattern_type"),
+            "decision": row.get("decision"),
+            "confidence": row.get("confidence"),
+            "reason": row.get("reason"),
+        }
+        for row in ordered[-limit:]
+    ]
+
+
+def markdown_llm_review_summary(summary: dict[str, Any]) -> str:
+    title = "LLM Vetting Summary"
+    if summary.get("document_id"):
+        title += f": {summary['document_id']}"
+
+    lines = [
+        f"# {title}",
+        "",
+        f"- rows: {summary['row_count']}",
+        f"- latest reviewed patterns: {summary['latest_pattern_count']}",
+        f"- parse errors: {len(summary['parse_errors'])}",
+        "",
+        "## Latest Decisions",
+        "",
+    ]
+    for decision, count in summary["latest_decisions"]["by_decision"].items():
+        lines.append(f"- `{decision}`: {count}")
+
+    lines += ["", "## Type Breakdown", ""]
+    for pattern_type, counts in summary["latest_decisions"]["by_type"].items():
+        parts = [f"{decision} {count}" for decision, count in counts.items()]
+        lines.append(f"- `{pattern_type}`: {', '.join(parts)}")
+
+    lines += ["", "## Non-Evidence Reasons", ""]
+    if summary["non_evidence_reasons"]:
+        for item in summary["non_evidence_reasons"]:
+            lines.append(f"- {item['reason']}: {item['count']}")
+    else:
+        lines.append("- None.")
+
+    lines += ["", "## Recent Reviews", ""]
+    if summary["recent_reviews"]:
+        for row in summary["recent_reviews"]:
+            lines.append(
+                f"- `{row['pattern_type']}` {row['document_id']} `{row['pattern_id']}` "
+                f"{row['decision']} ({row['confidence']}): {row['reason']}"
+            )
+    else:
+        lines.append("- None.")
+    lines.append("")
+    return "\n".join(lines)
