@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Group, Panel, Separator, useDefaultLayout } from "react-resizable-panels";
-import { docUrl, getPatternsDoc, postPatternDecision } from "../api.js";
+import { docUrl, getPatternsDoc, postPatternDecision, postPatternScanDecision } from "../api.js";
 import { reportError } from "../errorBus.js";
 
 // injected into the doc iframe: pattern-hit overlay (purple, to stay distinct
@@ -44,6 +44,7 @@ export default function PatternsPanel({ doc }) {
 
   const candidates = report?.candidates || [];
   const decisions = report?.decisions || {};
+  const scanDecisions = report?.llm_scan_decisions || {};
   const llmReviews = report?.llm_reviews || [];
   const llmScans = report?.llm_scans || [];
   const reviewByPattern = useMemo(() => {
@@ -85,9 +86,12 @@ export default function PatternsPanel({ doc }) {
       items = items.filter((item) => LLM_OVERRULE_DECISIONS.has(item.llmReview?.decision));
     }
     if (typeFilter) items = items.filter((item) => itemType(item) === typeFilter);
-    if (hideDecided) items = items.filter((item) => item.kind !== "deterministic" || !decisions[item.id]);
+    if (hideDecided) {
+      items = items.filter((item) =>
+        item.kind === "deterministic" ? !decisions[item.id] : !scanDecisions[item.id]);
+    }
     return items.sort((a, b) => itemPage(a) - itemPage(b) || itemType(a).localeCompare(itemType(b)));
-  }, [candidates, llmScans, typeFilter, hideDecided, decisions, reviewByPattern, candidateById, viewMode]);
+  }, [candidates, llmScans, typeFilter, hideDecided, decisions, scanDecisions, reviewByPattern, candidateById, viewMode]);
 
   // overlay: outline every shown candidate's source nodes in the doc
   useEffect(() => {
@@ -137,12 +141,28 @@ export default function PatternsPanel({ doc }) {
       }));
     }).catch((e) => reportError("save pattern decision", e));
   };
+  const decideScan = (s, decision, notes = null) => {
+    postPatternScanDecision(doc.slug, {
+      scan_id: s.scan_id, decision,
+      pattern_type: s.pattern_type, notes,
+    }).then(() => {
+      setReport((r) => ({
+        ...r,
+        llm_scan_decisions: { ...(r.llm_scan_decisions || {}), [s.scan_id]: { decision, notes } },
+      }));
+    }).catch((e) => reportError("save LLM proposal decision", e));
+  };
   // the qualitative WHY behind a decision is the registry's food (negative
   // indicators, false-positive classes, missing pattern types) — capture it
   // at the click, not in chat
-  const addNote = (c, text) => {
-    const d = decisions[c.pattern_id];
-    decide(c, noteFor?.decision || d?.decision || "needs_more_context", text);
+  const addNote = (item, text) => {
+    if (item.kind === "llm_scan") {
+      const d = scanDecisions[item.id];
+      decideScan(item.scan, noteFor?.decision || d?.decision || "needs_more_context", text);
+    } else {
+      const d = decisions[item.id];
+      decide(item.candidate, noteFor?.decision || d?.decision || "needs_more_context", text);
+    }
     setNoteFor(null);
   };
 
@@ -158,12 +178,13 @@ export default function PatternsPanel({ doc }) {
 
   const stamp = report.input || {};
   const decided = Object.keys(decisions).length;
+  const scanDecided = Object.keys(scanDecisions).length;
   const overruled = candidates.filter((c) => LLM_OVERRULE_DECISIONS.has(reviewByPattern.get(c.pattern_id)?.decision)).length;
 
   return (
     <div className="patterns-pane">
       <div className="pat-header">
-        <span><strong>{candidates.length}</strong> candidates · {decided} reviewed · {llmReviews.length} LLM reviews · {llmScans.length} LLM proposals · {overruled} overruled</span>
+        <span><strong>{candidates.length}</strong> candidates · {decided} reviewed · {llmReviews.length} LLM reviews · {scanDecided}/{llmScans.length} LLM proposals reviewed · {overruled} overruled</span>
         <span className="hint"> · input: irVersion {stamp.irVersion} @ {String(stamp.convertedAt || "").slice(0, 16)}</span>
         <label className="pat-hide">
           <input type="checkbox" checked={hideDecided}
@@ -196,8 +217,9 @@ export default function PatternsPanel({ doc }) {
               if (item.kind === "llm_scan") {
                 const s = item.scan;
                 const overlap = s.deterministic_overlap;
+                const d = scanDecisions[s.scan_id];
                 return (
-                  <li key={item.id} className="pat-item pat-item-llm">
+                  <li key={item.id} className={"pat-item pat-item-llm" + (d ? ` decided-${d.decision}` : "")}>
                     <div className="pat-row1">
                       <button className="jump" title="Show overlap in document" disabled={!item.overlapCandidate}
                               onClick={() => jump(item)}>→</button>
@@ -205,6 +227,11 @@ export default function PatternsPanel({ doc }) {
                       <ModelChip row={s} />
                       <strong>{s.pattern_type}</strong>
                       <span className="pat-meta">{Math.round((s.confidence || 0) * 100)}% · p{s.page}</span>
+                      <PatternActions
+                        decision={d}
+                        onDecide={(decision) => decideScan(s, decision)}
+                        onNote={(decision) => setNoteFor({ kind: item.kind, id: item.id, decision })}
+                      />
                     </div>
                     {overlap ? (
                       <p className={"pat-llm pat-overlap" + (overlap.pattern_type === s.pattern_type ? " same" : "")}>
@@ -216,6 +243,10 @@ export default function PatternsPanel({ doc }) {
                     <p className="pat-quote">“{(s.quote || "").slice(0, 220)}”</p>
                     {s.reason && <p className="pat-note-saved hint">LLM: {s.reason}</p>}
                     {s.fields && Object.keys(s.fields).length > 0 && <PatternFields fields={s.fields} quote={s.quote} />}
+                    {noteFor?.kind === item.kind && noteFor?.id === item.id && (
+                      <NoteInput noteFor={noteFor} onSubmit={(text) => addNote(item, text)} onCancel={() => setNoteFor(null)} />
+                    )}
+                    {d?.notes && <p className="pat-note-saved hint">✎ {d.notes}</p>}
                   </li>
                 );
               }
@@ -232,32 +263,11 @@ export default function PatternsPanel({ doc }) {
                     <span className="pat-source">deterministic</span>
                     <strong>{c.pattern_type}</strong>
                     <span className="pat-meta">L{c.layer} · {Math.round((c.confidence || 0) * 100)}% · p{ref.page}</span>
-                    <span className="pat-actions">
-                      {DECISIONS.map(([dec, glyph]) => (
-                        <button key={dec} title={dec}
-                                className={"pat-btn" + (d?.decision === dec ? " on" : "")}
-                                onClick={() => decide(c, dec)}>{glyph}</button>
-                      ))}
-                      <select value={MORE_DECISIONS.includes(d?.decision) ? d.decision : ""}
-                              title="Other decision"
-                              onChange={(e) => {
-                                const v = e.target.value;
-                                if (!v) return;
-                                if (v === "reject+note" || v === "wrong_type+note") {
-                                  setNoteFor({ id: c.pattern_id, decision: v.split("+")[0] });
-                                } else {
-                                  decide(c, v);
-                                }
-                                e.target.value = "";
-                              }}>
-                        <option value="">…</option>
-                        <option value="reject+note">reject with comments…</option>
-                        <option value="wrong_type+note">wrong type with comments…</option>
-                        {MORE_DECISIONS.map((m) => <option key={m} value={m}>{m.replaceAll("_", " ")}</option>)}
-                      </select>
-                      <button className="pat-btn" title="Add a why-note to this decision"
-                              onClick={() => setNoteFor(noteFor?.id === c.pattern_id ? null : { id: c.pattern_id, decision: null })}>✎</button>
-                    </span>
+                    <PatternActions
+                      decision={d}
+                      onDecide={(decision) => decide(c, decision)}
+                      onNote={(decision) => setNoteFor({ kind: item.kind, id: item.id, decision })}
+                    />
                   </div>
                   {llm && (
                     <p className={"pat-llm decision-" + llm.decision}>
@@ -269,14 +279,8 @@ export default function PatternsPanel({ doc }) {
                   )}
                   <p className="pat-quote">“{(ref.quote || "").slice(0, 140)}”</p>
                   {c.fields && Object.keys(c.fields).length > 0 && <PatternFields fields={c.fields} quote={ref.quote} />}
-                  {noteFor?.id === c.pattern_id && (
-                    <input className="pat-note" autoFocus
-                           placeholder={(noteFor.decision ? `${noteFor.decision.replaceAll("_", " ")} — ` : "")
-                             + "why? (feeds the pattern registry — e.g. 'mission statement, not a quotation')"}
-                           onKeyDown={(e) => {
-                             if (e.key === "Enter" && e.target.value.trim()) addNote(c, e.target.value.trim());
-                             if (e.key === "Escape") setNoteFor(null);
-                           }} />
+                  {noteFor?.kind === item.kind && noteFor?.id === item.id && (
+                    <NoteInput noteFor={noteFor} onSubmit={(text) => addNote(item, text)} onCancel={() => setNoteFor(null)} />
                   )}
                   {d?.notes && <p className="pat-note-saved hint">✎ {d.notes}</p>}
                   {c.component_recommendations?.length > 0 && (
@@ -306,6 +310,49 @@ function itemType(item) {
 
 function itemPage(item) {
   return item.kind === "llm_scan" ? (item.scan.page ?? 0) : (item.candidate.source_refs?.[0]?.page ?? 0);
+}
+
+function PatternActions({ decision, onDecide, onNote }) {
+  return (
+    <span className="pat-actions">
+      {DECISIONS.map(([dec, glyph]) => (
+        <button key={dec} title={dec}
+                className={"pat-btn" + (decision?.decision === dec ? " on" : "")}
+                onClick={() => onDecide(dec)}>{glyph}</button>
+      ))}
+      <select value={MORE_DECISIONS.includes(decision?.decision) ? decision.decision : ""}
+              title="Other decision"
+              onChange={(e) => {
+                const v = e.target.value;
+                if (!v) return;
+                if (v === "reject+note" || v === "wrong_type+note") {
+                  onNote(v.split("+")[0]);
+                } else {
+                  onDecide(v);
+                }
+                e.target.value = "";
+              }}>
+        <option value="">…</option>
+        <option value="reject+note">reject with comments…</option>
+        <option value="wrong_type+note">wrong type with comments…</option>
+        {MORE_DECISIONS.map((m) => <option key={m} value={m}>{m.replaceAll("_", " ")}</option>)}
+      </select>
+      <button className="pat-btn" title="Add a why-note to this decision"
+              onClick={() => onNote(null)}>✎</button>
+    </span>
+  );
+}
+
+function NoteInput({ noteFor, onSubmit, onCancel }) {
+  return (
+    <input className="pat-note" autoFocus
+           placeholder={(noteFor.decision ? `${noteFor.decision.replaceAll("_", " ")} — ` : "")
+             + "why? (feeds pattern/LLM tuning — e.g. 'good landing-page finding' or 'not a real statistic')"}
+           onKeyDown={(e) => {
+             if (e.key === "Enter" && e.target.value.trim()) onSubmit(e.target.value.trim());
+             if (e.key === "Escape") onCancel();
+           }} />
+  );
 }
 
 function PatternFields({ fields, quote }) {

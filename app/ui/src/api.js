@@ -191,3 +191,9 @@ export const postPatternDecision = (slug, d) =>
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(d),
   }).then(json);
+export const postPatternScanDecision = (slug, d) =>
+  fetch(`/api/patterns/${slug}/scan-decision`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(d),
+  }).then(json);

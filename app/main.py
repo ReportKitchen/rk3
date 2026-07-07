@@ -702,10 +702,18 @@ PATTERNS_OUT = ROOT / "patterns" / "out"
 PATTERNS_DECISIONS = ROOT / "patterns" / "review-decisions"
 PATTERNS_LLM_REVIEWS = ROOT / "patterns" / "llm-reviews"
 PATTERNS_LLM_SCANS = ROOT / "patterns" / "llm-scans"
+PATTERNS_LLM_SCAN_DECISIONS = ROOT / "patterns" / "llm-scan-decisions"
 
 
 class PatternDecision(BaseModel):
     pattern_id: str
+    decision: str  # accept | reject | accept_with_edits | wrong_type | …
+    pattern_type: Optional[str] = None
+    notes: Optional[str] = None
+
+
+class PatternScanDecision(BaseModel):
+    scan_id: str
     decision: str  # accept | reject | accept_with_edits | wrong_type | …
     pattern_type: Optional[str] = None
     notes: Optional[str] = None
@@ -721,6 +729,21 @@ def _pattern_decisions(slug: str) -> dict:
             try:
                 e = json.loads(line)
                 out[e["pattern_id"]] = e  # last decision wins
+            except (json.JSONDecodeError, KeyError):
+                continue
+    return out
+
+
+def _scan_decisions(slug: str) -> dict:
+    f = PATTERNS_LLM_SCAN_DECISIONS / f"{slug}.jsonl"
+    out = {}
+    if f.exists():
+        for line in f.read_text().splitlines():
+            if not line.strip():
+                continue
+            try:
+                e = json.loads(line)
+                out[e["scan_id"]] = e
             except (json.JSONDecodeError, KeyError):
                 continue
     return out
@@ -777,6 +800,7 @@ def _pattern_row(doc: dict, report: dict | None = None) -> dict:
         "decided": len(_pattern_decisions(slug)),
         "llm_reviews": len(_llm_reviews(slug)),
         "llm_scans": len(_llm_scans(slug)),
+        "llm_scan_decided": len(_scan_decisions(slug)),
         "warnings": len((r or {}).get("warnings") or []),
         "batchExcluded": bool(doc.get("batchExcluded")),
         "pattern_status": pattern_status,
@@ -848,6 +872,7 @@ def patterns_doc(slug: str):
     r["decisions"] = _pattern_decisions(slug)
     r["llm_reviews"] = _llm_reviews(slug)
     r["llm_scans"] = _llm_scans(slug)
+    r["llm_scan_decisions"] = _scan_decisions(slug)
     return r
 
 
@@ -865,6 +890,22 @@ def pattern_decide(slug: str, d: PatternDecision):
     with open(PATTERNS_DECISIONS / f"{slug}.jsonl", "a") as f:
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     return {"ok": True, "decided": len(_pattern_decisions(slug))}
+
+
+@app.post("/api/patterns/{slug}/scan-decision")
+def pattern_scan_decide(slug: str, d: PatternScanDecision):
+    PATTERNS_LLM_SCAN_DECISIONS.mkdir(parents=True, exist_ok=True)
+    rec = {"schema": 1, "document_id": slug, "scan_id": d.scan_id,
+           "decision": d.decision, "reviewer": "owner",
+           "reviewed_at": datetime.datetime.now(datetime.timezone.utc)
+                          .isoformat()}
+    if d.pattern_type:
+        rec["pattern_type"] = d.pattern_type
+    if d.notes:
+        rec["notes"] = d.notes
+    with open(PATTERNS_LLM_SCAN_DECISIONS / f"{slug}.jsonl", "a") as f:
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    return {"ok": True, "decided": len(_scan_decisions(slug))}
 
 
 # ---------------------------------------------------------------- landing page
