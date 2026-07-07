@@ -51,15 +51,15 @@ strong.c-00a6e4 { color: #00a6e4; font-weight: inherit; }
 strong.c-175d9e { color: #175d9e; font-weight: inherit; }
 strong.c-231f20 { color: #231f20; font-weight: inherit; }
 
-.italic-alt {
-  font-family: "gotham", sans-serif;
-  font-style: italic;
-}
-
 .medium-alt {
   font-family: "gotham", sans-serif;
   font-weight: 500;
   color: #00a6e4;
+}
+
+.italic-alt {
+  font-family: "gotham", sans-serif;
+  font-style: italic;
 }
 
 .large {

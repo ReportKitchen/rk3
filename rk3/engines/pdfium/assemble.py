@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter, defaultdict
 
-VERSION = 51
+VERSION = 52
 
 # lowercase letters with neither ascender nor descender — their glyph tops sit
 # at x-height in normal text but reach the CAP line when a display font renders
@@ -63,7 +63,7 @@ def run(ctx):
 
     all_blocks = _join_amp_wraps(ctx, all_blocks)
     page_dims = {p["n"]: (p["width"], p["height"]) for p in ex["pages"]}
-    kept = _strip_repeating(ctx, all_blocks, page_dims, len(ex["pages"]))
+    kept, running_sigs = _strip_repeating(ctx, all_blocks, page_dims, len(ex["pages"]))
 
     for blk in kept:
         blk["rk"] = ctx.log.entry(
@@ -76,6 +76,7 @@ def run(ctx):
                    "tagged": p.get("tagged", [])}
                   for p in ex["pages"]],
         "blocks": kept,
+        "runningHeaders": sorted(running_sigs),
         "fonts": ex["fonts"],
         "colors": ex["colors"],
         "embeddedFonts": ex.get("embeddedFonts", {}),
@@ -741,7 +742,7 @@ def _strip_repeating(ctx, blocks, page_dims, n_pages):
                 return "trail"
         return None
 
-    kept = []
+    kept, running_sigs = [], set()
     for blk in blocks:
         z = zone(blk)
         text = " ".join(l["text"] for l in blk["lines"]).strip()
@@ -750,9 +751,16 @@ def _strip_repeating(ctx, blocks, page_dims, n_pages):
             if by:
                 ctx.log.entry("strip-running", page=blk["page"], zone=z,
                               text=text[:80], by=by, min_repeats=min_repeats)
+                # remember the digit-masked signature: the SAME branding can also
+                # appear off-margin (a cover eyebrow "EDF IMPACT 2023") where it
+                # escapes stripping and mis-classifies as a heading — analyze uses
+                # this set to demote it (running-header/footer, not a section head)
+                sg = norm(blk)
+                if len(sg) >= 10:
+                    running_sigs.add(sg)
                 continue
             if re.fullmatch(r"(page\s*)?\d{1,4}", text, re.I):
                 ctx.log.entry("strip-pagenum", page=blk["page"], zone=z, text=text)
                 continue
         kept.append(blk)
-    return kept
+    return kept, running_sigs

@@ -580,6 +580,25 @@ doubt: smaller scope, PARK, keep moving.
 
 ### CYCLE 2 (2026-07-07, from webified-report.md §5 restart order)
 
+- **Item 4a: edf running-header gold FIXED (census 77/5→78/4)** (2026-07-07).
+  1st of the 5 reading-order residual golds. "EDF IMPACT 2023" is the running
+  FOOTER (stripped on pp3-18) that ALSO appears as a small blue KICKER on the
+  cover, where it escaped the strip and mis-classified as an h4. FIX (deterministic,
+  corpus-wide): assemble `_strip_repeating` now returns the digit-masked signatures
+  of what it stripped → assemble output `runningHeaders` → analyze `ctx.running_
+  headers`; the heading classifier DEMOTES a heading whose text prefix-matches a
+  stripped running-header signature. TWO GUARDS (mined from over-fires): SIZE
+  (`size <= 2×body`) so a display TITLE that also runs as a header keeps its h1
+  (atlantic "UNLOCKING…" 37pt kept; kicker 16pt demoted) + LENGTH (`len<=45`) so a
+  per-chapter running title stays a heading (chep "Chapter 4. …" kept). assemble
+  VERSION 51→52, analyze 210→212. Corpus-wide it also correctly demotes cover
+  branding the owner flagged as page-headers-to-remove (atlantic "Atlantic Council"/
+  "ADRIENNE ARSHT…", toolkit "THE DEMOCRACY COLLABORATIVE"). census 78/4, zero
+  regressions; eyeballed edf p1 (kicker now a paragraph, "GLOBAL REACH" stays the
+  title) + atlantic p1 (title kept). CACHE GOTCHA bit again — `rk3 eval` served
+  stale output after the VERSION bumps; force-refreshed the corpus for the true
+  212 state. REMAINING item-4 golds (4): foia p4 + edf p7 (column-weld), atlantic
+  p6 + jhu p20 (cross-column order) — deeper column-model surgery.
 - **Item 2: NET-IMPROVEMENT GATE in converge_page DONE** (2026-07-07, PARKED §4.3).
   After apply+reconvert, the loop now RE-SCANS on the verify tier and KEEPS the
   override only if the severe count strictly dropped; else `_rollback` removes this

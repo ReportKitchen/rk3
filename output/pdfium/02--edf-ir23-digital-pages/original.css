@@ -29,12 +29,6 @@ h3 {
   font-size: 2.0rem;
 }
 
-h4 {
-  font-family: "franklin-gothic-urw", sans-serif;
-  color: #0033cc;
-  font-size: 1.6rem;
-}
-
 h5 {
   font-family: "franklin-gothic-urw", sans-serif;
   color: #0033cc;
@@ -45,6 +39,17 @@ h6 {
   font-family: "franklin-gothic-urw", sans-serif;
   color: #0033cc;
   font-size: 1.0rem;
+}
+
+a {
+  color: #0033cc;
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+.xl-alt {
+  font-family: "franklin-gothic-urw", sans-serif;
+  font-size: 1.6em;
 }
 
 .alt {

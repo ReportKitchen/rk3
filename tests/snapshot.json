@@ -1212,10 +1212,6 @@
     "headings": [
       [
         6,
-        "Atlantic Council"
-      ],
-      [
-        6,
         "UNLOCKING ECONOMIC DEVELOPMENT IN LATIN AMERICA AND THE CARIBBEAN:"
       ],
       [
@@ -1225,18 +1221,6 @@
       [
         6,
         "Pepe Zhang with inputs from the Inter-American Development Bank and its private-"
-      ],
-      [
-        6,
-        "Atlantic Council"
-      ],
-      [
-        6,
-        "ADRIENNE ARSHT LATIN AMERICA CENTER"
-      ],
-      [
-        6,
-        "Atlantic Council"
       ],
       [
         6,
@@ -1552,9 +1536,9 @@
       "figure": 36,
       "flag": 1,
       "footnotes": 1,
-      "heading": 84,
+      "heading": 80,
       "list": 12,
-      "paragraph": 177,
+      "paragraph": 181,
       "table": 6
     },
     "asideChildren": 26,
@@ -1684,7 +1668,7 @@
       125,
       126
     ],
-    "questions": 17,
+    "questions": 15,
     "textChars": 148249
   },
   "02--baystate-case-study-021624": {
@@ -2678,10 +2662,6 @@
     "title": "GLOBAL REACH LOCAL IMPACT",
     "headings": [
       [
-        4,
-        "EDF IMPACT 2023"
-      ],
-      [
         1,
         "GLOBAL REACH LOCAL IMPACT"
       ],
@@ -2825,8 +2805,8 @@
     "counts": {
       "aside": 1,
       "figure": 40,
-      "heading": 36,
-      "paragraph": 81
+      "heading": 35,
+      "paragraph": 82
     },
     "asideChildren": 3,
     "notes": [],
@@ -4529,10 +4509,6 @@
         "Toward Equity?"
       ],
       [
-        5,
-        "The Second in a Series of Three Reports"
-      ],
-      [
         6,
         "PROJECT TEAM"
       ],
@@ -4666,8 +4642,8 @@
       "figure": 17,
       "flag": 1,
       "footnotes": 2,
-      "heading": 38,
-      "paragraph": 115
+      "heading": 37,
+      "paragraph": 116
     },
     "asideChildren": 35,
     "notes": [
@@ -8182,10 +8158,6 @@
       ],
       [
         5,
-        "THE DEMOCRACY COLLABORATIVE"
-      ],
-      [
-        5,
         "ABOUT THE AUTHORS"
       ],
       [
@@ -9291,9 +9263,9 @@
       "figure": 18,
       "flag": 1,
       "footnotes": 1,
-      "heading": 278,
+      "heading": 277,
       "list": 68,
-      "paragraph": 508
+      "paragraph": 509
     },
     "asideChildren": 98,
     "notes": [

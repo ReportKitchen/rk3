@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 209
+VERSION = 212
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -344,6 +344,7 @@ def run(ctx):
     ctx.audit_moved = Counter()
 
     ctx.fonts = fonts
+    ctx.running_headers = asm.get("runningHeaders", [])
     ctx.vocab, ctx.hyph_vocab = _doc_vocab(blocks)
     link_colors = _link_colors(ctx, blocks)
     rich = [_join_block(ctx, blk, link_colors) for blk in blocks]
@@ -1978,6 +1979,20 @@ def _block_node(ctx, blk, rich, fonts, levels, body_size, used_ids,
         tag_levels = None   # forced paragraph: fall through, skip heading paths
         levels = {}
         kicker_level = 0
+
+    # a heading whose text duplicates a stripped running header/footer is that
+    # branding surfacing OFF-margin (a cover eyebrow "EDF IMPACT 2023" that escaped
+    # the footer strip) — demote it; it is not a section heading (webified item 4).
+    rh = getattr(ctx, "running_headers", None)
+    if rh and not in_aside and size <= 2.0 * body_size and len(text) <= 45:
+        # ...only when it's SMALL and SHORT. The doc TITLE also runs as a header but
+        # is display-size on the cover (size guard keeps it); a per-chapter running
+        # title ("Chapter 4. …") is LONG (length guard keeps it). Only the short,
+        # small margin-branding (kicker, org name, page header) is demoted.
+        htn = re.sub(r"\d+", "#", text).strip().lower()
+        if len(htn) >= 10 and any(htn.startswith(s) or s.startswith(htn) for s in rh):
+            ctx.log.entry("demote-running-header", page=blk["page"], text=text[:60])
+            tag_levels, levels, kicker_level = None, {}, 0
 
     if not in_aside and tag_levels and tag_role in tag_levels and tag_cov > 0.5 \
             and text.strip():

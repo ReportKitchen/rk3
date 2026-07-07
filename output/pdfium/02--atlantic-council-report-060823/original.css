@@ -56,6 +56,26 @@ h6 {
 
 strong.c-005596 { color: #005596; font-weight: inherit; }
 
+.lg-strong-alt {
+  font-family: "gotham", sans-serif;
+  font-weight: 700;
+  font-size: 1.3em;
+}
+
+.xl-strong-alt {
+  font-family: "gotham", sans-serif;
+  font-weight: 700;
+  color: #005596;
+  font-size: 1.65em;
+}
+
+.lg-alt {
+  font-family: "gotham", sans-serif;
+  font-weight: 400;
+  color: #a31115;
+  font-size: 1.15em;
+}
+
 .strong-alt {
   font-family: "proxima-nova", sans-serif;
   font-weight: 600;
@@ -66,7 +86,14 @@ strong.c-005596 { color: #005596; font-weight: inherit; }
   font-size: 0.63em;
 }
 
-.lg-strong-alt {
+.lg-strong-alt-2 {
+  font-family: "gotham", sans-serif;
+  font-weight: 700;
+  color: #005596;
+  font-size: 1.24em;
+}
+
+.lg-strong-alt-3 {
   font-family: "proxima-nova", sans-serif;
   font-weight: 700;
   color: #005596;
@@ -84,13 +111,13 @@ strong.c-005596 { color: #005596; font-weight: inherit; }
   font-size: 0.87em;
 }
 
-.lg-strong-alt-2 {
+.lg-strong-alt-4 {
   font-family: "proxima-nova", sans-serif;
   font-weight: 700;
   font-size: 1.47em;
 }
 
-.lg-strong-alt-3 {
+.lg-strong-alt-5 {
   font-family: "proxima-nova", sans-serif;
   font-weight: 700;
   font-size: 1.26em;
@@ -107,7 +134,7 @@ strong.c-005596 { color: #005596; font-weight: inherit; }
   font-size: 0.68em;
 }
 
-.lg-strong-alt-4 {
+.lg-strong-alt-6 {
   font-family: "gotham", sans-serif;
   font-weight: 700;
   font-size: 1.23em;
@@ -152,10 +179,6 @@ strong.c-005596 { color: #005596; font-weight: inherit; }
 
 [data-nid="n12ea731f4e"] {
   color: #eb8257;
-}
-
-[data-nid="nc2bc71bc7a"] {
-  color: #a31115;
 }
 
 [data-nid="n83239de59a"] {
