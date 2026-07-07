@@ -202,6 +202,7 @@ export default function PatternsPanel({ doc }) {
                       <button className="jump" title="Show overlap in document" disabled={!item.overlapCandidate}
                               onClick={() => jump(item)}>→</button>
                       <span className="pat-source">LLM proposal</span>
+                      <ModelChip row={s} />
                       <strong>{s.pattern_type}</strong>
                       <span className="pat-meta">{Math.round((s.confidence || 0) * 100)}% · p{s.page}</span>
                     </div>
@@ -260,6 +261,7 @@ export default function PatternsPanel({ doc }) {
                   </div>
                   {llm && (
                     <p className={"pat-llm decision-" + llm.decision}>
+                      <ModelChip row={llm} />{" "}
                       LLM {llm.decision?.replaceAll("_", " ")} · {Math.round((llm.confidence || 0) * 100)}%
                       {llm.corrected_pattern_type ? ` · suggested ${llm.corrected_pattern_type}` : ""}
                       {llm.reason ? `: ${llm.reason}` : ""}
@@ -319,4 +321,10 @@ function PatternFields({ fields, quote }) {
         ))}
     </p>
   );
+}
+
+function ModelChip({ row }) {
+  if (!row?.provider && !row?.model) return null;
+  const label = [row.provider, row.model].filter(Boolean).join("/");
+  return <span className="pat-field" title="LLM provider/model">[{label}]</span>;
 }
