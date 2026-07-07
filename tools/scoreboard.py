@@ -48,16 +48,46 @@ def _blank_page(p):
 
 
 def _scanned_pages(slug):
-    """Pages a vision scan has actually touched — signalled by the render crop
-    the scanner writes (qa/our-page-NNNN.png). Drives the gallery's HONESTY rule
-    (webified §1.5a): a never-scanned page is grey, never a fake green."""
+    """Pages a vision scan has actually RECORDED a result for — the authoritative
+    scan-log qa/scanned.json ({"pages": {"13": {...}}}), written by every scan
+    (record_scan) whether or not it found issues. Drives the gallery's HONESTY
+    rule (webified §1.5a): a never-scanned page is grey, never a fake green.
+
+    A render crop (our-page-NNNN.png) alone does NOT count — a crop can be
+    written by any shoot() without a scan ever running or persisting findings,
+    which is exactly how a broken page went fake-green (a page showed 'scanned +
+    zero issues' because a crop existed but its findings were never recorded).
+    Green now requires a scan that recorded its result."""
+    log = output_dir(slug) / "qa" / "scanned.json"
+    if not log.exists():
+        return set()
+    try:
+        data = json.loads(log.read_text())
+    except (json.JSONDecodeError, OSError):
+        return set()
+    return {int(p) for p in (data.get("pages") or {})}
+
+
+def record_scan(slug, page_findings, model=None):
+    """Append/refresh the scan-log qa/scanned.json for the pages just scanned.
+    `page_findings` maps page -> list of flags (possibly empty for a clean page);
+    every scanned page gets a record so a CLEAN scan is provably scanned (green),
+    not indistinguishable from never-scanned (grey). Callers persist the flags to
+    feedback separately; this only records that the scan happened."""
     d = output_dir(slug) / "qa"
-    out = set()
-    for f in sorted(d.glob("our-page-*.png")) if d.is_dir() else []:
-        m = re.search(r"our-page-(\d+)\.png$", f.name)
-        if m:
-            out.add(int(m.group(1)))
-    return out
+    d.mkdir(parents=True, exist_ok=True)
+    log = d / "scanned.json"
+    try:
+        data = json.loads(log.read_text()) if log.exists() else {}
+    except (json.JSONDecodeError, OSError):
+        data = {}
+    pages = data.setdefault("pages", {})
+    for pg, flags in page_findings.items():
+        pages[str(int(pg))] = {"model": model, "findings": len(flags or [])}
+    if model:
+        data["model"] = model
+    log.write_text(json.dumps(data, indent=1))
+    return log
 
 
 def _feedback(slug):

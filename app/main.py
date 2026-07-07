@@ -529,7 +529,14 @@ def run_vision_qa(slug: str, body: QaRunBody):
             fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
             added.append(rec)
             open_keys.add(key)
-    return {"added": len(added), "scanned": len({f.get("page") for f in flags}),
+    # authoritative scan-log: record EVERY scanned page (incl. those with no
+    # flags) so a clean scan is provably green, not fake-green-from-a-stray-crop
+    from tools.scoreboard import record_scan
+    by_page = {p: [] for p in pages}
+    for f in flags:
+        by_page.setdefault(f.get("page"), []).append(f)
+    record_scan(slug, by_page, model=None)
+    return {"added": len(added), "scanned": len(by_page),
             "selection": selection, "issues": added}
 
 
