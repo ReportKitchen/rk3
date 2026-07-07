@@ -63,6 +63,13 @@ export const getAllFeedback = () => fetch(`/api/feedback`).then(json);
 
 export const getPdfMetadata = () => fetch(`/api/pdf-metadata`).then(json);
 
+// toggle a document's opt-out of auto/batch runs (still manually runnable)
+export const setBatchExcluded = (slug, exclude) =>
+  fetch(`/api/documents/${slug}/batch`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ exclude }),
+  }).then(json);
+
 // read-only TOC ⇔ headings reconciliation (diagnostic)
 export const getTocCompare = (slug) => fetch(`/api/toc-compare/${slug}`).then(json);
 

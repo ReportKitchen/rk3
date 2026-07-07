@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getPdfMetadata } from "../api.js";
+import { getPdfMetadata, setBatchExcluded } from "../api.js";
 import { guard } from "../errorBus.js";
 
 // Admin → PDF Metadata: one row per document with its authoring tools (PDF
@@ -18,6 +18,7 @@ const COLUMNS = [
   { key: "fontCount", label: "Fonts", num: true, width: "4rem" },
   { key: "tagged", label: "Tagged", width: "8rem" },
   { key: "embedComplete", label: "Embed", width: "9rem" },
+  { key: "batchExcluded", label: "Auto-runs", width: "6rem" },
 ];
 
 // tagging verdict: does the PDF declare a usable struct-tree reading order?
@@ -59,6 +60,13 @@ export default function MetadataTable({ onOpen }) {
     n.has(slug) ? n.delete(slug) : n.add(slug);
     return n;
   });
+
+  // opt a document in/out of auto/batch runs (still manually runnable)
+  const toggleBatch = (slug, exclude) =>
+    setBatchExcluded(slug, exclude)
+      .then((r) => setRows((rs) => rs.map((x) =>
+        x.slug === slug ? { ...x, batchExcluded: r.excludeFromBatch } : x)))
+      .catch(guard("toggle batch", null));
 
   const clickSort = (key) =>
     setSort((s) => s.key === key
@@ -151,6 +159,18 @@ export default function MetadataTable({ onOpen }) {
                     </td>
                     <td>{taggedCell(r)}</td>
                     <td>{embedCell(r)}</td>
+                    <td>
+                      <label className="meta-batch"
+                             title={r.batchExcluded
+                               ? "Excluded from batch runs (full conversion + corpus scans). Still runnable manually. Click to include."
+                               : "In batch runs. Click to exclude (skip auto-runs to save time/$)."}>
+                        <input type="checkbox" checked={!r.batchExcluded}
+                               onChange={() => toggleBatch(r.slug, !r.batchExcluded)} />
+                        {r.batchExcluded
+                          ? <span className="meta-dim">off</span>
+                          : <span>on</span>}
+                      </label>
+                    </td>
                   </tr>
                   {isOpen && (
                     <tr className="meta-fontrow">

@@ -17,6 +17,24 @@ def slugify(text: str) -> str:
     return re.sub(r"-{2,}", "-", s)
 
 
+def _config_path(pdf: Path) -> Path:
+    return pdf.with_name(pdf.stem + ".config.json")
+
+
+def batch_excluded(pdf: Path) -> bool:
+    """Per-doc opt-out of AUTO/BATCH runs (full-corpus conversion + scan): the
+    `excludeFromBatch: true` flag in <name>.config.json. Lets the big documents
+    (chep, etc.) skip batch time/$ while staying MANUALLY runnable (convert/scan
+    a slug directly always works). Batch iterators use batch_documents()."""
+    cfg = _config_path(pdf)
+    if not cfg.exists():
+        return False
+    try:
+        return bool(json.loads(cfg.read_text()).get("excludeFromBatch"))
+    except (json.JSONDecodeError, OSError):
+        return False
+
+
 def list_documents() -> list[dict]:
     docs = []
     for pdf in sorted(SOURCES.glob("*/*.pdf")):
@@ -32,10 +50,18 @@ def list_documents() -> list[dict]:
             "name": pdf.name,
             "folder": folder,
             "path": str(pdf),
-            "hasConfig": pdf.with_name(pdf.stem + ".config.json").exists(),
+            "hasConfig": _config_path(pdf).exists(),
+            "batchExcluded": batch_excluded(pdf),
             **_status(slug),
         })
     return docs
+
+
+def batch_documents() -> list[dict]:
+    """Documents that participate in AUTO/BATCH runs — everything except those a
+    per-doc config opts out with excludeFromBatch. Batch conversion + corpus
+    scans iterate THIS, not list_documents(); manual per-slug runs ignore it."""
+    return [d for d in list_documents() if not d.get("batchExcluded")]
 
 
 def source_for_slug(slug: str) -> Path | None:

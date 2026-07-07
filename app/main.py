@@ -56,6 +56,34 @@ def documents():
     return docs
 
 
+class BatchBody(BaseModel):
+    exclude: bool
+
+
+@app.post("/api/documents/{slug}/batch")
+def set_batch_excluded(slug: str, body: BatchBody):
+    """Toggle a document's excludeFromBatch flag: excluded docs are skipped by
+    auto/batch runs (full-corpus conversion + scans) but stay manually runnable.
+    Writes the per-doc config.json, preserving its other keys. The flag is not a
+    conversion-stage dependency, so toggling it does NOT invalidate the cache."""
+    src = source_for_slug(slug)
+    if src is None:
+        raise HTTPException(404, f"unknown document {slug!r}")
+    cfg_path = src.with_name(src.stem + ".config.json")
+    cfg = {}
+    if cfg_path.exists():
+        try:
+            cfg = json.loads(cfg_path.read_text())
+        except json.JSONDecodeError:
+            cfg = {}
+    if body.exclude:
+        cfg["excludeFromBatch"] = True
+    else:
+        cfg.pop("excludeFromBatch", None)
+    cfg_path.write_text(json.dumps(cfg, indent=2) + "\n")
+    return {"slug": slug, "excludeFromBatch": bool(cfg.get("excludeFromBatch"))}
+
+
 def _clean_font(name: str) -> str:
     """'ANGKGH+Gotham-Book' -> 'Gotham-Book' (drop the subset tag)."""
     return re.sub(r"^[A-Z]{6}\+", "", name or "")
@@ -77,6 +105,7 @@ def pdf_metadata():
         slug = d["slug"]
         row = {"slug": slug, "docName": d["name"], "folder": d.get("folder"),
                "creator": None, "producer": None,
+               "batchExcluded": d.get("batchExcluded", False),  # opt-out of batch runs
                "pageCount": None,      # pages in the source PDF
                "imageCount": None,     # embedded raster-image placements (blocks.json)
                "mainFont": None, "fontCount": 0, "fonts": [],
