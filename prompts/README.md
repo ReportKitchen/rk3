@@ -17,7 +17,7 @@ the next call — no restart needed.
 | File | Used by | Purpose |
 |---|---|---|
 | `vision-qa.system.md` | `rk3.visionqa._system()` | The vision QA reviewer's system prompt — compares original vs our render, flags discrepancies (incl. duplicated-content and wrong-fill hunts), classifies kind/severity. |
-| `conversion-rubric.md` | `rk3.visionqa._system()` | The conversion rubric appended to the QA system prompt — tells an intentional web transform from a real defect. Also the owner's living spec of conversion decisions. |
+| `vision-qa.rubric.md` | `rk3.visionqa._system()` | The DISTILLED conversion rubric appended to the QA system prompt — resolved PRESERVE/TRANSFORM/ERROR rules only. Distilled from the design doc `sources/docs/conversion-rubric.md` (which stays in docs/, is NOT a prompt, and carries OPEN questions that confused the scanner when fed raw). |
 | `vision-prescribe.system.md` | `rk3.visionqa.prescribe()` | The prescriber's system prompt — turns a scanned discrepancy into the minimal set of per-document override levers. |
 | `landing-copy.system.md` | `rk3.landing.ai` | Landing Page Maker: writes concise landing-page copy from the document (no invented facts). |
 | `landing-analyze.system.md` | `rk3.landing.ai` | Landing Page Maker: identifies which existing section is the document's intro/executive summary. |

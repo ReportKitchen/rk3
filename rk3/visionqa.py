@@ -88,11 +88,12 @@ _SCHEMA = {
 }
 
 def _system():
-    # both the reviewer system prompt and the conversion rubric live as editable
-    # files under prompts/ (see prompts/README.md); read fresh so edits apply
-    # without a restart
+    # the reviewer system prompt + the DISTILLED conversion rubric (resolved
+    # PRESERVE/TRANSFORM/ERROR rules — NOT the design doc, which carries OPEN
+    # questions that confuse the scanner) live as editable files under prompts/
+    # (see prompts/README.md); read fresh so edits apply without a restart
     return (f"{load_prompt('vision-qa.system.md')}\n\n"
-            f"=== CONVERSION RUBRIC ===\n{load_prompt('conversion-rubric.md')}")
+            f"=== CONVERSION RUBRIC ===\n{load_prompt('vision-qa.rubric.md')}")
 
 
 def qa_page(slug, page, our_png=None, model=None):

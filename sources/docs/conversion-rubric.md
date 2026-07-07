@@ -1,5 +1,11 @@
 # Conversion Rubric — page-layout PDF → web-optimized HTML
 
+> **This is a DESIGN / DECISION document, NOT a prompt.** It carries OPEN
+> questions, deliberations, and owner "your call" notes. The vision-QA scanner
+> reads a DISTILLED, resolved rubric at `prompts/vision-qa.rubric.md` (rules
+> only) — feeding this doc raw confused the scanner. When a decision here is
+> resolved, fold it into that distilled rubric.
+
 The contract for what "a faithful conversion" means. Written once here so we
 (and the vision-QA reviewer, and a future operator) stop re-deciding it per
 document. **`OPEN` sections need your call** — fill them in.
@@ -94,10 +100,13 @@ transform* from a *real error*:
   callout background) — NOT a class per source color. Currently links render
   near-black (`#111`).
   🔲 **OPEN — define the exact palette** (how many, which contexts).
-- **TRANSFORM — link underlines (your stated intent: do NOT reproduce them).**
-  Note the tension: underlines are an accessibility affordance for links; if we
-  drop them, color/contrast must carry "this is a link."
-  🔲 **OPEN — confirm the rule** (drop entirely? keep on hover? rely on color?).
+- **DECIDED — link underlines are a CSS concern, not HTML markup.** We do NOT emit
+  HTML underline tags (`<u>`) on links; underlining is styling. By the time the
+  vision-QA reviewer sees the RENDERED output, a link that calls for an underline
+  DOES show one (via CSS). So the reviewer must NOT treat a missing `<u>` tag as a
+  dropped feature — the rendered link carries its own visual affordance
+  (color/underline). The real rule (per below): flag a link only when it reads too
+  much like non-link body text.
 
 per note below: in our very first pass, we strive for fidelity. We immediately present a list of issues/concerns/opportunities for improvement, along with an importance scale (low, med, high, critical).  If we judge their links to be "too close visually to other non-link text" then we drop a "high" issue into the queue.  These notes would have buttons/options for how to resolve, including a "magic button" to just do it for them.  In this case that would mean adjusting underlines and colors so links were distinctive.  But again, not until they say so.
 
