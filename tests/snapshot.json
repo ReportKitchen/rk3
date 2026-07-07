@@ -4177,14 +4177,6 @@
         "EXECUTIVE SUMMARY"
       ],
       [
-        4,
-        "NONPROFIT LEADER"
-      ],
-      [
-        4,
-        "NONPROFIT LEADER"
-      ],
-      [
         1,
         "BACKGROUND & CONTEXT"
       ],
@@ -4194,31 +4186,11 @@
       ],
       [
         4,
-        "NONPROFIT LEADER"
-      ],
-      [
-        4,
-        "NONPROFIT LEADER"
-      ],
-      [
-        4,
         "CORPORATE FUNDER"
       ],
       [
         4,
         "CORPORATE FUNDER"
-      ],
-      [
-        4,
-        "NONPROFIT LEADER"
-      ],
-      [
-        4,
-        "NONPROFIT LEADER"
-      ],
-      [
-        4,
-        "NONPROFIT LEADER"
       ],
       [
         4,
@@ -4230,31 +4202,11 @@
       ],
       [
         4,
-        "NONPROFIT LEADER"
-      ],
-      [
-        4,
-        "NONPROFIT LEADER"
-      ],
-      [
-        4,
-        "NONPROFIT LEADER"
-      ],
-      [
-        4,
         "YOUTH MENTORSHIP"
       ],
       [
         4,
         "DISASTER RECOVERY"
-      ],
-      [
-        4,
-        "NONPROFIT LEADER"
-      ],
-      [
-        4,
-        "NONPROFIT LEADER"
       ],
       [
         1,
@@ -4297,9 +4249,9 @@
       "aside": 6,
       "figure": 12,
       "footnotes": 1,
-      "heading": 39,
+      "heading": 27,
       "list": 18,
-      "paragraph": 160
+      "paragraph": 168
     },
     "asideChildren": 15,
     "notes": [
@@ -4354,8 +4306,8 @@
       45,
       46
     ],
-    "questions": 10,
-    "textChars": 89041
+    "questions": 4,
+    "textChars": 89045
   },
   "02--race-to-lead": {
     "status": "done",

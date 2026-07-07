@@ -13,7 +13,7 @@ from pathlib import Path
 
 from . import irwalk
 
-VERSION = 84
+VERSION = 85
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -1610,6 +1610,16 @@ def _original_css(ctx, ir):
                     rules_dc.append(f"  color: {dc_color};")
                 out += [f'[data-nid="{n["nid"]}"]::first-letter {{',
                         *rules_dc, "}", ""]
+        # a floated pull-quote (floatPin §7.2 extended to paragraphs/asides): the
+        # renderer floats it like a narrow figure so body text wraps alongside,
+        # reproducing a side-quote column. Figures float via their own class.
+        if n["type"] in ("paragraph", "aside"):
+            pf = (n.get("data") or {}).get("float")
+            if pf in ("left", "right"):
+                margin = ("0 0 0.8rem 1.2rem" if pf == "right"
+                          else "0 1.2rem 0.8rem 0")
+                out += [f'[data-nid="{n["nid"]}"] {{', f"  float: {pf};",
+                        "  max-width: 46%;", f"  margin: {margin};", "}", ""]
         if n["type"] == "heading":
             # heading whose own color differs from its level's dominant color;
             # a heading on a colored panel (cover band) also reproduces the

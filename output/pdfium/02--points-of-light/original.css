@@ -55,6 +55,13 @@ strong.c-4280c2 { color: #4280c2; font-weight: inherit; }
   font-weight: 500;
 }
 
+.sm-strong-alt {
+  font-family: "gotham", sans-serif;
+  font-weight: 700;
+  color: #8bbd3f;
+  font-size: 0.81em;
+}
+
 .fine {
   font-size: 0.81em;
 }
@@ -79,16 +86,9 @@ strong.c-4280c2 { color: #4280c2; font-weight: inherit; }
   color: #4280c2;
 }
 
-.sm-strong-alt {
-  font-family: "gotham", sans-serif;
-  font-weight: 700;
-  font-size: 0.81em;
-}
-
 .sm-strong-alt-2 {
   font-family: "gotham", sans-serif;
   font-weight: 700;
-  color: #8bbd3f;
   font-size: 0.81em;
 }
 
@@ -105,31 +105,15 @@ strong.c-4280c2 { color: #4280c2; font-weight: inherit; }
   font-weight: 700;
 }
 
-[data-nid="na14f35b4ff"] {
-  color: #8bbd3f;
-}
-
 [data-nid="n7c67b752cf"] {
   background: #4280c2;
   border: none;
   border-left: 3px solid #8bbd3f;
 }
 
-[data-nid="nd4745adf86"] {
-  color: #8bbd3f;
-}
-
 [data-nid="n90a96a9eae"] {
   background: #4280c2;
   border: none;
-}
-
-[data-nid="n332553ef07"] {
-  color: #8bbd3f;
-}
-
-[data-nid="n8e98a0d706"] {
-  color: #8bbd3f;
 }
 
 [data-nid="n11af619134"] {
@@ -145,46 +129,20 @@ strong.c-4280c2 { color: #4280c2; font-weight: inherit; }
   border: none;
 }
 
-[data-nid="n4a7d766fe9"] {
-  color: #8bbd3f;
-}
-
-[data-nid="n608666f933"] {
-  color: #8bbd3f;
-}
-
-[data-nid="n608666f933-2"] {
-  color: #8bbd3f;
-}
-
-[data-nid="na00a20699a"] {
-  color: #8bbd3f;
-}
-
-[data-nid="neea48b7aac"] {
-  color: #8bbd3f;
-}
-
 [data-nid="nbebce2ecd0"] {
   background: #4280c2;
   border: none;
 }
 
-[data-nid="n3b1011cc41"] {
-  color: #8bbd3f;
+[data-nid="n4dadd49cb3"] {
+  float: left;
+  max-width: 46%;
+  margin: 0 1.2rem 0.8rem 0;
 }
 
 [data-nid="n9f3b8b7ad0"] {
   background: #929292;
   border: none;
-}
-
-[data-nid="n275c8a7c49"] {
-  color: #8bbd3f;
-}
-
-[data-nid="n958c92ab8a"] {
-  color: #8bbd3f;
 }
 
 [data-nid="nd569433f2e"] {

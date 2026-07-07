@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 208
+VERSION = 209
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -2663,15 +2663,18 @@ def _apply_float_pins(ctx, nodes):
     pins = ctx.cfg["structure"].get("floatPins", [])
     if not pins:
         return
-    figs = [n for n in nodes if n.get("type") == "figure"]
+    # figures float natively; a pull-quote is commonly a floated paragraph/aside
+    # (webified §7.2) — the renderer floats any of them off data.float
+    cands = [n for n in nodes
+             if n.get("type") in ("figure", "paragraph", "aside")]
     for pin in pins:
         val = pin.get("float")
         if val not in ("left", "right", "none", "wide"):
             continue
         nid = pin.get("nid")
         pref = _pin_norm(pin.get("textPrefix") or "")
-        for f in figs:
-            if (nid and f.get("nid") == nid) or (pref and _node_lead_text(f).startswith(pref)):
+        for f in cands:
+            if (nid and f.get("nid") == nid) or (pref and _node_full_text(f).startswith(pref)):
                 data = f.setdefault("data", {})
                 if val == "none":
                     data.pop("float", None)

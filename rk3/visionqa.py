@@ -164,8 +164,13 @@ MINIMAL set; anything you cannot express goes to `residuals`):
 - orderPins {"page":n,"sequence":["text-prefix",...]}
     fix a page's reading order; list the blocks in the order they should read.
 - floatPins {"nid":"..." | "textPrefix":"...","float":"left"|"right"|"none"|"wide"}
-    set a figure's float side (or none = full-width in flow).
+    set the float side of a FIGURE or a pull-quote PARAGRAPH/ASIDE (a side-quote
+    that should sit in a column with body text beside it → float:left/right); none
+    = full-width in flow.
 - headingOverrides {"textPrefix":"...","level":1..6}  (level 0 = NOT a heading)
+    Use level 0 for a mis-tagged heading that is really body/label text — e.g. a
+    short ALL-CAPS ATTRIBUTION line directly under a pull-quote ("NONPROFIT LEADER",
+    "— JANE DOE") is the quote's speaker, NOT a section heading.
 - breakOverrides {"textPrefix":"...","breaks":true|false}   keep/join hard line breaks
 - indentOverrides {"textPrefix":"...","mode":"preserve"|"remove"}
 - tablePins {"page":n,"bbox":[l,b,r,t],"cols":[x-cut,...]|null,"headerRows":0|1}

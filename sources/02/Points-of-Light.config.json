@@ -24,6 +24,20 @@
         ],
         "_source": "vision-loop 2026-07-07 p25 iter1"
       }
+    ],
+    "floatPins": [
+      {
+        "textPrefix": "“ Volunteer management touches",
+        "float": "left",
+        "_source": "vision-loop 2026-07-07 p25 iter1"
+      }
+    ],
+    "headingOverrides": [
+      {
+        "textPrefix": "NONPROFIT LEADER",
+        "level": 0,
+        "_source": "vision-loop 2026-07-07 p25 (attribution, not a heading)"
+      }
     ]
   }
 }

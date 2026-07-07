@@ -580,6 +580,22 @@ doubt: smaller scope, PARK, keep moving.
 
 ### CYCLE 2 (2026-07-07, from webified-report.md §5 restart order)
 
+- **Item 1b + 1c: floatPin→paragraphs + attribution-label DONE** (2026-07-07).
+  1b: `_apply_float_pins` now matches paragraphs/asides (not just figures, matched
+  by `_node_full_text`); render emits a per-nid float rule (float + max-width 46% +
+  margin) for a paragraph/aside with data.float. The pol p25 pull-quote (a
+  PARAGRAPH) now floats left with body text wrapping beside it — the prescriber's
+  floatPin, a no-op in §7.2, LANDS. 1c: the "attribution-label" gap needed NO new
+  lever — the existing `headingOverrides {level:0}` demotes a mis-tagged heading to
+  a paragraph; added it to pol config → "NONPROFIT LEADER" is now a paragraph
+  (attribution) on every page, not a spurious heading. NUDGED the prescriber
+  catalog so the loop USES these automatically: floatPins works on pull-quote
+  paragraphs/asides; a short ALL-CAPS line under a quote is headingOverrides
+  level 0. analyze VERSION 208→**209**, render 84→**85**; census 77/5 unchanged;
+  pytest 33 (pol snapshot regen: NONPROFIT LEADER heading→paragraph, the intended
+  demotion; no other doc changed). Eyeballed pol p25. **All 3 §7.2 lever-coverage
+  gaps now CLOSED** — the loop converges pol p25 structurally with zero manual
+  patching.
 - **Item 1a: orderPin prefix-matching gap FIXED** (2026-07-07). The §7.2 pilot's
   orderPin didn't land because the prescriber's prefix ("SUMMARY It is resource
   intensive") spanned TWO child nodes and `_apply_order_pins._rank` matched only a
