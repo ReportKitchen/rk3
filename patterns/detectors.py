@@ -801,6 +801,8 @@ def should_skip_number(value: str, text: str, start: int, node: dict) -> bool:
         return True
     if re.fullmatch(r"(?:19|20)\d{2}", normalized_value):
         return True
+    if re.fullmatch(r"(?:19|20)\d{3}", normalized_value):
+        return True
     if is_embedded_number_token(text, start, end):
         return True
     if month_day_fragment_near(text, start):
@@ -823,6 +825,8 @@ def is_embedded_number_token(text: str, start: int, end: int) -> bool:
     text = text or ""
     before = text[start - 1] if start > 0 else ""
     after = text[end] if end < len(text) else ""
+    if (before and before.isalpha()) or (after and after.isalpha()):
+        return True
     if (before and before in "-–‑") or (after and after in "-–‑"):
         return True
     prefix = text[max(0, start - 12):start]
