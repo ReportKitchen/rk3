@@ -9,6 +9,7 @@ import { reportError } from "../errorBus.js";
 import QuestionsPanel from "./QuestionsPanel.jsx";
 import PatternsPanel from "./PatternsPanel.jsx";
 import StakesPanel from "./StakesPanel.jsx";
+import QaSurface from "./QaSurface.jsx";
 import TocCompare from "./TocCompare.jsx";
 import ReviewBoard from "./ReviewBoard.jsx";
 
@@ -19,6 +20,7 @@ const LandingMaker = lazy(() => import("../landing/LandingMaker.jsx"));
 // rest are alternate representations of the same content
 const TABS = [
   { id: "convert", label: "Convert Document" },
+  { id: "pages", label: "Pages" },
   { id: "review", label: "Review" },
   { id: "patterns", label: "Patterns" },
   { id: "stakes", label: "Stakes" },
@@ -850,6 +852,8 @@ export default function DocumentView({
             )}
           </div>
         </div>
+
+        {tab === "pages" && <QaSurface doc={doc} />}
 
         {tab === "review" && <ReviewBoard slug={doc.slug} />}
 

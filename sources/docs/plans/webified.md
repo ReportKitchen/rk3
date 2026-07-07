@@ -578,6 +578,33 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+### CYCLE 2 (2026-07-07, from webified-report.md §5 restart order)
+
+- **§1.5 OWNER QA SURFACE DONE (cycle-2 item 0, owner-feedback-driven)** (2026-07-07).
+  The owner: "I can't translate stakes/census/pytest into 'this looks right'." Built
+  the visual layer, all on existing machinery: (a) **Page gallery** — new "Pages"
+  tab (`QaSurface.jsx`) = grid of ORIGINAL page thumbnails, each a status RING from
+  a live `/api/scoreboard/<slug>` (new route wrapping `tools.scoreboard.build`).
+  Honest rings: green=scanned+clean+stakes-hold, amber=medium, red=high/critical or
+  red stake, GREY=never-scanned (added a `scanned` field to scoreboard.py, signalled
+  by the qa/our-page crop — NEVER fake green). (b) **Compare view** — click a
+  thumbnail → original PNG left, our render (scrolled to that page) right, with the
+  page's stakes + vision issues listed BELOW in plain words. (c) **Stakes→elements**
+  — extended `eval._check_anchor` to cover ALL check kinds (float/styleColor/cells/
+  table/split/nested/in_figure/…, not just the 5 originals) + broadened
+  `checks_with_status` resolution (explicit nid → precise text → smallest-subtree
+  fallback) so every stake resolves its element; the row's → jump (reused verbatim
+  from StakesPanel) flashes it. (d) **Glossary** — 4 plain-words lines (stake/census/
+  vision issue/page-looks-right). NO engine edits → census 77/5 unchanged. GATE MET:
+  EYEBALLED race gallery (4 green/5 amber/0 red/41 grey) + compare on p10 (shows the
+  3 fig golds PASS + the stale caps "medium" issues — the render already has caps
+  right, so the surface even exposes STALE issues the owner couldn't see before) +
+  pol gallery (5 green/39 grey). Commit = scoreboard.py + eval.py + main.py + 4 UI
+  files (dist gitignored, rebuilt on deploy). NEXT: §2.4 quick-scan + §0.7 model
+  tiering, then items 1-5.
+
+### CYCLE 1
+
 - **§8 handoff report WRITTEN** (2026-07-07). `sources/docs/plans/webified-report.md`
   — the durable cycle-1 synthesis per §8's spec: (1) scoreboard (census 71/6→77/5,
   monotonic, zero regressions); (2) three convergence stories (tenure p8 acronyms

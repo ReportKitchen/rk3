@@ -184,6 +184,22 @@ def get_stakes(slug: str, response: Response):
     return {"slug": slug, "green": green, "red": len(checks) - green, "checks": checks}
 
 
+@app.get("/api/scoreboard/{slug}")
+def get_scoreboard(slug: str, response: Response):
+    """Live per-page scoreboard for the owner QA-surface gallery (webified §1.5a):
+    one record per page {class, scanned, visionIssues, stakes, openOwnerNotes}.
+    Computed fresh (triage + live stakes + feedback + the scanned-crop signal) so
+    the gallery's status rings reflect the current artifacts, not a stale snapshot."""
+    response.headers["Cache-Control"] = "no-store"
+    if source_for_slug(slug) is None:
+        raise HTTPException(404, f"unknown document {slug!r}")
+    from tools.scoreboard import build as build_scoreboard
+    board = build_scoreboard(slug)
+    if board is None:
+        raise HTTPException(404, "no ir.json — convert the document first")
+    return board
+
+
 @app.get("/api/assertions/{slug}/snapshot")
 def assertion_snapshot(slug: str, nid: str, response: Response):
     """The semantic content to freeze for one element — text + em/strong/a +

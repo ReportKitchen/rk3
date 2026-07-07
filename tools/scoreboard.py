@@ -42,9 +42,22 @@ def _page_from_note(note):
 
 
 def _blank_page(p):
-    return {"page": p, "class": None,
+    return {"page": p, "class": None, "scanned": False,
             "visionIssues": {"critical": 0, "high": 0, "medium": 0, "low": 0},
             "stakes": {"green": 0, "red": 0}, "openOwnerNotes": 0}
+
+
+def _scanned_pages(slug):
+    """Pages a vision scan has actually touched — signalled by the render crop
+    the scanner writes (qa/our-page-NNNN.png). Drives the gallery's HONESTY rule
+    (webified §1.5a): a never-scanned page is grey, never a fake green."""
+    d = output_dir(slug) / "qa"
+    out = set()
+    for f in sorted(d.glob("our-page-*.png")) if d.is_dir() else []:
+        m = re.search(r"our-page-(\d+)\.png$", f.name)
+        if m:
+            out.add(int(m.group(1)))
+    return out
 
 
 def _feedback(slug):
@@ -89,6 +102,9 @@ def build(slug):
     sb_path = output_dir(slug) / "scoreboard.json"
     board = {p: _blank_page(p) for p in pages}
     doclevel = _blank_page(None)
+    for p in _scanned_pages(slug):
+        if p in board:
+            board[p]["scanned"] = True
     # class from the deterministic triage (§2)
     try:
         for p, info in triage.triage_doc(slug).items():

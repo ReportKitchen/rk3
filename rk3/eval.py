@@ -615,15 +615,20 @@ def evaluate_check(slug, check):
 
 
 def _check_anchor(check, kind):
-    """The text snippet that locates a check's primary element."""
+    """The snippet (or nid) that locates a check's primary element — text for the
+    snippet-based kinds, an explicit nid where the check carries one. Covers every
+    evaluator kind so the QA surface (webified §1.5c) can jump to each stake's
+    element, not just the five original kinds."""
     if kind == "freeze":
         return check["freeze"].get("anchor")
     if kind == "role":
         return check["role"].get("text")
-    if kind in ("merge", "order"):
+    if kind in ("float", "styleColor", "table"):          # {nid | textPrefix}
+        spec = check[kind] or {}
+        return spec.get("nid") or spec.get("textPrefix")
+    if kind in ("merge", "order", "split", "nested", "cells", "list",
+                "not_list", "in_figure", "not_in_figure", "in_flow", "claimed"):
         return (check[kind] or [None])[0]
-    if kind == "list":
-        return (check["list"] or [None])[0]
     return None
 
 
@@ -636,8 +641,15 @@ def checks_with_status(slug):
         return []
     spec = yaml.safe_load(path.read_text()) or {}
     ir = _artifact(slug, "analyze") or {}
-    nodes = [n for n in _walk(ir.get("body", []))
+    all_nodes = [n for n in _walk(ir.get("body", [])) if n.get("nid")]
+    all_nids = {n["nid"] for n in all_nodes}
+    nodes = [n for n in all_nodes
              if n.get("type") in ("paragraph", "heading", "list")]
+
+    def _plain(n):
+        its = _list_items(n) if n.get("type") == "list" else []
+        return " ".join([n.get("text") or "", *(_norm(i) for i in its)])
+
     out = []
     for i, c in enumerate(spec.get("checks", [])):
         kind = next((k for k in EVALUATORS if k in c), None)
@@ -649,17 +661,22 @@ def checks_with_status(slug):
         else:
             ok, detail = False, "unknown check kind"
         anchor, nid = _check_anchor(c, kind), None
-        if anchor and _norm(anchor):
-            na = _norm(anchor)
-            # match canonical (markup-aware) OR plain text — an anchor spanning
-            # an emphasis boundary has tags inside its canonical form
-            def _plain(n):
-                its = _list_items(n) if n.get("type") == "list" else []
-                return " ".join([n.get("text") or "",
-                                 *(_norm(i) for i in its)])
-            nid = next((n.get("nid") for n in nodes
-                        if na in _norm(_canonical(n)) or na in _norm(_plain(n))),
-                       None)
+        if anchor:
+            if anchor in all_nids:                       # the check names a nid
+                nid = anchor
+            elif _norm(anchor):
+                na = _norm(anchor)
+                # 1) precise match over the text-leaf kinds (markup-aware OR plain)
+                nid = next((n.get("nid") for n in nodes
+                            if na in _norm(_canonical(n)) or na in _norm(_plain(n))),
+                           None)
+                # 2) fallback for table/figure/aside/cell anchors: the SMALLEST
+                #    node whose subtree contains the snippet (most specific element)
+                if nid is None:
+                    cands = [(len(_norm(irwalk.subtree_text(n))), n["nid"])
+                             for n in all_nodes
+                             if na in _norm(irwalk.subtree_text(n))]
+                    nid = min(cands)[1] if cands else None
         out.append({"i": i, "kind": kind, "note": c.get("note"),
                     "stage": c.get("stage", "analyze"),
                     "ok": ok, "detail": detail, "nid": nid})

@@ -37,6 +37,10 @@ export const getAssertions = (slug) =>
 export const getStakes = (slug) =>
   fetch(`/api/stakes/${slug}`, { cache: "no-store" }).then(json);
 
+// live per-page scoreboard (webified §1.5a): status-ring inputs for the gallery
+export const getScoreboard = (slug) =>
+  fetch(`/api/scoreboard/${slug}`, { cache: "no-store" }).then(json);
+
 export const getSnapshot = (slug, nid) =>
   fetch(`/api/assertions/${slug}/snapshot?nid=${encodeURIComponent(nid)}`,
         { cache: "no-store" }).then(json);
