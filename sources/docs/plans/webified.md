@@ -580,6 +580,15 @@ doubt: smaller scope, PARK, keep moving.
 
 ### CYCLE 2 (2026-07-07, from webified-report.md §5 restart order)
 
+- **Item 1a: orderPin prefix-matching gap FIXED** (2026-07-07). The §7.2 pilot's
+  orderPin didn't land because the prescriber's prefix ("SUMMARY It is resource
+  intensive") spanned TWO child nodes and `_apply_order_pins._rank` matched only a
+  node's LEAD text (first leaf). Added `_node_full_text` (whole subtree joined) as
+  a fallback in `_rank` (lead-text OR full-text startswith). REVERTED the pol p25
+  config to the prescriber's ORIGINAL prefix → now matches 6/6 and moves the
+  SUMMARY box automatically (no hand-correction). analyze VERSION 207→**208**;
+  census 77/5 unchanged (tenure p14 orderPin gold intact); pytest 33; eyeballed
+  pol p25. The loop's structural fix now lands end-to-end without manual patching.
 - **§0.7 MODEL TIERING plumbing DONE (calibration run deferred, cost-gated)**
   (2026-07-07). `get_ai_config()` now returns `models: {scan, verify, prescribe}`,
   each from config `ai.models.<role>` or env `AI_MODEL_<ROLE>`, else the base model

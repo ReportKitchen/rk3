@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 207
+VERSION = 208
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -104,6 +104,17 @@ def _node_lead_text(n):
     return _pin_norm(n.get("title") or "")
 
 
+def _node_full_text(n):
+    """A node's WHOLE subtree text (all descendant leaves joined). orderPin
+    prefixes can span several children — a callout's title + its first line
+    ("SUMMARY It is resource intensive …") — which _node_lead_text (first leaf
+    only) can't match; this fallback can (webified §7.2 prescriber-prefix gap)."""
+    if n.get("text"):
+        return _pin_norm(n["text"])
+    parts = [t for t in (_node_full_text(c) for c in n.get("children") or []) if t]
+    return _pin_norm(" ".join(parts)) if parts else _pin_norm(n.get("title") or "")
+
+
 def _apply_order_pins(ctx, nodes):
     """orderPin (webified §3.2): page-scoped reading-order override at the
     ANALYZE level. Each pin {"page": n, "sequence": ["text-prefix", ...]}
@@ -125,9 +136,12 @@ def _apply_order_pins(ctx, nodes):
             continue
 
         def _rank(node):
-            key = _node_lead_text(node)
-            return next((r for r, pref in enumerate(seq) if key.startswith(pref)),
-                        None)
+            # match the pin prefix against the node's lead text, else its full
+            # subtree text (so a prefix that spans children still lands, §7.2)
+            lead = _node_lead_text(node)
+            full = _node_full_text(node)
+            return next((r for r, pref in enumerate(seq)
+                         if lead.startswith(pref) or full.startswith(pref)), None)
 
         keys, last, frac, matched = {}, -1, 0, 0
         for k in slots:
