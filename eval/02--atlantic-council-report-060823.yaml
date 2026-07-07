@@ -60,3 +60,12 @@ checks:
 
   - note: "GOLD(fig) p12 (guard): the two figure titles stay separate nodes"
     split: ["Figure 2. Overall LAC attractiveness", "Figure 3. Pessimists"]
+
+  # GOLD(§6.2 tables) p7 (owner note b0399c90 "quite a bit of format missing"):
+  # the "OPPORTUNITY #N" tables print a full-width RED band as their header, but
+  # header detection required every column filled, and the band's title spans one
+  # cell (col 0 empty) — so header=false and the red headBg (#c02026, already
+  # captured in style) was never applied; the band rendered on the pink body fill.
+  # RED-AT-PLANT 2026-07-07: header=false in the §6.1 table-model census + IR probe.
+  - note: "GOLD(§6.2): p7 Opportunity-1 table's red band IS a header (headBg applied)"
+    table: { textPrefix: "OPPORTUNITY #1", header: true, headBg: "#c02026" }

@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 206
+VERSION = 207
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -3137,10 +3137,14 @@ def _try_table(ctx, reg, blocks, rich, pages, strict=False):
          and f[3] - f[1] < 0.5 * (t0 - b0)), None)
     body_fg = Counter(ci for rc in row_colors[1:] for ci in rc
                       if ci is not None)
-    header = all(c.strip() for c in rows[0]) and (
-        head_fill is not None
-        or (body_fg and set(filter(None, row_colors[0]))
-            and not set(filter(None, row_colors[0])) & set(body_fg)))
+    # a wide colored band across the top IS the header even when its title spans
+    # a single cell (col 0 empty) — the fill is the signal (§6.2 atlantic p7's
+    # red "OPPORTUNITY #N" band); otherwise fall back to the all-cells-filled +
+    # distinct-header-color heuristic.
+    header = (head_fill is not None and any(c.strip() for c in rows[0])) or (
+        all(c.strip() for c in rows[0]) and body_fg
+        and set(filter(None, row_colors[0]))
+        and not set(filter(None, row_colors[0])) & set(body_fg))
     if head_fill:
         style["headBg"] = _hex(ctx.colors[head_fill[4]])
         head_fg = Counter(ci for ci in row_colors[0] if ci is not None)

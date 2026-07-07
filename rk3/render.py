@@ -13,7 +13,7 @@ from pathlib import Path
 
 from . import irwalk
 
-VERSION = 83
+VERSION = 84
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 

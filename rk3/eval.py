@@ -560,9 +560,40 @@ def _check_cells(slug, c):
     return False, f"no table row whose cells start with {want}"
 
 
+def _check_table(slug, c):
+    """A converted table's structural properties (webified §6.2). {nid|textPrefix,
+    header?: bool, headBg?: hex, cols?: n} — asserts the named table's header flag,
+    header-band fill, and/or column count."""
+    spec = c["table"]
+    pref = _norm(spec.get("textPrefix", ""))
+    nid = spec.get("nid")
+    ir = _artifact(slug, "analyze") or {}
+    for t in _walk(ir.get("body", [])):
+        if t.get("type") != "table":
+            continue
+        if (nid and t.get("nid") == nid) or \
+                (pref and pref in _norm(irwalk.subtree_text(t))):
+            style = t.get("style") or {}
+            checks = []
+            if "header" in spec:
+                checks.append((t.get("header") is spec["header"],
+                               f"header={t.get('header')}"))
+            if "headBg" in spec:
+                checks.append(((style.get("headBg") or "").lower()
+                               == spec["headBg"].lower(),
+                               f"headBg={style.get('headBg')}"))
+            if "cols" in spec:
+                first = (t.get("children") or [{}])[0]
+                ncol = len(first.get("children", []) or [])
+                checks.append((ncol == spec["cols"], f"cols={ncol}"))
+            ok = all(v for v, _d in checks)
+            return ok, "; ".join(d for _v, d in checks) or "matched"
+    return False, f"no table matches {(nid or spec.get('textPrefix'))!r}"
+
+
 EVALUATORS = {"order": _check_order, "role": _check_role, "list": _check_list,
               "float": _check_float, "styleColor": _check_style_color,
-              "cells": _check_cells,
+              "cells": _check_cells, "table": _check_table,
               "not_list": _check_not_list, "nested": _check_nested,
               "merge": _check_merge,
               "split": _check_split, "freeze": _check_freeze,

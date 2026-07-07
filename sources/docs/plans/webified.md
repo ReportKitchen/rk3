@@ -488,6 +488,28 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§6.2 atlantic p7 header bands DONE** (2026-07-07). Owner note b0399c90 ("quite
+  a bit of format missing"): the "OPPORTUNITY #N" tables print a full-width RED/
+  orange band as their header, but `_try_table`'s header test required EVERY column
+  filled — the band's title spans one cell (col 0 empty) → header=false → the red
+  headBg (#c02026, already captured) was never applied; the band rendered on the
+  pink BODY fill, and its title read as an underlined styled-link. FIX: (1) header
+  detection — a wide `head_fill` band + any row-0 text IS a header (the fill is the
+  signal), else fall back to the all-cells-filled + distinct-color heuristic;
+  (2) `a[data-link-styled]{text-decoration:none}` in default.css — print cross-refs
+  aren't underlined in the source. analyze VERSION 206→**207**, render 83→**84**.
+  NEW eval kind `table:{nid|textPrefix, header?, headBg?, cols?}` + gold on the
+  Opportunity-1 red band (RED-AT-PLANT documented from the §6.1 census + IR probe,
+  both recording header=false pre-fix). census 76/5→**77/5** (+1 gold, 0 regress);
+  pytest 33 (header flip changes no node-count/textChars → no snapshot change).
+  BLAST RADIUS is a WIN: 18 tables corpus-wide flipped to header via the band path
+  (all 5 atlantic Opportunity tables + gates p20/p88/p101/… grey column-header
+  bands + advancing-mobility p81/p92 + ecp p19). EYEBALLED atlantic p7 (white-on-
+  red/orange, no underline ✓), gates p20 + mobility p81 (grey header bands now show
+  ✓); mobility p43 is a pre-existing case-study-as-13col-table mess, my change
+  neutral there. RESIDUAL: the header BAND's second row (italic subtitle) stays on
+  the body fill — a multi-row-header feature, not done. Committed analyze+eval+css+
+  atlantic yaml+output; corpus refresh → §7.
 - **§6.2 tenure p8 "wrong column" DONE** (2026-07-07). Owner note edd55787: the
   Acronyms glossary had "several definitions land in the wrong column". Root
   cause: single-line rows (term + short value on ONE line, uniform COLOR but the
