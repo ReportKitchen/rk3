@@ -580,6 +580,14 @@ doubt: smaller scope, PARK, keep moving.
 
 ### CYCLE 2 (2026-07-07, from webified-report.md §5 restart order)
 
+- **Item 2: NET-IMPROVEMENT GATE in converge_page DONE** (2026-07-07, PARKED §4.3).
+  After apply+reconvert, the loop now RE-SCANS on the verify tier and KEEPS the
+  override only if the severe count strictly dropped; else `_rollback` removes this
+  iteration's vision-loop entries (matched by _source+value), reconverts, and
+  stops. This turns the §7.2 scan NOISE (4→5 on an unchanged page) into a
+  non-event — the loop can never ship a change that failed to help. Each record
+  now logs `after`/`severeAfter` + the verify model. Tool-only (visionloop.py);
+  no engine/census impact. Live behavior exercised in the item-3 loop run.
 - **Item 1b + 1c: floatPin→paragraphs + attribution-label DONE** (2026-07-07).
   1b: `_apply_float_pins` now matches paragraphs/asides (not just figures, matched
   by `_node_full_text`); render emits a per-nid float rule (float + max-width 46% +

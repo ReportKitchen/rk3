@@ -145,6 +145,28 @@ def _log_iter(slug, rec):
         fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
 
+def _rollback(slug, applied):
+    """Undo this iteration's applied vision-loop entries (net-improvement gate,
+    §4.3): an override that didn't reduce the severe count is removed so the loop
+    never SHIPS a change that failed to help (turns §7.2's scan noise into a
+    non-event). Matched by (_source, value) so only this iteration's entries go."""
+    cfg = _load_config(slug)
+    structure = cfg.get("structure", {})
+    changed = False
+    for a in applied:
+        lever, entry = a["lever"], a["entry"]
+        lst = structure.get(lever, [])
+        keep = [e for e in lst
+                if not (e.get("_source") == entry.get("_source")
+                        and _value_sig(lever, e) == _value_sig(lever, entry))]
+        if len(keep) != len(lst):
+            structure[lever] = keep
+            changed = True
+    if changed:
+        _config_path(slug).write_text(json.dumps(cfg, indent=2) + "\n")
+    return changed
+
+
 def converge_page(slug, page, max_iter=3, model=None, dry_run=False):
     """Per-page loop (§4.3): scan → (prescribe → apply → reconvert) until no
     medium+ issue or `max_iter`. Returns the iteration records. Model tiering
@@ -178,12 +200,29 @@ def converge_page(slug, page, max_iter=3, model=None, dry_run=False):
         applied, refused = apply_prescription(slug, pres, page, it)
         rec["applied"] = applied
         rec["refused"] = refused
-        rec["result"] = "applied" if applied else "no-lever"
         records.append(rec)
-        _log_iter(slug, rec)
         if not applied:
-            break   # nothing a lever can express → converge as-is (residuals stand)
+            rec["result"] = "no-lever"   # nothing a lever expresses → converge as-is
+            _log_iter(slug, rec)
+            break
         _reconvert(slug)
+        # NET-IMPROVEMENT GATE (§4.3): re-scan on the (cheap) verify tier; KEEP the
+        # apply only if the severe count strictly dropped, else roll it back and
+        # stop — the loop must never ship an override that didn't help.
+        verify_m = model or model_for("verify")
+        after = _sev_counts(_scan(slug, page, model=verify_m))
+        severe_after = sum(after[s] for s in SEVERE)
+        rec["after"] = after
+        rec["severeAfter"] = severe_after
+        rec["models"]["verify"] = verify_m
+        if severe_after >= severe:
+            _rollback(slug, applied)
+            _reconvert(slug)
+            rec["result"] = "rolled-back (no net improvement)"
+            _log_iter(slug, rec)
+            break
+        rec["result"] = f"kept (severe {severe}->{severe_after})"
+        _log_iter(slug, rec)
     return records
 
 
