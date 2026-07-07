@@ -1,7 +1,65 @@
-> **STATUS:** CYCLE 1 EXECUTED end-to-end (Claude Opus, 2026-07-04..07). Deterministic
-> backbone §0–§6 + §7.1 COMPLETE + durable (census 71/6→77/5); vision-loop thesis
-> VALIDATED (§7.2, §5-first confirmed); §8 handoff report at `webified-report.md`.
-> The LEDGER + PARKED below are the durable state. Cycle 2 restart: see the report's §5.
+> **STATUS:** CYCLES 1+2 EXECUTED (Claude Opus, 2026-07-04..07): backbone + styles
+> baseline + QA surface + levers + loop PROVEN LIVE with safety gate; census 71/6→79/3,
+> zero regressions. BUT the plan's own success metric (page-pass rate) was never
+> measured — 29 of 1,799 pages ever scanned, $7.65 total spend. **CYCLE 3 = the
+> DIRECTIVE immediately below.** LEDGER + PARKED at bottom are durable state.
+
+# ⟶ CYCLE 3 DIRECTIVE (owner-set, 2026-07-07): MEASURE FIRST, THEN FIX BY FREQUENCY, WITH A HARD STOP
+
+*(This supersedes the cycle-3 agenda in webified-report.md §5 — do NOT
+start with the parked lever list. Plain-language framing, per the owner:
+the number this whole effort answers to is "how many pages look right."
+Two cycles improved the machinery without measuring that number. Cycle 3
+measures it first, fixes the most common problems first, and — owner
+directive, MUST not may — calls diminishing returns when it hits them.)*
+
+**Phase A — Take the measurement (do nothing else first).**
+1. Calibrate the cheap scanner (§0.7 gate): Sonnet vs the existing Opus
+   scans on ~10 pages; adopt Sonnet for scanning only if it reproduces
+   ≥90% of the medium+ findings, else stay on Opus and say so.
+2. Run the quick scan (§2.4 selector, ≤10 representative pages/doc) on
+   ALL 27 documents. Fill every scoreboard and the gallery.
+3. Publish the baseline in `output/CORPUS-SCOREBOARD.md`: the corpus
+   page-pass number, per-doc pass rates, and an ISSUE-FREQUENCY TABLE —
+   every medium+ finding bucketed by category, with pages-affected
+   counts. Screenshot 6 representative gallery views into the ledger.
+   Report this baseline BEFORE fixing anything.
+
+**Phase B — Fix in frequency order.**
+- Attack categories by (pages affected ÷ estimated effort), highest
+  first. Expectation from the pilots: appearance categories (fonts,
+  colors, spacing, caption/callout dress) dominate — those are normal
+  deterministic engine/CSS work under the §0.1 gates. Build a NEW lever
+  only if the scan shows its absence blocking ≥5 pages.
+- After each category lands: verify-tier re-scan of ~20 affected pages
+  to confirm the category actually moved; update scoreboards.
+
+**Phase C — Re-measure and report in the owner's terms.**
+- Re-run the corpus quick scan. The report LEADS with before/after pass
+  rates and gallery images; census comes second. SUCCESS = corpus
+  pass-rate up ≥10 absolute points, or >50% reached.
+
+**THE STOPPING RULE (owner: "when we hit diminishing returns we MUST
+call it and stop, so we can move forward").** Track projected vs actual
+gain per Phase-B category. The executor MUST declare diminishing returns
+and END the fixing phase when EITHER: (a) the next-best remaining
+category projects <2 points of corpus pass-rate for a full category of
+work, or (b) two consecutive categories deliver less than half their
+projected gain. Declaring it is a SUCCESS outcome: write the final
+residual list, recommend the pivot (see the product note below), and
+close the cycle. Grinding past this point is a plan violation.
+
+**PRODUCT NOTE (owner, keep-in-mind — do NOT build in cycle 3).** An
+optional per-document LLM polish step in the USER workflow: after the
+deterministic engine finishes, the user may invoke an LLM pass that
+tweaks THAT document only — one-off fixes through the existing override/
+ops vocabulary, explicitly unconcerned with corpus-wide generality. The
+pipeline must always function without it. Most of the machinery already
+exists (prescribe + apply rails + net-improvement gate); productizing is
+a UI trigger + review/undo affordances. This is the natural destination
+for the residue that survives the stopping rule.
+
+---
 
 # WEBIFIED: the long cycle to "that's my document, only webified"
 

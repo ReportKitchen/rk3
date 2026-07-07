@@ -133,6 +133,11 @@ BUT two signals already point at the highest-value promotions:
 
 ## 5. Restart instruction — what cycle 2 does first
 
+> **SUPERSEDED (2026-07-07):** cycles 1+2 are complete. Cycle 3 follows the
+> **CYCLE 3 DIRECTIVE at the top of `webified.md`** (measure first, fix by
+> frequency, hard stopping rule) — NOT the lever-building list below, which
+> stands only as reference for what was parked and why.
+
 In priority order:
 
 0. **The owner's QA surface — webified.md §1.5 (added post-cycle-1 from owner
