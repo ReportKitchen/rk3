@@ -1,4 +1,7 @@
-> **STATUS:** ACTIVE — executing this cycle (Claude Opus). The LEDGER + PARKED at the bottom are the durable state; keep current after every work item.
+> **STATUS:** CYCLE 1 EXECUTED end-to-end (Claude Opus, 2026-07-04..07). Deterministic
+> backbone §0–§6 + §7.1 COMPLETE + durable (census 71/6→77/5); vision-loop thesis
+> VALIDATED (§7.2, §5-first confirmed); §8 handoff report at `webified-report.md`.
+> The LEDGER + PARKED below are the durable state. Cycle 2 restart: see the report's §5.
 
 # WEBIFIED: the long cycle to "that's my document, only webified"
 
@@ -488,6 +491,17 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§8 handoff report WRITTEN** (2026-07-07). `sources/docs/plans/webified-report.md`
+  — the durable cycle-1 synthesis per §8's spec: (1) scoreboard (census 71/6→77/5,
+  monotonic, zero regressions); (2) three convergence stories (tenure p8 acronyms
+  cell-split, atlantic p7 header bands, pol p25 loop); (3) residual taxonomy — the
+  5 remaining gold fails are ALL reading-order/column-model defects, cleanly
+  signalling cycle-2's engine focus; (4) promotion candidates (attribution-label
+  recurred in BOTH pilots; the §5/§6 fixes ARE this cycle's promotions — header-band
+  = 18 tables from one rule); (5) restart instruction (wire 3 cheap loop lever gaps
+  + net-improvement gate → run §7.2 wide); (6) PARKED swept into 5 categorized
+  recommendation buckets. THE PLAN IS EXECUTED end-to-end: deterministic backbone
+  complete + durable, vision-loop thesis validated.
 - **§7.2 vision-loop pilot re-run (points-of-light p25) — §5-FIRST THESIS
   CONFIRMED** (2026-07-07, bounded, $0.54 spend). Re-ran the loop on the SAME page
   the §4.5 pilot failed on, now that §5 styling is in place. RESULT: the loop
