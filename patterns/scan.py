@@ -12,8 +12,19 @@ from typing import Any
 
 from rk3 import irwalk
 from rk3.ai import complete_json, get_ai_config
+from rk3.prompts import load_prompt
 
 from .io import LLM_SCANS, OUT, REGISTRY, load_ir, read_json
+
+
+LANDING_SCAN_PATTERN_TYPES = {
+    "statistic",
+    "impact_statement",
+    "funding_event",
+    "quotation",
+    "key_finding",
+    "recommendation",
+}
 
 
 SCAN_SCHEMA = {
@@ -52,19 +63,6 @@ SCAN_SCHEMA = {
 }
 
 
-SCAN_SYSTEM_PROMPT = """You are scanning one document for reusable content patterns.
-
-This is a discovery pass, not a review of deterministic candidates. Find strong examples the product should preserve, transform, or expose to a user.
-
-Owner rubric:
-- Prefer evidence of something real in the world: actions, impacts, outcomes, funding, named actors, places, dates, and concrete claims.
-- For statistic, impact_statement, funding_event, and metric_cluster, require a real-world claim.
-- Avoid questions, prompts, hypothetical examples, URLs, footnotes/citations, publication titles, methodology/admin text, section numbers, and flattened table noise.
-- Return only findings grounded in the supplied excerpt. Quote the exact local text that supports each finding.
-- Be selective. A smaller set of high-signal findings is better than exhaustive noisy extraction.
-"""
-
-
 def scan_document(
     document_id: str,
     *,
@@ -98,7 +96,7 @@ def scan_document(
         return out
 
     response = complete_json(
-        SCAN_SYSTEM_PROMPT,
+        load_prompt("patterns/scan-document.system.md"),
         prompt,
         SCAN_SCHEMA,
         max_tokens=5000,
@@ -125,6 +123,8 @@ def pattern_catalog(pattern_type: str | None = None) -> list[dict[str, str]]:
     out = []
     for entry in registry.get("patterns") or []:
         if pattern_type and entry.get("id") != pattern_type:
+            continue
+        if not pattern_type and entry.get("id") not in LANDING_SCAN_PATTERN_TYPES:
             continue
         out.append({
             "pattern_type": entry.get("id"),

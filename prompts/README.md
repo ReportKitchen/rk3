@@ -22,6 +22,7 @@ the next call — no restart needed.
 | `landing-copy.system.md` | `rk3.landing.ai` | Landing Page Maker: writes concise landing-page copy from the document (no invented facts). |
 | `landing-analyze.system.md` | `rk3.landing.ai` | Landing Page Maker: identifies which existing section is the document's intro/executive summary. |
 | `landing-findings.system.md` | `rk3.landing.ai` | Landing Page Maker: extracts quantified key findings from the document. |
+| `patterns/vet-candidates.system.md` | `patterns.vet` | Pattern worktrack: asks an LLM to review deterministic pattern candidates and explain accepts/rejects/wrong-type calls. |
+| `patterns/scan-document.system.md` | `patterns.scan` | Pattern worktrack: asks an LLM to independently scan document excerpts for Landing Page-relevant signals: statistics, impact statements, funding events, quotations, key findings, and recommendations. |
 
 To add a prompt: drop a file here and load it with `load_prompt("<name>")`.
-
