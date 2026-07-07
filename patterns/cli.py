@@ -24,6 +24,7 @@ from .io import (
 from .report import build_report, markdown_summary
 from .review import markdown_review_summary, summarize_review_decisions
 from .validate import validate_report_against_registry
+from .vet import vet_candidates
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -57,6 +58,17 @@ def main(argv: list[str] | None = None) -> None:
     graph.add_argument("document_id", nargs="*")
     graph.add_argument("--all", action="store_true")
     graph.add_argument("--write", type=Path)
+
+    vet = sub.add_parser("vet", help="LLM first-pass vetting for deterministic pattern candidates")
+    vet.add_argument("document_id")
+    vet.add_argument("--pattern-type")
+    vet.add_argument("--limit", type=int)
+    vet.add_argument("--batch-size", type=int, default=12)
+    vet.add_argument("--provider")
+    vet.add_argument("--model")
+    vet.add_argument("--write", action="store_true")
+    vet.add_argument("--dry-run", action="store_true")
+    vet.add_argument("--skip-human-reviewed", action="store_true")
 
     args = parser.parse_args(argv)
     ensure_dirs()
@@ -95,6 +107,18 @@ def main(argv: list[str] | None = None) -> None:
             print(write_graph(graph_data, args.write))
         else:
             print(json.dumps(graph_data, indent=2, sort_keys=True))
+    elif args.command == "vet":
+        print(json.dumps(vet_candidates(
+            args.document_id,
+            pattern_type=args.pattern_type,
+            limit=args.limit,
+            batch_size=args.batch_size,
+            dry_run=args.dry_run,
+            write=args.write,
+            provider=args.provider,
+            model=args.model,
+            skip_human_reviewed=args.skip_human_reviewed,
+        ), indent=2, sort_keys=True))
 
 
 def registry_by_id() -> dict[str, dict]:

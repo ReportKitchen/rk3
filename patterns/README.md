@@ -17,7 +17,14 @@ python3 -m patterns eval 02--foia-basics-for-activists-may-2019
 python3 -m patterns eval --all
 python3 -m patterns review-summary --markdown
 python3 -m patterns graph 03--enterprise-annual-report-2022
+python3 -m patterns vet 02--clean-air-fund --pattern-type statistic --limit 12 --dry-run
+python3 -m patterns vet 02--clean-air-fund --pattern-type statistic --limit 12 --provider deepseek --model deepseek-chat --write
 ```
 
 `pattern-id` is the command name used by the CLI help text; until a packaging
 entry point exists, `python3 -m patterns` is the executable form.
+
+`vet` is a development helper: it asks the configured LLM for structured
+first-pass reviews of deterministic candidates and writes optional JSONL rows to
+`patterns/llm-reviews/`. Human review decisions in `patterns/review-decisions/`
+remain the source of truth.

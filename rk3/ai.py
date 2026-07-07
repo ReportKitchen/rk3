@@ -136,13 +136,16 @@ def _parse_json(text: str) -> dict:
     return json.loads(text)
 
 
-def complete_json(system: str, user: str, schema: dict, *, max_tokens: int = 2000) -> dict:
+def complete_json(system: str, user: str, schema: dict, *, max_tokens: int = 2000,
+                  provider: str = None, model: str = None) -> dict:
     """Run a single structured-extraction call and return the parsed object.
     Raises on any failure; callers decide whether to fall back to heuristics."""
     cfg = get_ai_config()
-    if cfg["provider"] == "anthropic":
-        return _anthropic_json(system, user, schema, cfg["model"], max_tokens)
-    return _openai_json(system, user, schema, cfg["model"], cfg["provider"], max_tokens)
+    provider = provider or cfg["provider"]
+    model = model or cfg["model"]
+    if provider == "anthropic":
+        return _anthropic_json(system, user, schema, model, max_tokens)
+    return _openai_json(system, user, schema, model, provider, max_tokens)
 
 
 def _anthropic_json(system, user, schema, model, max_tokens) -> dict:
