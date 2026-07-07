@@ -181,6 +181,10 @@ export const pageUrl = (slug, p) =>
 // pattern-identification worktrack (patterns/out reports + review decisions)
 export const getPatternsIndex = () => fetch(`/api/patterns`).then(json);
 export const getPatternsDoc = (slug) => fetch(`/api/patterns/${slug}`).then(json);
+export const postPatternAnalyze = (slug) =>
+  fetch(`/api/patterns/${slug}/analyze`, { method: "POST" }).then(json);
+export const postPatternsAnalyzeAll = () =>
+  fetch(`/api/patterns/analyze-all`, { method: "POST" }).then(json);
 export const postPatternDecision = (slug, d) =>
   fetch(`/api/patterns/${slug}/decision`, {
     method: "POST",

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getPatternsIndex } from "../api.js";
+import { getPatternsIndex, postPatternAnalyze, postPatternsAnalyzeAll } from "../api.js";
 import { reportError } from "../errorBus.js";
 
 /** Admin page: the pattern-identification track's results across the corpus —
@@ -7,11 +7,21 @@ import { reportError } from "../errorBus.js";
  *  Clicking a doc opens it (its Patterns tab has the per-candidate review). */
 export default function PatternsAggregate({ onOpen }) {
   const [rows, setRows] = useState(null);
+  const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
+  const load = () => {
     getPatternsIndex().then(setRows)
       .catch((e) => { reportError("load pattern index", e); setRows([]); });
-  }, []);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const hasActive = (rows || []).some((r) => r.pattern_status === "in_progress");
+  useEffect(() => {
+    if (!hasActive) return undefined;
+    const id = setInterval(load, 2500);
+    return () => clearInterval(id);
+  }, [hasActive]);
 
   const types = useMemo(() => {
     const totals = new Map();
@@ -22,6 +32,22 @@ export default function PatternsAggregate({ onOpen }) {
     }
     return [...totals.entries()].sort((a, b) => b[1] - a[1]);
   }, [rows]);
+
+  const analyzeOne = (slug) => {
+    setBusy(true);
+    postPatternAnalyze(slug)
+      .then(load)
+      .catch((e) => reportError("analyze patterns", e))
+      .finally(() => setBusy(false));
+  };
+
+  const analyzeAll = () => {
+    setBusy(true);
+    postPatternsAnalyzeAll()
+      .then(load)
+      .catch((e) => reportError("analyze all patterns", e))
+      .finally(() => setBusy(false));
+  };
 
   if (rows === null) return <div className="pane hint">Loading pattern reports…</div>;
   if (rows.length === 0) {
@@ -37,10 +63,18 @@ export default function PatternsAggregate({ onOpen }) {
     <div className="pane pat-agg">
       <h1>Information patterns — corpus view</h1>
       <p className="hint">
-        {rows.length} document{rows.length > 1 ? "s" : ""} analyzed ·{" "}
+        {rows.filter((r) => r.total > 0).length}/{rows.length} document{rows.length > 1 ? "s" : ""} analyzed ·{" "}
         {types.reduce((a, [, n]) => a + n, 0)} candidates. Click a document to
         review its candidates in place (Patterns tab).
       </p>
+      <div className="pat-agg-actions">
+        <button className="pat-mode" disabled={busy || hasActive}
+                onClick={analyzeAll}>Analyze all</button>
+        <span className="hint">
+          skips {rows.filter((r) => r.batchExcluded).length} batch-excluded document{rows.filter((r) => r.batchExcluded).length === 1 ? "" : "s"}
+          {hasActive ? " · analysis running" : ""}
+        </span>
+      </div>
       <table className="pat-matrix">
         <thead>
           <tr>
@@ -53,9 +87,15 @@ export default function PatternsAggregate({ onOpen }) {
                   {r.slug.replace(/^0\d--/, "").slice(0, 18)}
                 </a>
                 <div className="hint">
-                  {r.decided}/{r.total} reviewed
+                  {r.pattern_status === "missing" ? "not analyzed" : `${r.decided}/${r.total} reviewed`}
                   {r.warnings > 0 && ` · ${r.warnings}⚠`}
+                  {r.batchExcluded && " · batch excluded"}
+                  {r.pattern_status === "in_progress" && " · running"}
                 </div>
+                <button className="pat-mini-btn" disabled={busy || r.pattern_status === "in_progress"}
+                        onClick={() => analyzeOne(r.slug)}>
+                  {r.pattern_status === "in_progress" ? "Analyzing…" : "Analyze"}
+                </button>
               </th>
             ))}
           </tr>

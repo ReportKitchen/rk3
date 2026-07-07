@@ -789,6 +789,10 @@ pre.error {
 .pat-note-saved { margin: 0.2rem 0 0 2rem; font-size: 0.72rem; }
 .pat-rec { margin: 0.15rem 0 0 2rem; font-size: 0.72rem; }
 .pat-agg h1 { font-size: 1.15rem; }
+.pat-agg-actions { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.5rem; }
+.pat-mini-btn { margin-top: 0.25rem; border: 1px solid #b8c8d8; background: #fff; color: #24445f;
+  border-radius: 4px; padding: 0.12rem 0.45rem; font-size: 0.7rem; cursor: pointer; }
+.pat-mini-btn:disabled, .pat-mode:disabled { color: #999; border-color: #ddd; background: #f7f7f7; cursor: default; }
 .pat-matrix { border-collapse: collapse; font-size: 0.82rem; margin-top: 0.8rem; }
 .pat-matrix th, .pat-matrix td { border: 1px solid #ddd; padding: 0.3rem 0.55rem; text-align: left; }
 .pat-matrix .num { text-align: right; }

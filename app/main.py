@@ -22,7 +22,7 @@ from typing import Dict, List, Optional
 from pydantic import BaseModel, Field
 
 from rk3.ai import ai_can_analyze, ai_can_generate, ai_mode
-from rk3.documents import OUTPUT, list_documents, output_dir, source_for_slug
+from rk3.documents import OUTPUT, batch_documents, list_documents, output_dir, source_for_slug
 from rk3.eval import (append_check, canonical_for_nid, checks_with_status,
                       evaluate_check)
 from rk3.pipeline import build_status
@@ -44,6 +44,8 @@ _active: set[str] = set()
 # (fingerprints make the rerun cheap — render-only for op saves).
 _rerun: set[str] = set()
 _active_lock = threading.Lock()
+_patterns_active: set[str] = set()
+_patterns_lock = threading.Lock()
 
 
 @app.get("/api/documents")
@@ -747,30 +749,91 @@ def _llm_scans(slug: str) -> list[dict]:
     return _read_jsonl_latest(PATTERNS_LLM_SCANS / f"{slug}.jsonl", "scan_id")
 
 
+def _read_pattern_report(slug: str) -> dict | None:
+    f = PATTERNS_OUT / f"{slug}.json"
+    if not f.exists():
+        return None
+    try:
+        return json.loads(f.read_text())
+    except json.JSONDecodeError:
+        return None
+
+
+def _pattern_row(doc: dict, report: dict | None = None) -> dict:
+    slug = doc["slug"]
+    r = report if report is not None else _read_pattern_report(slug)
+    cands = (r or {}).get("candidates") or []
+    with _patterns_lock:
+        pattern_status = "in_progress" if slug in _patterns_active else ("done" if r else "missing")
+    return {
+        "slug": slug,
+        "schema": (r or {}).get("schema"),
+        "input": (r or {}).get("input"),
+        "inventory": (r or {}).get("pattern_inventory") or {},
+        "total": len(cands),
+        "decided": len(_pattern_decisions(slug)),
+        "llm_reviews": len(_llm_reviews(slug)),
+        "llm_scans": len(_llm_scans(slug)),
+        "warnings": len((r or {}).get("warnings") or []),
+        "batchExcluded": bool(doc.get("batchExcluded")),
+        "pattern_status": pattern_status,
+    }
+
+
+def _run_pattern_analyze(slug: str) -> None:
+    try:
+        subprocess.run([sys.executable, "-m", "patterns", "analyze", slug], cwd=ROOT, check=False)
+    finally:
+        with _patterns_lock:
+            _patterns_active.discard(slug)
+
+
+def _run_pattern_analyze_many(slugs: list[str]) -> None:
+    for slug in slugs:
+        _run_pattern_analyze(slug)
+
+
+def _spawn_pattern_analyze(slug: str) -> bool:
+    if source_for_slug(slug) is None:
+        raise HTTPException(404, f"unknown document {slug!r}")
+    with _patterns_lock:
+        if slug in _patterns_active:
+            return False
+        _patterns_active.add(slug)
+    threading.Thread(target=_run_pattern_analyze, args=(slug,), daemon=True).start()
+    return True
+
+
 @app.get("/api/patterns")
 def patterns_index():
     """Aggregate view: one row per analyzed doc — inventory, totals, review
     progress, and the input stamp for staleness checks."""
-    rows = []
-    for p in sorted(PATTERNS_OUT.glob("*.json")) if PATTERNS_OUT.is_dir() else []:
-        try:
-            r = json.loads(p.read_text())
-        except json.JSONDecodeError:
-            continue
-        slug = r.get("document_id") or p.stem
-        cands = r.get("candidates") or []
-        rows.append({
-            "slug": slug,
-            "schema": r.get("schema"),
-            "input": r.get("input"),
-            "inventory": r.get("pattern_inventory") or {},
-            "total": len(cands),
-            "decided": len(_pattern_decisions(slug)),
-            "llm_reviews": len(_llm_reviews(slug)),
-            "llm_scans": len(_llm_scans(slug)),
-            "warnings": len(r.get("warnings") or []),
-        })
-    return rows
+    return [_pattern_row(doc) for doc in list_documents()]
+
+
+@app.post("/api/patterns/{slug}/analyze")
+def pattern_analyze(slug: str):
+    started = _spawn_pattern_analyze(slug)
+    return {"slug": slug, "status": "in_progress", "started": started}
+
+
+@app.post("/api/patterns/analyze-all")
+def patterns_analyze_all():
+    docs = batch_documents()
+    started = []
+    skipped = []
+    with _patterns_lock:
+        for doc in docs:
+            slug = doc["slug"]
+            if slug in _patterns_active:
+                skipped.append(slug)
+                continue
+            _patterns_active.add(slug)
+            started.append(slug)
+    if started:
+        threading.Thread(target=_run_pattern_analyze_many, args=(started,), daemon=True).start()
+    excluded = [doc["slug"] for doc in list_documents() if doc.get("batchExcluded")]
+    return {"status": "in_progress", "started": started, "already_running": skipped, "excluded": excluded}
 
 
 @app.get("/api/patterns/{slug}")
