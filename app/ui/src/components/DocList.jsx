@@ -40,9 +40,16 @@ export default function DocList({ docs, selected, onSelect, onRefresh }) {
     );
   }
 
+  // batch-disabled documents drop to their own section at the bottom (their
+  // "converted" status isn't kept current by batch runs, so it's hidden there)
+  const active = docs.filter((d) => !d.batchExcluded);
+  const disabled = docs
+    .filter((d) => d.batchExcluded)
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+
   const groups = [];
   let folder = null;
-  for (const d of docs) {
+  for (const d of active) {
     if (d.folder !== folder) {
       folder = d.folder;
       groups.push({ folder, docs: [] });
@@ -98,6 +105,19 @@ export default function DocList({ docs, selected, onSelect, onRefresh }) {
             ))}
           </React.Fragment>
         ))}
+        {disabled.length > 0 && (
+          <React.Fragment key="__disabled">
+            <li className="folder" title="Excluded from batch runs (Auto-runs off). Still open/runnable individually.">Disabled/</li>
+            {disabled.map((d) => (
+              <li key={d.slug}>
+                <a className={"doc doc-disabled" + (selected === d.slug ? " selected" : "")}
+                  href={docHref(d.slug)} onClick={open(d.slug)}>
+                  <span>{d.name}</span>
+                </a>
+              </li>
+            ))}
+          </React.Fragment>
+        )}
       </ul>
     </div>
   );

@@ -94,6 +94,8 @@ body {
 
 #doclist .doc:hover { background: #f0f0f0; }
 #doclist .doc.selected { background: #e2ecf8; }
+#doclist .doc-disabled { opacity: 0.55; }
+#doclist .doc-disabled:hover { opacity: 0.8; }
 
 .badge {
   flex-shrink: 0;
