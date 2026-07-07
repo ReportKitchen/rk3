@@ -67,3 +67,12 @@ checks:
   # path stays wired and the correct float side is asserted.
   - note: "GOLD(fig) p7 (target, §3.4 floatPin): the portrait floats left"
     float: { nid: "neb75eac908", is: "left" }
+
+  # GOLD(§6.2 tables) p8 acronyms glossary (owner note edd55787 "landed in the
+  # wrong column"): single-line rows (term + short value on ONE line, uniform
+  # COLOR but the term in a BOLD font) failed color-segmentation and dumped the
+  # whole line into the term column, leaving the value column empty. Font-run
+  # segmentation splits term|value. RED-AT-PLANT 2026-07-07: value merged into
+  # cell 0, cell 1 empty (starts-with "National Land Agency" fails).
+  - note: "GOLD(§6.2): p8 'ANT | National Land Agency' splits into two cells"
+    cells: ["ANT", "National Land Agency"]

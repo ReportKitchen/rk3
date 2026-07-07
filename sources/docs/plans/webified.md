@@ -488,6 +488,30 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§6.2 tenure p8 "wrong column" DONE** (2026-07-07). Owner note edd55787: the
+  Acronyms glossary had "several definitions land in the wrong column". Root
+  cause: single-line rows (term + short value on ONE line, uniform COLOR but the
+  term in a BOLD cut) failed `_color_segments` (single-color) and dumped the whole
+  line into the term column, leaving the value column empty. FIX: `_font_segments`
+  — a font-run fallback splitting bold-term|regular-value, wired as
+  `_color_segments(line) or _font_segments(line, ctx)`. GUARDS mined from 3
+  mis-fires (the tail's complexity ceiling, as the plan warned): (1) WIDE-span —
+  block must fill ≥50% of the columns it straddles (else a narrow value cell over
+  a mis-placed cut isn't a spanning row); (2) WEIGHT-contrast — segments must span
+  bold(≥600)→regular(≤500), not bold→semibold (killed gates p133 "6%"w800|"(12)"
+  w600 over-split); (3) SINGLE-LINE + EXACTLY-2-COL — the glossary pattern (killed
+  gates p134 3-col scoring-cell split). analyze VERSION 202→**206** (4 guard
+  iterations; cache gotcha bit once — a same-VERSION edit served stale analyze
+  until I bumped). NEW eval kind `cells: [t0,t1]` (a table row's cells start with
+  these, in order) + gold on ANT row (RED-at-plant → GREEN). census 75/5→**76/5**
+  (+1 gold, 0 regress); pytest 33 (tenure snapshot regen: textChars −16 = the
+  boundary spaces the split drops; gates & all others UNCHANGED via nodediff +
+  snapshot). EYEBALLED tenure p8 — every single-line row (ANT|National Land
+  Agency, CFR|…, CLAN!|…, COFO, FOSPA, FRC, GFN) now splits into two cells,
+  matching source. REMAINING (owner's other half, NOT done): "should be ONE table
+  not two" — the glossary is split across the page's two layout-columns (+ onto
+  p9); a cross-column/page table MERGE, harder, "good candidate for a Converter
+  Question" (owner's words). Committed analyze+eval+tenure yaml+output+snapshot.
 - **§6.1 table census DONE (log-only)** (2026-07-06). `_try_table` now emits a
   `table-model` event at every exit (success + each rejection w/ reason + grid
   evidence: hlines/vlines/cols/rows/blocks/kind), suppressing the 0-1-block

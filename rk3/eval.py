@@ -539,8 +539,30 @@ def _check_style_color(slug, c):
     return False, f"no styled run matches {(nid or spec.get('textPrefix'))!r}"
 
 
+def _check_cells(slug, c):
+    """A table row's cells, in order, each START with the given text (webified
+    §6.2 — catches a value merged into the wrong/term column instead of its own
+    cell). {cells: [t0, t1, ...]}: some table row's first cells match in order."""
+    want = [_norm(t) for t in c["cells"]]
+    ir = _artifact(slug, "analyze") or {}
+    for tbl in _walk(ir.get("body", [])):
+        if tbl.get("type") != "table":
+            continue
+        for row in tbl.get("children", []) or []:
+            if row.get("type") != "row":
+                continue
+            cells = [_norm(irwalk.subtree_text(cell))
+                     for cell in row.get("children", []) or []]
+            if len(cells) >= len(want) and \
+                    all(want[i] and cells[i].startswith(want[i])
+                        for i in range(len(want))):
+                return True, f"row cells {cells[:len(want)]}"
+    return False, f"no table row whose cells start with {want}"
+
+
 EVALUATORS = {"order": _check_order, "role": _check_role, "list": _check_list,
               "float": _check_float, "styleColor": _check_style_color,
+              "cells": _check_cells,
               "not_list": _check_not_list, "nested": _check_nested,
               "merge": _check_merge,
               "split": _check_split, "freeze": _check_freeze,

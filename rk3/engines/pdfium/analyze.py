@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 202
+VERSION = 206
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -2910,6 +2910,48 @@ def _color_segments(line):
     return merged if len(merged) > 1 else None
 
 
+def _font_segments(line, ctx):
+    """Partition a line into its FONT runs, returned in _color_segments' shape
+    ([[s, e, colorIdx]], color uniform). A glossary/definition table often prints
+    the term in a bold cut and the value in the regular cut at the SAME color, so
+    color-segmentation can't split the cell but font can (webified §6.2). Only a
+    genuine BOLD-label vs REGULAR-value contrast counts: a bold/semibold shift
+    inside one value cell ("6%"w800 + "(12)"w600) is emphasis, not a boundary."""
+    runs = line.get("fontRuns") or []
+    if not runs:
+        return None
+    text = line["text"]
+    base = line["fontIdx"]
+    segs = []
+    pos = 0
+    for s, e, fi in sorted(runs):
+        if s > pos:
+            segs.append([pos, s, base])
+        segs.append([s, e, fi])
+        pos = max(pos, e)
+    if pos < len(text):
+        segs.append([pos, len(text), base])
+    merged = []
+    for s, e, fi in segs:
+        while s < e and text[s] == " ":
+            s += 1
+        while e > s and text[e - 1] == " ":
+            e -= 1
+        if s >= e:
+            continue
+        if merged and merged[-1][2] == fi:
+            merged[-1][1] = e
+        else:
+            merged.append([s, e, fi])
+    if len(merged) <= 1:
+        return None
+    weights = [ctx.fonts[fi]["weight"] for _s, _e, fi in merged]
+    if not (any(w >= 600 for w in weights) and any(w <= 500 for w in weights)):
+        return None
+    col = line["colorIdx"]  # the split is by font; the cell color stays uniform
+    return [[s, e, col] for s, e, _fi in merged]
+
+
 def _try_table(ctx, reg, blocks, rich, pages, strict=False):
     """A boxed region whose grid is literally drawn (ruled lines or cell
     fills) and whose blocks cluster into columns is a table, not a callout.
@@ -3006,6 +3048,15 @@ def _try_table(ctx, reg, blocks, rich, pages, strict=False):
         bl, bb, br, bt = blk["bbox"]
         span = [c for c, (xl, xr) in enumerate(cols)
                 if min(br, xr) - max(bl, xl) > 4]
+        # a block only genuinely SPANS the columns it touches if it fills a real
+        # fraction of them; a narrow block that merely straddles a boundary (a
+        # value cell against a slightly mis-placed column cut) is ONE cell, not a
+        # spanning row — splitting it would sever e.g. "6% (12)" into two (§6.2).
+        if len(span) > 1:
+            region = cols[span[-1]][1] - cols[span[0]][0]
+            if region > 0 and (br - bl) < 0.5 * region:
+                span = [min(span, key=lambda c: abs((cols[c][0] + cols[c][1]) / 2
+                                                    - (bl + br) / 2))]
         dom = Counter()
         for line in blk["lines"]:
             dom[line["colorIdx"]] += len(line["text"])
@@ -3019,8 +3070,15 @@ def _try_table(ctx, reg, blocks, rich, pages, strict=False):
         parts = {}    # col -> runs-dict
         pcolor = {}   # col -> colorIdx of the column's first segment
         ok = True
+        # font-fallback splitting is for the SINGLE-LINE, TWO-column term|value
+        # row (a glossary row assembled as one block: bold term | regular value).
+        # Multi-line blocks get their columns from separate blocks, and a 3+-col
+        # font split is almost never a clean glossary — restrict to avoid
+        # splitting wrapped prose / scoring cells (§6.2 gates-earth p133/p134).
+        font_ok = len(blk["lines"]) == 1 and len(span) == 2
         for line in blk["lines"]:
-            segs = _color_segments(line)
+            segs = _color_segments(line) or (_font_segments(line, ctx)
+                                             if font_ok else None)
             if not segs or len(segs) != len(span):
                 ok = False
                 break
