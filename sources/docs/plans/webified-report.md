@@ -146,7 +146,10 @@ In priority order:
    representative scan mode (cluster reps + feature-coverage fill + one easy-page
    control, greedy set-cover over the existing triage signatures) so the gallery
    and the "did it get better" number are affordable corpus-wide; inferred
-   sibling status renders hollow, never fake-solid.
+   sibling status renders hollow, never fake-solid. And **model tiering
+   (webified.md §0.7, owner-approved)**: scan=Sonnet, verify=Haiku,
+   prescribe=Opus — gated by a calibration test against cycle-1's Opus scans
+   (≥90% medium+ reproduction or the role keeps the next tier up).
 
 1. **Wire the loop's lever-coverage gaps** (cheap, high-leverage — all PARKED [§7.2]):
    (a) make `prescribe()` emit orderPin sequence entries as nids or

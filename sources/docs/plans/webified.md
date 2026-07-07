@@ -143,6 +143,25 @@ a separate post-run cycle.
   hard cap 40 vision-scanned page-iterations per document — when the cap
   hits, converge what you have and PARK the rest. Log every call's page
   count in the loop ledger (§4.6).
+- **Model tiering per ROLE (owner-approved, cycle 2).** The plumbing
+  exists (`qa_page/qa_doc/prescribe` take `model=`; usage logger prices
+  all tiers). Policy:
+  - `scan` (find issues — the volume op): `claude-sonnet-4-6`
+  - `verify` (net-improvement re-scans: "did severe count drop?"):
+    `claude-haiku-4-5`
+  - `prescribe` (author overrides — the judgment op, cluster reps only):
+    `claude-opus-4-8` (never downgrade this one)
+  Wire as `ai.models: {scan, verify, prescribe}` in config.json via
+  `get_ai_config()`, env-overridable; every loop record logs which model
+  ran.
+  **Calibration gate before trusting the downgrades**: take ~10 pages
+  already scanned by Opus in cycle 1 (race + pol pilots have them);
+  run the Sonnet scanner on the same pages; require it reproduces ≥90%
+  of Opus's medium+ findings (severity-matched, text-similar). If Sonnet
+  passes, run the same test for Haiku in the verify role (binary
+  severe-count judgment only). Any tier that fails calibration keeps the
+  next tier up, and the result — hit rates + per-page cost both models —
+  goes in the ledger. Never calibrate by vibes.
 
 ### 0.8 Command recipes
 - Convert/eval one doc: `python -m rk3 eval <slug>` (reconverts changed
