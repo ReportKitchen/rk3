@@ -142,6 +142,11 @@ In priority order:
    plain-words glossary. This comes BEFORE lever work: it is how the owner will
    audit everything else this cycle claims. Gate: walking race-to-lead and
    points-of-light, gallery + compare view alone must explain every amber/red.
+   Alongside it: **QUICK SCAN (webified.md §2.4, owner proposal)** — a ≤10-page
+   representative scan mode (cluster reps + feature-coverage fill + one easy-page
+   control, greedy set-cover over the existing triage signatures) so the gallery
+   and the "did it get better" number are affordable corpus-wide; inferred
+   sibling status renders hollow, never fake-solid.
 
 1. **Wire the loop's lever-coverage gaps** (cheap, high-leverage — all PARKED [§7.2]):
    (a) make `prescribe()` emit orderPin sequence entries as nids or

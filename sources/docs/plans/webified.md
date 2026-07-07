@@ -272,7 +272,39 @@ vision loop (§4) runs on ONE representative first and applies its
 document-level lessons to siblings before scanning them (their scans then
 run only to VERIFY, which usually terminates in 1 iteration).
 
+**2.4 QUICK SCAN — representative-page selection (owner proposal,
+2026-07-07; cycle 2).** A capped scan mode that beats both "full doc"
+(cost) and "first 10 pages" (blind): pick ≤10 pages per doc that
+representatively cover its FEATURES, deterministically, from the triage
+signatures we already have.
+
+Selection (greedy set-cover, stable ordering so re-runs pick the same
+pages):
+1. one representative per hard-page cluster (§2.3), largest clusters
+   first;
+2. then fill feature-type coverage gaps: if the doc has tables/figures/
+   callouts/multi-column/hero/list-heavy pages and none is selected yet,
+   add the densest page of each missing type;
+3. always include ONE `easy` page as a control (styling regressions show
+   there first, and it keeps the sample honest);
+4. cap at 10 (configurable), prefer never-scanned pages on re-runs.
+
+Plumbing: `{"mode": "quick"}` on `/api/qa/<slug>/run` (server picks the
+pages and echoes which it chose + why: `"p14: cluster rep (3 siblings);
+p3: only table page; p21: easy control"`); `tools/visionloop.py --quick`
+uses the same selector. Scoreboard/gallery HONESTY rule: a page whose
+status is inferred from a scanned cluster-sibling displays differently
+from a directly-scanned page (hollow vs solid ring) — inherited green is
+a hypothesis, not a measurement.
+
+Uses: the cheap corpus-wide "did it get better" number (~10 pages × 27
+docs vs ~1,700 full), gallery status at reasonable cost, and the §4
+net-improvement gate's re-scans.
+
 **Gate**: triage in scoreboard for all 27 docs; calibration ≥18/20.
+Quick-scan selector returns sensible pages on race-to-lead and
+points-of-light (eyeball the chosen list against the triage table and
+record it in the ledger).
 
 ---
 
