@@ -96,7 +96,19 @@ def get_ai_config() -> dict:
     mode = mode if mode in AI_MODES else "generate"
     provider = cfg.get("provider") or os.getenv("AI_PROVIDER", "anthropic")
     model = cfg.get("model") or os.getenv("AI_MODEL") or DEFAULT_MODELS.get(provider)
-    return {"mode": mode, "provider": provider, "model": model}
+    # per-ROLE model tiering (webified §0.7): scan (volume) / verify (cheap binary
+    # re-scan) / prescribe (judgment). Each falls back to the base model, so
+    # tiering is OPT-IN — the calibration gate writes ai.models once a downgrade
+    # is proven, else every role stays on the (safe) base model.
+    role_cfg = cfg.get("models") or {}
+    models = {r: (role_cfg.get(r) or os.getenv(f"AI_MODEL_{r.upper()}") or model)
+              for r in ("scan", "verify", "prescribe")}
+    return {"mode": mode, "provider": provider, "model": model, "models": models}
+
+
+def model_for(role: str) -> str:
+    """The configured model for a loop ROLE (scan|verify|prescribe), §0.7."""
+    return get_ai_config()["models"].get(role) or get_ai_config()["model"]
 
 
 def ai_mode() -> str:

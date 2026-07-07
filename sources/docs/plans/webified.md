@@ -580,6 +580,17 @@ doubt: smaller scope, PARK, keep moving.
 
 ### CYCLE 2 (2026-07-07, from webified-report.md §5 restart order)
 
+- **§0.7 MODEL TIERING plumbing DONE (calibration run deferred, cost-gated)**
+  (2026-07-07). `get_ai_config()` now returns `models: {scan, verify, prescribe}`,
+  each from config `ai.models.<role>` or env `AI_MODEL_<ROLE>`, else the base model
+  — so tiering is OPT-IN (defaults to Opus everywhere = SAFE until a downgrade is
+  proven). `rk3.ai.model_for(role)` helper. `converge_page` runs `_scan` on the
+  scan tier + `prescribe` on the prescribe tier (an explicit --model still
+  overrides both) and LOGS `models:{scan,prescribe}` in every loop record. The
+  CALIBRATION gate (Sonnet reproduces ≥90% of Opus medium+ on ~10 cycle-1 pages →
+  then Haiku for verify; else keep the next tier up) is a VISION-COST step — paired
+  with the loop-wide run (item 3) so the spend decision is made once. Until then
+  every role stays on Opus. No census impact.
 - **§2.4 QUICK SCAN selector + plumbing DONE + §1.5 scroll bug FIXED** (2026-07-07).
   `triage.quick_scan_pages(slug, cap=10, scanned)` — deterministic ≤10-page set-
   cover over the triage signatures: (1) one rep per HARD cluster (largest first),

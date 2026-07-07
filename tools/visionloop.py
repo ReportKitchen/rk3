@@ -147,13 +147,19 @@ def _log_iter(slug, rec):
 
 def converge_page(slug, page, max_iter=3, model=None, dry_run=False):
     """Per-page loop (§4.3): scan → (prescribe → apply → reconvert) until no
-    medium+ issue or `max_iter`. Returns the iteration records."""
+    medium+ issue or `max_iter`. Returns the iteration records. Model tiering
+    (§0.7): scan on the scan tier, prescribe on the prescribe tier — unless an
+    explicit `model` overrides both. Each record logs the models it ran."""
+    from rk3.ai import model_for
+    scan_m = model or model_for("scan")
+    prescribe_m = model or model_for("prescribe")
     records = []
     for it in range(1, max_iter + 1):
-        flags = _scan(slug, page, model=model)
+        flags = _scan(slug, page, model=scan_m)
         before = _sev_counts(flags)
         severe = sum(before[s] for s in SEVERE)
         rec = {"page": page, "iter": it, "before": before, "severe": severe,
+               "models": {"scan": scan_m, "prescribe": prescribe_m},
                "ts": datetime.datetime.now(datetime.timezone.utc)
                      .isoformat(timespec="seconds")}
         if severe == 0:
@@ -161,7 +167,7 @@ def converge_page(slug, page, max_iter=3, model=None, dry_run=False):
             records.append(rec)
             _log_iter(slug, rec)
             break
-        pres = prescribe(slug, page, model=model)
+        pres = prescribe(slug, page, model=prescribe_m)
         rec["residuals"] = pres.get("residuals", [])
         rec["proposed"] = len(pres.get("overrides", []))
         if dry_run:
