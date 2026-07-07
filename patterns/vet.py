@@ -231,16 +231,40 @@ def load_llm_reviews(document_id: str | None = None) -> tuple[list[dict[str, Any
 def summarize_llm_reviews(document_id: str | None = None) -> dict[str, Any]:
     rows, errors = load_llm_reviews(document_id)
     latest = latest_decisions(rows)
+    current_ids = current_candidate_ids(latest, document_id)
+    stale = [row for row in latest if row_key(row) not in current_ids]
     return {
         "document_id": document_id,
         "files_read": sorted({row["_file"] for row in rows}),
         "row_count": len(rows),
         "latest_pattern_count": len(latest),
+        "current_pattern_count": len(latest) - len(stale),
+        "stale_pattern_count": len(stale),
         "parse_errors": errors,
         "latest_decisions": count_llm_rows(latest),
         "non_evidence_reasons": count_non_evidence_reasons(latest),
-        "recent_reviews": recent_llm_reviews(latest),
+        "recent_reviews": recent_llm_reviews(latest, current_ids=current_ids),
+        "stale_reviews": recent_llm_reviews(stale, current_ids=current_ids, limit=20),
     }
+
+
+def row_key(row: dict[str, Any]) -> tuple[str, str]:
+    return (str(row.get("document_id") or ""), str(row.get("pattern_id") or ""))
+
+
+def current_candidate_ids(rows: list[dict[str, Any]], document_id: str | None) -> set[tuple[str, str]]:
+    document_ids = [document_id] if document_id else sorted({str(row.get("document_id")) for row in rows if row.get("document_id")})
+    out: set[tuple[str, str]] = set()
+    for doc_id in document_ids:
+        path = OUT / f"{doc_id}.json"
+        if not path.exists():
+            continue
+        report = read_json(path)
+        for candidate in report.get("candidates") or []:
+            pattern_id = candidate.get("pattern_id")
+            if pattern_id:
+                out.add((doc_id, str(pattern_id)))
+    return out
 
 
 def count_llm_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -262,7 +286,7 @@ def count_non_evidence_reasons(rows: list[dict[str, Any]], limit: int = 20) -> l
     return [{"reason": reason, "count": count} for reason, count in counts.most_common(limit)]
 
 
-def recent_llm_reviews(rows: list[dict[str, Any]], limit: int = 30) -> list[dict[str, Any]]:
+def recent_llm_reviews(rows: list[dict[str, Any]], current_ids: set[tuple[str, str]] | None = None, limit: int = 30) -> list[dict[str, Any]]:
     ordered = sorted(rows, key=lambda row: str(row.get("reviewed_at") or ""))
     return [
         {
@@ -271,6 +295,7 @@ def recent_llm_reviews(rows: list[dict[str, Any]], limit: int = 30) -> list[dict
             "pattern_type": row.get("pattern_type"),
             "decision": row.get("decision"),
             "confidence": row.get("confidence"),
+            "current": row_key(row) in current_ids if current_ids is not None else None,
             "reason": row.get("reason"),
         }
         for row in ordered[-limit:]
@@ -287,6 +312,8 @@ def markdown_llm_review_summary(summary: dict[str, Any]) -> str:
         "",
         f"- rows: {summary['row_count']}",
         f"- latest reviewed patterns: {summary['latest_pattern_count']}",
+        f"- still current in generated reports: {summary['current_pattern_count']}",
+        f"- stale after rule changes: {summary['stale_pattern_count']}",
         f"- parse errors: {len(summary['parse_errors'])}",
         "",
         "## Latest Decisions",
@@ -310,11 +337,19 @@ def markdown_llm_review_summary(summary: dict[str, Any]) -> str:
     lines += ["", "## Recent Reviews", ""]
     if summary["recent_reviews"]:
         for row in summary["recent_reviews"]:
+            current = "" if row.get("current") else " stale"
+            lines.append(
+                f"- `{row['pattern_type']}` {row['document_id']} `{row['pattern_id']}` "
+                f"{row['decision']} ({row['confidence']}){current}: {row['reason']}"
+            )
+    else:
+        lines.append("- None.")
+    if summary["stale_reviews"]:
+        lines += ["", "## Stale Reviews", ""]
+        for row in summary["stale_reviews"]:
             lines.append(
                 f"- `{row['pattern_type']}` {row['document_id']} `{row['pattern_id']}` "
                 f"{row['decision']} ({row['confidence']}): {row['reason']}"
             )
-    else:
-        lines.append("- None.")
     lines.append("")
     return "\n".join(lines)
