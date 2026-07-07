@@ -77,6 +77,8 @@ def pdf_metadata():
         slug = d["slug"]
         row = {"slug": slug, "docName": d["name"], "folder": d.get("folder"),
                "creator": None, "producer": None,
+               "pageCount": None,      # pages in the source PDF
+               "imageCount": None,     # embedded raster-image placements (blocks.json)
                "mainFont": None, "fontCount": 0, "fonts": [],
                # embed verdict: True=fully reconstructable (default on),
                # False=some font drops glyphs (default off), None=no embeddable
@@ -90,7 +92,22 @@ def pdf_metadata():
                 meta = pdf.get_metadata_dict()
                 row["creator"] = (meta.get("Creator") or "").strip() or None
                 row["producer"] = (meta.get("Producer") or "").strip() or None
+                row["pageCount"] = len(pdf)
                 pdf.close()
+            except Exception:
+                pass
+        # embedded-image count: the type-3 (IMAGE) objects the extraction already
+        # recorded, summed over pages (a cheap read of an existing artifact, no
+        # re-parsing the PDF's content streams). Counts placements, so a logo
+        # repeated on every page counts once per page.
+        blocks_path = output_dir(slug) / "blocks.json"
+        if blocks_path.exists():
+            try:
+                blocks = json.loads(blocks_path.read_text())
+                row["imageCount"] = sum(
+                    1 for pg in blocks.get("pages", [])
+                    for o in pg.get("objects", [])
+                    if o and o[0] == pdfium.raw.FPDF_PAGEOBJ_IMAGE)
             except Exception:
                 pass
         ir_path = output_dir(slug) / "ir.json"

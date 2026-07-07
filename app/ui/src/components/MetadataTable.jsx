@@ -10,6 +10,8 @@ import { guard } from "../errorBus.js";
 
 const COLUMNS = [
   { key: "docName", label: "Document" },
+  { key: "pageCount", label: "Pages", num: true, width: "4rem" },
+  { key: "imageCount", label: "Images", num: true, width: "4rem" },
   { key: "creator", label: "Created with", width: "14rem" },
   { key: "producer", label: "PDF Producer", width: "12rem" },
   { key: "mainFont", label: "Main font", width: "12rem" },
@@ -130,6 +132,8 @@ export default function MetadataTable({ onOpen }) {
                         {r.docName}
                       </button>
                     </td>
+                    <td className="num">{r.pageCount ?? <span className="meta-dim">—</span>}</td>
+                    <td className="num">{r.imageCount ?? <span className="meta-dim">—</span>}</td>
                     <td title={r.creator || ""}>{r.creator || <span className="meta-dim">—</span>}</td>
                     <td title={r.producer || ""}>{r.producer || <span className="meta-dim">—</span>}</td>
                     <td title={r.mainFont || ""}>
