@@ -4,9 +4,12 @@ import { reportError } from "../errorBus.js";
 
 // the triage dashboard: the vision-QA reviewer scans our render against the
 // original page images and drops severity-ranked issues (and opportunities)
-// here; the user dispositions each — Fix / Accept / Dismiss.
+// here; the user dispositions each — Fix / Accept / Dismiss / Misflag.
+// "Misflag" = the scanner was WRONG to flag it (e.g. flagged an intentional
+// transform); leaves the queue like Dismiss but is tracked to tune the prompts.
 const SEV = { critical: 0, high: 1, medium: 2, low: 3 };
-const ACTIONS = [["fixed", "Fix"], ["accepted", "Accept"], ["dismissed", "Dismiss"]];
+const ACTIONS = [["fixed", "Fix"], ["accepted", "Accept"], ["dismissed", "Dismiss"],
+                 ["misflag", "Misflag"]];
 
 function parsePages(s) {
   const out = new Set();
@@ -63,7 +66,9 @@ export default function ReviewBoard({ slug }) {
         <span className="rv-counts">
           <b>{count("open")}</b> open · <b className="ok">{count("fixed")}</b> fixed ·{" "}
           <b className="muted">{count("accepted")}</b> accepted ·{" "}
-          <b className="muted">{count("dismissed")}</b> dismissed
+          <b className="muted">{count("dismissed")}</b> dismissed ·{" "}
+          <b className="muted" title="scanner was wrong to flag — tracked to tune the vision prompts">
+            {count("misflag")}</b> misflag
         </span>
         <label className="rv-showres">
           <input type="checkbox" checked={showResolved}
@@ -94,6 +99,9 @@ export default function ReviewBoard({ slug }) {
             <div className="rv-actions">
               {ACTIONS.map(([d, label]) => (
                 <button key={d} className={dispo(i) === d ? "active" : ""}
+                  title={d === "misflag"
+                    ? "The scanner was wrong to flag this (e.g. an intentional transform). Leaves the queue like Dismiss, but is tracked to tune the vision prompts."
+                    : undefined}
                   onClick={() => dispose(i.id, dispo(i) === d ? "open" : d)}>
                   {label}
                 </button>

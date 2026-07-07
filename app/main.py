@@ -590,8 +590,11 @@ def run_vision_qa(slug: str, body: QaRunBody):
 
 @app.post("/api/feedback/{slug}/{entry_id}/disposition")
 def set_disposition(slug: str, entry_id: str, body: DispositionBody):
-    """Triage an issue: open | fixed | accepted | dismissed (+ optional note)."""
-    if body.disposition not in ("open", "fixed", "accepted", "dismissed"):
+    """Triage an issue: open | fixed | accepted | dismissed | misflag (+ note).
+    `misflag` = the SCANNER was wrong to flag this (e.g. flagged an intentional
+    transform like footnotes-moved-to-end). Like dismissed it leaves the fix
+    queue, but it is TRACKED separately as a vision-prompt/rubric error to tune."""
+    if body.disposition not in ("open", "fixed", "accepted", "dismissed", "misflag"):
         raise HTTPException(400, "bad disposition")
     path = _feedback_path(slug)
     if not path.exists():
