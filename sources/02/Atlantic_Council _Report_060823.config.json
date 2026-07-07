@@ -13,5 +13,20 @@
       ]
     },
     "embedFonts": true
+  },
+  "structure": {
+    "orderPins": [
+      {
+        "page": 6,
+        "sequence": [
+          "Thank you to the nine private-sector",
+          "Finally, we would like to thank",
+          "We are also grateful for the analytical",
+          "Jason Marczak Senior Director",
+          "Pepe Zhang Senior Fellow"
+        ],
+        "_source": "webified item-4b 2026-07-07 p6 signature-row (Jason+Pepe trailing band read after 'We are also grateful'; general trailing-row band-cut PARKED)"
+      }
+    ]
   }
 }

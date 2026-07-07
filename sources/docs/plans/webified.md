@@ -580,6 +580,25 @@ doubt: smaller scope, PARK, keep moving.
 
 ### CYCLE 2 (2026-07-07, from webified-report.md §5 restart order)
 
+- **Item 4b: atlantic p6 signature-row gold FIXED (census 78/4→79/3)** (2026-07-07).
+  2nd of the 5 reading-order golds; the one the OWNER flagged (note 26f4e4c9:
+  "Jason and Pepe belong below the 'we are also grateful' paragraph"). ROOT CAUSE
+  (deterministic probe): p6 is a single band (no spanning block → no band cut) with
+  2 columns; the model reads the WHOLE left column before the right, so the two
+  bottom-of-page signature blocks (Jason bottom-left, Pepe bottom-right — a
+  horizontal SIGNATURE ROW at y≈311–355) get split: Jason (last left-col node) reads
+  before the right-column body incl. "We are also grateful". FIX = **orderPin lever**
+  (config, page-6-scoped, provenance-stamped): pin the right-column body then the two
+  signatures last → correct order left-body → right-body → Jason → Pepe. Zero engine
+  change, zero regression (census 78/4→79/3; only atlantic output changed). Eyeballed
+  p6 render — reads correctly top-to-bottom. WHY LEVER not engine: the general fix
+  (cut a band at a full-width horizontal whitespace valley, isolating a trailing
+  signature row) would break NEWSPAPER-FLOW columns — two columns with a coincidental
+  aligned mid-body gap would wrongly interleave. That needs a "trailing-row" guard
+  (below-gap blocks are short, not column continuations) + full-corpus calibration —
+  too risky to rush for one owner-flagged one-off acknowledgements page. PARKED as
+  "trailing-row band cut" (see PARKED). REMAINING item-4 golds (3): foia p4 + edf p7
+  (column-weld split/merge — lower-risk engine work), jhu p20 (cross-column tail).
 - **Item 4a: edf running-header gold FIXED (census 77/5→78/4)** (2026-07-07).
   1st of the 5 reading-order residual golds. "EDF IMPACT 2023" is the running
   FOOTER (stripped on pp3-18) that ALSO appears as a small blue KICKER on the
@@ -1054,6 +1073,18 @@ doubt: smaller scope, PARK, keep moving.
 
 ## PARKED
 
+- [item-4/reading-order] Trailing-row band cut (signature rows) | atlantic p6 has a
+  horizontal signature ROW (Jason bottom-left, Pepe bottom-right, y≈311–355) below a
+  full-width whitespace valley; the band model cuts bands only at SPANNING blocks, so
+  the row stays inside the body band and the left-col signature reads before the
+  right-col body. Fixed for THIS page with an orderPin lever (item-4b) | NAMED MISSING
+  LEVER: cut a band at a full-width horizontal whitespace valley (zero block-crossings,
+  thickness ≥ T) so a trailing row becomes its own band read after the columns. BLOCKER
+  = newspaper-flow regression: two columns with a coincidental aligned mid-body gap
+  would wrongly interleave (band-top{L,R}, band-bottom{L,R} instead of L-all-then-R).
+  Needs a guard that only cuts when below-gap blocks are SHORT (a trailing row, not a
+  column continuation) + full-corpus census calibration. Also covers jhu p20 tail if
+  generalized. Medium depth; validate against all 79 golds before shipping.
 - [§7.2] Prescriber orderPin prefix-matching | the loop's orderPin sequence used a
   prefix ("SUMMARY It is resource intensive") that spanned TWO child nodes, so the
   analyze lead-text matcher missed the callout (matched 5/6, no reorder); a
