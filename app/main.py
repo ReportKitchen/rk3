@@ -483,7 +483,8 @@ def clear_feedback(slug: str, entry_id: str):
 
 
 class QaRunBody(BaseModel):
-    pages: List[int] | None = None   # None = all pages (costly)
+    pages: List[int] | None = None   # explicit page list
+    mode: str | None = None          # "quick" = the §2.4 representative ≤10-page set
 
 
 class DispositionBody(BaseModel):
@@ -495,9 +496,18 @@ class DispositionBody(BaseModel):
 def run_vision_qa(slug: str, body: QaRunBody):
     """Run the vision-QA reviewer and append its flags to the feedback queue as
     triageable issues (source=vision-qa, severity, kind, disposition=open).
-    De-duplicates against still-open vision-QA issues so re-runs don't flood."""
+    De-duplicates against still-open vision-QA issues so re-runs don't flood.
+    mode="quick" (webified §2.4): the server picks a ≤10-page representative set
+    covering the doc's features, echoing which pages it chose and why."""
     from rk3.visionqa import qa_doc
-    flags = qa_doc(slug, pages=body.pages)
+    pages, selection = body.pages, None
+    if body.mode == "quick" and not pages:
+        from rk3.triage import quick_scan_pages
+        from tools.scoreboard import _scanned_pages
+        sel = quick_scan_pages(slug, scanned=_scanned_pages(slug))
+        pages = [p for p, _why in sel]
+        selection = [{"page": p, "why": why} for p, why in sel]
+    flags = qa_doc(slug, pages=pages)
     path = _feedback_path(slug)
     existing = ([json.loads(l) for l in path.read_text().splitlines() if l.strip()]
                 if path.exists() else [])
@@ -520,7 +530,7 @@ def run_vision_qa(slug: str, body: QaRunBody):
             added.append(rec)
             open_keys.add(key)
     return {"added": len(added), "scanned": len({f.get("page") for f in flags}),
-            "issues": added}
+            "selection": selection, "issues": added}
 
 
 @app.post("/api/feedback/{slug}/{entry_id}/disposition")

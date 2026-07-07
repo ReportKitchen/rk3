@@ -580,6 +580,20 @@ doubt: smaller scope, PARK, keep moving.
 
 ### CYCLE 2 (2026-07-07, from webified-report.md §5 restart order)
 
+- **§2.4 QUICK SCAN selector + plumbing DONE + §1.5 scroll bug FIXED** (2026-07-07).
+  `triage.quick_scan_pages(slug, cap=10, scanned)` — deterministic ≤10-page set-
+  cover over the triage signatures: (1) one rep per HARD cluster (largest first),
+  (2) fill feature gaps (densest table/figure/callout/multicol/hero/list page),
+  (3) a reserved slot for one EASY control. Stable ordering, prefers never-scanned
+  on ties. Verified: race → easy p1 + 9 cluster reps; tenure → p8/p54/…; edf → 9
+  incl. easy p2. Plumbing: `POST /api/qa/<slug>/run {"mode":"quick"}` (server picks
+  + echoes selection[{page,why}]); `tools/visionloop.py --quick`. NO vision spend
+  in the selector (deterministic). ALSO fixed the owner-reported Pages-tab bug:
+  clicking a 2nd thumbnail didn't scroll the render (stale `frameLoaded` after the
+  iframe remount) — reset the flag on return-to-gallery + `key={sel}` on the
+  iframe; EYEBALLED race p14→p20 sequence, the render now scrolls to each page.
+  census untouched (no engine/eval-evaluator edits). RESIDUAL: inferred-sibling
+  HOLLOW ring (§2.4 honesty) deferred until quick-scan actually infers siblings.
 - **§1.5 OWNER QA SURFACE DONE (cycle-2 item 0, owner-feedback-driven)** (2026-07-07).
   The owner: "I can't translate stakes/census/pytest into 'this looks right'." Built
   the visual layer, all on existing machinery: (a) **Page gallery** — new "Pages"

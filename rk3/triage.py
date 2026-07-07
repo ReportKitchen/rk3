@@ -142,6 +142,61 @@ def clusters(slug):
     return {k: sorted(v) for k, v in out.items()}
 
 
+_FEATURES = (("table", "n_tables"), ("figure", "n_figures"),
+             ("callout", "n_callouts"), ("multicol", "ncols"),
+             ("hero", "hero"), ("list", "n_lists"))
+
+
+def quick_scan_pages(slug, cap=10, scanned=()):
+    """≤`cap` representative pages that cover the doc's FEATURES, deterministically
+    (webified §2.4). Greedy set-cover over the triage signatures — beats both a
+    full-doc scan (cost) and a blind first-N (coverage):
+      1. one representative per HARD cluster, largest clusters first;
+      2. fill feature-type gaps — a table/figure/callout/multi-column/hero/list-
+         heavy page for any type not yet covered (its densest page);
+      3. always one EASY page as a styling-regression control.
+    Stable ordering (re-runs pick the same set); prefers never-`scanned` pages on
+    ties. Returns [(page, reason), ...] sorted by page."""
+    tri = triage_doc(slug)
+    sig = {p: info["signals"] for p, info in tri.items()}
+    cls = {p: info["class"] for p, info in tri.items()}
+    scanned = set(scanned)
+    picked, reason = [], {}
+    easy = [p for p in sig if cls.get(p) == "easy"]
+    # reserve one slot for the easy control so a feature-dense doc still gets it
+    eff = cap - 1 if easy else cap
+
+    def add(p, why, limit):
+        if p not in reason and len(picked) < limit:
+            picked.append(p)
+            reason[p] = why
+
+    # 1) cluster reps, largest cluster first; a never-scanned page preferred
+    for csig, pages in sorted(clusters(slug).items(),
+                              key=lambda kv: (-len(kv[1]), kv[1])):
+        rep = min(pages, key=lambda p: (p in scanned, p))
+        n = len(pages)
+        add(rep, f"cluster rep ({n} page{'s' if n != 1 else ''})", eff)
+
+    # 2) feature coverage — add the densest page of any type not yet represented
+    def val(p, key):
+        return sig[p].get(key, 0)
+    for feat, key in _FEATURES:
+        thresh = 2 if feat == "multicol" else 1
+        if any(val(p, key) >= thresh for p in picked):
+            continue
+        cands = [p for p in sig if val(p, key) >= thresh]
+        if cands:
+            best = max(cands, key=lambda p: (val(p, key), p not in scanned, -p))
+            add(best, f"{'only' if len(cands) == 1 else 'densest'} {feat} page", eff)
+
+    # 3) one easy control page (styling regressions surface there first)
+    if easy and not any(cls.get(p) == "easy" for p in picked):
+        add(min(easy, key=lambda p: (p in scanned, p)), "easy control", cap)
+
+    return sorted((p, reason[p]) for p in picked)
+
+
 def _print_doc(slug):
     t = triage_doc(slug)
     counts = collections.Counter(v["class"] for v in t.values())

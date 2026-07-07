@@ -56,6 +56,10 @@ export default function QaSurface({ doc }) {
       .catch(() => setFeedback([]));
   }, [doc.slug]);
 
+  // leaving compare unmounts the iframe; drop the stale loaded-flag so the NEXT
+  // page's fresh iframe re-triggers the scroll (else only the first page scrolls)
+  useEffect(() => { if (sel == null) setFrameLoaded(false); }, [sel]);
+
   // in compare view, scroll the render to this page's first element on load
   useEffect(() => {
     if (sel == null || !frameLoaded) return;
@@ -148,7 +152,7 @@ export default function QaSurface({ doc }) {
         </Panel>
         <Separator className="resizer" />
         <Panel id="qadoc" defaultSize="50%" minSize="25%" className="qa-doc-panel">
-          <iframe ref={iframeRef} title="our render" src={docUrl(doc.slug)}
+          <iframe key={sel} ref={iframeRef} title="our render" src={docUrl(doc.slug)}
                   onLoad={() => setFrameLoaded(true)} />
         </Panel>
       </Group>

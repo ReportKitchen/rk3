@@ -181,9 +181,14 @@ def converge_page(slug, page, max_iter=3, model=None, dry_run=False):
     return records
 
 
-def run(slug, page=None, max_iter=3, model=None, budget=40, dry_run=False):
+def run(slug, page=None, max_iter=3, model=None, budget=40, dry_run=False, quick=False):
     if page is not None:
         return {"pages": {page: converge_page(slug, page, max_iter, model, dry_run)}}
+    if quick:  # webified §2.4: the representative ≤10-page set, not the full doc
+        from tools.scoreboard import _scanned_pages
+        sel = triage.quick_scan_pages(slug, scanned=_scanned_pages(slug))
+        out = {p: converge_page(slug, p, max_iter, model, dry_run) for p, _w in sel}
+        return {"quick": [{"page": p, "why": w} for p, w in sel], "pages": out}
     tri = triage.triage_doc(slug)
     hard = sorted(p for p, info in tri.items() if info["class"] == "hard")
     clusters = triage.clusters(slug)
@@ -207,9 +212,11 @@ def main():
     ap.add_argument("--budget", type=int, default=40)
     ap.add_argument("--model")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--quick", action="store_true",
+                    help="the §2.4 representative ≤10-page set instead of the full doc")
     a = ap.parse_args()
     before = usage_summary()["cost"]
-    res = run(a.slug, a.page, a.iters, a.model, a.budget, a.dry_run)
+    res = run(a.slug, a.page, a.iters, a.model, a.budget, a.dry_run, a.quick)
     print(json.dumps(res, indent=1, default=str)[:4000])
     print(f"\nvision spend this run: ${round(usage_summary()['cost'] - before, 3)}")
 
