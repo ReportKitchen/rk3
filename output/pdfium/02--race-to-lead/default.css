@@ -89,6 +89,12 @@ nav {
 
 a { color: #111; }
 
+/* print-styled cross-references (a colored word that names a section, no real
+   URL) are plain colored text in the source, never underlined — so a resolved
+   styled-link anchor drops the browser's default underline (webified §6.2:
+   atlantic p7's white "OPPORTUNITY #N" header title read as an underlined link) */
+a[data-link-styled] { text-decoration: none; }
+
 sup.fnref a {
   text-decoration: none;
   font-weight: 600;

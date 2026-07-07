@@ -488,6 +488,20 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§7.1 corpus output baselines REFRESHED** (2026-07-07). All §5.1–5.6 + §6.2
+  deterministic wins were committed only for specimen docs; the rest sat at STALE
+  pre-§5 committed output (each specimen commit did `git checkout -- output/` to
+  drop the churn). GOTCHA CONFIRMED: `rk3 eval`/`convert()` served CACHED stale
+  artifacts even after VERSION bumps once the on-disk artifacts were git-reverted —
+  only `convert(slug, force=True)` regenerates. Force-refreshed all 26 done docs
+  (scratchpad refresh_corpus.py); 23 changed, 0 failed. census 77/5, code
+  unchanged since 62f7c88 so pytest 33 holds. Verified advancing-mobility gained
+  295 §5.3 styled-color spans. Commit = the 87 output files (ir.json/index.html/
+  *.css corpus-wide). NOW every doc — not just specimens — carries caps, source
+  colors, white-on-dark callouts, kicker styling, styleguide.json, and the table
+  cell-split + header-band fixes. REMAINING §7: (b) re-enable the vision loop on
+  pilots (COST — deliberately gated behind §5, now done), (c) route the PARKED
+  table tail through prescribed overrides. Then §8.
 - **§6 STATUS: 2 clean specimens shipped, deep tail PARKED** (2026-07-07). §6.1
   census + §6.2 tenure p8 (cell-split) + atlantic p7 (header bands) DONE — the two
   specimens with concrete, engine-expressible defects, both broad wins (census

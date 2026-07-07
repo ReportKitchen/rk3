@@ -44,6 +44,13 @@ figcaption {
   margin-top: 0.5rem;
 }
 
+/* caps mirroring (webified §5.1): a source run displayed ALL-CAPS from
+   lowercase codepoints (figure kickers, labels, section headings) is flagged
+   data-caps; mirror the source with a text-transform instead of rendering the
+   lowercase glyphs. Figure kickers also get a touch of letter-spacing. */
+[data-caps] { text-transform: uppercase; }
+figcaption[data-caps] { letter-spacing: 0.03em; }
+
 /* placement evidence from the source layout (figures plan phase 5):
    narrow side-hugging figures float with text wrap; content-width
    figures span their column (tenure p25 / p30) */
@@ -81,6 +88,12 @@ nav {
 }
 
 a { color: #111; }
+
+/* print-styled cross-references (a colored word that names a section, no real
+   URL) are plain colored text in the source, never underlined — so a resolved
+   styled-link anchor drops the browser's default underline (webified §6.2:
+   atlantic p7's white "OPPORTUNITY #N" header title read as an underlined link) */
+a[data-link-styled] { text-decoration: none; }
 
 sup.fnref a {
   text-decoration: none;
