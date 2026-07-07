@@ -733,6 +733,10 @@ pre.error {
 .patterns-pane .split { flex: 1; min-height: 0; }
 .pat-header { padding: 0.4rem 0.8rem; border-bottom: 1px solid #ddd; font-size: 0.85rem; }
 .pat-header .pat-hide { margin-left: 1rem; font-size: 0.8rem; color: #555; }
+.pat-modes { padding: 0.35rem 0.8rem; border-bottom: 1px solid #eee; display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.pat-mode { border: 1px solid #b8c8d8; background: #f7fafc; color: #24445f; border-radius: 4px;
+  padding: 0.18rem 0.55rem; font-size: 0.74rem; cursor: pointer; }
+.pat-mode.on { background: #24577a; border-color: #24577a; color: #fff; }
 .pat-chips { padding: 0.35rem 0.8rem; border-bottom: 1px solid #eee;
   display: flex; flex-wrap: wrap; gap: 0.3rem; }
 .pat-chips .chip { border: 1px solid #c9b8e8; background: #faf7ff; color: #4c2f86;
@@ -746,7 +750,11 @@ pre.error {
 .pat-item.decided-accept { background: #f0f7f0; }
 .pat-item.decided-reject { background: #faf0f0; opacity: 0.75; }
 .pat-item[class*="decided-"]:not(.decided-accept):not(.decided-reject) { background: #f6f3ec; }
+.pat-item.llm-overruled { border-left: 3px solid #b23a48; background: #fff8f7; }
+.pat-item-llm { border-left: 3px solid #24577a; background: #f8fbfd; }
 .pat-row1 { display: flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; }
+.pat-source { flex-shrink: 0; font-size: 0.64rem; line-height: 1.4; text-transform: uppercase;
+  color: #5b6670; border: 1px solid #d5dde5; background: #fff; border-radius: 3px; padding: 0 0.28rem; }
 .pat-meta { color: #777; font-size: 0.72rem; }
 .pat-actions { margin-left: auto; display: flex; gap: 0.25rem; align-items: center; }
 .pat-btn { border: 1px solid #bbb; background: #fff; border-radius: 4px;
@@ -755,6 +763,13 @@ pre.error {
 .pat-actions select { font-size: 0.7rem; max-width: 2.2rem; border: 1px solid #ccc;
   border-radius: 4px; background: #fff; height: 1.4rem; }
 .pat-quote { margin: 0.25rem 0 0 2rem; font-size: 0.78rem; color: #444; }
+.pat-llm { margin: 0.25rem 0 0 2rem; font-size: 0.73rem; color: #4a4f57;
+  border-left: 2px solid #9aaec1; padding-left: 0.5rem; }
+.pat-llm.decision-reject, .pat-llm.decision-wrong_type { border-left-color: #b23a48; color: #73303a; }
+.pat-llm.decision-accept { border-left-color: #2f7d56; color: #2f6248; }
+.pat-overlap { border-left-color: #24577a; }
+.pat-overlap.same { border-left-color: #2f7d56; }
+.pat-only { border-left-color: #b58900; color: #72540b; }
 /* the detector's EXTRACTED fields — what it thinks the value/label/speaker
    is. Reviewing these is the whole point: a plausible quote can hide junk
    extraction (value "2020," label "In"). */

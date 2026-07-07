@@ -649,6 +649,8 @@ def delete_op(slug: str, op_kind: str, nid: str):
 
 PATTERNS_OUT = ROOT / "patterns" / "out"
 PATTERNS_DECISIONS = ROOT / "patterns" / "review-decisions"
+PATTERNS_LLM_REVIEWS = ROOT / "patterns" / "llm-reviews"
+PATTERNS_LLM_SCANS = ROOT / "patterns" / "llm-scans"
 
 
 class PatternDecision(BaseModel):
@@ -673,6 +675,32 @@ def _pattern_decisions(slug: str) -> dict:
     return out
 
 
+def _read_jsonl_latest(path: Path, key: str) -> list[dict]:
+    latest = {}
+    if not path.exists():
+        return []
+    for line in path.read_text().splitlines():
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+            row_key = row[key]
+        except (json.JSONDecodeError, KeyError):
+            continue
+        current = latest.get(row_key)
+        if current is None or str(row.get("reviewed_at") or "") >= str(current.get("reviewed_at") or ""):
+            latest[row_key] = row
+    return sorted(latest.values(), key=lambda row: (row.get("pattern_type") or "", row.get("page") or 0, row.get(key) or ""))
+
+
+def _llm_reviews(slug: str) -> list[dict]:
+    return _read_jsonl_latest(PATTERNS_LLM_REVIEWS / f"{slug}.jsonl", "pattern_id")
+
+
+def _llm_scans(slug: str) -> list[dict]:
+    return _read_jsonl_latest(PATTERNS_LLM_SCANS / f"{slug}.jsonl", "scan_id")
+
+
 @app.get("/api/patterns")
 def patterns_index():
     """Aggregate view: one row per analyzed doc — inventory, totals, review
@@ -692,6 +720,8 @@ def patterns_index():
             "inventory": r.get("pattern_inventory") or {},
             "total": len(cands),
             "decided": len(_pattern_decisions(slug)),
+            "llm_reviews": len(_llm_reviews(slug)),
+            "llm_scans": len(_llm_scans(slug)),
             "warnings": len(r.get("warnings") or []),
         })
     return rows
@@ -704,6 +734,8 @@ def patterns_doc(slug: str):
         raise HTTPException(404, f"no pattern report for {slug!r}")
     r = json.loads(f.read_text())
     r["decisions"] = _pattern_decisions(slug)
+    r["llm_reviews"] = _llm_reviews(slug)
+    r["llm_scans"] = _llm_scans(slug)
     return r
 
 

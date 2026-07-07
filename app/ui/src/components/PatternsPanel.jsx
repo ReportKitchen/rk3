@@ -18,12 +18,20 @@ const MORE_DECISIONS = [
   "accept_with_edits", "wrong_type", "missing_fields",
   "needs_more_context", "useful_suggestion_not_supported",
 ];
+const VIEW_MODES = [
+  ["deterministic", "deterministic"],
+  ["overruled", "LLM overrules"],
+  ["proposed", "LLM proposals"],
+  ["compare", "compare"],
+];
+const LLM_OVERRULE_DECISIONS = new Set(["reject", "wrong_type"]);
 
 export default function PatternsPanel({ doc }) {
   const [report, setReport] = useState(null);
   const [err, setErr] = useState(null);
   const [typeFilter, setTypeFilter] = useState(null);
   const [hideDecided, setHideDecided] = useState(false);
+  const [viewMode, setViewMode] = useState("compare");
   const iframeRef = useRef(null);
   const [frameLoaded, setFrameLoaded] = useState(false);
   const layout = useDefaultLayout({ id: "rk3-patterns-split", panelIds: ["plist", "pdoc"] });
@@ -36,20 +44,50 @@ export default function PatternsPanel({ doc }) {
 
   const candidates = report?.candidates || [];
   const decisions = report?.decisions || {};
+  const llmReviews = report?.llm_reviews || [];
+  const llmScans = report?.llm_scans || [];
+  const reviewByPattern = useMemo(() => {
+    const m = new Map();
+    for (const r of llmReviews) m.set(r.pattern_id, r);
+    return m;
+  }, [llmReviews]);
+  const candidateById = useMemo(() => {
+    const m = new Map();
+    for (const c of candidates) m.set(c.pattern_id, c);
+    return m;
+  }, [candidates]);
 
   const typeCounts = useMemo(() => {
     const m = new Map();
-    for (const c of candidates) m.set(c.pattern_type, (m.get(c.pattern_type) || 0) + 1);
+    const count = (t) => m.set(t, (m.get(t) || 0) + 1);
+    if (viewMode !== "proposed") {
+      for (const c of candidates) {
+        const r = reviewByPattern.get(c.pattern_id);
+        if (viewMode === "overruled" && !LLM_OVERRULE_DECISIONS.has(r?.decision)) continue;
+        count(c.pattern_type);
+      }
+    }
+    if (viewMode === "proposed" || viewMode === "compare") {
+      for (const s of llmScans) count(s.pattern_type);
+    }
     return [...m.entries()].sort((a, b) => b[1] - a[1]);
-  }, [candidates]);
+  }, [candidates, llmScans, reviewByPattern, viewMode]);
 
   const shown = useMemo(() => {
-    let list = candidates;
-    if (typeFilter) list = list.filter((c) => c.pattern_type === typeFilter);
-    if (hideDecided) list = list.filter((c) => !decisions[c.pattern_id]);
-    return [...list].sort((a, b) =>
-      (a.source_refs?.[0]?.page ?? 0) - (b.source_refs?.[0]?.page ?? 0));
-  }, [candidates, typeFilter, hideDecided, decisions]);
+    let items = [];
+    if (viewMode !== "proposed") {
+      items.push(...candidates.map((c) => ({ kind: "deterministic", id: c.pattern_id, candidate: c, llmReview: reviewByPattern.get(c.pattern_id) })));
+    }
+    if (viewMode === "proposed" || viewMode === "compare") {
+      items.push(...llmScans.map((s) => ({ kind: "llm_scan", id: s.scan_id, scan: s, overlapCandidate: candidateById.get(s.deterministic_overlap?.pattern_id) })));
+    }
+    if (viewMode === "overruled") {
+      items = items.filter((item) => LLM_OVERRULE_DECISIONS.has(item.llmReview?.decision));
+    }
+    if (typeFilter) items = items.filter((item) => itemType(item) === typeFilter);
+    if (hideDecided) items = items.filter((item) => item.kind !== "deterministic" || !decisions[item.id]);
+    return items.sort((a, b) => itemPage(a) - itemPage(b) || itemType(a).localeCompare(itemType(b)));
+  }, [candidates, llmScans, typeFilter, hideDecided, decisions, reviewByPattern, candidateById, viewMode]);
 
   // overlay: outline every shown candidate's source nodes in the doc
   useEffect(() => {
@@ -62,7 +100,9 @@ export default function PatternsPanel({ doc }) {
       idoc.head.appendChild(st);
     }
     idoc.querySelectorAll(".rk-pat").forEach((el) => el.classList.remove("rk-pat"));
-    for (const c of shown) {
+    for (const item of shown) {
+      const c = item.kind === "llm_scan" ? item.overlapCandidate : item.candidate;
+      if (!c) continue;
       for (const ref of c.source_refs || []) {
         const el = ref.nid && idoc.querySelector(`[data-nid="${ref.nid}"]`);
         if (el) el.classList.add("rk-pat");
@@ -70,8 +110,10 @@ export default function PatternsPanel({ doc }) {
     }
   }, [frameLoaded, shown]);
 
-  const jump = (c) => {
+  const jump = (item) => {
     const idoc = iframeRef.current?.contentDocument;
+    const c = item.kind === "llm_scan" ? item.overlapCandidate : item.candidate;
+    if (!c) return;
     const nid = c.source_refs?.[0]?.nid;
     const el = nid && idoc?.querySelector(`[data-nid="${nid}"]`);
     if (!el) return;
@@ -116,17 +158,26 @@ export default function PatternsPanel({ doc }) {
 
   const stamp = report.input || {};
   const decided = Object.keys(decisions).length;
+  const overruled = candidates.filter((c) => LLM_OVERRULE_DECISIONS.has(reviewByPattern.get(c.pattern_id)?.decision)).length;
 
   return (
     <div className="patterns-pane">
       <div className="pat-header">
-        <span><strong>{candidates.length}</strong> candidates · {decided} reviewed</span>
+        <span><strong>{candidates.length}</strong> candidates · {decided} reviewed · {llmReviews.length} LLM reviews · {llmScans.length} LLM proposals · {overruled} overruled</span>
         <span className="hint"> · input: irVersion {stamp.irVersion} @ {String(stamp.convertedAt || "").slice(0, 16)}</span>
         <label className="pat-hide">
           <input type="checkbox" checked={hideDecided}
                  onChange={(e) => setHideDecided(e.target.checked)} />
           hide reviewed
         </label>
+      </div>
+      <div className="pat-modes">
+        {VIEW_MODES.map(([mode, label]) => (
+          <button key={mode} className={"pat-mode" + (viewMode === mode ? " on" : "")}
+                  onClick={() => setViewMode(mode)}>
+            {label}
+          </button>
+        ))}
       </div>
       <div className="pat-chips">
         <button className={"chip" + (typeFilter === null ? " on" : "")}
@@ -141,15 +192,43 @@ export default function PatternsPanel({ doc }) {
       <Group orientation="horizontal" className="split" {...layout.groupProps}>
         <Panel id="plist" defaultSize="42%" minSize="25%" className="pat-list-panel">
           <ul className="pat-list">
-            {shown.map((c) => {
+            {shown.map((item) => {
+              if (item.kind === "llm_scan") {
+                const s = item.scan;
+                const overlap = s.deterministic_overlap;
+                return (
+                  <li key={item.id} className="pat-item pat-item-llm">
+                    <div className="pat-row1">
+                      <button className="jump" title="Show overlap in document" disabled={!item.overlapCandidate}
+                              onClick={() => jump(item)}>→</button>
+                      <span className="pat-source">LLM proposal</span>
+                      <strong>{s.pattern_type}</strong>
+                      <span className="pat-meta">{Math.round((s.confidence || 0) * 100)}% · p{s.page}</span>
+                    </div>
+                    {overlap ? (
+                      <p className={"pat-llm pat-overlap" + (overlap.pattern_type === s.pattern_type ? " same" : "")}>
+                        overlaps deterministic <strong>{overlap.pattern_type}</strong> {overlap.pattern_id} · {Math.round((overlap.score || 0) * 100)}%
+                      </p>
+                    ) : (
+                      <p className="pat-llm pat-only">LLM-only: no deterministic text overlap found.</p>
+                    )}
+                    <p className="pat-quote">“{(s.quote || "").slice(0, 220)}”</p>
+                    {s.reason && <p className="pat-note-saved hint">LLM: {s.reason}</p>}
+                    {s.fields && Object.keys(s.fields).length > 0 && <PatternFields fields={s.fields} quote={s.quote} />}
+                  </li>
+                );
+              }
+              const c = item.candidate;
               const d = decisions[c.pattern_id];
               const ref = c.source_refs?.[0] || {};
+              const llm = item.llmReview;
               return (
                 <li key={c.pattern_id}
-                    className={"pat-item" + (d ? ` decided-${d.decision}` : "")}>
+                    className={"pat-item" + (d ? ` decided-${d.decision}` : "") + (LLM_OVERRULE_DECISIONS.has(llm?.decision) ? " llm-overruled" : "")}>
                   <div className="pat-row1">
                     <button className="jump" title="Show in document"
-                            onClick={() => jump(c)}>→</button>
+                            onClick={() => jump(item)}>→</button>
+                    <span className="pat-source">deterministic</span>
                     <strong>{c.pattern_type}</strong>
                     <span className="pat-meta">L{c.layer} · {Math.round((c.confidence || 0) * 100)}% · p{ref.page}</span>
                     <span className="pat-actions">
@@ -179,20 +258,15 @@ export default function PatternsPanel({ doc }) {
                               onClick={() => setNoteFor(noteFor?.id === c.pattern_id ? null : { id: c.pattern_id, decision: null })}>✎</button>
                     </span>
                   </div>
-                  <p className="pat-quote">“{(ref.quote || "").slice(0, 140)}”</p>
-                  {c.fields && Object.keys(c.fields).length > 0 && (
-                    <p className="pat-fields">
-                      {Object.entries(c.fields)
-                        .filter(([, v]) => v !== null && v !== "" &&
-                                String(v) !== (ref.quote || ""))
-                        .map(([k, v]) => (
-                          <span key={k} className="pat-field">
-                            <span className="pat-field-k">{k}</span>{" "}
-                            {String(typeof v === "object" ? JSON.stringify(v) : v).slice(0, 70)}
-                          </span>
-                        ))}
+                  {llm && (
+                    <p className={"pat-llm decision-" + llm.decision}>
+                      LLM {llm.decision?.replaceAll("_", " ")} · {Math.round((llm.confidence || 0) * 100)}%
+                      {llm.corrected_pattern_type ? ` · suggested ${llm.corrected_pattern_type}` : ""}
+                      {llm.reason ? `: ${llm.reason}` : ""}
                     </p>
                   )}
+                  <p className="pat-quote">“{(ref.quote || "").slice(0, 140)}”</p>
+                  {c.fields && Object.keys(c.fields).length > 0 && <PatternFields fields={c.fields} quote={ref.quote} />}
                   {noteFor?.id === c.pattern_id && (
                     <input className="pat-note" autoFocus
                            placeholder={(noteFor.decision ? `${noteFor.decision.replaceAll("_", " ")} — ` : "")
@@ -221,5 +295,28 @@ export default function PatternsPanel({ doc }) {
         </Panel>
       </Group>
     </div>
+  );
+}
+
+function itemType(item) {
+  return item.kind === "llm_scan" ? item.scan.pattern_type : item.candidate.pattern_type;
+}
+
+function itemPage(item) {
+  return item.kind === "llm_scan" ? (item.scan.page ?? 0) : (item.candidate.source_refs?.[0]?.page ?? 0);
+}
+
+function PatternFields({ fields, quote }) {
+  return (
+    <p className="pat-fields">
+      {Object.entries(fields)
+        .filter(([, v]) => v !== null && v !== "" && String(v) !== (quote || ""))
+        .map(([k, v]) => (
+          <span key={k} className="pat-field">
+            <span className="pat-field-k">{k}</span>{" "}
+            {String(typeof v === "object" ? JSON.stringify(v) : v).slice(0, 90)}
+          </span>
+        ))}
+    </p>
   );
 }
