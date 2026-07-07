@@ -118,7 +118,7 @@ def scan_document(
     return out
 
 
-def pattern_catalog(pattern_type: str | None = None) -> list[dict[str, str]]:
+def pattern_catalog(pattern_type: str | None = None) -> list[dict[str, Any]]:
     registry = read_json(REGISTRY)
     out = []
     for entry in registry.get("patterns") or []:
@@ -130,7 +130,13 @@ def pattern_catalog(pattern_type: str | None = None) -> list[dict[str, str]]:
             "pattern_type": entry.get("id"),
             "name": entry.get("name"),
             "layer": str(entry.get("layer")),
-            "description": entry.get("description") or "",
+            "definition": entry.get("definition") or "",
+            "positive_indicators": entry.get("positive_indicators") or [],
+            "negative_indicators": entry.get("negative_indicators") or [],
+            "required_fields": entry.get("required_fields") or [],
+            "optional_fields": entry.get("optional_fields") or [],
+            "evidence_requirements": entry.get("evidence_requirements") or [],
+            "common_false_positives": entry.get("common_false_positives") or [],
         })
     return out
 

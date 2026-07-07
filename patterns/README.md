@@ -37,4 +37,6 @@ own document scan from the IR text and writes optional JSONL rows to
 `patterns/llm-scans/`; `llm-scan-summary` highlights likely deterministic
 overlap versus LLM-only findings. By default the scan focuses on Landing
 Page-relevant signals: `statistic`, `impact_statement`, `funding_event`,
-`quotation`, `key_finding`, and `recommendation`.
+`quotation`, `key_finding`, and `recommendation`. The scan prompt includes each
+selected registry entry's definition, indicators, expected fields, evidence
+requirements, and common false positives.
