@@ -197,6 +197,42 @@ gates-earth; verify reds/greens match `python -m rk3 eval` output exactly.
 → png; also `--svg file` mode), `tools/visionloop.py` (stub now, filled in
 §4). Deterministic, no side effects outside `/tmp` unless told.
 
+**1.5 THE OWNER'S QA SURFACE (added after cycle 1 — owner feedback:
+"I can't translate stakes/census/pytest into 'this looks right'"; do this
+FIRST in cycle 2, before any lever/loop work).** The owner judges pages,
+not checks. Build the visual layer that makes every claim auditable by
+eye, using machinery that already exists (viewer, page PNGs, scoreboard,
+evaluate_check):
+
+- **(a) Page gallery.** Per doc, a "Pages" view: a grid of the ORIGINAL
+  page thumbnails (`pages/page-NNNN.png`), each with a status ring from
+  scoreboard.json — green (passes: no medium+ vision issues, no red
+  stakes), amber (medium issues), red (high/critical issue or red stake),
+  grey (never vision-scanned — DO NOT fake green; unscanned is its own
+  honest state). One glance answers "how much of this doc looks right,
+  and does the machine agree with my eyes?"
+- **(b) Compare view.** Clicking a thumbnail opens original-vs-render
+  side by side: page PNG left, the RENDER scrolled to that page's first
+  element right (the viewer's existing sync-scroll + Original-PDF pane
+  machinery — reuse, don't rebuild), with that page's open vision issues
+  and stakes listed under it in plain words.
+- **(c) Stakes tab → elements.** Every check row gets a jump: extend the
+  eval evaluators to RETURN the matched nid(s) (they already locate the
+  nodes internally — surface them), and the tab highlights/flashes the
+  element like the Patterns tab does. A stake with no resolvable element
+  says so explicitly. Each row also shows its matched text snippet, so a
+  red reads as "THIS text, THIS page, broken in THIS way" — not a slug.
+- **(d) Plain-words glossary**, one screen, linked from the tab header:
+  stake = frozen owner-note assertion (green holds / red broken);
+  census = all stakes across all docs; vision issue = model-spotted
+  render-vs-original difference; page PASS = no medium+ issues + green
+  stakes. Four lines, owner vocabulary.
+
+Gate for 1.5: the owner can open any doc, see the gallery, click any
+amber/red page, and understand what is wrong from that screen alone —
+verify by walking race-to-lead and points-of-light yourself and
+screenshotting the gallery + one compare view into the ledger.
+
 **Gate to leave stage 1**: scoreboard runs corpus-wide; sweep done; stakes
 tab live and accurate; tools committed. Census unchanged (no engine edits
 happened). Write stage summary to the ledger.

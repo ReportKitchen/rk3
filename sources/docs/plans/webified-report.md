@@ -135,6 +135,14 @@ BUT two signals already point at the highest-value promotions:
 
 In priority order:
 
+0. **The owner's QA surface — webified.md §1.5 (added post-cycle-1 from owner
+   feedback: "I can't translate stakes/census/pytest into 'this looks right'").**
+   Page gallery with honest status rings (grey = never scanned), original-vs-
+   render compare view, stakes rows that jump to and highlight their elements,
+   plain-words glossary. This comes BEFORE lever work: it is how the owner will
+   audit everything else this cycle claims. Gate: walking race-to-lead and
+   points-of-light, gallery + compare view alone must explain every amber/red.
+
 1. **Wire the loop's lever-coverage gaps** (cheap, high-leverage — all PARKED [§7.2]):
    (a) make `prescribe()` emit orderPin sequence entries as nids or
    single-node-lead-text prefixes (the ONE thing that blocked the pol-p25 fix from
