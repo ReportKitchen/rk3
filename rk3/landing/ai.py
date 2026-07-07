@@ -12,6 +12,7 @@ pass generates the three styles at the default length in one call; other
 
 from rk3.ai import complete_json
 from rk3.landing.extract import _flat, _walk
+from rk3.prompts import load_prompt
 
 # summary voice, composed into both the upfront and the lazy prompts
 STYLES = {
@@ -38,13 +39,8 @@ LENGTHS = {
 DEFAULT_STYLE = "intro"
 DEFAULT_LENGTH = "medium"
 
-SYSTEM = (
-    "You write concise, compelling copy for a nonprofit or research report "
-    "landing page. The copy appears on the publishing organization's own "
-    "website. Work only from the provided document — be accurate and do not "
-    "invent facts, statistics, names, or findings; prefer the document's own "
-    "framing and numbers."
-)
+# landing-page LLM system prompts live under prompts/ (see prompts/README.md)
+SYSTEM = load_prompt("landing-copy.system.md")
 
 # upfront pass: title + the three summary styles (at the default length) + findings
 SCHEMA = {
@@ -121,11 +117,7 @@ def generate_landing_ai(ir: dict) -> dict:
 
 
 # ---- analyze tier: locate content, write nothing ----
-ANALYZE_SYSTEM = (
-    "You analyze a document's structure. You do NOT write, summarize, or "
-    "paraphrase any content — you only identify which existing section best "
-    "serves as the document's introduction or executive summary."
-)
+ANALYZE_SYSTEM = load_prompt("landing-analyze.system.md")
 _INTRO_SCHEMA = {
     "type": "object",
     "properties": {"heading_index": {"type": "integer"}},
@@ -164,10 +156,7 @@ def find_intro_section(ir: dict):
     return None
 
 
-FINDINGS_SYSTEM = (
-    "You extract the key quantified findings from a document for a landing page. "
-    "Work only from the provided document; never invent numbers, facts, or names."
-)
+FINDINGS_SYSTEM = load_prompt("landing-findings.system.md")
 _FINDINGS_SCHEMA = {
     "type": "object",
     "properties": {
