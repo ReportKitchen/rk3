@@ -580,6 +580,30 @@ doubt: smaller scope, PARK, keep moving.
 
 ### CYCLE 2 (2026-07-07, from webified-report.md §5 restart order)
 
+- **Item 4c: edf p7 join-heuristic tried then REVERTED; 3 reading-order golds
+  PARKED** (2026-07-07). Doc mapping corrected: the 3 remaining golds are **edf
+  p7** (column-weld SPLIT), **ecp-homeforgood p4** (aside/pullQuote MERGE — NOT
+  foia p4), **foia p20** (endnotes placement — NOT jhu). Investigated all three;
+  each needs machinery beyond existing levers → PARKED (see PARKED). edf p7:
+  "Day and evening" is welded onto "…through improved science, data" by
+  `_join_column_wrap`. Tried tightening the join (a capital-starting next column
+  only wraps after explicit punct OR when both the last word and the continuation
+  are capitalized — a proper-noun phrase like "…the Inflation" | "Reduction Act",
+  edf p3). Fixed edf p7 (→80/2) with edf p3 preserved, BUT a corpus force-refresh
+  at the trial VERSION 213 changed **9 docs** and the split-audit found CLEAR
+  REGRESSIONS: covid p10 "…of the" | "COVID-19 deaths", covid p20 "…11% of" |
+  "White adults", oxfam p40/p42, respond p3, tenure p61/64/68 — all legitimate
+  mid-sentence wraps wrongly split. Root truth: edf p7's prev ("…science, data")
+  is INDISTINGUISHABLE from a real mid-sentence wrap; "Day and evening… like this
+  one in Mujkuva" is a PHOTO CAPTION — a caption-detection problem, not a join
+  problem. No prev-ending heuristic fixes it without collateral, and breakOverride
+  would mangle the caption (hard-breaks every line). REVERTED analyze.py to 212 +
+  `git checkout output/pdfium` (9 docs back to 212, verified pure key-order churn
+  after). Eyeballed edf p7 (split correct: "Day and evening" its own drop-cap para)
+  + edf p3 (Inflation Reduction Act stays one para) DURING the trial. Baseline
+  restored: census 79/3, pytest 33. NET item-4 reading-order: **2 golds won**
+  (4a engine, 4b lever); **3 PARKED** — the genuinely-hard residual classes
+  (caption / pullQuote-suppression / endnotes-placement).
 - **Item 4b: atlantic p6 signature-row gold FIXED (census 78/4→79/3)** (2026-07-07).
   2nd of the 5 reading-order golds; the one the OWNER flagged (note 26f4e4c9:
   "Jason and Pepe belong below the 'we are also grateful' paragraph"). ROOT CAUSE
@@ -1073,6 +1097,40 @@ doubt: smaller scope, PARK, keep moving.
 
 ## PARKED
 
+- [item-4/edf p7] Column-weld SPLIT of an interrupting caption | `_join_column_wrap`
+  welds "Day and evening, millions of small farmers…" onto the tail of "…through
+  improved science, data" (a real mid-sentence-looking wrap). The welded text is a
+  PHOTO CAPTION ("…bring milk … to a collection center like this one in Mujkuva")
+  that geometrically sits at the top of the next column. Tried a join-heuristic
+  tighten (capital-start guard) — fixed edf p7 but REGRESSED ~10 real wraps corpus-
+  wide (covid "…of the"|"COVID-19", tenure "…Belize and"|"Guyana"); reverted |
+  NAMED MISSING LEVER: (a) caption detection for image-adjacent deictic text ("like
+  this one", near a figure) so it's a <figcaption>, not body — the principled fix;
+  or (b) a `splitPin`/non-join pin (config: force `_join_column_wrap` to SKIP a
+  join at a given text prefix, page-scoped) for one-offs. breakOverride is NOT it
+  (it hard-breaks every line of the block).
+- [item-4/ecp p4] pullQuote mis-detection of a column-wrap continuation | the tail
+  of "The goal of this paper…" (bottom-left col) is "(“post-filing”) and after the
+  court has determined…" at the TOP of the right column, but
+  `_aside_layout_and_pullquotes` grabbed it as a pull-quote aside (has pullQuote+
+  layout keys), so the join passes (which require paragraph|paragraph) never merge
+  it. Owner note n4d471893bf: "column problem — this is not a callout" | NAMED
+  MISSING LEVER: (a) a role-pin / pullQuote-suppression lever (config: demote a
+  mis-detected pull-quote at a text prefix back to body flow) — regionOverride
+  kind=text does NOT reach pull-quotes (only `_classify_region` regions); AND (b)
+  the join guard must accept an opening-paren/quote continuation ("(" start), not
+  only `.isalpha()`. Two coupled changes; medium risk (pullQuote detection backs
+  atlantic/pol quotes).
+- [item-4/foia p20] Endnotes-section placement + fragment rejoin | a scrambled
+  endnotes page: the "ENDNOTES" display heading renders FIRST (top), the numbered
+  notes list interleaves mid-page (with a mangled "666. Broadway…" note-6), and the
+  body tail "priority. 552 (a)(6)(E)." orphans before the bullet list. Gold pins
+  only "priority…" before "ENDNOTES", but an orderPin satisfying just that leaves
+  the page visibly wrong (orphans/mangles) — gaming the metric, fails the eyeball
+  rule | NAMED MISSING LEVER: endnotes-section detection that places the whole
+  notes block (heading+list+footnotes) AFTER body regardless of y-position, +
+  note-number rejoin ("666." = note 6 + "Broadway" address split). Same cross-
+  column family as the trailing-row band cut below.
 - [item-4/reading-order] Trailing-row band cut (signature rows) | atlantic p6 has a
   horizontal signature ROW (Jason bottom-left, Pepe bottom-right, y≈311–355) below a
   full-width whitespace valley; the band model cuts bands only at SPANNING blocks, so
