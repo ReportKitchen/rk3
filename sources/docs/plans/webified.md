@@ -580,6 +580,29 @@ doubt: smaller scope, PARK, keep moving.
 
 ### CYCLE 2 (2026-07-07, from webified-report.md §5 restart order)
 
+- **Item 3: BOUNDED vision-loop pilot on race (10-page quick set) — loop + gate
+  PROVEN LIVE, §5-first RECONFIRMED** (2026-07-07, COST $2.89 all-opus, owner
+  pre-authorized). Ran `visionloop.py 02--race-to-lead --quick`. The machinery all
+  fired: quick_scan_pages picked 10 reps (1 easy control + 9 cluster reps covering
+  23 pages); the prescriber used the WHOLE lever vocabulary (regionOverrides ×2,
+  floatPins, orderPins, headingOverrides ×2, figureBands); the **net-improvement
+  gate (item-2) worked both ways** — KEPT p7 (severe 5→4) and p27 (2→1), ROLLED
+  BACK p7-iter2 and p41 (no net improvement, `_rollback` cleaned their entries from
+  config). 6 net-improving overrides kept, all stamped "vision-loop 2026-07-07".
+  EYEBALLED both kept pages: p7 = the "…only Latina…" pull-quote now floats right
+  with body wrapping beside it (clean magazine layout); p27 = "Experiences in
+  Organizations" + "ORGANIZATION TYPE…" now render as proper headings. census 79/3
+  unchanged (no race-gold regression), pytest 33. **§5-first RECONFIRMED**: 5/10
+  pages are "no-lever" (vision flags appearance issues no structural lever
+  addresses), only 1/10 reached 0 severe (p9, already clean) — styling residuals
+  dominate the severe counts. NEW missing-lever residuals surfaced (promotion
+  candidates): a **DEDUP family** (deduplicateBlock / dedupeRegion /
+  deduplicateHeadingText, ×3 — strongest signal), figureRecovery / logoImageRecovery,
+  restore-dropped-block, callout-title-binding; the oscillation rail fired ×2 and
+  the prescriber errored ×2. CALIBRATION note: ran all-opus (tier model IDs
+  sonnet-4-6/haiku-4-5 unverified against live API); §0.7 tiering would cut this
+  ~3-4×. See PARKED (dedup-lever). **Cycle-2 restart order COMPLETE** (items
+  0-5 + 3 all addressed).
 - **Item 5: table tail SCOPED via census + eyeball → deep feature, PARKED with
   evidence** (2026-07-07). Ran the §6.1 table-model census corpus-wide: 73 tables
   convert, 573 rejects (no-grid 289, too-few-blocks 192, **spans-pages 41**,
@@ -1113,6 +1136,18 @@ doubt: smaller scope, PARK, keep moving.
 
 ## PARKED
 
+- [item-3/loop] Dedup lever (duplicate block/region/heading) | the race bounded
+  pilot surfaced a DEDUP missing-lever residual on 3 pages (deduplicateBlock — a
+  Figure 18 caption mirrored as a paragraph; dedupeRegion; deduplicateHeadingText)
+  — a recurring class where the same content is emitted twice (an extraction/region
+  double-claim) and no lever removes the duplicate | NAMED MISSING LEVER: a
+  `dedupePin` (config: drop the duplicate node matching a text prefix on a page) OR
+  root-cause the double-claim in extraction/region-binding. Recurred ≥3× in ONE
+  pilot doc → strong promotion candidate; run the loop wider (more pilots) to
+  confirm frequency before building. Other pilot residuals to watch:
+  figureRecovery / logoImageRecovery (recover a dropped figure/logo image),
+  restore-dropped-block (a block vanished), callout-title-binding (a callout's
+  title not bound to its box).
 - [item-4/edf p7] Column-weld SPLIT of an interrupting caption | `_join_column_wrap`
   welds "Day and evening, millions of small farmers…" onto the tail of "…through
   improved science, data" (a real mid-sentence-looking wrap). The welded text is a

@@ -60,18 +60,6 @@ a:hover { text-decoration: underline; }
   font-size: 2.6em;
 }
 
-.fine {
-  font-size: 0.8em;
-}
-
-.medium-panel-alt {
-  font-family: "Open Sans", sans-serif;
-  font-weight: 500;
-  background: #c2c4c6;
-  padding: 0.6em 0.8em;
-  font-size: 1.1em;
-}
-
 .panel {
   background: #c2c4c6;
   padding: 0.6em 0.8em;
@@ -83,10 +71,22 @@ a:hover { text-decoration: underline; }
   font-size: 0.8em;
 }
 
+.medium-panel-alt {
+  font-family: "Open Sans", sans-serif;
+  font-weight: 500;
+  background: #c2c4c6;
+  padding: 0.6em 0.8em;
+  font-size: 1.1em;
+}
+
 .medium-alt {
   font-family: "Open Sans", sans-serif;
   font-weight: 500;
   font-size: 1.1em;
+}
+
+.fine {
+  font-size: 0.8em;
 }
 
 .display {
@@ -109,10 +109,10 @@ a:hover { text-decoration: underline; }
   color: #ffffff;
 }
 
-[data-nid="n5683d398d7"] {
-  background: #1f5c73;
-  border: none;
-  border-bottom: 1px solid #c2c4c6;
+[data-nid="nc1f16892e6"] {
+  float: right;
+  max-width: 46%;
+  margin: 0 0 0.8rem 1.2rem;
 }
 
 [data-nid="nf7328638df"] {
@@ -125,6 +125,10 @@ a:hover { text-decoration: underline; }
   background: #1f5c73;
   padding: 0.4em 0.6em;
   color: #ffffff;
+}
+
+[data-nid="nad18f60d9f"] {
+  color: #1f5c73;
 }
 
 [data-nid="nb26295974e"] {

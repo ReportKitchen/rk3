@@ -4374,7 +4374,7 @@
         "The Whiteness of Organizations"
       ],
       [
-        4,
+        3,
         "organization type and impact on experiences"
       ],
       [
@@ -4443,14 +4443,14 @@
       ]
     ],
     "counts": {
-      "aside": 7,
+      "aside": 6,
       "figure": 62,
       "footnotes": 2,
       "heading": 37,
       "list": 1,
-      "paragraph": 126
+      "paragraph": 129
     },
-    "asideChildren": 30,
+    "asideChildren": 27,
     "notes": [
       1,
       2,
@@ -4481,7 +4481,7 @@
       27,
       28
     ],
-    "questions": 6,
+    "questions": 5,
     "textChars": 102061
   },
   "02--respond-to-crisis": {

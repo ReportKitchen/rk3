@@ -3,9 +3,71 @@
     "figureBands": [
       {
         "page": 15,
-        "bbox": [-10.3, 517.6, 622.2, 687.3],
+        "bbox": [
+          -10.3,
+          517.6,
+          622.2,
+          687.3
+        ],
         "title": "figure 10 | level of interest in taking a top lead",
-        "_source": "plan §3.1 figureBand regression gold: force fig-10's assembly band explicitly (the crop the kicker heuristic produces), proving the config path reproduces the assembly"
+        "_source": "plan \u00a73.1 figureBand regression gold: force fig-10's assembly band explicitly (the crop the kicker heuristic produces), proving the config path reproduces the assembly"
+      }
+    ],
+    "regionOverrides": [
+      {
+        "page": 7,
+        "bbox": [
+          -10,
+          477,
+          622,
+          861
+        ],
+        "kind": "text",
+        "_source": "vision-loop 2026-07-07 p7 iter1"
+      },
+      {
+        "page": 7,
+        "bbox": [
+          350,
+          495,
+          530,
+          710
+        ],
+        "kind": "callout",
+        "_source": "vision-loop 2026-07-07 p7 iter1"
+      }
+    ],
+    "floatPins": [
+      {
+        "textPrefix": "It is challenging constantly being the only Latina",
+        "float": "right",
+        "_source": "vision-loop 2026-07-07 p7 iter1"
+      }
+    ],
+    "orderPins": [
+      {
+        "page": 7,
+        "sequence": [
+          "Hundreds of write-in responses",
+          "It is challenging constantly being the only Latina",
+          "\u2014Latina Woman",
+          "The sector\u2019s growing engagement",
+          "Based on survey and focus group",
+          "The data in Race to Lead Revisited"
+        ],
+        "_source": "vision-loop 2026-07-07 p7 iter1"
+      }
+    ],
+    "headingOverrides": [
+      {
+        "textPrefix": "Experiences in Organizations",
+        "level": 2,
+        "_source": "vision-loop 2026-07-07 p27 iter1"
+      },
+      {
+        "textPrefix": "organization type and impact on experiences",
+        "level": 3,
+        "_source": "vision-loop 2026-07-07 p27 iter1"
       }
     ]
   },
