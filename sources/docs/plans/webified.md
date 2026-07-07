@@ -488,6 +488,17 @@ doubt: smaller scope, PARK, keep moving.
 
 ## LEDGER (executor maintains; newest on top)
 
+- **§6 STATUS: 2 clean specimens shipped, deep tail PARKED** (2026-07-07). §6.1
+  census + §6.2 tenure p8 (cell-split) + atlantic p7 (header bands) DONE — the two
+  specimens with concrete, engine-expressible defects, both broad wins (census
+  75/5→77/5). The remaining specimens are each DEEP re-architecture or corpus-wide
+  heuristic, PARKED with named missing levers + scouting (see PARKED): spans-pages
+  cross-page assembly (dp p40, tenure p8 merge, ~28 more), hidden-table detection
+  (tenure p54), auto-figure fallback (invest p21 + 8, scan_fallback.py), tablePin
+  consumption. baystate p12 is already guarded in-engine (the "title survives the
+  figure→table conversion" caption logic, analyze.py ~L555; + pytest snapshot).
+  These belong to §7's per-doc loop (prescribe tablePin/figure overrides) — the
+  vision loop's whole purpose is the tail no deterministic rule compresses.
 - **§6.2 atlantic p7 header bands DONE** (2026-07-07). Owner note b0399c90 ("quite
   a bit of format missing"): the "OPPORTUNITY #N" tables print a full-width RED/
   orange band as their header, but `_try_table`'s header test required EVERY column
@@ -804,6 +815,39 @@ doubt: smaller scope, PARK, keep moving.
 
 ## PARKED
 
+- [§6.2/§6.3] Spans-pages table assembly | 30 corpus tables (census reason
+  `spans-pages`) — incl. dp p40 (note 54b39020), tenure p8's "one table not two"
+  MERGE (note edd55787), tenure p8→p9 continuation — are ONE table split by a
+  column/page break; `_try_table` early-returns on `reg.get("endPage")` and reads
+  grid objects from a SINGLE page (`pages[reg["page"]]`) with one bbox | NAMED
+  MISSING LEVER: cross-page/column table assembly — gather grid rules + blocks
+  from both fragments, build a unified grid, render one <table>. Deep; high
+  regression risk to the 47 converting tables. Owner suggests a Converter Question
+  for the tenure p8 case. Route via §7 loop (tablePin) or a dedicated pass.
+- [§6.2] Hidden 2-col name table (tenure p54, note 9480e0a1) | the region is not
+  detected as a table at all (guards exist per the note) — build one where none
+  is found | NAMED MISSING LEVER: gridless-table DETECTION from aligned text
+  columns (no drawn rules), distinct from the cell-split/header fixes which act on
+  already-detected tables.
+- [§6.3] Auto-figure fallback for un-griddable tables | invest p21 (owner note
+  8dd24ee5 "should be a figure with a table in it"): a table with row rules but NO
+  vertical grid (`hlines:17, vlines:0`) fails column inference → renders as a
+  callout with columns run together ("Don't know how to apply 44% (8)37% (119)").
+  The plan's §6.3 fallback (honest image beats garbled table) applies. SCOUTED:
+  exactly 9 corpus candidates (callout reject, hlines≥3, vlines<2) — tool
+  scan_fallback.py: invest p19/p21, advancing-mobility p13/p23/p27, ecp p6,
+  good-food p10, rock-farm p22, nff p12 (the last is a CHART, must be excluded) |
+  NAMED MISSING LEVER: gated callout→figure conversion — when `_try_table` rejects
+  a row-ruled region, render `_figure_node` (crop) + a converter question instead
+  of `_aside_node`; needs text-accounting claim (figure claims the region text)
+  and a gate that excludes charts/legit callouts. Bounded (9 regions) but each
+  needs before/after eyeball; a real feature-cycle, not a one-line fix.
+- [§6.3] tablePin consumption | the schema exists (config.py DEFAULTS `tablePins`,
+  §3.3) but has no consumer, AND no clean proof-specimen (the no-grid rejects are
+  mostly charts; the real tables that fail are spans-pages, which a pin's cols
+  alone can't assemble) | NAMED MISSING LEVER: honor a tablePin in `_try_table`
+  (force table treatment + explicit `cols` cuts + `headerRows`, bypass grid
+  rejection). Wire alongside the §7 loop so it has a real pin-writer + specimen.
 - [§5.4] Rounded-corner / circle callouts | clean-air's $330M callout is a CIRCLE
   in source, rendered as a rectangle; §5.4's "rounded corners when the box path
   has arc segments" needs vector path-segment geometry that the region model does
