@@ -22,8 +22,13 @@ number this answers to is "how many pages look right." Governing memory:
   false-positives to tune prompts).
 - **Phase A (measure)** — Sonnet scanner calibrated (91.7% vs Opus, ~4× cheaper);
   corpus quick-scan over the **20 active docs** (6 batch-disabled skipped);
-  baseline published → `output/CORPUS-SCOREBOARD.md` (**11/166 = 7%** raw, before
-  owner review). Appearance categories dominate (§5-first).
+  baseline → `output/CORPUS-SCOREBOARD.md` (**15/166 = 9%** after owner review +
+  SCAN-ERR cleanup; that's the "before"). Owner reviewed (Dismiss/Misflag/misses);
+  scanner truncation bug fixed (retry). Appearance categories dominate (§5-first).
+- **Phase B started** — prioritized (owner-reviewed, today-scoped): 10 categories,
+  heavy overlap on **callout/box rendering** (color+structure+missing, ~45pp each).
+  **Fix #1 committed** (ca25670): keep-compound dehyphenation (year-on-year) —
+  analyze 213, census 79/3, pytest 33.
 
 ## Not done
 - **Phase A.3 finalize** — fold in owner review, then commit the baseline + grab
