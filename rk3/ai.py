@@ -183,20 +183,29 @@ def vision_json(system: str, user: str, image_paths, schema: dict,
     content.append({"type": "text", "text": user})
     model = model or cfg["model"]
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-    kwargs = dict(
-        model=model,
-        max_tokens=max_tokens,
-        system=system,
-        messages=[{"role": "user", "content": content}],
-        output_config={"format": {"type": "json_schema", "schema": schema}},
-    )
-    # adaptive thinking is a 4.6+ feature; Haiku 4.5 rejects it
-    if "haiku" not in model:
-        kwargs["thinking"] = {"type": "adaptive"}
-    resp = client.messages.create(**kwargs)
-    _record_usage(model, resp.usage)
-    text = next((b.text for b in resp.content if b.type == "text"), "")
-    return _parse_json(text)
+    # adaptive thinking (4.6+; Haiku 4.5 rejects it) can eat the token budget and
+    # truncate the JSON output — a "char 22" JSONDecodeError. Retry once with a
+    # bigger budget AND thinking OFF so the whole budget goes to the structured
+    # answer; that reliably completes the JSON.
+    last_err = None
+    for attempt in range(2):
+        kwargs = dict(
+            model=model,
+            max_tokens=max_tokens * (2 if attempt else 1),
+            system=system,
+            messages=[{"role": "user", "content": content}],
+            output_config={"format": {"type": "json_schema", "schema": schema}},
+        )
+        if "haiku" not in model and attempt == 0:
+            kwargs["thinking"] = {"type": "adaptive"}
+        resp = client.messages.create(**kwargs)
+        _record_usage(model, resp.usage)
+        text = next((b.text for b in resp.content if b.type == "text"), "")
+        try:
+            return _parse_json(text)
+        except (json.JSONDecodeError, ValueError) as e:
+            last_err = e
+    raise last_err
 
 
 def _openai_json(system, user, schema, model, provider, max_tokens) -> dict:
