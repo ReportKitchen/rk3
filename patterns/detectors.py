@@ -18,6 +18,17 @@ NUMBER_RE = re.compile(
     r"(?P<value>(?:[$][ ]?)?\d(?:[\d,]*\d)?(?:\.\d+)?(?:[ ]?(?:%|percent|percentage points|million|billion|thousand))?)",
     re.I,
 )
+WORD_STAT_RE = re.compile(
+    r"\b(?P<value>(?:(?:about|approximately|around|roughly|nearly|almost|over|under|less than|more than)\s+)?"
+    r"(?:one[- ]third|two[- ]thirds|one[- ]quarter|one[- ]fourth|three[- ]quarters|one[- ]half|half))\b",
+    re.I,
+)
+WORD_STAT_CONTEXT_RE = re.compile(
+    r"\b(share|portion|proportion|percent|percentage|rate|roles?|openings?|workforce|people|students|"
+    r"households|families|funders?|volunteers?|waitlist|giving|portfolio|respondents?|participants?|"
+    r"employees?|companies|requests?|births?|governments?)\b",
+    re.I,
+)
 MONEY_RE = re.compile(
     r"(?P<amount>\$\s?\d[\d,]*(?:\.\d+)?(?:\s?(?:million|billion|thousand|m|b))?|\b\d[\d,]*(?:\.\d+)?\s+(?:million|billion|thousand)\s+dollars\b)",
     re.I,
@@ -321,6 +332,37 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
                     "node": node,
                     "value": value,
                     "unit": unit,
+                    "label": label,
+                    "quote": quote,
+                })
+
+        for match in WORD_STAT_RE.finditer(text):
+            value = clean_word_stat_value(match.group("value"))
+            quote = sentence_around(text, match.start(), match.end())
+            if not evidence_leaf or not is_evidence_bearing_text(quote, node):
+                continue
+            if should_skip_word_stat(value, quote):
+                continue
+            label = infer_label(text, match.start())
+            add(
+                "statistic",
+                node,
+                {
+                    "value": value,
+                    "unit": "proportion",
+                    "label": label,
+                    "surrounding_claim": quote,
+                },
+                0.68,
+                "Worded fraction or approximate proportion in an evidence-bearing claim.",
+                quote,
+            )
+            page = node.get("page")
+            if isinstance(page, int):
+                stats_by_page[page].append({
+                    "node": node,
+                    "value": value,
+                    "unit": "proportion",
                     "label": label,
                     "quote": quote,
                 })
@@ -814,9 +856,26 @@ def should_skip_number(value: str, text: str, start: int, node: dict) -> bool:
             return True
     prefix = text[max(0, start - 16):start].lower()
     suffix = text[end:end + 16].lower()
+    if re.search(r"\bfortune\s*$", prefix):
+        return True
     if re.search(r"\b(page|p\.|section|§|usc|c\.f\.r\.)\s*\Z", prefix):
         return True
     if re.match(r"\s*(?:u\.?s\.?c\.?|c\.?f\.?r\.?|usc|cfr)\b", suffix):
+        return True
+    return False
+
+
+def clean_word_stat_value(value: str) -> str:
+    return re.sub(r"\s+", " ", (value or "").strip()).lower()
+
+
+def should_skip_word_stat(value: str, quote: str) -> bool:
+    if not value or not quote:
+        return True
+    if not WORD_STAT_CONTEXT_RE.search(quote):
+        return True
+    lowered = quote.lower()
+    if re.search(r"\b(first half|second half|half day|half-day|half hour|half-hour|half time|half-time)\b", lowered):
         return True
     return False
 

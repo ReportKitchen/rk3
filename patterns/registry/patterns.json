@@ -7,7 +7,7 @@
       "name": "Statistic",
       "layer": 0,
       "definition": "A numeric fact presented as evidence, context, trend, scale, or outcome.",
-      "positive_indicators": ["percentage", "count", "rate", "comparison"],
+      "positive_indicators": ["percentage", "count", "rate", "comparison", "worded fractions such as one-third or about half"],
       "negative_indicators": ["page number", "citation marker without surrounding evidence", "standalone year", "legal identifier", "funding amount"],
       "required_fields": ["value"],
       "optional_fields": ["unit", "label", "qualifier", "time_period", "geography", "surrounding_claim"],

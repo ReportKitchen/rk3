@@ -15,6 +15,7 @@ Do not spend findings on named entities, dates, geography, source-note reference
 Owner rubric:
 - Prefer evidence of something real in the world: actions, impacts, outcomes, funding, quoted claims, recommendations, and concrete findings.
 - For statistic, impact_statement, funding_event, and metric_cluster, require a real-world claim.
+- For statistic, return only claims whose quote contains a numeric, currency, percentage, or explicit worded fraction/proportion; populate `fields.value` whenever possible.
 - Avoid questions, prompts, hypothetical examples, URLs, footnotes/citations, publication titles, methodology/admin text, section numbers, and flattened table noise.
 - Return only findings grounded in the supplied excerpt. Quote the exact local text that supports each finding.
 - Be selective. A smaller set of high-signal findings is better than exhaustive noisy extraction.

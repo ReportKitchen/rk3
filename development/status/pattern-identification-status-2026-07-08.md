@@ -26,14 +26,16 @@ the core PDF conversion pipeline.
   `excludeFromBatch: true`.
 - Pilot LLM scans have been run for Design Principles, Clean Air, and Points of
   Light; results live in [`patterns/llm-scans/`](../../patterns/llm-scans/).
+- Owner scoring of those proposals has started surfacing actionable misses:
+  worded/approximate statistics are now treated as deterministic candidates, and
+  LLM statistics are filtered unless they carry an actual value.
 
 ## Still Undone
 
-- Review and classify the pilot LLM proposals, especially true LLM-only findings.
-- Tighten deterministic rules for recurring misses, especially word-number and
-  approximate-stat phrasing seen in Points of Light.
-- Tighten LLM scan validation so low-confidence or schema-incomplete proposals
-  such as statistics without values are filtered or marked differently.
+- Continue reviewing and classifying pilot LLM proposals beyond the first scored
+  pass, especially true LLM-only findings.
+- Decide whether report-about/report-metadata signals, such as funders of the
+  report itself, should become a separate pattern family.
 - Decide which parts of the current development LLM workflow become real
   Landing Page product workflow.
 - Expand evaluation beyond the three pilot documents once the review loop feels

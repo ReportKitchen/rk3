@@ -27,6 +27,13 @@ LANDING_SCAN_PATTERN_TYPES = {
 }
 
 
+STATISTIC_VALUE_RE = re.compile(
+    r"[$]?\d(?:[\d,]*\d)?(?:\.\d+)?|"
+    r"\b(?:one[- ]third|two[- ]thirds|one[- ]quarter|one[- ]fourth|three[- ]quarters|one[- ]half|half)\b",
+    re.I,
+)
+
+
 SCAN_SCHEMA = {
     "type": "object",
     "properties": {
@@ -194,6 +201,9 @@ def normalize_findings(
         quote = clean_excerpt_text(finding.get("quote") or "")
         if pattern_type not in allowed or not quote:
             continue
+        fields = finding.get("fields") or {}
+        if pattern_type == "statistic" and not has_statistic_value(fields, quote):
+            continue
         overlap = best_deterministic_overlap(pattern_type, quote, deterministic)
         out.append({
             "schema": 1,
@@ -203,7 +213,7 @@ def normalize_findings(
             "page": finding.get("page"),
             "quote": quote,
             "label": finding.get("label"),
-            "fields": finding.get("fields") or {},
+            "fields": fields,
             "confidence": finding.get("confidence"),
             "reason": finding.get("reason"),
             "evidence_in_real_world": finding.get("evidence_in_real_world"),
@@ -214,6 +224,14 @@ def normalize_findings(
             "deterministic_overlap": overlap,
         })
     return out
+
+
+def has_statistic_value(fields: dict[str, Any], quote: str) -> bool:
+    for key in ("value", "amount", "percentage", "share", "count", "rate"):
+        value = fields.get(key)
+        if value is not None and str(value).strip():
+            return True
+    return bool(STATISTIC_VALUE_RE.search(quote or ""))
 
 
 def best_deterministic_overlap(pattern_type: str, quote: str, candidates: list[dict[str, Any]]) -> dict[str, Any] | None:

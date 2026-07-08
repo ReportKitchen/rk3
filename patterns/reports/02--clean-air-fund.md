@@ -24,7 +24,7 @@
 - quotation: 8
 - resource: 12
 - source_note_reference: 132
-- statistic: 89
+- statistic: 91
 
 ## Review Focus
 
@@ -44,7 +44,7 @@
 - `quotation`: 8 candidate(s). Sample: BOX 5: PROJECT TYPES REQUIRED FOR EFFECTIVE ACTION ON AIR POLLUTION (AS IDENTIFIED IN OUR ANALYSIS); We [governments] recognize the urgency of taking action on climate change, and note the benefits for health from deep, rapid, and sustained reductions in greenhouse gas emissions, including from just transitions, lower air pollution, active mobility, and shifts to sustainable healthy diets11.; Prince William and The Royal Foundation established the Earthshot Prize in 2020 to address the world
 - `resource`: 12 candidate(s). Sample: Clean Air Fund | fund; Bezos Earth Fund | fund; Global Greengrants Fund | fund
 - `source_note_reference`: 132 candidate(s). Sample: At COP28, Bloomberg Philanthropies, the Clean Air Fund and C40 Cities announced a cohort of Breathe Cities1 to benefit from funding, technical support, air-quality data, community engagement, capacity building and additional assistance as....; For example, by investing in solutions to cut black carbon emissions close to cryosphere regions, such as the Arctic and the Himalayan mountains, funders can reduce emissions reaching ice caps and glaciers that are being disproportionately...; For example, a foundation might wish to focus on the 46 tropical cities in Africa, the Middle East and Asia that are each forecast to house more than 10 million people by 2100 but which have few facilities for making on-the-ground air-qual...
-- `statistic`: 89 candidate(s). Sample: 50 3 billion to more than 600 grantees in over; 600 3 billion to more than; 1% llution receive the lowest funding, with Africa and Latin America received only
+- `statistic`: 91 candidate(s). Sample: 50 3 billion to more than 600 grantees in over; 600 3 billion to more than; 1% llution receive the lowest funding, with Africa and Latin America received only
 
 ## High Confidence Candidates
 

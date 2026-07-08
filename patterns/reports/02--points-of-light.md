@@ -23,7 +23,7 @@
 - quotation: 10
 - resource: 9
 - source_note_reference: 104
-- statistic: 71
+- statistic: 75
 
 ## Review Focus
 
@@ -42,7 +42,7 @@
 - `quotation`: 10 candidate(s). Sample: Volunteers are critical in the aftermath of disasters to scale operations quickly and respond effectively.; the cycle of underinvestment in volunteering.; Volunteerism per se was not a part of the stated priorities. We funded groups based on our priorities, and while some relied on volunteers, that wasn
 - `resource`: 9 candidate(s). Sample: Strategic Volunteer Engagement Program | program; The Challenge | challenge; Salaries and Benefits Survey Report | survey
 - `source_note_reference`: 104 candidate(s). Sample: In the decade before 2019, disorders and suicidal behaviors among high school students rose by more than 40%,2 making mental health the leading cause of death and disability in this age group.; 3 In communities across the U.; One study found that approximately 22% of young people who are seeking mentorship are on a waitlist for a mentor4 – a volunteer who can make a lasting difference in their lives.
-- `statistic`: 71 candidate(s). Sample: 30 percent Yet national participation remains stagnant, hovering between 20 and; 20 Yet national participation remains stagnant, hovering between; 28 percent emains stagnant, hovering between 20 and 30 percent, with current rates at just
+- `statistic`: 75 candidate(s). Sample: 30 percent Yet national participation remains stagnant, hovering between 20 and; 20 Yet national participation remains stagnant, hovering between; 28 percent emains stagnant, hovering between 20 and 30 percent, with current rates at just
 
 ## High Confidence Candidates
 
@@ -96,12 +96,15 @@
 - `statistic` p3 `patt_05cafa88a4be` (0.72): 30 percent Yet national participation remains stagnant, hovering between 20 and | source: Yet national participation remains stagnant, hovering between 20 and 30 percent, with current rates at just 28 percent.
 - `statistic` p3 `patt_0de36c5c939d` (0.72): 20 Yet national participation remains stagnant, hovering between | source: Yet national participation remains stagnant, hovering between 20 and 30 percent, with current rates at just 28 percent.
 - `statistic` p3 `patt_3628f63f76c1` (0.72): 28 percent emains stagnant, hovering between 20 and 30 percent, with current rates at just | source: Yet national participation remains stagnant, hovering between 20 and 30 percent, with current rates at just 28 percent.
+- `statistic` p3 `patt_59360ccef6e9` (0.68): about half proportion fits continue to struggle to recruit and retain the volunteers they need – with | source: Nonprofits continue to struggle to recruit and retain the volunteers they need – with about half of critical volunteer roles going unfilled each year.
+- `statistic` p3 `patt_7d90f3c0c7b9` (0.68): one-third proportion Today | source: Today, one-third of the nonprofit workforce is comprised of volunteers.
 - `definition` p4 `patt_83ba6ce33c65` (0.62): Funding this work | source: Funding this work means helping people to find meaning and belonging, while meeting real needs.
 - `definition` p4 `patt_d656aa215862` (0.62): Supporting them | source: Supporting them means supporting the mission.
 - `named_entity` p4 `patt_cee9a80a91dc` (0.66): Global Affiliate Network | source: Building on our history of mobilizing millions through our Global Affiliate Network, we’re creating a cross-sector coalition for a national volunteer movement, bringing together partners across sectors to double the number of volunteers by...
 - `question` p4 `patt_376a5e30fc95` (0.66): What You Can Do Now
 - `impact_statement` p6 `patt_a5ceae9af6e8` (0.64): need | Volunteers don’t just fill a need; they create transformation. | source: Volunteers don’t just fill a need; they create transformation.
 - `metric_cluster` p6 `patt_38fa427fd1b2` (0.68): 2 metric(s): 40%, 22% | source: In the decade before 2019, disorders and suicidal behaviors among high school students rose by more than 40%,2 making mental health the leading cause of death and disability in this age group. One study found that approximately 22% of youn...
+- `statistic` p6 `patt_70bf32101b2c` (0.68): nearly one-third proportion In fact | source: In fact, nearly one-third of the nonprofit workforce is made up of volunteers.
 - `statistic` p6 `patt_abf086054abc` (0.72): 22% One study found that approximately | source: One study found that approximately 22% of young people who are seeking mentorship are on a waitlist for a mentor4 – a volunteer who can make a lasting difference in their lives.
 - `statistic` p6 `patt_b2fe8ddffb4f` (0.72): 40% disorders and suicidal behaviors among high school students rose by more than | source: In the decade before 2019, disorders and suicidal behaviors among high school students rose by more than 40%,2 making mental health the leading cause of death and disability in this age group.
 - `callout` p7 `patt_412e9ac4bc43` (0.66): Points of Light Spotlight “ Volunteerism is a huge element of the success of Brilliant Detroit. Many of our programs are fueled by volunteer support, including our high dosage literacy tutoring. Our goal in utilizing volunteers is to furth...
@@ -114,7 +117,7 @@
 - `statistic` p8 `patt_1b68b06180dd` (0.72): 66% han one-third of corporate employees participate in volunteer programs and over | source: Today, more than one-third of corporate employees participate in volunteer programs and over 66% of Fortune 500 companies offer paid volunteer time.
 - `statistic` p8 `patt_4837e91f9df4` (0.72): 0.54% onsored foundations, businesses and corporate giving programs combined directed | source: Our analysis found that all companysponsored foundations, businesses and corporate giving programs combined directed 0.54% of their giving directly to volunteer engagement.
 - `statistic` p8 `patt_b48917c12d1c` (0.72): 25% ort that volunteers increase the quality of services or programs provided, only | source: As an example of the misalignment driven by a lack of data on the impact of volunteers, research by the Do Good Institute found that while 72% of nonprofits surveyed report that volunteers increase the quality of services or programs provi...
-- `statistic` p8 `patt_d411bb0b1c33` (0.72): 500 f corporate employees participate in volunteer programs and over 66% of Fortune | source: Today, more than one-third of corporate employees participate in volunteer programs and over 66% of Fortune 500 companies offer paid volunteer time.
+- `statistic` p8 `patt_d3560005cfe5` (0.68): more than one-third proportion Today | source: Today, more than one-third of corporate employees participate in volunteer programs and over 66% of Fortune 500 companies offer paid volunteer time.
 - `statistic` p8 `patt_f2d7f308ebe0` (0.72): 72% on the impact of volunteers, research by the Do Good Institute found that while | source: As an example of the misalignment driven by a lack of data on the impact of volunteers, research by the Do Good Institute found that while 72% of nonprofits surveyed report that volunteers increase the quality of services or programs provi...
 - `impact_statement` p9 `patt_0bb390f7a8a1` (0.68): impact | $915.7 billion | 7 of $915.7 billion) of these funders’ total giving was directed specifically to volunteer engagement. | source: 7 of $915.7 billion) of these funders’ total giving was directed specifically to volunteer engagement.
 - `impact_statement` p9 `patt_9ac6c40aaf4e` (0.64): impact | These findings point to what we are calling “the cycle of underinvestment in volunteering.” From a nonprofit and intermediary perspective, the lack of high-quality data on the impact and costs of volunteering, along wit... | source: These findings point to what we are calling “the cycle of underinvestment in volunteering.” From a nonprofit and intermediary perspective, the lack of high-quality data on the impact and costs of volunteering, along wit...
@@ -126,9 +129,6 @@
 - `statistic` p9 `patt_2dff24587a69` (0.72): 0.25% and community foundations, gave at slightly higher levels, but still less than | source: Smaller family foundations, and community foundations, gave at slightly higher levels, but still less than 0.25% of their total giving.
 - `statistic` p9 `patt_3eab5dc431b7` (0.72): 10 10 The | source: 10 The 10 largest (ranked by total giving) independent and operating foundations allocated an even smaller portion – just 0.
 - `statistic` p9 `patt_63141e47adeb` (0.72): 10 07% of their portfolios – and the | source: 07% of their portfolios – and the 10 largest family foundations allocated only 0.
-- `statistic` p9 `patt_95ad046ebe16` (0.72): 0.19% From 2016 to 2025, only | source: From 2016 to 2025, only 0.19% (or $1.
-- `statistic` p9 `patt_bd3aa5014246` (0.72): 0.03% 07% of their portfolios – and the 10 largest family foundations allocated only | source: 07% of their portfolios – and the 10 largest family foundations allocated only 0.03%.
-- `statistic` p9 `patt_e0a307b7a165` (0.72): 0.07% independent and operating foundations allocated an even smaller portion – just | source: 10 The 10 largest (ranked by total giving) independent and operating foundations allocated an even smaller portion – just 0.07% of their portfolios – and the 10 largest family foundations allocated only 0.
 
 ## Reviewer Questions
 
