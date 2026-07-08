@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 212
+VERSION = 213
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -5301,6 +5301,19 @@ def _caps_wrap_joins(ctx, out, t):
                     zipf_frequency(b.lower(), "en")) < 4.0)
 
 
+def _compound_wrap_keep(ctx, out, t):
+    """A lowercase 'X-' + line break where the continuation is ITSELF hyphenated
+    ('on-year') and X + that token is a compound the doc writes WITH its hyphens
+    (clean-air 'year-|on-year' -> 'year-on-year') — KEEP the break hyphen instead
+    of dropping it as a soft wrap. Requires doc evidence (hyph_vocab), so a normal
+    broken word ('govern-|ment', unhyphenated continuation) never matches."""
+    a = re.search(r"([A-Za-z]+)-$", out)
+    b = re.match(r"[A-Za-z]+(?:-[A-Za-z]+)+", t)
+    if not a or not b:
+        return False
+    return (a.group(1) + "-" + b.group(0)).lower() in getattr(ctx, "hyph_vocab", ())
+
+
 def _join_block(ctx, blk, link_colors=()):
     """Join a block's lines into flowing text, dehyphenating soft wraps and
     carrying per-line superscript/link char ranges into the joined offsets.
@@ -5344,7 +5357,12 @@ def _build_runs(ctx, blk, lines, blk_font, link_colors=()):
 
     for l in lines:
         t = l["text"]
-        if out.endswith("-") and t[:1].islower():
+        if out.endswith("-") and t[:1].islower() and _compound_wrap_keep(ctx, out, t):
+            ctx.log.entry("dehyphenate-keep-compound", page=blk["page"],
+                          joined=out[-12:] + "|" + t[:12], block=blk["rk"])
+            base = len(out)
+            out = out + t
+        elif out.endswith("-") and t[:1].islower():
             ctx.log.entry("dehyphenate", page=blk["page"],
                           joined=out[-12:] + "|" + t[:12], block=blk["rk"])
             base = len(out) - 1
