@@ -257,7 +257,12 @@ def token_overlap_score(left: str, right: str) -> float:
     right_tokens = set(tokens(right))
     if not left_tokens or not right_tokens:
         return 0.0
-    return len(left_tokens & right_tokens) / len(left_tokens | right_tokens)
+    shared = len(left_tokens & right_tokens)
+    jaccard = shared / len(left_tokens | right_tokens)
+    if min(len(left_tokens), len(right_tokens)) >= 4:
+        containment = shared / min(len(left_tokens), len(right_tokens))
+        return max(jaccard, containment * 0.85)
+    return jaccard
 
 
 def tokens(text: str) -> list[str]:
