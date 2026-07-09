@@ -1,56 +1,48 @@
-# Webified — Cycle 3 status (2026-07-08)
+# Webified — Cycle 3 status (COMPLETE 2026-07-09)
 
-Brief status for the conversion-QA track (the "webified" plan). Detail lives in
-the referenced docs — this is just the map.
+Conversion-QA track ("webified" plan). Detail lives in the referenced docs +
+the `webified-track` memory; this is the map.
 
 ## Task
-Execute **Cycle 3** of `sources/docs/plans/webified.md` (the CYCLE 3 DIRECTIVE at
-the top of that file): **measure first → fix by frequency → hard stop**. The
-number this answers to is "how many pages look right." Governing memory:
-`webified-track` (memory dir). Not this track: `patterns/` (other agent).
+Execute **Cycle 3** of `sources/docs/plans/webified.md` (the CYCLE 3 DIRECTIVE):
+**measure first → fix by frequency → hard stop**. The number this answers to is
+"how many pages look right." Not this track: `patterns/` (other agent).
 
-## Done
-- **Owner-audit fixes** (the QA surface was lying / the scanner was weak) — all
-  committed: honest scan-log (green needs a *recorded* scan), scanner hunts for
-  duplicate-content + wrong-fill, prompts moved to a deployable `prompts/` folder,
-  scanner now reads a **distilled** rubric (not the raw design doc
-  `sources/docs/conversion-rubric.md`), rubric judges only what's visible +
-  duplication measured against the original.
-- **Owner quick-hits** — committed: PDF-Metadata Pages+Images columns;
-  `excludeFromBatch` flag + toggle (skip big docs from batch, still manual);
-  DocList "Disabled" section; **Misflag** disposition (track scanner
-  false-positives to tune prompts).
-- **Phase A (measure)** — Sonnet scanner calibrated (91.7% vs Opus, ~4× cheaper);
-  corpus quick-scan over the **20 active docs** (6 batch-disabled skipped);
-  baseline → `output/CORPUS-SCOREBOARD.md` (**15/166 = 9%** after owner review +
-  SCAN-ERR cleanup; that's the "before"). Owner reviewed (Dismiss/Misflag/misses);
-  scanner truncation bug fixed (retry). Appearance categories dominate (§5-first).
-- **Phase B started** — prioritized (owner-reviewed, today-scoped): 10 categories,
-  heavy overlap on **callout/box rendering** (color+structure+missing, ~45pp each).
-  **Fix #1 committed** (ca25670): keep-compound dehyphenation (year-on-year) —
-  analyze 213, census 79/3, pytest 33.
+## Done — CYCLE 3 COMPLETE
+- **Phase A (measure):** Sonnet scanner calibrated (91.7% vs Opus, ~4× cheaper);
+  honest scan-log (green = *recorded* scan + zero open medium+ error); prompts in a
+  deployable `prompts/` folder reading a distilled rubric; scanner hunts
+  duplicate-content + wrong-fill. Baseline **15/166 = 9%** over 20 active docs →
+  `output/CORPUS-SCOREBOARD.md`. Owner-audit fixes + quick-hits committed.
+- **Phase B (fix by frequency) — 4 fixes shipped, all gated (census 79/3,
+  pytest 33/33) + eyeballed:**
+  1. dehyphenation (`ca25670`, analyze 213)
+  2. image-grounded callout fill — the "brown box" lever (`a0be025`, analyze 214;
+     38 fixes / 10 docs)
+  3. drop-cap all-caps false-positive — edf's whole body was SHOUTED (`71042ac`,
+     assemble 53)
+  4. reader-chrome removal — footnote-mismatch QA banner (~6 docs) + flipbook nav
+     bar (`92db61a`, analyze 215 / render 86)
+- **Phase C (re-measure + STOP):** re-scanned the 21 fix-touched pages
+  (same model as baseline). **Medium+ findings 79 → 58 (27% cleared)**; pages fully
+  green 0/21 → 1/21. Residual is dominated by DEEP FEATURES (dedup, tables,
+  figure-recovery, reading-order). Pass-rate ~9% → ~9.6% (<2 pts) → **STOPPING RULE
+  DECLARED** (the directive's success condition). Close-out: the Phase C section of
+  `output/CORPUS-SCOREBOARD.md`.
 
-## Not done
-- **Phase A.3 finalize** — fold in owner review, then commit the baseline + grab
-  the representative gallery shots.
-- **Phase B (fix by frequency)** — prioritize by pages-affected ÷ effort; new
-  lever only if ≥5 pages blocked.
-- **Phase C (re-measure + STOPPING RULE)** — the directive's hard stop at
-  diminishing returns.
-- **Parked engine defects** (Phase B candidates, root-caused): titled-callout
-  fill (header-strip vs body), duplicate-heading (dedup). See conversation +
+## Deferred (named, not lost)
+- **Dedup via on-demand OCR** — the biggest category (~40 CRITICAL: text baked into
+  a raster AND extracted live). A heuristic proved UNSAFE (would delete real charts +
+  photos). Needs OCR to confirm an image contains the same text.
+  → `development/status/ocr-baked-text-deferred.md` (owner-requested capability).
+- **Callout header-strip modeling** (Phase 2 of fix #2): boxes now render white-body +
+  colored border but lose the colored title bar.
+- **Table-structure assembly, figure-recovery, deep reading-order** — dedicated
+  engine projects, each regression-risky, each parked with exemplars in
   `webified-track` memory.
+- **emphasis-style / spacing long-tails** — low-severity, heterogeneous; not pursued
+  under the hard-stop rule.
 
-## Next steps
-1. Owner reviews the scanned docs: Dismiss false positives, **Misflag** scanner
-   errors, add misses via Feedback.
-2. On owner **"go"**: finalize/commit baseline; produce the prioritized fix list
-   (open + misses, minus dismissed/misflagged) + a separate misflag→prompt-tuning
-   list.
-3. Phase B fixes, verify-re-scan per category; Phase C re-measure; call the stop.
-
-## Need from you
-- Finish the review pass and say **"go."**
-- Confirm: set aside the **437 pre-today owner comments** (historical backlog) for
-  this prioritization? (Default: yes — out of scope by date, untouched in the
-  store.)
+## Needs from owner (to reopen)
+- Green-light one of the deferred DEEP features as a dedicated next pass (OCR-dedup is
+  the highest-leverage). Otherwise cycle 3 is closed.
