@@ -53,6 +53,21 @@ BROAD_FUNDING_SUMMARY_RE = re.compile(
     r"\b(total|known funding|average grant size|average amount of annual foundation funding|capital backlog|economic impact|funding went to|funding to projects|funding channelled|level of funding|created over|generated over|invested nearly|foundation funding was invested|grant funding awarded|grant success rate|median amount|annual expenses|annual grantmaking|top-funded|outliers)\b",
     re.I,
 )
+REPORT_METADATA_RE = re.compile(
+    r"\b("
+    r"support for (?:this|the) report was provided by|"
+    r"(?:this|the) report (?:has been |was )?made possible by|"
+    r"(?:this|the) (?:report|project|work) (?:has been |was )?supported by|"
+    r"work on (?:this|the) project (?:has been |was )?supported by|"
+    r"core operating support .*? is provided by|"
+    r"generous pro bono support|"
+    r"generous data sharing|"
+    r"contributors include|"
+    r"graphics and layout by|"
+    r"writer:"
+    r")\b",
+    re.I,
+)
 IMPACT_STATEMENT_RE = re.compile(
     r"\b(created|generated|helped|served|reached|touched|built|produced|preserved|provided|invested|awarded|funded|reduced|increased|improved|needed|needs|need|backlog|impact)\b",
     re.I,
@@ -206,6 +221,17 @@ def detect(ir: dict, document_id: str, registry: dict[str, dict]) -> list[dict[s
                 0.82,
                 "Legal citation, bill number, or statutory subsection.",
                 sentence_around(text, match.start(), match.end()),
+            )
+
+        report_metadata = find_report_metadata(text) if evidence_leaf else None
+        if report_metadata:
+            add(
+                "report_metadata",
+                node,
+                report_metadata,
+                0.76,
+                "Document-level fact about report support, production, or provenance.",
+                report_metadata["value"],
             )
 
         for match in MONEY_RE.finditer(text):
@@ -1147,11 +1173,68 @@ def is_funding_context(text: str) -> bool:
 
 def is_discrete_funding_event(text: str) -> bool:
     text = text or ""
+    if find_report_metadata(text):
+        return False
     if BROAD_FUNDING_SUMMARY_RE.search(text):
         return False
     if re.search(r"\b(should|recommend|raise the guarantee cap|annually|increased investment of|increase investment of)\b", text, re.I):
         return False
     return bool(DISCRETE_FUNDING_ACTION_RE.search(text))
+
+
+def find_report_metadata(text: str) -> dict[str, Any] | None:
+    quote = clean_quote(text, 400)
+    if not quote or len(quote) < 20:
+        return None
+    if is_citation_like_text(quote) or is_url_like_text(quote) or is_question_evidence_text(quote):
+        return None
+    if not REPORT_METADATA_RE.search(quote):
+        return None
+    return {
+        "metadata_type": infer_report_metadata_type(quote),
+        "value": quote,
+        "entities": entities_in_text(quote),
+        "role": infer_report_metadata_role(quote),
+        "applies_to": infer_report_metadata_applies_to(quote),
+        "note": None,
+    }
+
+
+def infer_report_metadata_type(text: str) -> str:
+    lowered = (text or "").lower()
+    if any(term in lowered for term in ("writer:", "contributors include", "graphics and layout by")):
+        return "production_credit"
+    if any(term in lowered for term in ("data sharing", "data collected by")):
+        return "data_or_research_support"
+    if any(term in lowered for term in ("support", "supported by", "made possible by")):
+        return "supporter"
+    return "report_context"
+
+
+def infer_report_metadata_role(text: str) -> str | None:
+    lowered = (text or "").lower()
+    if "pro bono support" in lowered:
+        return "pro_bono_supporter"
+    if "data sharing" in lowered or "data collected by" in lowered:
+        return "data_provider"
+    if "graphics and layout" in lowered:
+        return "designer"
+    if "writer:" in lowered:
+        return "writer"
+    if "contributors include" in lowered:
+        return "contributor"
+    if "support" in lowered or "made possible" in lowered:
+        return "supporter"
+    return None
+
+
+def infer_report_metadata_applies_to(text: str) -> str:
+    lowered = (text or "").lower()
+    if "project" in lowered:
+        return "project"
+    if "work" in lowered:
+        return "work"
+    return "report"
 
 
 def legal_reference_near(text: str, start: int) -> bool:

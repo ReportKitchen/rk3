@@ -4,7 +4,7 @@
 - title: PHILANTHROPIC FOUNDATION FUNDING FOR CLEAN AIR
 - pages: 36
 - irVersion: 1
-- convertedAt: 2026-07-07T17:29:33.194746+00:00
+- convertedAt: 2026-07-08T18:24:01.957635+00:00
 
 ## Inventory
 
@@ -22,6 +22,7 @@
 - purpose_statement: 2
 - question: 2
 - quotation: 8
+- report_metadata: 2
 - resource: 12
 - source_note_reference: 132
 - statistic: 91
@@ -42,6 +43,7 @@
 - `purpose_statement`: 2 candidate(s). Sample: Philanthropy can play a powerful role in sparking the world’s collective imagination and driving the mindset of urgent action and optimism.; Among international organisations and institutions, there is evidence of increasing awareness of the need to tackle issues of air pollution, health, climate change and social justice together but it is early days.
 - `question`: 2 candidate(s). Sample: What do we mean by philanthropic funding?; HOW REDUCING AIR POLLUTION DRIVES HEALTH GAINS
 - `quotation`: 8 candidate(s). Sample: BOX 5: PROJECT TYPES REQUIRED FOR EFFECTIVE ACTION ON AIR POLLUTION (AS IDENTIFIED IN OUR ANALYSIS); We [governments] recognize the urgency of taking action on climate change, and note the benefits for health from deep, rapid, and sustained reductions in greenhouse gas emissions, including from just transitions, lower air pollution, active mobility, and shifts to sustainable healthy diets11.; Prince William and The Royal Foundation established the Earthshot Prize in 2020 to address the world
+- `report_metadata`: 2 candidate(s). Sample: This report has been made possible by the generous data sharing of ClimateWorks Foundation and other leading foundations, as well as data collected by partners such as Candid. Thank you to Accenture for their generous pro bono support, and their temporary secondment of Bettina Lauk to support the data collection and analysis.; Writer: Carolyn Fry; Contributors include: Olivia Sweeney, Tom Grylls, Bettina Lauk, Areeshya Thevamanohar, Sue Wixley, Sean Maguire, Nina Renshaw, Tom Stevenson, Rosie Childs and Lorriann Robinson. Graphics and layout by Sandra Dudley.
 - `resource`: 12 candidate(s). Sample: Clean Air Fund | fund; Bezos Earth Fund | fund; Global Greengrants Fund | fund
 - `source_note_reference`: 132 candidate(s). Sample: At COP28, Bloomberg Philanthropies, the Clean Air Fund and C40 Cities announced a cohort of Breathe Cities1 to benefit from funding, technical support, air-quality data, community engagement, capacity building and additional assistance as....; For example, by investing in solutions to cut black carbon emissions close to cryosphere regions, such as the Arctic and the Himalayan mountains, funders can reduce emissions reaching ice caps and glaciers that are being disproportionately...; For example, a foundation might wish to focus on the 46 tropical cities in Africa, the Middle East and Asia that are each forecast to house more than 10 million people by 2100 but which have few facilities for making on-the-ground air-qual...
 - `statistic`: 91 candidate(s). Sample: 50 3 billion to more than 600 grantees in over; 600 3 billion to more than; 1% llution receive the lowest funding, with Africa and Latin America received only
@@ -50,6 +52,8 @@
 
 - `date_time_period` p2 `patt_1815823324b9` (0.78): 2008 | source: Since 2008, ClimateWorks has granted over $1.
 - `funding_event` p2 `patt_69940b1a7a79` (0.76): $1.3 billion | source: Since 2008, ClimateWorks has granted over $1.3 billion to more than 600 grantees in over 50 countries.
+- `report_metadata` p2 `patt_013708c135da` (0.76): This report has been made possible by the generous data sharing of ClimateWorks Foundation and other leading foundations, as well as data collected by partners such as Candid. Thank you to Accenture for their generous pro bono support, and their temporary secondment of Bettina Lauk to support the data collection and analysis. | source: This report has been made possible by the generous data sharing of ClimateWorks Foundation and other leading foundations, as well as data collected by partners such as Candid. Thank you to Accenture for their generous pro bono support, and...
+- `report_metadata` p2 `patt_e1868c34cb6e` (0.76): Writer: Carolyn Fry; Contributors include: Olivia Sweeney, Tom Grylls, Bettina Lauk, Areeshya Thevamanohar, Sue Wixley, Sean Maguire, Nina Renshaw, Tom Stevenson, Rosie Childs and Lorriann Robinson. Graphics and layout by Sandra Dudley.
 - `date_time_period` p4 `patt_228397e058d3` (0.78): 2015 | source: A total of $330 million of known funding went to air-quality projects between 2015 and 2022.
 - `date_time_period` p4 `patt_3171d5a9f3ca` (0.78): 2022 | source: However, the level of funding from foundations to air quality in 2022, estimated at $71.
 - `date_time_period` p4 `patt_3936d55eef39` (0.78): 2021 | source: In 2021 and 2022, more than $30 million of philanthropic foundation funding was invested through re-granters.
@@ -86,8 +90,6 @@
 - `date_time_period` p12 `patt_c58bf27f3544` (0.78): 2023 | source: For example, unprecedented wildfires in Canada in 2023 caused an increase in harmful pollutants, notably PM2.
 - `source_note_reference` p12 `patt_15a2a85c2403` (0.92): Those who are pregnant, as well as newborns and children, face distinct risks from climate change-related health impacts, due to a host of physiological, clinical, social and behavioural factors22.
 - `source_note_reference` p12 `patt_25b4fcabb7d1` (0.92): 2 years globally20, nine out of 10 deaths attributable to outdoor air pollution are in low- and middle-income countries (LMICs)21.
-- `source_note_reference` p12 `patt_2f6ce432dae7` (0.92): Here, too, there are close links with climate change, where the poorest and most vulnerable people bear the brunt of multiple climate shocks but contribute the least to the crisis24.
-- `source_note_reference` p12 `patt_568ae0b3f83b` (0.92): Long-term exposure can cause serious medical conditions, such as cancer, heart attacks, diabetes and strokes14.
 
 ## Lower Confidence Candidates
 

@@ -29,13 +29,15 @@ the core PDF conversion pipeline.
 - Owner scoring of those proposals has started surfacing actionable misses:
   worded/approximate statistics are now treated as deterministic candidates, and
   LLM statistics are filtered unless they carry an actual value.
+- `report_metadata` now separates facts about the report/work itself, such as
+  supporters or production credits, from real-world `funding_event` findings.
 
 ## Still Undone
 
 - Continue reviewing and classifying pilot LLM proposals beyond the first scored
   pass, especially true LLM-only findings.
-- Decide whether report-about/report-metadata signals, such as funders of the
-  report itself, should become a separate pattern family.
+- Broaden `report_metadata` beyond the first supporter/production-credit rules
+  once more report-about examples appear in owner review.
 - Decide which parts of the current development LLM workflow become real
   Landing Page product workflow.
 - Expand evaluation beyond the three pilot documents once the review loop feels

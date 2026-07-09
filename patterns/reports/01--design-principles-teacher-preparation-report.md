@@ -4,7 +4,7 @@
 - title: Acknowledgments
 - pages: 81
 - irVersion: 1
-- convertedAt: 2026-07-07T17:33:43.162059+00:00
+- convertedAt: 2026-07-08T18:22:32.016743+00:00
 
 ## Inventory
 
@@ -20,6 +20,7 @@
 - question: 42
 - question_list: 1
 - quotation: 74
+- report_metadata: 1
 - resource: 9
 - source_note_reference: 222
 - statistic: 32
@@ -38,6 +39,7 @@
 - `question`: 42 candidate(s). Sample: Before students split into their groups, Lily asks, “What does it mean to work in a group?; At this stage, the teacher candidates gather a clip of their own teaching, and then they ask, “What is the thing that I want my peers to help me think about?; How many Halloween pencils does she have?
 - `question_list`: 1 candidate(s). Sample: How did your content area influence your action research projects? What do you notice about the role of content in your projects? What kinds of challenges did you encounter? How did you manage them? What are the next steps for how you use...
 - `quotation`: 74 candidate(s). Sample: Mrs. Lily is out of storage on her iPad. She needs to delete 157 MB to upload her newest lesson on problem-solving.; You need to delete 157 MB.; What does it mean to work in a group? What is one thing we need to do when we
+- `report_metadata`: 1 candidate(s). Sample: The EdPrepLab’s work on this project has been supported by the Carnegie Corporation of New York, Skyline Foundation, Spencer Foundation, and W. Clement & Jessie V. Stone Foundation. Additional core operating support for LPI is provided by the Heising-Simons Foundation, William and Flora Hewlett Foundation, Raikes Foundation, Sandler Foundation, and MacKenzie Scott. We are grateful to them for the...
 - `resource`: 9 candidate(s). Sample: University of Chicago Urban Teacher Residency Program | program; Connecticut Teacher Residency Program | program; Making Space for Students’ Sense-Making Resources | resource
 - `source_note_reference`: 222 candidate(s). Sample: Recent syntheses of this research and its implications for educational practice, published in a series of articles in Applied Developmental Science,1 as well as recent syntheses of advances in the learning sciences,2 have pointed to import...; 3 These adverse childhood experiences can create toxic stress that affects attention, engagement, learning, and behavior.; 4 Schools can also be designed to provide communitywide supports that mitigate adverse environmental conditions beyond the school walls that impact children.
 - `statistic`: 32 candidate(s). Sample: 46% Each year in the United States, about; 47 She explains that on her iPad, a picture uses 10 MB, an old lesson uses; 20 om of 60 students (taught by Lily and her two mentor teachers), she is engaging
@@ -45,6 +47,7 @@
 ## High Confidence Candidates
 
 - `date_time_period` p2 `patt_10b40d4b4b9e` (0.78): July 10, 2025 | source: Document last revised July 10, 2025
+- `report_metadata` p3 `patt_a6e0ac8ef0f5` (0.76): The EdPrepLab’s work on this project has been supported by the Carnegie Corporation of New York, Skyline Foundation, Spencer Foundation, and W. Clement & Jessie V. Stone Foundation. Additional core operating support for LPI is provided by the Heising-Simons Foundation, William and Flora Hewlett Foundation, Raikes Foundation, Sandler Foundation, and MacKenzie Scott. We are grateful to them for the... | source: The EdPrepLab’s work on this project has been supported by the Carnegie Corporation of New York, Skyline Foundation, Spencer Foundation, and W. Clement & Jessie V. Stone Foundation. Additional core operating support for LPI is provided by...
 - `date_time_period` p10 `patt_3f7474a97839` (0.78): 2024 | source: (2024).
 - `source_note_reference` p14 `patt_1011df4edf31` (0.92): Recent syntheses of this research and its implications for educational practice, published in a series of articles in Applied Developmental Science,1 as well as recent syntheses of advances in the learning sciences,2 have pointed to import...
 - `source_note_reference` p14 `patt_409321780901` (0.92): 3 These adverse childhood experiences can create toxic stress that affects attention, engagement, learning, and behavior.
@@ -83,7 +86,6 @@
 - `source_note_reference` p33 `patt_88eef52716cc` (0.92): Students often placed at risk in school and society—children of color, those from low-income families, and those with learning differences—were harmed most by negative teacher affect and benefited most from positive relationships with teac...
 - `date_time_period` p35 `patt_3675de723044` (0.78): 2020 | source: (2020).
 - `question` p35 `patt_094aa2c013e0` (0.82): What is the CASEL Framework?
-- `source_note_reference` p35 `patt_322e886b819e` (0.92): Cognitive skills such as problem-solving, perspective taking, and executive function interact with emotional skills such as emotion recognition, empathy, and emotion regulation, and with social skills, including cooperation, helping, and c...
 
 ## Lower Confidence Candidates
 

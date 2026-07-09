@@ -4,7 +4,7 @@
 - title: Three Ways Foundations Can Invest in Black-Led Nonprofits for Lasting Change
 - pages: 54
 - irVersion: 1
-- convertedAt: 2026-07-07T17:33:43.181804+00:00
+- convertedAt: 2026-07-08T18:26:24.416733+00:00
 
 ## Inventory
 
@@ -15,15 +15,16 @@
 - geography_place: 3
 - impact_statement: 36
 - key_finding: 2
-- metric_cluster: 23
+- metric_cluster: 25
 - named_entity: 7
 - process_step_list: 3
 - purpose_statement: 2
 - question: 49
 - question_list: 6
 - quotation: 108
+- report_metadata: 1
 - source_note_reference: 10
-- statistic: 144
+- statistic: 151
 
 ## Review Focus
 
@@ -34,21 +35,23 @@
 - `geography_place`: 3 candidate(s). Sample: United States; United States; United States
 - `impact_statement`: 36 candidate(s). Sample: impact | $7,214,399,690 | Grant funding awarded $979,979,199 $7,214,399,690; impact | $1 million | , total annual grantmaking greater than $1 million) than foundations that did not fund Black-led nonprofits.; impact | $979,979,199 | Grant funding awarded $979,979,199 $7,214,399,690
 - `key_finding`: 2 candidate(s). Sample: Key findings; Small Black-led nonprofits experienced a different reality.
-- `metric_cluster`: 23 candidate(s). Sample: 4 metric(s): 627, 246, 24, 3,642; 3 metric(s): 70%, 54%, 34%; 3 metric(s): 48 million, 51%, 51%
+- `metric_cluster`: 25 candidate(s). Sample: 4 metric(s): 627, 246, 24, 3,642; 3 metric(s): 70%, 54%, 34%; 3 metric(s): 48 million, 51%, 51%
 - `named_entity`: 7 candidate(s). Sample: Interview and focus group methodology: Foundation representatives; GuideStar and Foundation Center; Association of Black Foundation Executives
 - `process_step_list`: 3 candidate(s). Sample: 3 step(s): Financial support: the money that nonprofits need to accomplish their work; Social support: the relationships that help nonprofits thrive; Human-centered support: the resources that nonprofit staff need to be healthy and carry out mission-driven work at full capacity; 3 step(s): Financial support: the money that nonprofits need to accomplish their work; Social support: the relationships that help nonprofits thrive; Human-centered support: the resources that nonprofit staff need to be healthy and carry out mission-driven work at full capacity; 3 step(s): between Black-led and other nonprofits; among different-sized nonprofits; as an interaction between nonprofit type and nonprofit size.
 - `purpose_statement`: 2 candidate(s). Sample: Following George Floyd’s murder and heightened focus on racial equity in 2020, many foundations pledged support for Black communities; similarly, many also increased giving to address pandemic-related urgent needs.; Current challenges in the philanthropic landscape inevitably make systemic change more difficult, but also more urgent.
 - `question`: 49 candidate(s). Sample: But how much really changed, and who did it change for?; Definition: What is a Black-led nonprofit?; Has foundations’ support for Black-led nonprofits waned in the years following the call for racial justice in 2020?
 - `question_list`: 6 candidate(s). Sample: How many Black-led nonprofits have received grants from foundations? How much financial support have Black-led nonprofits received from foundations? How many foundations award grants to Black-led nonprofits? What proportion of Black-led no...; What percentage of Black-led nonprofits’ funding comes from existing foundation partners (as opposed to new funders)? How many funders do Black-led nonprofits typically have in a given year? How many Black-led nonprofits are supported by o...; What burdens do funder practices impose on Black-led nonprofits? What can foundations do to support the well-being of Black-led nonprofit leader and staff?
 - `quotation`: 108 candidate(s). Sample: I don’t want to just get a grant. I want to sustain the grant... but if I don’t get the support I need, that i s j u st n ot go i n g to happen.; When funders want to support your work and they truly believe in what you’re doing, they work very diligently and explicitly to eliminate barriers.; There is something about trusting us to be able to do the work that we have already determined in partnership with community. This is what community wants and needs.
+- `report_metadata`: 1 candidate(s). Sample: Support for this report was provided by the Robert Wood Johnson Foundation. The views expressed here do not necessarily reflect the views of the foundation. Additionally, we would like to thank the nonprofit leaders and foundation representatives who shared their experiences with us and provided the data for this report.
 - `source_note_reference`: 10 candidate(s). Sample: In total, we analyzed:1; Compared to other nonprofits, Black-led nonprofits in our sample were more likely to be in the human services subsector, located in the South, founded in 2010 or later, and have smaller operating budgets.; 3 Mirroring the sector, over three-quarters (76%) of Black-led nonprofits in our sample were small organizations.
-- `statistic`: 144 candidate(s). Sample: 4.0 This work is licensed under a Creative Commons Attribution NoDerivatives; 24 Interviews with; 627 Historical grants data (2016-2023) for
+- `statistic`: 151 candidate(s). Sample: 4.0 This work is licensed under a Creative Commons Attribution NoDerivatives; 24 Interviews with; 627 Historical grants data (2016-2023) for
 
 ## High Confidence Candidates
 
 - `date_time_period` p2 `patt_63699ffaaee6` (0.78): 2019 | source: Candid was formed in 2019 when GuideStar and Foundation Center merged.
 - `date_time_period` p2 `patt_77266e69bb00` (0.78): 2026 | source: ©2026 Candid and ABFE.
 - `date_time_period` p2 `patt_b4d1f16e8bd2` (0.78): 1971 | source: Established in 1971 as the Association of Black Foundation Executives, the organization was credited with many of philanthropy’s early gains in diversity.
+- `report_metadata` p2 `patt_39b647248055` (0.76): Support for this report was provided by the Robert Wood Johnson Foundation. The views expressed here do not necessarily reflect the views of the foundation. Additionally, we would like to thank the nonprofit leaders and foundation representatives who shared their experiences with us and provided the data for this report. | source: Support for this report was provided by the Robert Wood Johnson Foundation. The views expressed here do not necessarily reflect the views of the foundation. Additionally, we would like to thank the nonprofit leaders and foundation represen...
 - `date_time_period` p3 `patt_5319d8bb7e5c` (0.78): 2025 | source: This report is a companion piece to ABFE and Candid’s 2025 report Holding the Line: Black-Led Nonprofits and Race-Explicit Work Amid Backlash.
 - `date_time_period` p5 `patt_3a73693b5e75` (0.78): 2016-2023 | source: Historical grants (2016-2023) and survey data for 3,642 other nonprofits
 - `date_time_period` p5 `patt_a63eee166d2b` (0.78): 2020 | source: Then, in 2020, racial justice uprisings led to broad philanthropic commitments to support Black-led organizations and their communities.
@@ -85,7 +88,6 @@
 - `date_time_period` p12 `patt_382e76bfc4cb` (0.78): 2022 | source: Survey data about nonprofit funding strategies, including data from 246 Blackled nonprofits and 3,642 other nonprofits about their funding models and grant application success in 2021, 2022, and 2023
 - `date_time_period` p12 `patt_70008ac31b25` (0.78): 2024 | source: One Black leader described their experience of having foundation funding rescinded in 2024 and the implications for their organization’s future.
 - `date_time_period` p12 `patt_cd49152d1583` (0.78): 2023 | source: Survey data about nonprofit funding strategies, including data from 246 Blackled nonprofits and 3,642 other nonprofits about their funding models and grant application success in 2021, 2022, and 2023
-- `date_time_period` p12 `patt_ded148b5092a` (0.78): 2023 | source: Private foundation grants, including grants awarded to 627 Black-led nonprofits and 3,642 other nonprofits between 2016 to 2023 (based on Candid’s grants data)
 
 ## Lower Confidence Candidates
 
@@ -107,6 +109,7 @@
 - `metric_cluster` p6 `patt_d8f0c8b22d68` (0.68): 3 metric(s): 70%, 54%, 34% | source: On average, half of Black-led nonprofits received a foundation grant in a given year compared with 70% of other nonprofits. They also received a smaller percentage of the grants they applied for, being awarded 54% of total grants applied f...
 - `statistic` p6 `patt_35fdfb941815` (0.72): 54% lso received a smaller percentage of the grants they applied for, being awarded | source: They also received a smaller percentage of the grants they applied for, being awarded 54% of total grants applied for and the smallest nonprofits awarded only 34%.
 - `statistic` p6 `patt_482589eec5d3` (0.72): 70% Black-led nonprofits received a foundation grant in a given year compared with | source: On average, half of Black-led nonprofits received a foundation grant in a given year compared with 70% of other nonprofits.
+- `statistic` p6 `patt_687beac8fded` (0.68): nearly half proportion | source: Nearly half had only one funder at a time.
 - `statistic` p6 `patt_b619187f5305` (0.72): 34% warded 54% of total grants applied for and the smallest nonprofits awarded only | source: They also received a smaller percentage of the grants they applied for, being awarded 54% of total grants applied for and the smallest nonprofits awarded only 34%.
 - `question` p7 `patt_1a8f51679949` (0.66): How to read this report
 - `quotation` p7 `patt_ea10170d1cea` (0.70): Implications for foundations | source: “Implications for foundations”
@@ -128,7 +131,6 @@
 - `statistic` p10 `patt_1708033e1c77` (0.72): 68% Founded in 2010 or later | source: Founded in 2010 or later 68% 41%
 - `statistic` p10 `patt_225e6f694825` (0.72): 3,642 Historical grants data (2016-2023) for | source: Historical grants data (2016-2023) for 3,642 other (i.
 - `statistic` p10 `patt_37a3f29b261a` (0.72): 246 Survey questionnaires from | source: Survey questionnaires from 246 representatives of Black-led nonprofits
-- `statistic` p10 `patt_38126288cae4` (0.72): 62% Operating budget under $1 million 76% | source: Operating budget under $1 million 76% 62%
 
 ## Reviewer Questions
 

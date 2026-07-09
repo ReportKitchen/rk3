@@ -24,6 +24,7 @@ LANDING_SCAN_PATTERN_TYPES = {
     "quotation",
     "key_finding",
     "recommendation",
+    "report_metadata",
 }
 
 
