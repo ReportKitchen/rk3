@@ -522,7 +522,7 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
 }
 
 [data-nid="nf4ba989c24"] {
-  background: #404040;
+  background: transparent;
   border: 1px solid #ffffff;
 }
 
@@ -686,8 +686,7 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
 }
 
 [data-nid="nebd8c644c8"] {
-  background: #004202;
-  border: none;
+  background: transparent;
   float: left;
   width: 39%;
   margin: 0 1.5rem 1rem 0;
@@ -942,7 +941,7 @@ strong.c-ff7800 { color: #ff7800; font-weight: inherit; }
 [data-nid="n65cd72e983"] td:nth-child(16) { color: #ff6d00; }
 
 [data-nid="n9d1363f810"] {
-  background: #2b612b;
+  background: transparent;
   border: none;
   border-left: 3px solid #004902;
 }

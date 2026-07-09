@@ -416,13 +416,13 @@ strong.c-f57d29 { color: #f57d29; font-weight: inherit; }
 }
 
 [data-nid="ncb03489226"] {
-  background: #a59d94;
+  background: transparent;
   border: none;
   border-bottom: 1px solid #5091cd;
 }
 
 [data-nid="n1c37ce5064"] {
-  background: #000000;
+  background: transparent;
   border: none;
   border-bottom: 0px solid #56616d;
   border-left: 0px solid #56616d;
@@ -431,18 +431,17 @@ strong.c-f57d29 { color: #f57d29; font-weight: inherit; }
 }
 
 [data-nid="n0b619ebe1d"] {
-  background: #a59d94;
+  background: transparent;
   border: none;
   border-bottom: 0px solid #5091cd;
 }
 
 [data-nid="n7da2fbb2a0"] {
-  background: #000000;
-  border: none;
+  background: transparent;
 }
 
 [data-nid="n5a804a38f5"] {
-  background: #f57d29;
+  background: transparent;
   border: none;
   border-bottom: 1px solid #f57d29;
   border-left: 1px solid #f57d29;
@@ -457,14 +456,14 @@ strong.c-f57d29 { color: #f57d29; font-weight: inherit; }
 }
 
 [data-nid="n9acce142b5"] {
-  background: #035a8b;
+  background: transparent;
   border: none;
   border-bottom: 1px solid #e9b820;
   border-left: 1px solid #e9b820;
 }
 
 [data-nid="naec9b5db83"] {
-  background: #000000;
+  background: transparent;
   border: none;
   border-bottom: 1px solid #5091cd;
 }
@@ -495,7 +494,7 @@ strong.c-f57d29 { color: #f57d29; font-weight: inherit; }
 }
 
 [data-nid="n3675bc926e"] {
-  background: #000000;
+  background: transparent;
   border: none;
   border-bottom: 1px solid #5091cd;
 }
@@ -506,7 +505,7 @@ strong.c-f57d29 { color: #f57d29; font-weight: inherit; }
 }
 
 [data-nid="n6737018417"] {
-  background: #6a973f;
+  background: transparent;
   border: none;
   border-bottom: 1px solid #035a8b;
   border-left: 1px solid #6a973f;
@@ -515,25 +514,25 @@ strong.c-f57d29 { color: #f57d29; font-weight: inherit; }
 }
 
 [data-nid="ne47f1ef295"] {
-  background: #000000;
+  background: transparent;
   border: none;
   border-left: 1px solid #ffffff;
 }
 
 [data-nid="n54b161fb9c"] {
-  background: #000000;
+  background: transparent;
   border: none;
   border-left: 1px solid #ffffff;
 }
 
 [data-nid="n1362b647d0"] {
-  background: #000000;
+  background: transparent;
   border: none;
   border-left: 1px solid #ffffff;
 }
 
 [data-nid="n1362b647d0-2"] {
-  background: #000000;
+  background: transparent;
   border: none;
   border-left: 1px solid #ffffff;
 }
@@ -680,7 +679,7 @@ strong.c-f57d29 { color: #f57d29; font-weight: inherit; }
 }
 
 [data-nid="n1186f7ea8b"] {
-  background: #6a973f;
+  background: transparent;
   border: none;
   border-bottom: 0px solid #5091cd;
   border-left: 1px solid #6a973f;
@@ -1079,13 +1078,10 @@ strong.c-f57d29 { color: #f57d29; font-weight: inherit; }
 [data-nid="n7efba170d2"] a, [data-nid="n7efba170d2"] h1, [data-nid="n7efba170d2"] h2, [data-nid="n7efba170d2"] h3, [data-nid="n7efba170d2"] h4, [data-nid="n7efba170d2"] h5, [data-nid="n7efba170d2"] h6 { color: #ffffff; }
 
 [data-nid="nd70bddaa3d"] {
-  background: #f57d29;
-  color: #ffffff;
+  background: transparent;
   border: none;
   border-bottom: 1px solid #f57d29;
 }
-
-[data-nid="nd70bddaa3d"] a, [data-nid="nd70bddaa3d"] h1, [data-nid="nd70bddaa3d"] h2, [data-nid="nd70bddaa3d"] h3, [data-nid="nd70bddaa3d"] h4, [data-nid="nd70bddaa3d"] h5, [data-nid="nd70bddaa3d"] h6 { color: #ffffff; }
 
 [data-nid="n4b392ffe54"] {
   background: #f57d29;
@@ -1115,13 +1111,10 @@ strong.c-f57d29 { color: #f57d29; font-weight: inherit; }
 [data-nid="nad58b46b34"] a, [data-nid="nad58b46b34"] h1, [data-nid="nad58b46b34"] h2, [data-nid="nad58b46b34"] h3, [data-nid="nad58b46b34"] h4, [data-nid="nad58b46b34"] h5, [data-nid="nad58b46b34"] h6 { color: #ffffff; }
 
 [data-nid="n84437388b7"] {
-  background: #f57d29;
-  color: #ffffff;
+  background: transparent;
   border: none;
   border-bottom: 1px solid #f57d29;
 }
-
-[data-nid="n84437388b7"] a, [data-nid="n84437388b7"] h1, [data-nid="n84437388b7"] h2, [data-nid="n84437388b7"] h3, [data-nid="n84437388b7"] h4, [data-nid="n84437388b7"] h5, [data-nid="n84437388b7"] h6 { color: #ffffff; }
 
 figure { border: none; padding: 0; }
 

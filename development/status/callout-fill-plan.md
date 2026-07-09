@@ -1,8 +1,31 @@
 # Phase B fix #2 — callout/box-fill fidelity (the big lever)
 
+**STATUS: Phase 1 SHIPPED (analyze v214).** Image-grounded fill correction is
+live. Reach: **38 corrections (32 drop / 6 replace) across 10 docs, 40+ pages**
+— the biggest single lever, as projected. Gates: census 79/3 (non-decreasing),
+pytest 33/33, eyeballed advancing p13/p15/p16/p21/p22/p24/p29/p33 +
+race-to-lead p28 (drop) + points-of-light p7 (replace) + clean-air & good-food
+100% untouched (controls). **Phase 2 (header-strip modeling) PARKED** — the
+colored title bars are lost but the catastrophic all-colored-box bug is fixed;
+header strips are cosmetic polish, deferred under the hard-stop rule.
+
 Resume plan for the deepest Phase B fix. This is the `color` category (~45 pages)
 plus much of `structure` + `missing-content` overlap — the single biggest
 pass-rate lever. Owner flagged it repeatedly (the KEY PARTNERS "brown box").
+
+## What shipped (Phase 1)
+- `_region_interior_fill(ctx, page, bbox)` (analyze.py ~1718): samples a 9×9 grid
+  inside the box from the rendered page PNG, skips a top header-strip band, returns
+  the modal body color (or None if no color dominates / PNG unreadable).
+- `_aside_node` (now takes `pages`): after emitting `data.fill` from `fillIdx`,
+  compares to the sampled interior. Correction fires ONLY when the interior is
+  materially LIGHTER (per-channel diff >40 AND luminance diff >40) — the
+  overpaint-backing signature, which is always lighter-truth. Then: interior ≈
+  surround (`_local_bg`, <16) → DROP (body matches page); else → REPLACE with the
+  true interior color. Logs `fill-corrected {action, was, now/interior}`.
+- The LIGHTER-only + mode guard is what protects genuinely-dark/colored callouts
+  (clean-air reds/teal, good-food teal Conclusion): their interior mode equals the
+  extracted fill, so no correction fires. Verified: both docs 100% untouched.
 
 ## Problem (two sub-cases)
 1. **Whole-box wrong fill** — a WHITE/light box rendered dark, or a light box

@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 213
+VERSION = 214
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -588,7 +588,7 @@ def run(ctx):
             node = _try_table(ctx, ref, blocks, rich, pages)
             if node is None:
                 node = _aside_node(ctx, ref, blocks, rich, fonts,
-                                   body_size, roles)
+                                   body_size, roles, pages)
                 fig_count = _aside_images(ctx, ref, node, pages,
                                           fig_count)
         if ref.get("uncertain") and node["type"] != "table":
@@ -1713,6 +1713,50 @@ def _split_multi_image_figures(ctx, regions, pages, blocks, texts, absorbed):
                 caption=(sub.get("caption") or "")[:60])
             out.append(sub)
     return out
+
+
+def _region_interior_fill(ctx, page, bbox):
+    """The region's true BODY fill, READ from the rendered page PNG. Extraction
+    keeps only the largest fill rect as `fillIdx` (a whole-box backing color),
+    but designers paint a white body OVER a taupe backing and leave a thin
+    header strip — the dropped white rects mean the aside inherits the backing
+    color for the WHOLE box (advancing p13 KEY PARTNERS rendered black-on-brown,
+    p15/p33 white boxes gone dark). Sample a grid INSIDE the box, skip a top
+    header-strip band so the strip can't outvote the body, and return the modal
+    color of the body. Returns None if the PNG can't be read, the sampled window
+    is too small, or no color dominates (text-dense box → don't trust it)."""
+    try:
+        img = Image.open(
+            ctx.outdir / "pages" / f"page-{page['n']:04d}.png").convert("RGB")
+    except Exception:
+        return None
+    scale = img.width / page["width"]
+    h = page["height"]
+    l, b, r, t = bbox
+    inset = 4.0                              # clear the border/stroke
+    strip = min(0.25 * (t - b), 24.0)        # a header band lives at the top
+    x0, x1 = l + inset, r - inset
+    y0, y1 = b + inset, t - strip - inset    # PDF space: body sits below strip
+    if x1 - x0 < 8 or y1 - y0 < 8:
+        return None
+    N = 9
+    buckets = {}                             # coarse color -> [count, [r,g,b] sum]
+    for i in range(N):
+        for j in range(N):
+            x = x0 + (x1 - x0) * (i + 0.5) / N
+            y = y0 + (y1 - y0) * (j + 0.5) / N
+            xi = max(0, min(img.width - 1, int(x * scale)))
+            yi = max(0, min(img.height - 1, int((h - y) * scale)))
+            px = img.getpixel((xi, yi))[:3]
+            key = (px[0] // 16, px[1] // 16, px[2] // 16)
+            rec = buckets.setdefault(key, [0, [0, 0, 0]])
+            rec[0] += 1
+            for k in range(3):
+                rec[1][k] += px[k]
+    best = max(buckets.values(), key=lambda rc: rc[0])
+    if best[0] < 0.35 * N * N:               # no confident background → abstain
+        return None
+    return tuple(s // best[0] for s in best[1])
 
 
 def _local_bg(ctx, page, bbox):
@@ -3409,7 +3453,7 @@ def _aside_images(ctx, reg, node, pages, fig_count):
     return fig_count
 
 
-def _aside_node(ctx, reg, blocks, rich, fonts, body_size, roles):
+def _aside_node(ctx, reg, blocks, rich, fonts, body_size, roles, pages):
     # order the box's interior: most callouts are single-column (top-down by
     # position, page first for boxes merged across a page break, so the
     # headline leads regardless of content-stream order) — but a WIDE region
@@ -3448,7 +3492,32 @@ def _aside_node(ctx, reg, blocks, rich, fonts, body_size, roles):
     node = {"type": "aside", "children": children, "page": reg["page"],
             "bbox": reg["bbox"], "rk": rk, "data": {"region": reg["rk"]}}
     if reg.get("fillIdx") is not None:
-        node["data"]["fill"] = _hex(ctx.colors[reg["fillIdx"]])
+        fill = tuple(ctx.colors[reg["fillIdx"]][:3])
+        node["data"]["fill"] = _hex(fill)
+        # image-grounded correction: extraction keeps only the largest fill
+        # rect, so a body painted white OVER a taupe backing inherits the
+        # backing for the whole box. Read the box's real interior; a materially
+        # LIGHTER body means the extracted fill was an overpainted backing —
+        # drop it if the body matches the page, else use the true body color.
+        # Guarded to LIGHTER-only so genuinely dark callouts (white-on-dark,
+        # good-food p22) whose interior mode is the dark fill stay untouched.
+        interior = _region_interior_fill(ctx, pages[reg["page"]], reg["bbox"])
+        if interior is not None:
+            def _lum(c):
+                return 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]
+            diff = max(abs(a - b) for a, b in zip(fill, interior))
+            if diff > 40 and _lum(interior) - _lum(fill) > 40:
+                surround = _local_bg(ctx, pages[reg["page"]], reg["bbox"])
+                if max(abs(a - b) for a, b in zip(interior, surround)) < 16:
+                    node["data"].pop("fill", None)          # no real body fill
+                    ctx.log.entry("fill-corrected", page=reg["page"],
+                                  action="drop", was=_hex(fill),
+                                  interior=_hex(interior))
+                else:
+                    node["data"]["fill"] = _hex(interior)
+                    ctx.log.entry("fill-corrected", page=reg["page"],
+                                  action="replace", was=_hex(fill),
+                                  now=_hex(interior))
     if reg.get("strokeIdx") is not None:
         node["data"]["stroke"] = _hex(ctx.colors[reg["strokeIdx"]])
     if reg.get("borders"):
