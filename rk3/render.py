@@ -13,7 +13,7 @@ from pathlib import Path
 
 from . import irwalk
 
-VERSION = 85
+VERSION = 86
 
 OL_TYPE = {"lower-alpha": "a", "upper-alpha": "A"}
 
@@ -534,22 +534,12 @@ def _attrs(node, pages, extra=None):
 def _render_node(ctx, node, pages, state):
     t = node["type"]
     if t == "flag":
-        # QA banner at the top of the document (no flags panel yet). Currently
-        # only footnote ref<->note mismatches; the shape generalizes. Values are
-        # range-compressed ("1, 4, 8–12, 112–426") with a count so a badly
-        # under-collected doc reads as a summary, not a wall of numbers.
-        rows = []
-        if node.get("refs_no_note"):
-            vals = node["refs_no_note"]
-            rows.append(f"<li>References with no matching note ({len(vals)}): "
-                        f'<strong>{html.escape(_fmt_flag_vals(vals))}</strong></li>')
-        if node.get("notes_no_ref"):
-            vals = node["notes_no_ref"]
-            rows.append(f"<li>Notes with no matching reference ({len(vals)}): "
-                        f'<strong>{html.escape(_fmt_flag_vals(vals))}</strong></li>')
-        return (f'<div class="rk-flags" {_attrs(node, pages)}>\n'
-                '  <p class="rk-flags-title">⚑ Footnote mismatch</p>\n'
-                f'  <ul>\n    ' + "\n    ".join(rows) + '\n  </ul>\n</div>')
+        # QA-ONLY signal, never reader content: the footnote ref<->note mismatch
+        # flag was a stopgap banner from before the QA surface existed. It is a
+        # tool artifact, not document content (owner: "should not appear" — oxfam
+        # p1's 'Notes with no matching reference' box). The flag node stays in the
+        # IR for the QA surface to consume; the user-facing render emits nothing.
+        return ""
     if t == "heading":
         lv = min(max(node["level"], 1), 6)
         # a heading is text too: run it through _inline so a footnote reference

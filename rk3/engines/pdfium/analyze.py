@@ -29,7 +29,7 @@ from collections import Counter
 
 from PIL import Image
 
-VERSION = 214
+VERSION = 215
 
 # IR schema version, stamped into ir.json. 1 = the unified container model
 # (leaf nodes with text+runs, container nodes with children, nids everywhere;
@@ -747,6 +747,10 @@ def run(ctx):
     if flag is not None:
         nodes.insert(0, flag)
 
+    # reader chrome (flipbook nav bars, page-number widgets) is a small figure
+    # recurring at a fixed position across pages — strip it like a running header
+    nodes = _strip_chrome_figures(ctx, nodes)
+
     # unified-model invariant: every typed node, at any depth, is addressable
     _assert_nids(nodes)
 
@@ -941,6 +945,42 @@ def _repeated_images(pages):
                 seen[_okey(0, o)] += 1
     min_repeats = max(3, round(0.4 * len(pages)))
     return {k for k, n in seen.items() if n >= min_repeats}
+
+
+def _strip_chrome_figures(ctx, nodes):
+    """Reader chrome — a digital-flipbook nav bar or page-number widget — is a
+    small figure that recurs at the SAME position across pages: a running header
+    made of pixels (rock-farm's ≡ ← → 15 bar is cropped as a figure on 8 pages).
+    Suppress small (chrome-sized) top-level figures whose position recurs on >=3
+    pages; the '15' varies per page so only the geometry is stable. Mirrors
+    _strip_repeating for text. Corpus-checked (scratchpad chrome_fig_scan.py):
+    hits ONLY that nav bar, no real content figure."""
+    def _small(n):
+        b = n.get("bbox")
+        return (n.get("type") == "figure" and b and n.get("page") is not None
+                and b[2] - b[0] < 170 and b[3] - b[1] < 45)
+
+    def _key(b):
+        return (round(b[0] / 12) * 12, round(b[1] / 12) * 12,
+                round(b[2] / 12) * 12, round(b[3] / 12) * 12)
+
+    pages_at = {}
+    for n in nodes:
+        if _small(n):
+            pages_at.setdefault(_key(n["bbox"]), set()).add(n["page"])
+    chrome = {k for k, pgs in pages_at.items() if len(pgs) >= 3}
+    if not chrome:
+        return nodes
+    kept = []
+    for n in nodes:
+        if _small(n) and _key(n["bbox"]) in chrome:
+            ctx.log.entry("chrome-figure-strip", page=n["page"],
+                          bbox=[round(v, 1) for v in n["bbox"]],
+                          reason="small figure recurring at a fixed position "
+                                 "across pages (reader nav/UI chrome)")
+            continue
+        kept.append(n)
+    return kept
 
 
 def _cluster(objs, gap=8.0):
