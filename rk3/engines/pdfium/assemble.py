@@ -12,7 +12,7 @@ Artifact: blocks.json
 import re
 from collections import Counter, defaultdict
 
-VERSION = 52
+VERSION = 53
 
 # lowercase letters with neither ascender nor descender — their glyph tops sit
 # at x-height in normal text but reach the CAP line when a display font renders
@@ -31,11 +31,21 @@ def _line_caps(chars):
     alpha = [c for c in chars if c[UC].isalpha()]
     if len(alpha) < 3:
         return False
-    short = [c for c in alpha if c[UC] in _SHORT_X]
+    # a DROP CAP sinks `base` (min bottom) a line or two below the row without
+    # raising the cap ceiling, so every ordinary first-line letter then measures
+    # as cap-height and the whole paragraph gets falsely shouted (edf p6 'E'DF
+    # subsidiary… → ALL CAPS body). Judge caps from the line's OWN body glyphs:
+    # drop any glyph much taller than the median (drop caps, oversized initials).
+    heights = sorted(c[T] - c[B] for c in alpha)
+    med_h = heights[len(heights) // 2]
+    body = [c for c in alpha if (c[T] - c[B]) <= 1.6 * med_h]
+    if len(body) < 3:
+        return False
+    short = [c for c in body if c[UC] in _SHORT_X]
     if not short:
         return False
-    base = min(c[B] for c in alpha)
-    cap_h = max(c[T] for c in alpha) - base
+    base = min(c[B] for c in body)
+    cap_h = max(c[T] for c in body) - base
     if cap_h <= 0.5:
         return False
     return all((c[T] - base) >= 0.85 * cap_h for c in short)
