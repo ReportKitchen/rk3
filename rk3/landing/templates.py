@@ -8,7 +8,7 @@ the extracted pieces. The user can switch archetypes anytime.
 
 from rk3.landing.ai import DEFAULT_LENGTH, DEFAULT_STYLE
 from rk3.landing.extract import (
-    _walk, default_doc_summary, extract_pieces, summary_sections)
+    default_doc_summary, extract_pieces, summary_sections)
 
 ARCHETYPES = ("research", "campaign", "annual", "toolkit")
 ARCHETYPE_LABELS = {

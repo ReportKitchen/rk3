@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { usePuck } from "@measured/puck";
+import { FieldLabel, usePuck } from "@measured/puck";
 import { themeProps } from "./css.js";
 import { LandingCtx } from "./landingCtx.js";
 import { getAiSummary } from "../api.js";
@@ -34,10 +34,16 @@ function FloatPosition({ value, onChange }) {
     </div>
   );
 }
+// Puck auto-labels only its built-in field types; custom fields must render
+// their own label (FieldLabel), or the panel shows bare controls
 const floatTopField = {
   type: "custom",
   label: "Floated image position",
-  render: ({ value, onChange }) => <FloatPosition value={value} onChange={onChange} />,
+  render: ({ value, onChange }) => (
+    <FieldLabel label="Floated image position" el="div">
+      <FloatPosition value={value} onChange={onChange} />
+    </FieldLabel>
+  ),
 };
 
 // the Document Summary's section picker: a radio list of the document's detected
@@ -60,7 +66,11 @@ function SectionPicker({ value, onChange }) {
 const sectionField = {
   type: "custom",
   label: "Section (from the document)",
-  render: ({ value, onChange }) => <SectionPicker value={value} onChange={onChange} />,
+  render: ({ value, onChange }) => (
+    <FieldLabel label="Section (from the document)" el="div">
+      <SectionPicker value={value} onChange={onChange} />
+    </FieldLabel>
+  ),
 };
 
 const FONT = "'Public Sans', system-ui, -apple-system, sans-serif";
@@ -70,13 +80,15 @@ const widthField = {
   type: "custom",
   label: "Content width",
   render: ({ value, onChange }) => (
-    <div className="lp-field-width">
-      <input type="range" min="600" max="1200" step="20" value={value || 800}
-        onChange={(e) => onChange(+e.target.value)} />
-      <input type="number" min="600" max="1200" value={value || 800}
-        onChange={(e) => onChange(Math.min(1200, Math.max(600, +e.target.value || 800)))} />
-      <span>px</span>
-    </div>
+    <FieldLabel label="Content width" el="div">
+      <div className="lp-field-width">
+        <input type="range" min="600" max="1200" step="20" value={value || 800}
+          onChange={(e) => onChange(+e.target.value)} />
+        <input type="number" min="600" max="1200" value={value || 800}
+          onChange={(e) => onChange(Math.min(1200, Math.max(600, +e.target.value || 800)))} />
+        <span>px</span>
+      </div>
+    </FieldLabel>
   ),
 };
 
@@ -91,11 +103,13 @@ const color = (label) => ({
   type: "custom",
   label,
   render: ({ value, onChange, name }) => (
-    <label className="lp-field-color">
-      <input type="color" name={name} value={value || "#000000"}
-        onChange={(e) => onChange(e.currentTarget.value)} />
-      <span>{value || "#000000"}</span>
-    </label>
+    <FieldLabel label={label} el="div">
+      <label className="lp-field-color">
+        <input type="color" name={name} value={value || "#000000"}
+          onChange={(e) => onChange(e.currentTarget.value)} />
+        <span>{value || "#000000"}</span>
+      </label>
+    </FieldLabel>
   ),
 });
 
@@ -120,10 +134,12 @@ const imageField = {
   render: ({ value, onChange, puck }) => {
     const imgs = puck?.metadata?.images || [];
     return (
-      <select value={value || ""} onChange={(e) => onChange(e.target.value)}>
-        <option value="">— none —</option>
-        {imgs.map((im) => <option key={im.src} value={im.src}>{im.label}</option>)}
-      </select>
+      <FieldLabel label="Image" el="div">
+        <select value={value || ""} onChange={(e) => onChange(e.target.value)}>
+          <option value="">— none —</option>
+          {imgs.map((im) => <option key={im.src} value={im.src}>{im.label}</option>)}
+        </select>
+      </FieldLabel>
     );
   },
 };

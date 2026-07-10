@@ -89,10 +89,12 @@ export function toPuck(config, theme) {
   };
 }
 
-export function fromPuck(data) {
+// `template` is editor state, not Puck data — callers that persist the config
+// pass the current archetype; callers that only need blocks/theme omit it
+export function fromPuck(data, template = "") {
   const config = {
     version: 1,
-    template: "default",
+    template,
     blocks: (data?.content || []).map(blockFromPuck).filter(Boolean),
   };
   const theme = rootToTheme(data?.root?.props);

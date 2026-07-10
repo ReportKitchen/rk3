@@ -156,13 +156,6 @@ export const BLOCKS = {
   secondaryCta: SecondaryCta,
 };
 
-export const BLOCK_LABELS = {
-  title: "Title", summary: "AI Summary", docSummary: "Document Summary",
-  cover: "Report cover", hero: "Hero image", toc: "Table of contents",
-  highlights: "Highlights", findings: "Findings", share: "Social share",
-  download: "Download CTA", secondaryCta: "Secondary CTA",
-};
-
 // Render one block, recursing into the media slot (nested blocks become the
 // component's children — e.g. a cover floated inside a Document Summary).
 function renderBlock(b, ctx) {

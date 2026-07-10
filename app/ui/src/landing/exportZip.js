@@ -11,8 +11,10 @@ const esc = (s) =>
 
 const basename = (src) => src.split("/").pop();
 
-const titleOf = (config) =>
-  config.blocks.find((b) => b.type === "title")?.props?.text || "";
+const titleOf = (config) => {
+  const p = config.blocks.find((b) => b.type === "title")?.props || {};
+  return p.title || p.text || ""; // text: back-compat with single-field titles
+};
 
 // Build a self-contained zip: index.html + images/ (relative paths) + the PDF.
 // No data-URIs, no references back to our server.

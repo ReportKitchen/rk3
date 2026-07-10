@@ -110,8 +110,7 @@ export default function LandingMaker({ doc }) {
     setSaved(false);
     clearTimeout(timer.current);
     timer.current = setTimeout(() => {
-      const { config, theme } = fromPuck(data);
-      config.template = archRef.current || config.template; // template is our state, not in Puck data
+      const { config, theme } = fromPuck(data, archRef.current);
       save(config, theme);
     }, 600);
   }, [save]);
@@ -167,8 +166,7 @@ export default function LandingMaker({ doc }) {
   const onExport = useCallback(async () => {
     setExporting(true);
     try {
-      const { config, theme } = fromPuck(dataRef.current);
-      config.template = archRef.current || config.template;
+      const { config, theme } = fromPuck(dataRef.current, archRef.current);
       await exportZip(slug, config, theme, doc.name);
     } finally { setExporting(false); }
   }, [slug, doc.name]);
