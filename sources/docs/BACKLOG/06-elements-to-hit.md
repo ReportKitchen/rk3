@@ -16,7 +16,6 @@ also when we get to importing "final but not polished" documents, it's common to
 - when we reach a point of diminishing returns, should we build a lightweight column order adjustment tool? If we know all the peices that belong in columns could we make a drag-and-drop that locked you to reordering elements in a single dimension?
 
 ## Callouts
-If a PDF page is entirely one background color, then create a callout encompassing the content of that PDF page, using that color. #user-option
 
 
 ## Tables

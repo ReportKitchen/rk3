@@ -6,5 +6,6 @@
         "sourceserif": "Source Serif 4"
       }
     }
-  }
+  },
+  "excludeFromBatch": true
 }

@@ -1,4 +1,5 @@
-# Scratchpad - Don't rely on anything in here to be accurate in any way.
+# Scratchpad - Don't read this document
+# Don't rely on anything in here to be accurate in any way.
 
 ## review signals in doc HTML
 
@@ -113,3 +114,76 @@ Our research identified 79 foundations as having provided funding for air-qualit
 
 
 that's not funding_event right?  impact?
+
+
+AI provider - i could change it in config.json but it looks like that's system wide instead of just the vision component.  would be good to have finer-grained control over providers and models - set them per-feature.
+
+In the "Pages" QA board, I want to scroll the document to a spot and see the report for that spot.  Currently I have to go back to the "All Pages" screen.  Can you make the PDF page update to stay syncd with the scroll?  If that's too resource-intensive, being able to scroll to a spot and click a "show me the pdf version of this spot" would be fine.  Better than having to go back.
+
+Also, this layout is backwards from the main view, and what we set as the standard -- HTML in the center, PDF on the right.
+
+In general: primary focus is the HTML, and you don't think of it in terms of print-layout pages, so anything that can be done to focus on the web-centric view and relieve the QA person of having to figure out PDF page numbers is helpful.
+
+
+
+
+OK I either need to tune the vision prompts, or go back to hand-QA'ing things.
+
+This pair from Design Principles passed green.
+I need the whole figure centered, the title to be larger, bold, and centered, the citation to be smaller and centered, and grey rules to appear before and after the figure.
+That should be the style for all figures on the site.
+
+
+
+Root-caused the callout-fill bug: line 1013-1014 sets the aside's background to the largest-area fill, but when the only fill is a header strip (taupe band, ~15% of the box) with a white/unfilled body, that strip color gets applied to the whole box. The fix parallels the table head_fill logic — gate the box fill on coverage fraction, else treat it as a header/accent. That's a Phase B fix.
+
+Can we not determine the exact of the 
+
+
+
+-------------
+
+This report identifies design principles for teacher preparation built on recent syntheses of this emerging research and on the wisdom of practice that is found in many leading-edge preparation programs. 
+
+
+
+============
+
+ok the more I review these the deeper I get into these patterns.  now, I want these:
+
+audience: who should be reading this report?
+
+goals/vision: if the authors had their way, what would happen in the world, and what would be different?
+
+evaluation: how could we determine what impact this work/report itself had?  If it reached the intended audience, and moved them to action, what would that action be?
+
+
+
+
+====
+"pages" Review tab:
+- fade/opacity pages that weren't scanned
+- 
+
+
+
+Vision review
+Notes like:
+IMAGE 2 shows only the bottom Appendix sub-items fragment of the TOC page. All other content visible in IMAGE 1 — the 'Table of Contents' heading, the yellow decorative rule, and all TOC entries (Foreword from The Rockefeller Foundation p.3, Executive summary p.5, Introduction p.7, Local sourcing p.10, Learning and insights p.19, Additional Resources p.22, Acknowledgements p.23, Appendix p.24) — is completely absent from IMAGE 2. · missing-content
+
+Need to reference "PDF" or "original" and HTML or convered, not IMAGE1/2
+
+
+============
+
+vision review buttons should be
+
+"confirmed issue" { keep open but remove from list unless "show all" box is checked or somewthing}
+
+"Ignore" { accept and dismiss }
+
+"Misflag"
+
+"Mark Done" { fix }
+
+-> is there a diff. btw accept, dismiss, fix?  can they all be "ignore"

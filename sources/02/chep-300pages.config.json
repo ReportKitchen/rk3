@@ -6,5 +6,6 @@
         "timesnewroman": "Tinos"
       }
     }
-  }
+  },
+  "excludeFromBatch": true
 }

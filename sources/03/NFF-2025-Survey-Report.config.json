@@ -8,5 +8,6 @@
         "https://use.typekit.net/qmh3dop.css"
       ]
     }
-  }
+  },
+  "excludeFromBatch": true
 }
