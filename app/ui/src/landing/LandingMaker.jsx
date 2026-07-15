@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Puck } from "@measured/puck";
+import { ActionBar, Puck } from "@measured/puck";
 import "@measured/puck/puck.css";
 import "./landingPage.css"; // bundled so Puck copies it into the canvas iframe
 import "./landing.css";
@@ -10,9 +10,9 @@ import {
 import { puckConfig, TYPE_TO_PUCK } from "./puckConfig.jsx";
 import { toPuck, fromPuck, propsToPuck } from "./puckAdapter.js";
 import { exportZip } from "./exportZip.js";
-import { LandingCtx } from "./landingCtx.js";
 import { guard } from "../errorBus.js";
-import RightPanel, { SavedStatus, DrawerItem } from "./RightPanel.jsx";
+import { LandingOptions } from "./landingOptions.js";
+import LandingShell from "./LandingShell.jsx";
 
 // the viewport picker means "simulated host-page width", complementary to the
 // content-width slider (our column inside that page)
@@ -31,19 +31,12 @@ function freshIds(b) {
   return block;
 }
 
-// stable override slots (no live state captured here — RightPanel/SavedStatus
-// read live values from LandingCtx, so this object can be created once)
-// NOTE: don't override `components` — Puck.Components (our Add catalog) renders
-// through that slot. The default left sidebar is hidden via UI state instead.
-const OVERRIDES = {
-  outline: () => null,
-  headerActions: () => <SavedStatus />,
-  fields: ({ children }) => <RightPanel>{children}</RightPanel>,
-  drawerItem: DrawerItem,
-};
-
 // Landing Page Maker, on Puck. Our landing.json/theme are the source of truth:
 // seed Puck from them via the adapter and autosave changes back.
+//
+// Puck runs as a custom interface (children of <Puck>) rather than its stock
+// editor: the block library and canvas are LandingShell's, and every control
+// lives in a modal reached from a block's Configure tag or the Page setup pill.
 export default function LandingMaker({ doc }) {
   const slug = doc.slug;
   const [initial, setInitial] = useState(null);
@@ -57,10 +50,10 @@ export default function LandingMaker({ doc }) {
   const [dirty, setDirty] = useState(false);    // edited since the last seed
   const [exporting, setExporting] = useState(false);
   const [fading, setFading] = useState(false);   // crossfade during a re-seed
-  const [open, setOpen] = useState("page");       // accordion section (survives re-seed)
+  const [modal, setModal] = useState(null);      // null | "page" | "block"
   const dataRef = useRef(null);
   const seedingRef = useRef(false);              // swallow the onChange right after a seed
-  const dispatchRef = useRef(null);              // Puck's dispatch, registered by RightPanel
+  const dispatchRef = useRef(null);              // Puck's dispatch, registered by the shell
   const setDispatch = useCallback((d) => { dispatchRef.current = d; }, []);
   const archRef = useRef("");                    // current template (not stored in Puck data)
   useEffect(() => { archRef.current = arch; }, [arch]);
@@ -69,6 +62,26 @@ export default function LandingMaker({ doc }) {
     seedingRef.current = true;
     setTimeout(() => { seedingRef.current = false; }, 400);
   };
+
+  // A block's hover/selected tag carries Configure, which is the only way into
+  // its settings. setModal is a stable setState, so this object is built once —
+  // Puck remounts the fields view if `overrides` changes identity.
+  const overrides = useMemo(() => ({
+    actionBar: ({ label, children, parentAction }) => (
+      <ActionBar label={label}>
+        <ActionBar.Group>
+          {parentAction}
+          <ActionBar.Action label="Configure" onClick={() => setModal("block")}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.4 2.6a7 7 0 0 0-2 1.2l-2.5-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.5-1a7 7 0 0 0 2 1.2L10 21h4l.4-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.07-.4.1-.8.1-1.2z" />
+            </svg>
+          </ActionBar.Action>
+          {children}
+        </ActionBar.Group>
+      </ActionBar>
+    ),
+  }), []);
 
   useEffect(() => {
     let alive = true;
@@ -120,8 +133,8 @@ export default function LandingMaker({ doc }) {
   const reseed = useCallback((config, theme) => {
     setFading(true);
     // let the iframe fade out (matches the 0.28s CSS transition), then swap
-    // content in place via setData — no remount, so the canvas column keeps
-    // its width and the right panel doesn't jump — then fade back in
+    // content in place via setData — no remount, so the canvas keeps its width
+    // — then fade back in
     setTimeout(() => {
       const d = toPuck(config, theme);
       dataRef.current = d;
@@ -192,21 +205,20 @@ export default function LandingMaker({ doc }) {
     downloadHref: sourceUrl(slug),
     images,
     summaryVariants: blockDefaults?.summary?.variants || {},
+    // DocSummary's resolveData looks the picked section up here. Metadata does
+    // reach resolveData and component render — it's only field renders it can't
+    // reach, which is what LandingOptions below is for.
     summarySections,
     blockDefaults: puckBlockDefaults,
-  }), [slug, images, blockDefaults, summarySections, puckBlockDefaults]);
+  }), [slug, images, summarySections, blockDefaults, puckBlockDefaults]);
 
-  const ctx = useMemo(() => ({
-    archetypes, arch, dirty, exporting, saved, open, setOpen, setDispatch, summarySections,
-    canGenerate: aiMode === "generate",
-    canAnalyze: aiMode !== "none",
-    onSwitch: switchTemplate, onReload: reloadTemplate, onExport,
-  }), [archetypes, arch, dirty, exporting, saved, open, setDispatch, summarySections, aiMode, switchTemplate, reloadTemplate, onExport]);
+  // the same per-document options, for the custom *fields* (see landingOptions)
+  const options = useMemo(() => ({ summarySections, images }), [summarySections, images]);
 
   if (!initial) return <div className="lp-loading hint">Loading editor…</div>;
 
   return (
-    <LandingCtx.Provider value={ctx}>
+    <LandingOptions.Provider value={options}>
       <div className={"lp-maker" + (fading ? " fading" : "")}>
         <Puck
           key={seedKey}
@@ -215,9 +227,27 @@ export default function LandingMaker({ doc }) {
           viewports={VIEWPORTS}
           onChange={onChange}
           metadata={metadata}
-          overrides={OVERRIDES}
-        />
+          overrides={overrides}
+        >
+          <LandingShell
+            modal={modal}
+            setModal={setModal}
+            archetypes={archetypes}
+            arch={arch}
+            dirty={dirty}
+            saved={saved}
+            exporting={exporting}
+            aiMode={aiMode}
+            viewports={VIEWPORTS}
+            onSwitch={switchTemplate}
+            onReload={reloadTemplate}
+            onExport={onExport}
+            assetBase={assetBase(slug)}
+            downloadHref={sourceUrl(slug)}
+            setDispatch={setDispatch}
+          />
+        </Puck>
       </div>
-    </LandingCtx.Provider>
+    </LandingOptions.Provider>
   );
 }

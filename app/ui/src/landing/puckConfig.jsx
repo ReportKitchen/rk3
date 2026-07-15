@@ -1,7 +1,7 @@
-import React, { useContext } from "react";
+import React from "react";
 import { FieldLabel, usePuck } from "@measured/puck";
 import { themeProps } from "./css.js";
-import { LandingCtx } from "./landingCtx.js";
+import { useLandingOptions } from "./landingOptions.js";
 import { getAiSummary } from "../api.js";
 import {
   Title, Summary, DocSummary, Cover, Hero, Toc, Highlights, Findings, Share, Download, SecondaryCta,
@@ -47,13 +47,13 @@ const floatTopField = {
 };
 
 // the Document Summary's section picker: a radio list of the document's detected
-// intro/summary sections (fed via LandingCtx, since they're per-document)
+// intro/summary sections (per-document, so they arrive via LandingOptions)
 function SectionPicker({ value, onChange }) {
-  const { summarySections = [] } = useContext(LandingCtx);
-  if (!summarySections.length) return null;
+  const { summarySections: sections } = useLandingOptions();
+  if (!sections.length) return null;
   return (
     <div className="lp-section-pick">
-      {summarySections.map((s) => (
+      {sections.map((s) => (
         <label key={s.id} className={value === s.id ? "active" : ""}>
           <input type="radio" name="lp-section" checked={value === s.id} onChange={() => onChange(s.id)} />
           <span className="lp-sec-h">{s.heading}</span>
@@ -127,21 +127,27 @@ const insertDefaults = (key) => ({ props }, { trigger, metadata }) =>
     ? { props: { ...props, ...metadata.blockDefaults[key] } }
     : { props };
 
-// image picker: a select over the document's figures (from metadata)
+// image picker: a select over the document's figures. Reads LandingOptions, not
+// `puck.metadata` — a custom field's render never receives `puck`, so the old
+// `puck?.metadata?.images` silently resolved to [] and this only ever offered
+// "— none —".
+function ImagePicker({ value, onChange }) {
+  const { images } = useLandingOptions();
+  return (
+    <select value={value || ""} onChange={(e) => onChange(e.target.value)}>
+      <option value="">— none —</option>
+      {images.map((im) => <option key={im.src} value={im.src}>{im.label}</option>)}
+    </select>
+  );
+}
 const imageField = {
   type: "custom",
   label: "Image",
-  render: ({ value, onChange, puck }) => {
-    const imgs = puck?.metadata?.images || [];
-    return (
-      <FieldLabel label="Image" el="div">
-        <select value={value || ""} onChange={(e) => onChange(e.target.value)}>
-          <option value="">— none —</option>
-          {imgs.map((im) => <option key={im.src} value={im.src}>{im.label}</option>)}
-        </select>
-      </FieldLabel>
-    );
-  },
+  render: ({ value, onChange }) => (
+    <FieldLabel label="Image" el="div">
+      <ImagePicker value={value} onChange={onChange} />
+    </FieldLabel>
+  ),
 };
 
 // Each landing block as a Puck component. render reuses our block components;

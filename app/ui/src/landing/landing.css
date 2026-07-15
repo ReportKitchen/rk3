@@ -1,74 +1,224 @@
-/* Landing Page Maker tab chrome. The landing page's own styles are in
-   landingPage.css (scoped to the Puck canvas / export). */
+/* Landing Page Maker tool chrome, on the Report Kitchen design kit (--rk-*
+   tokens, see src/rk-tokens.css). The landing page's OWN styles are in
+   landingPage.css and carry the customer's brand — keep the two apart: nothing
+   here may style .lp-page or leak into the canvas iframe. */
 
 .lp-maker { flex: 1; min-width: 0; min-height: 0; display: flex; }
 .lp-maker > div { flex: 1; min-width: 0; min-height: 0; }
 .lp-loading { padding: 2rem; }
 
-.lp-saved { font-size: 0.75rem; color: #888; }
+/* Puck wraps our custom interface in an unstyled div that sizes to content, so
+   the shell has to be told to fill. `.Puck` is Puck's own stable class (the
+   sibling hashed one is its CSS module). It renders more than one child here
+   (the interface plus portal hosts), so match only the one holding the shell —
+   a blanket `> div` makes every child flex:1 and halves the height. */
+.lp-maker .Puck { display: flex; flex-direction: column; }
+.lp-maker .Puck > div:has(> .lp-shell) { flex: 1; min-height: 0; display: flex; }
 
-/* crossfade only the canvas iframe during a template re-seed (the panel and
-   header stay steady) */
+/* crossfade only the canvas iframe during a template re-seed */
 .lp-maker iframe { transition: opacity 0.28s ease; }
 .lp-maker.fading iframe { opacity: 0; }
 
-/* ---- right-panel accordion ---- */
-.lp-acc { display: flex; flex-direction: column; }
-.lp-acc-sec { display: flex; flex-direction: column; }
-.lp-acc-head {
-  display: flex; align-items: center; justify-content: space-between;
-  text-align: left; padding: 0.6rem 0.9rem; border: none; border-bottom: 1px solid #e6e6e6;
-  background: #fafafa; font: 600 0.85rem/1.2 inherit; color: #333; cursor: pointer;
+/* ---- shell: library | canvas. There is no right panel: every control lives
+       in a modal, reached from a block's Configure tag or Page setup. ---- */
+.lp-shell {
+  flex: 1; min-width: 0; min-height: 0; position: relative; /* bounds the modal scrim */
+  display: grid; grid-template-columns: 264px 1fr;
+  font-family: var(--rk-font-body);
 }
-.lp-acc-head:hover { background: #f0f0f0; }
-.lp-acc-sec.open > .lp-acc-head { background: #fff; color: #000; box-shadow: inset 3px 0 0 #1b4965; }
-.lp-acc-head::after { content: "▸"; color: #aaa; font-size: 0.7rem; transition: transform 0.25s ease; }
-.lp-acc-sec.open > .lp-acc-head::after { transform: rotate(90deg); }
-/* grid 0fr→1fr animates height smoothly without measuring content */
-.lp-acc-wrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.28s ease; }
-.lp-acc-sec.open > .lp-acc-wrap { grid-template-rows: 1fr; }
-.lp-acc-clip { overflow: hidden; min-height: 0; }
-.lp-acc-body { padding: 0.75rem 0.9rem; border-bottom: 1px solid #eee; }
-.lp-hint-sm { color: #888; font-size: 0.8rem; margin: 0; }
 
-/* Document Summary section picker (Content panel) */
-.lp-section-pick { display: flex; flex-direction: column; gap: 0.3rem; }
-.lp-section-pick label {
-  display: flex; align-items: center; gap: 0.45rem; padding: 0.4rem 0.5rem;
-  border: 1px solid #ddd; border-radius: 5px; cursor: pointer; font-size: 0.82rem;
+/* ---- block library ---- */
+.lp-lib {
+  background: var(--rk-rhino-700); color: #fff;
+  display: flex; flex-direction: column; min-height: 0;
 }
-.lp-section-pick label:hover { border-color: #1b4965; background: #f7fafc; }
-.lp-section-pick label.active { border-color: #1b4965; background: #eef3fa; }
-.lp-section-pick .lp-sec-h { flex: 1; font-weight: 600; }
-.lp-section-pick .lp-sec-len { color: #888; font-variant-numeric: tabular-nums; }
+.lp-lib-h {
+  font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--rk-rhino-200); padding: 16px 18px 10px; margin: 0;
+}
+.lp-lib-list { padding: 0 14px 14px; overflow-y: auto; min-height: 0; }
+/* Puck's Drawer wraps each item; we supply the tile inside it */
+.lp-lib-list > div { display: flex; flex-direction: column; gap: 8px; }
 
-/* template picker buttons */
-.lp-templates { display: flex; flex-direction: column; gap: 0.5rem; }
+.lp-tile {
+  display: grid; grid-template-columns: 44px 1fr 16px; align-items: center; gap: 10px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--rk-radius-sm); padding: 9px 10px; cursor: grab;
+  transition: background var(--rk-dur-fast) var(--rk-ease-out),
+              border-color var(--rk-dur-fast) var(--rk-ease-out);
+}
+.lp-tile:hover { background: rgba(255, 255, 255, 0.13); border-color: var(--rk-macaroni); }
+.lp-tile-thumb {
+  height: 34px; border-radius: 4px; background: #fff; padding: 4px;
+  display: flex; flex-direction: column; gap: 2.5px; justify-content: center;
+  overflow: hidden;
+}
+.lp-tile-thumb.row { flex-direction: row; align-items: center; gap: 4px; }
+.lp-tile-thumb.center { align-items: center; justify-content: center; }
+.lp-tile-thumb i { display: block; flex: none; }
+.lp-tile-txt { min-width: 0; }
+.lp-tile-name {
+  display: block; font-size: 12.5px; font-weight: var(--rk-weight-semibold);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* wraps rather than ellipsing: the hint is the tile's whole explanation, so a
+   clipped one ("Figure + the fact it belon…") is worse than a second line */
+.lp-tile-hint {
+  display: block; font-size: 10.5px; line-height: 1.35;
+  color: var(--rk-rhino-200); margin-top: 1px;
+}
+.lp-tile-grip { color: #fff; opacity: 0.35; flex: none; }
+
+/* ---- canvas ---- */
+.lp-canvas {
+  position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 27px, rgba(48, 61, 97, 0.06) 27px 28px),
+    repeating-linear-gradient(90deg, transparent 0 27px, rgba(48, 61, 97, 0.06) 27px 28px),
+    var(--rk-paper);
+}
+.lp-canvas > div:last-child { flex: 1; min-height: 0; }
+
+.lp-zoombar {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 5;
+  display: flex; align-items: center; gap: 12px;
+  background: #fff; border-radius: var(--rk-radius-pill); padding: 6px 8px 6px 16px;
+  box-shadow: var(--rk-shadow-md); font-size: 12.5px; color: var(--rk-rhino-500);
+}
+.lp-zb-div { width: 1px; height: 16px; background: var(--rk-gray-200); flex: none; }
+.lp-saved { font-size: 11.5px; color: var(--rk-text-muted); min-width: 3.6em; }
+
+.lp-setupchip {
+  display: flex; align-items: center; gap: 7px; border: 0; background: none; padding: 0;
+  font: var(--rk-weight-bold) 12.5px var(--rk-font-body); color: var(--rk-rhino-700);
+  cursor: pointer;
+}
+.lp-setupchip:hover { color: var(--rk-tomato-600); }
+
+.lp-seg { display: inline-flex; background: var(--rk-gray-100); border-radius: var(--rk-radius-sm); padding: 3px; }
+.lp-seg button {
+  border: 0; background: none; cursor: pointer; border-radius: 6px; padding: 5px 12px;
+  font: var(--rk-weight-semibold) 12px var(--rk-font-body); color: var(--rk-text-muted);
+}
+.lp-seg button.on { background: var(--rk-rhino-900); color: #fff; }
+
+/* ---- buttons (kit: one tomato button per view, max) ---- */
+.lp-btn-primary, .lp-btn-secondary, .lp-btn-ghost {
+  font: var(--rk-weight-bold) 13px var(--rk-font-body);
+  border: 0; border-radius: var(--rk-radius-sm); padding: 9px 20px; cursor: pointer;
+  transition: background var(--rk-dur-fast) var(--rk-ease-out);
+}
+.lp-btn-primary { background: var(--rk-tomato); color: #fff; }
+.lp-btn-primary:hover { background: var(--rk-tomato-600); }
+.lp-btn-secondary { background: var(--rk-rhino-900); color: #fff; }
+.lp-btn-secondary:hover { background: var(--rk-rhino-700); }
+.lp-btn-ghost { background: none; color: var(--rk-text-muted); }
+.lp-btn-ghost:hover { color: var(--rk-text-strong); }
+.lp-btn-primary:disabled, .lp-btn-secondary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ---- modals ---- */
+.lp-scrim {
+  position: absolute; inset: 0; z-index: 10; background: rgba(30, 39, 64, 0.42);
+  display: flex; align-items: center; justify-content: center;
+}
+.lp-modal {
+  max-width: calc(100% - 48px); max-height: calc(100% - 48px);
+  outline: none; /* focused on open for Esc/a11y; the dialog itself needn't ring */
+  display: flex; flex-direction: column;
+  background: #fff; border-radius: var(--rk-radius-lg); overflow: hidden;
+  box-shadow: var(--rk-shadow-lg);
+}
+.lp-modal-h {
+  display: flex; align-items: center; gap: 10px; padding: 16px 22px; flex: none;
+  border-bottom: 1px solid var(--rk-border); color: var(--rk-rhino-700);
+}
+.lp-modal-t {
+  font-family: var(--rk-font-display); font-size: 17px;
+  font-weight: var(--rk-weight-bold); color: var(--rk-text-strong);
+}
+.lp-modal-meta { font-size: 11.5px; color: var(--rk-text-muted); }
+.lp-modal-x {
+  margin-left: auto; width: 30px; height: 30px; border: 0; border-radius: var(--rk-radius-sm);
+  background: var(--rk-gray-100); color: var(--rk-text-muted); font-size: 14px; cursor: pointer;
+}
+.lp-modal-x:hover { background: var(--rk-gray-200); color: var(--rk-text-strong); }
+
+.lp-modal-b { display: grid; grid-template-columns: 330px 1fr; min-height: 0; flex: 1; }
+.lp-modal-cfg { padding: 4px 22px 20px; border-right: 1px solid var(--rk-border); overflow-y: auto; }
+.lp-modal-l {
+  font-size: 12px; font-weight: var(--rk-weight-bold); color: var(--rk-text-strong);
+  margin: 16px 0 8px;
+}
+.lp-modal-ai { font-size: 12.5px; color: var(--rk-text-body); margin: 0; }
+.lp-modal-ai span { color: var(--rk-text-muted); }
+
+.lp-modal-f {
+  display: flex; align-items: center; gap: 10px; padding: 14px 22px; flex: none;
+  border-top: 1px solid var(--rk-border);
+}
+.lp-modal-note { font-size: 12.5px; color: var(--rk-text-muted); }
+.lp-modal-cancel { margin-left: auto; }
+.lp-modal-del {
+  border: 0; background: none; padding: 0; cursor: pointer;
+  font: var(--rk-weight-semibold) 12.5px var(--rk-font-body); color: var(--rk-tomato-600);
+}
+.lp-modal-del:hover { text-decoration: underline; }
+
+/* ---- the modals' live preview ---- */
+.lp-mini {
+  background: var(--rk-gray-100); padding: 18px;
+  display: flex; flex-direction: column; min-height: 0; min-width: 0;
+}
+.lp-mini-cap {
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--rk-text-muted); margin: 0 0 10px; flex: none;
+}
+.lp-mini-frame {
+  flex: 1; min-height: 0; overflow: hidden;
+  background: #fff; border-radius: 6px; box-shadow: var(--rk-shadow-md);
+}
+/* the page renders at full size and is scaled down, so type stays proportional */
+.lp-mini-scale { transform-origin: top left; }
+.lp-mini-empty { font-size: 12px; color: var(--rk-text-muted); padding: 20px; margin: 0; }
+
+/* ---- template picker (Page setup) ---- */
+.lp-templates { display: flex; flex-direction: column; gap: 6px; }
 .lp-tmpl {
-  text-align: left; border: 1px solid #ddd; border-radius: 6px; background: #fff;
-  padding: 0.55rem 0.7rem; cursor: pointer;
+  text-align: left; border: 1px solid var(--rk-border); border-radius: var(--rk-radius-sm);
+  background: #fff; padding: 9px 11px; cursor: pointer;
 }
-.lp-tmpl:hover { border-color: #1b4965; background: #f7fafc; }
-.lp-tmpl.active { border-color: #1b4965; background: #eef3fa; }
+.lp-tmpl:hover { border-color: var(--rk-rhino-700); }
+.lp-tmpl.active { border-color: var(--rk-rhino-700); background: var(--rk-macaroni-100); }
 .lp-tmpl-top { display: flex; align-items: center; justify-content: space-between; }
-.lp-tmpl-name { font-weight: 600; font-size: 0.85rem; }
-.lp-tmpl-desc { display: block; font-size: 0.72rem; color: #666; margin-top: 0.2rem; line-height: 1.35; }
-.lp-tmpl-reload {
-  font-size: 0.95rem; color: #1b4965; line-height: 1; padding: 0 0.25rem; border-radius: 4px;
-}
-.lp-tmpl-reload:hover { background: #dce8f5; }
+.lp-tmpl-name { font-weight: var(--rk-weight-semibold); font-size: 12.5px; color: var(--rk-text-strong); }
+.lp-tmpl-desc { display: block; font-size: 11px; color: var(--rk-text-muted); margin-top: 2px; line-height: 1.4; }
+.lp-tmpl-reload { font-size: 13px; color: var(--rk-rhino-700); padding: 0 4px; border-radius: 4px; }
+.lp-tmpl-reload:hover { background: var(--rk-macaroni-300); }
 
-.lp-export {
-  padding: 0.45rem 0.9rem; border: 1px solid #1b4965; border-radius: 6px;
-  background: #1b4965; color: #fff; font-weight: 600; cursor: pointer;
+/* ---- fields (Puck renders these; we only set the surface around them) ---- */
+.lp-section-pick { display: flex; flex-direction: column; gap: 6px; }
+.lp-section-pick label {
+  display: flex; align-items: center; gap: 9px; padding: 9px 11px;
+  border: 1px solid var(--rk-border); border-radius: var(--rk-radius-sm);
+  cursor: pointer; font-size: 12.5px;
 }
-.lp-export:disabled { opacity: 0.6; cursor: default; }
+.lp-section-pick label:hover { border-color: var(--rk-rhino-700); }
+.lp-section-pick label.active { border-color: var(--rk-rhino-700); background: var(--rk-macaroni-100); }
+.lp-section-pick .lp-sec-h { flex: 1; font-weight: var(--rk-weight-semibold); }
+.lp-section-pick .lp-sec-len { color: var(--rk-text-muted); font-variant-numeric: tabular-nums; font-size: 11px; }
 
-/* content-width slider field */
 .lp-field-width { display: flex; align-items: center; gap: 0.5rem; }
-.lp-field-width input[type="range"] { flex: 1; }
+.lp-field-width input[type="range"] { flex: 1; accent-color: var(--rk-rhino-700); }
 .lp-field-width input[type="number"] { width: 4.5rem; padding: 0.2rem; }
-.lp-field-width span { color: #888; font-size: 0.8rem; }
+.lp-field-width span { color: var(--rk-text-muted); font-size: 0.8rem; }
+
+.lp-field-color { display: flex; align-items: center; gap: 0.5rem; }
+.lp-field-color input[type="color"] {
+  width: 2rem; height: 1.6rem; padding: 0; border: 1px solid var(--rk-border-strong);
+  border-radius: 4px; background: none; cursor: pointer;
+}
+.lp-field-color span { font-size: 0.8rem; color: var(--rk-text-muted); font-variant-numeric: tabular-nums; }
 
 /* ---- page simulator (Puck canvas only; never exported) ---- */
 .lp-sim { display: flex; flex-direction: column; min-height: 100%; background: #fff; }
@@ -98,11 +248,3 @@
   color: var(--lp-text, #111); font-family: var(--lp-font, system-ui, sans-serif);
 }
 .lp-sim-content .lp-page { min-height: 100%; }
-
-/* custom color-swatch field in the Puck fields panel */
-.lp-field-color { display: flex; align-items: center; gap: 0.5rem; }
-.lp-field-color input[type="color"] {
-  width: 2rem; height: 1.6rem; padding: 0; border: 1px solid #ccc;
-  border-radius: 4px; background: none; cursor: pointer;
-}
-.lp-field-color span { font-size: 0.8rem; color: #666; font-variant-numeric: tabular-nums; }

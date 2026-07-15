@@ -1,0 +1,18 @@
+/* Report Kitchen design tokens, from the design kit at /design-system.
+   Imported from the kit rather than vendored so the kit stays the single
+   source of truth and these can't silently drift from it.
+
+   Every one of these files defines custom properties on :root and styles no
+   elements. That matters: Puck seeds the landing-page canvas iframe from this
+   document's styles, and the landing page carries the CUSTOMER's brand, not
+   ours. Tokens that only declare --rk-* variables can't leak into it. Keep it
+   that way — no element rules in the token layer.
+
+   tokens/fonts.css is deliberately skipped: it carries the logo-only Kano
+   @font-face plus a remote @import. The two tool faces are <link>ed from
+   index.html instead, per the kit's own guidance. */
+
+@import "../../../design-system/tokens/colors.css";
+@import "../../../design-system/tokens/typography.css";
+@import "../../../design-system/tokens/spacing.css";
+@import "../../../design-system/tokens/effects.css";
