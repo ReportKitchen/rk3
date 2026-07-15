@@ -60,6 +60,10 @@ if [ -n "${RK3_PDF_S3_URI:-}" ]; then
     # sidecars; only pull *.pdf that aren't already present.
     .venv/bin/aws s3 sync "$RK3_PDF_S3_URI" sources/ \
       --exclude "*" --include "*.pdf" --no-progress
+    # the bucket is flat, but the pipeline needs sources/<folder>/<name>.pdf
+    # (slug = <folder>--<name>). Move each synced PDF into the folder whose
+    # committed sidecars already claim its stem.
+    .venv/bin/python -m tools.place_sources --apply
   fi
 else
   log "RK3_PDF_S3_URI unset; skipping PDF sync (conversion/tests need PDFs)."

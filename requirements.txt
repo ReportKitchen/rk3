@@ -13,7 +13,9 @@
 # `pip install`. Bump deliberately, re-run the corpus tests, then commit.
 
 # --- PDF ingestion / rendering engine ------------------------------------
-pypdfium2>=4.30,<5           # primary PDF text/geometry extraction
+pypdfium2>=5.0,<6            # primary PDF text/geometry extraction
+                             # (5.x required: extract.py calls FPDFFont_GetBaseFontName,
+                             #  absent from the 4.x pdfium build)
 pymupdf>=1.24,<2             # secondary extraction path (analyze.py fallback)
 Pillow>=10.4,<12             # page/figure raster crops
 fonttools>=4.50,<5           # font identification + subset embedding
