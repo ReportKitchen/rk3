@@ -1,0 +1,40 @@
+# RK3 Python runtime dependencies.
+#
+# REQUIRES PYTHON 3.12+ — rk3/eval.py uses a backslash inside an f-string
+# expression (PEP 701), which is a SyntaxError on 3.11 and older. Build the
+# venv with python3.12 (or newer): `python3.12 -m venv .venv`.
+#
+# There is no lockfile; this file is the single source of truth for the venv.
+# The project venv lives at .venv/ (README: `python` == `.venv/bin/python`).
+# Install:  .venv/bin/pip install -r requirements.txt
+#
+# Versions are floored at the releases this project was verified against and
+# capped below the next major to keep API-breaking upgrades out of a fresh
+# `pip install`. Bump deliberately, re-run the corpus tests, then commit.
+
+# --- PDF ingestion / rendering engine ------------------------------------
+pypdfium2>=4.30,<5           # primary PDF text/geometry extraction
+pymupdf>=1.24,<2             # secondary extraction path (analyze.py fallback)
+Pillow>=10.4,<12             # page/figure raster crops
+fonttools>=4.50,<5           # font identification + subset embedding
+wordfreq>=3.1,<4             # lexical frequency signal in structure analysis
+
+# --- web app -------------------------------------------------------------
+fastapi>=0.110,<1            # HTTP API
+uvicorn>=0.29,<1             # ASGI server
+pydantic>=2.6,<3             # request/response models (FastAPI v2 line)
+watchfiles>=0.21,<2          # --reload file watching for the dev service
+
+# --- config / eval -------------------------------------------------------
+PyYAML>=6.0,<7               # eval spec files (eval/*.yaml)
+
+# --- AI / Landing Page Maker ---------------------------------------------
+anthropic>=0.40,<1           # default provider (claude-opus-4-8)
+openai>=1.40,<2              # OpenAI + DeepSeek (OpenAI-compatible) providers
+
+# --- vision QA / screenshots ---------------------------------------------
+playwright>=1.44,<2          # headless Chromium drive for vision QA
+                             # (browser is preinstalled at /opt/pw-browsers)
+
+# --- tests ---------------------------------------------------------------
+pytest>=8.0,<9               # corpus regression suite (tests/)
