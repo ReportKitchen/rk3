@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LPM Tools — Internal Style Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Mulish:ital,wght@0,300..900;1,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--rk-font-body); background: var(--rk-paper); color: var(--rk-text-body); }
+  a { color: var(--rk-text-link); } a:hover { color: var(--rk-text-link-hover); }
+
+  .masthead { background: var(--rk-rhino-900); color: #fff; padding: 40px 0 34px; }
+  .wrap { width: 1000px; margin: 0 auto; }
+  .masthead img { height: 24px; display: block; margin-bottom: 18px; }
+  .masthead h1 { font-family: var(--rk-font-display); font-size: 34px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.015em; }
+  .masthead p { color: var(--rk-rhino-200); font-size: 15px; margin: 0; max-width: 62ch; line-height: 1.55; }
+
+  section.sg { padding: 44px 0 8px; }
+  .sg h2 { font-family: var(--rk-font-display); font-size: 24px; font-weight: 800; color: var(--rk-text-strong); margin: 0 0 4px; letter-spacing: -0.01em; }
+  .sg .lede { font-size: 14px; color: var(--rk-text-muted); margin: 0 0 22px; max-width: 74ch; line-height: 1.55; }
+  .card { background: #fff; border: 1px solid var(--rk-border); border-radius: 14px; padding: 26px 30px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .lbl { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--rk-text-muted); margin: 0 0 12px; }
+
+  /* type specimens */
+  .spec { display: grid; grid-template-columns: 190px 1fr; gap: 18px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--rk-gray-100); }
+  .spec:last-child { border: 0; }
+  .spec .meta { font-size: 12px; color: var(--rk-text-muted); line-height: 1.5; }
+  .spec .meta b { color: var(--rk-text-strong); display: block; font-size: 12.5px; }
+
+  /* colors */
+  .swgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .swatch { border-radius: 10px; overflow: hidden; border: 1px solid var(--rk-border); background: #fff; }
+  .swatch .chip { height: 64px; }
+  .swatch .info { padding: 9px 12px; font-size: 11.5px; color: var(--rk-text-muted); line-height: 1.45; }
+  .swatch .info b { display: block; color: var(--rk-text-strong); font-size: 12.5px; }
+
+  /* buttons */
+  .btnrow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .btn { font-family: var(--rk-font-body); font-weight: 700; font-size: 14px; border-radius: 8px; padding: 11px 22px; border: 0; cursor: pointer; }
+  .btn-primary { background: var(--rk-tomato); color: #fff; }
+  .btn-primary:hover { background: var(--rk-tomato-600); }
+  .btn-secondary { background: var(--rk-rhino-900); color: #fff; }
+  .btn-secondary:hover { background: var(--rk-rhino-700); }
+  .btn-outline { background: transparent; color: var(--rk-rhino-700); border: 1.5px solid var(--rk-rhino-200); }
+  .btn-outline:hover { border-color: var(--rk-rhino-700); }
+  .btn-ghost { background: transparent; color: var(--rk-text-muted); }
+  .btn-ghost:hover { color: var(--rk-text-strong); }
+  .btn-danger { background: #fff; color: var(--rk-tomato-600); border: 1.5px solid var(--rk-tomato-300); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn-sm { font-size: 12.5px; padding: 7px 14px; }
+
+  /* form controls */
+  .fgroup { margin-bottom: 20px; }
+  .fgroup:last-child { margin-bottom: 0; }
+  .flabel { display: block; font-size: 12.5px; font-weight: 700; color: var(--rk-text-strong); margin-bottom: 6px; }
+  .fhint { font-size: 11.5px; color: var(--rk-text-muted); margin-top: 5px; }
+  .tin { width: 100%; font-family: var(--rk-font-body); font-size: 14px; color: var(--rk-text-strong);
+    border: 1px solid var(--rk-border-strong); border-radius: 8px; padding: 10px 13px; background: #fff; outline: none; }
+  .tin::placeholder { color: var(--rk-gray-500); }
+  .tin:focus { border-color: var(--rk-rhino-700); box-shadow: 0 0 0 3px var(--rk-macaroni-100); }
+  .tin.err { border-color: var(--rk-tomato-500); box-shadow: 0 0 0 3px var(--rk-tomato-100); }
+  .errmsg { font-size: 11.5px; color: var(--rk-tomato-600); font-weight: 600; margin-top: 5px; }
+  textarea.tin { min-height: 84px; resize: vertical; }
+
+  .radio, .check { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--rk-text-body); padding: 6px 0; cursor: pointer; }
+  .radio input, .check input { appearance: none; margin: 0; width: 18px; height: 18px; border: 1.5px solid var(--rk-rhino-200); background: #fff; cursor: pointer; flex: none; }
+  .radio input { border-radius: 50%; }
+  .radio input:checked { border: 2px solid var(--rk-rhino-700); background: radial-gradient(circle, var(--rk-rhino-700) 0 4px, transparent 4.5px); }
+  .check input { border-radius: 5px; position: relative; }
+  .check input:checked { background: var(--rk-rhino-700); border-color: var(--rk-rhino-700); }
+  .check input:checked::after { content: ""; position: absolute; left: 4.5px; top: 1.5px; width: 4px; height: 8px;
+    border: solid #fff; border-width: 0 2.2px 2.2px 0; transform: rotate(45deg); }
+  .radio input:focus-visible, .check input:focus-visible, .switch input:focus-visible { outline: 3px solid var(--rk-macaroni-100); outline-offset: 1px; }
+
+  .switch { display: flex; align-items: center; gap: 11px; font-size: 14px; padding: 6px 0; cursor: pointer; }
+  .switch input { appearance: none; margin: 0; width: 42px; height: 24px; border-radius: 999px; background: var(--rk-gray-300); position: relative; cursor: pointer; transition: background .15s; flex: none; }
+  .switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left .15s; box-shadow: 0 1px 3px rgba(30,39,64,.3); }
+  .switch input:checked { background: var(--rk-rhino-700); }
+  .switch input:checked::after { left: 21px; }
+
+  input[type="range"].slider { appearance: none; width: 100%; height: 5px; border-radius: 3px; background: linear-gradient(90deg, var(--rk-rhino-700) 0 45%, var(--rk-gray-200) 45%); outline: none; }
+  input[type="range"].slider::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2.5px solid var(--rk-rhino-700); cursor: grab; }
+
+  select.sel { appearance: none; font-family: var(--rk-font-body); font-size: 14px; color: var(--rk-text-strong); width: 100%;
+    border: 1px solid var(--rk-border-strong); border-radius: 8px; padding: 10px 38px 10px 13px; background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path d="M1 1l5 5 5-5" fill="none" stroke="%234C5A80" stroke-width="2"/></svg>') no-repeat right 14px center; cursor: pointer; }
+  select.sel:focus { border-color: var(--rk-rhino-700); box-shadow: 0 0 0 3px var(--rk-macaroni-100); outline: none; }
+
+  .seg { display: inline-flex; background: var(--rk-gray-100); border-radius: 8px; padding: 3px; }
+  .seg span { font-size: 13px; font-weight: 600; padding: 7px 16px; border-radius: 6px; color: var(--rk-text-muted); cursor: pointer; }
+  .seg .on { background: var(--rk-rhino-900); color: #fff; }
+
+  /* menus + dialogs */
+  .menu { width: 224px; background: #fff; border: 1px solid var(--rk-border); border-radius: 10px; box-shadow: 0 12px 32px rgba(30,39,64,.16); padding: 6px; }
+  .menu .mi { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--rk-text-body); padding: 9px 12px; border-radius: 7px; cursor: pointer; }
+  .menu .mi:hover { background: var(--rk-macaroni-100); color: var(--rk-text-strong); }
+  .menu .mi svg { color: var(--rk-rhino-500); flex: none; }
+  .menu hr { border: 0; border-top: 1px solid var(--rk-gray-100); margin: 5px 4px; }
+  .menu .mi.danger { color: var(--rk-tomato-600); }
+  .menu .mi.danger svg { color: var(--rk-tomato-600); }
+
+  .dlg { width: 400px; background: #fff; border-radius: 14px; box-shadow: 0 24px 64px rgba(30,39,64,.28); overflow: hidden; }
+  .dlg .db { padding: 24px 26px 8px; }
+  .dlg h3 { font-family: var(--rk-font-display); font-size: 18px; font-weight: 700; color: var(--rk-text-strong); margin: 0 0 6px; }
+  .dlg p { font-size: 13.5px; line-height: 1.55; color: var(--rk-text-body); margin: 0; }
+  .dlg .df { display: flex; justify-content: flex-end; gap: 10px; padding: 18px 26px 22px; }
+
+  .toast { display: inline-flex; align-items: center; gap: 10px; background: var(--rk-rhino-900); color: #fff; border-radius: 10px;
+    padding: 12px 18px; font-size: 13.5px; font-weight: 600; box-shadow: 0 8px 24px rgba(30,39,64,.3); }
+  .toast svg { color: var(--rk-macaroni); flex: none; }
+  .banner { display: flex; align-items: flex-start; gap: 11px; border-radius: 10px; padding: 13px 16px; font-size: 13px; line-height: 1.5; }
+  .banner.warn { background: var(--rk-macaroni-100); color: var(--rk-text-strong); border: 1px solid var(--rk-macaroni-300); }
+  .banner.err { background: var(--rk-tomato-100); color: var(--rk-tomato-700); border: 1px solid var(--rk-tomato-300); }
+
+  .code-note { background: var(--rk-rhino-900); border-radius: 10px; padding: 14px 18px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px; line-height: 1.6; color: var(--rk-text-on-dark); }
+  .footer-note { padding: 40px 0 60px; font-size: 12.5px; color: var(--rk-text-muted); }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <div class="wrap">
+    <img src="../../assets/logo-white.png" alt="Report Kitchen">
+    <h1>Tools — Internal Style Guide</h1>
+    <p>Shared UI vocabulary for Landing Page Maker and the rest of the RK tools family. Never ship a browser-default control: everything on this page has a styled equivalent. Copy the CSS, don't improvise.</p>
+  </div>
+</div>
+
+<section class="sg"><div class="wrap">
+  <h2>Typography</h2>
+  <p class="lede">Two families only. <strong>Bricolage Grotesque</strong> for display and headings, <strong>Mulish</strong> for everything else — body, labels, buttons, wayfinding. Monospace is not a design font: it appears only inside code blocks (export snippets).</p>
+  <div class="card">
+    <div class="spec"><div class="meta"><b>Display / page title</b>Bricolage Grotesque 800<br>30–44px, tracking −0.015em</div><div style="font-family: var(--rk-font-display); font-weight: 800; font-size: 34px; color: var(--rk-text-strong); letter-spacing: -0.015em;">Upload your PDF</div></div>
+    <div class="spec"><div class="meta"><b>Section heading</b>Bricolage Grotesque 700<br>17–24px</div><div style="font-family: var(--rk-font-display); font-weight: 700; font-size: 21px; color: var(--rk-text-strong);">Select your level of AI</div></div>
+    <div class="spec"><div class="meta"><b>Body</b>Mulish 400<br>14–15px / 1.55</div><div style="font-size: 14.5px; line-height: 1.55; max-width: 56ch;">Start with the document you've already published. We'll read its structure so you can build with it.</div></div>
+    <div class="spec"><div class="meta"><b>Label / control</b>Mulish 700<br>12.5–13px</div><div style="font-size: 12.5px; font-weight: 700; color: var(--rk-text-strong);">Content width</div></div>
+    <div class="spec"><div class="meta"><b>Hint / meta</b>Mulish 400<br>11.5–12.5px, muted</div><div style="font-size: 12px; color: var(--rk-text-muted);">Up to 200 pages · 100 MB max · one document per page</div></div>
+    <div class="spec"><div class="meta"><b>Code — only for code</b>ui-monospace<br>11.5–12px on rhino-900</div><div class="code-note" style="max-width: 380px;">&lt;section class="rk-landing"&gt;…&lt;/section&gt;</div></div>
+  </div>
+</div></section>
+
+<section class="sg"><div class="wrap">
+  <h2>Color</h2>
+  <p class="lede">The tools live on RK's palette but with their own dosage: rhino-900 chrome, macaroni for selection and progress, tomato reserved for primary actions and destructive warnings. Paper, not white, behind every canvas.</p>
+  <div class="swgrid">
+    <div class="swatch"><div class="chip" style="background: var(--rk-rhino-900);"></div><div class="info"><b>Rhino 900 · #1E2740</b>Tool chrome, code blocks</div></div>
+    <div class="swatch"><div class="chip" style="background: var(--rk-rhino-700);"></div><div class="info"><b>Rhino 700 · #303D61</b>Controls: checked, active</div></div>
+    <div class="swatch"><div class="chip" style="background: var(--rk-macaroni);"></div><div class="info"><b>Macaroni · #F2BB2E</b>Selection, current step</div></div>
+    <div class="swatch"><div class="chip" style="background: var(--rk-macaroni-100);"></div><div class="info"><b>Macaroni 100 · #FDF1D2</b>Selected fills, focus ring</div></div>
+    <div class="swatch"><div class="chip" style="background: var(--rk-tomato);"></div><div class="info"><b>Tomato · #D72E2C</b>Primary CTA, destructive</div></div>
+    <div class="swatch"><div class="chip" style="background: var(--rk-paper); border-bottom: 1px solid var(--rk-border);"></div><div class="info"><b>Paper · #FBF7F0</b>Canvas + page grounds</div></div>
+    <div class="swatch"><div class="chip" style="background: var(--rk-muffin);"></div><div class="info"><b>Muffin · #7683A2</b>Avatars, illustration fills</div></div>
+    <div class="swatch"><div class="chip" style="background: var(--rk-rhino-200);"></div><div class="info"><b>Rhino 200 · #A9B2C6</b>Control borders, unchecked</div></div>
+    <div class="swatch"><div class="chip" style="background: var(--rk-border);"></div><div class="info"><b>Border · #E4E1D9</b>Hairlines on paper/white</div></div>
+    <div class="swatch"><div class="chip" style="background: var(--rk-success);"></div><div class="info"><b>Success · #2E8B57</b>Confirmation states only</div></div>
+  </div>
+</div></section>
+
+<section class="sg"><div class="wrap">
+  <h2>Buttons</h2>
+  <p class="lede">One tomato button per view, maximum. Rhino for secondary structure actions, outline/ghost for everything else.</p>
+  <div class="card">
+    <div class="btnrow">
+      <button class="btn btn-primary">Export</button>
+      <button class="btn btn-secondary">Browse files</button>
+      <button class="btn btn-outline">Preview</button>
+      <button class="btn btn-ghost">Cancel</button>
+      <button class="btn btn-danger">Remove block</button>
+      <button class="btn btn-primary" disabled>Continue to builder →</button>
+      <button class="btn btn-secondary btn-sm">Small</button>
+    </div>
+  </div>
+</div></section>
+
+<section class="sg"><div class="wrap">
+  <h2>Form controls</h2>
+  <p class="lede">Real elements, styled — keyboard and screen-reader friendly. Focus is always a rhino border plus a macaroni-100 halo.</p>
+  <div class="grid2">
+    <div class="card">
+      <p class="lbl">Text input</p>
+      <div class="fgroup"><label class="flabel">Heading</label><input class="tin" type="text" value="Executive summary"><p class="fhint">Shown above the block on your page.</p></div>
+      <div class="fgroup"><label class="flabel">Placeholder</label><input class="tin" type="text" placeholder="e.g. Key findings"></div>
+      <div class="fgroup"><label class="flabel">Error</label><input class="tin err" type="text" value="not-an-email"><p class="errmsg">Enter a valid email address.</p></div>
+      <div class="fgroup"><label class="flabel">Textarea</label><textarea class="tin">Helping the housing industry better understand and serve the justice-impacted population.</textarea></div>
+    </div>
+    <div class="card">
+      <p class="lbl">Selection</p>
+      <div class="fgroup">
+        <label class="flabel">Radios</label>
+        <label class="radio"><input type="radio" name="r1" checked>Executive Summary</label>
+        <label class="radio"><input type="radio" name="r1">Preface</label>
+        <label class="radio"><input type="radio" name="r1">Overview</label>
+      </div>
+      <div class="fgroup">
+        <label class="flabel">Checkboxes</label>
+        <label class="check"><input type="checkbox" checked>Include table of contents</label>
+        <label class="check"><input type="checkbox">Show page numbers</label>
+      </div>
+      <div class="fgroup">
+        <label class="flabel">Toggle</label>
+        <label class="switch"><input type="checkbox" checked>Host the PDF on RK's CDN</label>
+        <label class="switch"><input type="checkbox">Left sidebar (your site)</label>
+      </div>
+    </div>
+    <div class="card">
+      <p class="lbl">Range + select</p>
+      <div class="fgroup"><label class="flabel">Slider — content width</label><input type="range" class="slider" min="560" max="1200" value="800"><p class="fhint">800 px</p></div>
+      <div class="fgroup"><label class="flabel">Pulldown (account / rare use)</label>
+        <select class="sel">
+          <option selected>EdPrepLab (team)</option>
+          <option>Personal workspace</option>
+          <option>Create a team…</option>
+        </select>
+      </div>
+      <div class="fgroup"><label class="flabel">Segmented control</label><div class="seg"><span class="on">Desktop</span><span>Tablet</span><span>Mobile</span></div></div>
+    </div>
+    <div class="card">
+      <p class="lbl">Messages</p>
+      <div class="fgroup"><div class="toast"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"></path></svg>Page saved</div></div>
+      <div class="fgroup"><div class="banner warn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--rk-macaroni-600)" stroke-width="2" style="flex: none; margin-top: 1px;"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path></svg><span><strong>Your PDF has 240 pages.</strong> We'll read the first 200 — consider splitting the document.</span></div></div>
+      <div class="fgroup"><div class="banner err"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex: none; margin-top: 1px;"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v4m0 4h.01"></path></svg><span><strong>Upload failed.</strong> The file appears to be corrupted. Try re-saving the PDF and uploading again.</span></div></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="sg"><div class="wrap">
+  <h2>Menus &amp; confirmations</h2>
+  <p class="lede">The account menu hangs from the avatar. Confirmations follow the modal pattern — plain-language title, one consequence sentence, ghost cancel, and the destructive action in tomato.</p>
+  <div class="grid2">
+    <div class="card" style="display: flex; gap: 40px; align-items: flex-start;">
+      <div>
+        <p class="lbl">Account menu (open)</p>
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--rk-muffin); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; margin-bottom: 10px;">JM</div>
+        <div class="menu">
+          <div style="padding: 10px 12px 8px;"><div style="font-size: 13.5px; font-weight: 700; color: var(--rk-text-strong);">Jamie Moreno</div><div style="font-size: 12px; color: var(--rk-text-muted);">jamie@edpreplab.org</div></div>
+          <hr>
+          <div class="mi"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l4 4v14H6zM15 3v4h4"></path></svg>My pages</div>
+          <div class="mi"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.4 2.6a7 7 0 0 0-2 1.2l-2.5-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.5-1a7 7 0 0 0 2 1.2L10 21h4l.4-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.07-.4.1-.8.1-1.2z"></path></svg>Account settings</div>
+          <div class="mi"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3m.1 4h.01"></path></svg>Help &amp; docs</div>
+          <hr>
+          <div class="mi danger"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m7 14l5-5-5-5m5 5H9"></path></svg>Sign out</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <p class="lbl">Confirmation dialog</p>
+      <div class="dlg">
+        <div class="db">
+          <h3>Remove this block?</h3>
+          <p>"Document Summary" and its settings will be deleted from your page. You can add a fresh one later, but this configuration won't come back.</p>
+        </div>
+        <div class="df">
+          <button class="btn btn-ghost">Cancel</button>
+          <button class="btn btn-primary">Remove block</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<div class="wrap footer-note">Questions → design@reportkitchen.com · Tokens come from <strong>styles.css</strong>; this page adds only tool-specific patterns.</div>
+
+</body>
+</html>

@@ -57,5 +57,12 @@ logs/
 patterns/out/
 patterns/logs/
 
+# design kit: track the source of truth (tokens, components, guidelines, UI
+# kits, brand assets — small and diffable) but not the delivered .zip, which is
+# just the unpacked tree re-archived, nor the design-process screenshots.
+design-system/*.zip
+design-system/uploads/Screenshot*.png
+design-system/uploads/screencapture-*.png
+
 # misc
 /rk1
