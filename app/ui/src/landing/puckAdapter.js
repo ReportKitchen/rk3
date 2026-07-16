@@ -16,6 +16,7 @@ export function themeToRoot(theme) {
     textColor: v["--lp-text"] || "#111111",
     headingColor: v["--lp-heading"] || "#111111",
     accent: v["--lp-accent"] || "#1b4965",
+    font: v["--lp-font"] || FONT,
     leftSidebar: !!pv.leftSidebar,
     rightSidebar: !!pv.rightSidebar,
   };
@@ -32,7 +33,7 @@ function rootToTheme(p = {}) {
       "--lp-text": p.textColor || "#111111",
       "--lp-heading": p.headingColor || "#111111",
       "--lp-accent": p.accent || "#1b4965",
-      "--lp-font": FONT,
+      "--lp-font": p.font || FONT,
     },
     // preview-only page context (sidebars); never used by the export
     preview: { leftSidebar: !!p.leftSidebar, rightSidebar: !!p.rightSidebar },

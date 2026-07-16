@@ -168,6 +168,11 @@ export const postLanding = (slug, config) =>
     body: JSON.stringify(config),
   }).then(json);
 
+// whether this doc has a client page to copy styles from (editor hides the
+// whole Copy-my-site control when there's none)
+export const getTemplateUrl = (slug) =>
+  fetch(`/api/landing/${slug}/template-url`).then(json).then((d) => d.url);
+
 // scan the client's own published page (config.json landingpage-template.url)
 // and get a theme derived from it, to pre-fill Page setup
 export const scanTemplate = (slug) =>

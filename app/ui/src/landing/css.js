@@ -2,9 +2,6 @@
 // rule text lives in landingPage.css (one source for the Puck canvas and the
 // export). Per-element colors are NOT here — they live on each block's props.
 
-export const FONT_LINK =
-  "https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap";
-
 // theme -> { cssProp: value }; usable directly as a React style object (custom
 // properties are valid style keys) or stringified for the export.
 export function themeProps(theme) {

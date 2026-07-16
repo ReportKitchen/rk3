@@ -182,14 +182,30 @@
 .lp-mini-scale { transform-origin: top left; }
 .lp-mini-empty { font-size: 12px; color: var(--rk-text-muted); padding: 20px; margin: 0; }
 
-/* ---- Match my site (Page setup) ---- */
-.lp-match {
-  margin: 8px 0 4px; padding: 14px; border-radius: var(--rk-radius-md);
-  background: var(--rk-macaroni-100); border: 1px solid var(--rk-macaroni-300);
+/* ---- Copy my site styles (Page setup) ---- */
+.lp-copy {
+  margin: 8px 0 4px; padding: 13px 14px; border-radius: var(--rk-radius-md);
+  background: var(--rk-gray-100); border: 1px solid var(--rk-border);
+  transition: background var(--rk-dur-fast) var(--rk-ease-out),
+              border-color var(--rk-dur-fast) var(--rk-ease-out);
 }
-.lp-match-btn { display: inline-flex; align-items: center; gap: 8px; }
-.lp-match-note { margin: 9px 0 0; font-size: 11.5px; line-height: 1.45; color: var(--rk-text-muted); }
-.lp-match-note.err { color: var(--rk-tomato-600); font-weight: var(--rk-weight-semibold); }
+.lp-copy.on { background: var(--rk-macaroni-100); border-color: var(--rk-macaroni-300); }
+.lp-copy-row { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.lp-copy-row input {
+  appearance: none; margin: 0; width: 18px; height: 18px; flex: none;
+  border: 1.5px solid var(--rk-rhino-200); border-radius: 5px; background: #fff;
+  cursor: pointer; position: relative;
+}
+.lp-copy-row input:checked { background: var(--rk-rhino-700); border-color: var(--rk-rhino-700); }
+.lp-copy-row input:checked::after {
+  content: ""; position: absolute; left: 5px; top: 1.5px; width: 4px; height: 8px;
+  border: solid #fff; border-width: 0 2.2px 2.2px 0; transform: rotate(45deg);
+}
+.lp-copy-row input:disabled { opacity: 0.5; cursor: default; }
+.lp-copy-label { font-size: 13px; font-weight: var(--rk-weight-bold); color: var(--rk-text-strong); }
+.lp-copy-spin { margin-left: auto; font-size: 11.5px; color: var(--rk-text-muted); }
+.lp-copy-note { margin: 8px 0 0; font-size: 11.5px; line-height: 1.45; color: var(--rk-text-muted); }
+.lp-copy-note.err { color: var(--rk-tomato-600); font-weight: var(--rk-weight-semibold); }
 
 /* ---- template picker (Page setup) ---- */
 .lp-templates { display: flex; flex-direction: column; gap: 6px; }

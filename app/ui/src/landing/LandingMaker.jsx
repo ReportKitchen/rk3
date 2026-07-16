@@ -6,10 +6,11 @@ import "./landing.css";
 import {
   assetBase, sourceUrl, getIr, getLanding, getLandingTheme, getAiMode,
   getLandingTemplate, getArchetypes, getBlockDefaults, postLanding, postLandingTheme,
-  scanTemplate,
+  getTemplateUrl, scanTemplate,
 } from "../api.js";
 import { puckConfig, TYPE_TO_PUCK } from "./puckConfig.jsx";
 import { toPuck, fromPuck, propsToPuck, themeToRoot } from "./puckAdapter.js";
+import { ensureFont, primaryFamily } from "./fonts.js";
 import { exportZip } from "./exportZip.js";
 import { guard } from "../errorBus.js";
 import { LandingOptions } from "./landingOptions.js";
@@ -52,6 +53,12 @@ export default function LandingMaker({ doc }) {
   const [exporting, setExporting] = useState(false);
   const [fading, setFading] = useState(false);   // crossfade during a re-seed
   const [modal, setModal] = useState(null);      // null | "page" | "block"
+  const [templateUrl, setTemplateUrl] = useState(null);  // null => hide Copy my site
+  const [copyOn, setCopyOn] = useState(false);   // "Copy my site styles" checkbox
+  // copy-my-site state persisted alongside the theme: { on, url, base, scanned }.
+  // base = the manual theme to restore when turned off; scanned = the cached
+  // client look. Not carried in Puck root props, so save() re-attaches it.
+  const copySiteRef = useRef(null);
   const dataRef = useRef(null);
   const seedingRef = useRef(false);              // swallow the onChange right after a seed
   const dispatchRef = useRef(null);              // Puck's dispatch, registered by the shell
@@ -90,10 +97,13 @@ export default function LandingMaker({ doc }) {
     getArchetypes().then((a) => alive && setArchetypes(a)).catch(guard("landing: archetypes", null));
     getAiMode().then((m) => alive && setAiMode(m)).catch(guard("landing: ai mode", null));
     getBlockDefaults(slug).then((d) => alive && setBlockDefaults(d)).catch(guard("landing: block defaults", null));
+    getTemplateUrl(slug).then((u) => alive && setTemplateUrl(u)).catch(guard("landing: template url", null));
     Promise.all([getLanding(slug), getLandingTheme(slug)])
       .then(([config, theme]) => {
         if (!alive) return;
         setArch(config.template || "");
+        copySiteRef.current = theme.copySite || null;
+        setCopyOn(!!theme.copySite?.on);
         const d = toPuck(config, theme);
         dataRef.current = d;
         markSeeded();
@@ -113,8 +123,17 @@ export default function LandingMaker({ doc }) {
 
   const timer = useRef();
   const save = useCallback((config, theme) => {
+    // keep the copy-my-site metadata alive across the Puck round-trip (root
+    // props don't carry it) and let edits accrue to the active mode's slot, so
+    // toggling restores what you last had in each mode
+    let themeToSave = theme;
+    const cs = copySiteRef.current;
+    if (cs) {
+      copySiteRef.current = { ...cs, [cs.on ? "scanned" : "base"]: theme };
+      themeToSave = { ...theme, copySite: copySiteRef.current };
+    }
     setSaved(false);
-    Promise.all([postLanding(slug, config), postLandingTheme(slug, theme)])
+    Promise.all([postLanding(slug, config), postLandingTheme(slug, themeToSave)])
       .then(() => setSaved(true)).catch(guard("landing: save", null));
   }, [slug]);
 
@@ -177,25 +196,45 @@ export default function LandingMaker({ doc }) {
     reseed(tmpl, theme);
   }, [arch, slug, reseed]);
 
-  // "Match my site": scan the client's published page and apply its look to the
-  // page theme (colours/width/sidebars — via the root props). Returns a short
-  // summary for the button's status line. Applied inside the open Page setup
-  // modal, so its Cancel reverts it and Done keeps it, like any other edit.
-  const matchSite = useCallback(async () => {
-    const { theme } = await scanTemplate(slug);
-    const cur = dataRef.current || {};
-    const next = { ...cur, root: { props: themeToRoot(theme) } };
+  // apply a theme to the page (root props), load its font, and persist. setData
+  // doesn't fire Puck's onChange, so save explicitly (like reseed). Returns the
+  // applied Puck data so the caller can rebase the modal's Cancel snapshot.
+  const applyTheme = useCallback((theme) => {
+    const next = { ...(dataRef.current || {}), root: { props: themeToRoot(theme) } };
     dataRef.current = next;
+    ensureFont(primaryFamily(theme.vars?.["--lp-font"]));  // main doc (modal preview)
     if (dispatchRef.current) dispatchRef.current({ type: "setData", data: next });
     else { setInitial(next); setSeedKey((k) => k + 1); }
-    // setData doesn't fire Puck's onChange, so persist explicitly (like reseed)
     const applied = fromPuck(next, archRef.current);
     save(applied.config, applied.theme);
-    const font = (theme.vars["--lp-font"] || "").split(",")[0].replace(/["']/g, "").trim();
-    const side = theme.preview?.leftSidebar ? "left sidebar"
-      : theme.preview?.rightSidebar ? "right sidebar" : "no sidebar";
-    return { font, accent: theme.vars["--lp-accent"], side, width: theme.contentWidth };
-  }, [slug, save]);
+    return next;
+  }, [save]);
+
+  // "Copy my site styles": on => apply the scanned client look (scan once, then
+  // cache); off => restore the manual theme captured when it was first turned
+  // on. copySiteRef holds { on, url, base, scanned }; save() persists it.
+  const toggleCopySite = useCallback(async (on) => {
+    setCopyOn(on);   // reflect intent immediately; the scan takes a few seconds
+    try {
+      const active = fromPuck(dataRef.current).theme;   // current (root props only)
+      let cs = copySiteRef.current || { on: false, url: templateUrl, base: null, scanned: null };
+      if (on && !cs.scanned) {
+        const r = await scanTemplate(slug);             // may throw -> caller shows why
+        cs = { ...cs, scanned: r.theme, url: r.url };
+      }
+      cs = on ? { ...cs, on: true, base: cs.base || active } : { ...cs, on: false };
+      copySiteRef.current = cs;
+      const target = on ? cs.scanned : (cs.base || active);
+      const data = applyTheme(target);
+      const font = primaryFamily(target.vars?.["--lp-font"]);
+      const side = target.preview?.leftSidebar ? "left sidebar"
+        : target.preview?.rightSidebar ? "right sidebar" : "no sidebar";
+      return { data, summary: on ? `${font} · links ${target.vars["--lp-accent"]} · ${side} · ${target.contentWidth}px` : null };
+    } catch (e) {
+      setCopyOn(!on);   // scan failed — put the checkbox back
+      throw e;
+    }
+  }, [slug, templateUrl, applyTheme]);
 
   // persist a specific Puck data object (used by the modal's Cancel, whose
   // setData revert would otherwise leave the autosaved edits in the file)
@@ -270,7 +309,9 @@ export default function LandingMaker({ doc }) {
             onSwitch={switchTemplate}
             onReload={reloadTemplate}
             onExport={onExport}
-            onMatchSite={matchSite}
+            templateUrl={templateUrl}
+            copyOn={copyOn}
+            onToggleCopy={toggleCopySite}
             onPersist={persist}
             assetBase={assetBase(slug)}
             downloadHref={sourceUrl(slug)}

@@ -1,6 +1,7 @@
 import React from "react";
 import { LandingRenderer } from "./LandingRenderer.jsx";
 import { themeProps } from "./css.js";
+import { ensureFont, primaryFamily } from "./fonts.js";
 
 // The modals' live preview.
 //
@@ -21,6 +22,10 @@ export default function MiniPreview({
   caption = "Live preview — updates as you change options",
 }) {
   const empty = !(config?.blocks || []).length;
+  // load the body font in this (main) document so the preview renders it
+  React.useEffect(() => {
+    ensureFont(primaryFamily(theme?.vars?.["--lp-font"]), document);
+  }, [theme]);
   return (
     <div className="lp-mini">
       <p className="lp-mini-cap">{caption}</p>

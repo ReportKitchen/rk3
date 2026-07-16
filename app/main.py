@@ -1052,6 +1052,28 @@ def post_landing_theme(slug: str, theme: dict):
     return {"saved": True}
 
 
+def _template_url(slug: str) -> str | None:
+    """The client page URL to copy styles from — config.json
+    'landingpage-template.url', which the owner set."""
+    src = source_for_slug(slug)
+    if src is None:
+        raise HTTPException(404, f"unknown document {slug!r}")
+    cfg_path = src.with_name(src.stem + ".config.json")
+    if not cfg_path.exists():
+        return None
+    try:
+        return (json.loads(cfg_path.read_text()).get("landingpage-template") or {}).get("url") or None
+    except json.JSONDecodeError:
+        return None
+
+
+@app.get("/api/landing/{slug}/template-url")
+def get_template_url(slug: str):
+    """Whether this doc has a client page to copy styles from — the editor hides
+    the whole Copy-my-site control when there's no URL."""
+    return {"url": _template_url(slug)}
+
+
 @app.post("/api/landing/{slug}/scan-template")
 def scan_landing_template(slug: str):
     """Scan the client's own published page for its look and return a theme to
@@ -1062,22 +1084,15 @@ def scan_landing_template(slug: str):
     Playwright render in scan_page is off the event loop and safe here."""
     from rk3.webscan import scan_page
 
-    src = source_for_slug(slug)
-    if src is None:
-        raise HTTPException(404, f"unknown document {slug!r}")
-    cfg_path = src.with_name(src.stem + ".config.json")
-    url = None
-    if cfg_path.exists():
-        try:
-            url = (json.loads(cfg_path.read_text()).get("landingpage-template") or {}).get("url")
-        except json.JSONDecodeError:
-            pass
+    url = _template_url(slug)
     if not url:
         raise HTTPException(400, "No template URL is set for this document. Add "
                                  "\"landingpage-template\": {\"url\": \"…\"} to its config.json.")
     scan = scan_page(url)
     if not scan.get("ok"):
-        raise HTTPException(502, f"Couldn't scan {url}: {scan.get('error', 'unknown error')}")
+        # a clean 400 with the reason, so the editor shows *why* rather than a
+        # proxy timeout page (a slow/blocking site is a bad URL, not a 5xx)
+        raise HTTPException(400, f"Couldn't read {url} — {scan.get('error', 'the page did not load')}.")
     return {"url": url, "theme": theme_from_scan(scan), "scan": scan}
 
 

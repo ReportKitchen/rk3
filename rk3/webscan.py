@@ -222,7 +222,7 @@ _UA = ("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
        "Chrome/125.0 Safari/537.36 ReportKitchen-PageScan/1.0")
 
 
-def scan_page(url: str, *, timeout_ms: int = 30000,
+def scan_page(url: str, *, timeout_ms: int = 20000,
               viewport: tuple[int, int] = (1280, 2200),
               shot_path: str | None = None,
               regions_dir: str | None = None) -> dict:
@@ -246,11 +246,21 @@ def scan_page(url: str, *, timeout_ms: int = 30000,
             viewport={"width": viewport[0], "height": viewport[1]},
             user_agent=_UA,
         )
+        page.set_default_timeout(timeout_ms)
         try:
-            page.goto(url, wait_until="load", timeout=timeout_ms)
+            # domcontentloaded, not "load": many sites keep late trackers/analytics
+            # open long past the content being ready, so waiting for full load can
+            # hang until timeout. DOM-ready plus a short settle is enough — and a
+            # genuinely dead/blocking URL then fails inside timeout_ms and returns a
+            # clean error, rather than outliving a proxy and yielding its 5xx page.
+            page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms)
+            try:
+                page.wait_for_load_state("networkidle", timeout=4000)
+            except Exception:
+                pass  # networkidle is best-effort; DOM-ready already carries the styles
             # let web fonts settle so font-family/weight reflect the real face
             page.evaluate("document.fonts ? document.fonts.ready.then(() => true) : true")
-            page.wait_for_timeout(600)
+            page.wait_for_timeout(400)
 
             data = page.evaluate(_EXTRACT_JS)
 

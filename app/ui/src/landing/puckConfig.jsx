@@ -1,6 +1,7 @@
 import React from "react";
 import { FieldLabel, usePuck } from "@measured/puck";
 import { themeProps } from "./css.js";
+import { ensureFont, primaryFamily } from "./fonts.js";
 import { useLandingOptions } from "./landingOptions.js";
 import { getAiSummary } from "../api.js";
 import {
@@ -164,23 +165,28 @@ export const puckConfig = {
       textColor: { ...color("Body text") },
       headingColor: { ...color("Headings") },
       accent: { ...color("Accent / links") },
+      // font has no UI control yet (set by the theme / Copy my site), but it is
+      // a registered field so Puck round-trips the prop through root.props
+      font: { type: "custom", render: () => null },
       leftSidebar: { ...onOff("Left sidebar (your site)") },
       rightSidebar: { ...onOff("Right sidebar (your site)") },
     },
     defaultProps: {
       contentWidth: 800, pageBg: "#ffffff", contentBg: "#ffffff",
       textColor: "#111111", headingColor: "#111111", accent: "#1b4965",
-      leftSidebar: false, rightSidebar: false,
+      font: FONT, leftSidebar: false, rightSidebar: false,
     },
     render: ({ contentWidth, pageBg, contentBg, textColor, headingColor, accent,
-               leftSidebar, rightSidebar, children }) => {
+               font, leftSidebar, rightSidebar, children }) => {
       const { appState } = usePuck();
+      // load the body font in the canvas iframe (this render runs inside it)
+      React.useEffect(() => { ensureFont(primaryFamily(font), document); }, [font]);
       const style = themeProps({
         contentWidth,
         vars: {
           "--lp-page-bg": pageBg, "--lp-content-bg": contentBg,
           "--lp-text": textColor, "--lp-heading": headingColor, "--lp-accent": accent,
-          "--lp-font": FONT,
+          "--lp-font": font || FONT,
         },
       });
       // simulate how the content sits inside a host page: grey header/footer

@@ -1,7 +1,8 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import JSZip from "jszip";
-import { FONT_LINK, themeCssVars } from "./css.js";
+import { themeCssVars } from "./css.js";
+import { fontHrefForTheme } from "./fonts.js";
 import landingCss from "./landingPage.css?raw";
 import { LandingRenderer } from "./LandingRenderer.jsx";
 import { assetBase, sourceUrl } from "../api.js";
@@ -38,7 +39,7 @@ export async function exportZip(slug, config, theme, docName) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(titleOf(config) || docName)}</title>
-<link rel="stylesheet" href="${FONT_LINK}">
+<link rel="stylesheet" href="${fontHrefForTheme(theme)}">
 <style>
 ${landingCss}
 ${themeCssVars(theme)}

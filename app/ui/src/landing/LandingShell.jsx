@@ -22,32 +22,23 @@ const GearIcon = ({ size }) => svg(
     <path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.4 2.6a7 7 0 0 0-2 1.2l-2.5-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.5-1a7 7 0 0 0 2 1.2L10 21h4l.4-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.07-.4.1-.8.1-1.2z" />
   </>, size);
 const DocIcon = ({ size }) => svg(<path d="M6 3h9l4 4v14H6zM15 3v4h4M9 11h7M9 15h7" />, size);
-const WandIcon = ({ size }) => svg(
-  <><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8L19 13M15 9h0M17.8 6.2L19 5M3 21l9-9M12.2 6.2L11 5" /></>, size);
-
-// "Match my site": scan the client's published page and pre-fill the theme.
-function MatchSite({ onMatchSite }) {
-  const [state, setState] = useState("idle");   // idle | busy | done | error
-  const [msg, setMsg] = useState(null);
-  const run = async () => {
-    setState("busy"); setMsg(null);
-    try {
-      const s = await onMatchSite();
-      setState("done");
-      setMsg(`${s.font} · links ${s.accent} · ${s.side} · ${s.width}px`);
-    } catch (e) {
-      setState("error");
-      setMsg(e?.detail || e?.message || "Scan failed.");
-    }
-  };
+// "Copy my site styles": a toggle. On => apply the scanned client look; off =>
+// revert to the manual theme. `onToggle(on)` does the work and returns a summary
+// (and rebases the modal snapshot); this component owns only the busy/error UI.
+// The whole control is hidden by the caller when the doc has no template URL.
+function CopyMySite({ on, busy, error, summary, onToggle }) {
   return (
-    <div className="lp-match">
-      <button className="lp-btn-secondary lp-match-btn" onClick={run} disabled={state === "busy"}>
-        <WandIcon size={15} />
-        {state === "busy" ? "Scanning your site…" : "Match my site"}
-      </button>
-      <p className={"lp-match-note" + (state === "error" ? " err" : "")}>
-        {msg || "Pull colours, width and layout from your published page."}
+    <div className={"lp-copy" + (on ? " on" : "")}>
+      <label className="lp-copy-row">
+        <input type="checkbox" checked={on} disabled={busy}
+          onChange={(e) => onToggle(e.target.checked)} />
+        <span className="lp-copy-label">Copy my site styles</span>
+        {busy ? <span className="lp-copy-spin">Scanning…</span> : null}
+      </label>
+      <p className={"lp-copy-note" + (error ? " err" : "")}>
+        {error ? error
+          : on && summary ? `Matched — ${summary}`
+            : "Pull colours, font, width and layout from your published page. Turn off to restore your own."}
       </p>
     </div>
   );
@@ -57,7 +48,7 @@ function MatchSite({ onMatchSite }) {
 // Puck.Fields with nothing selected renders the root fields, so the theme
 // controls come straight from puckConfig.root — no second definition of them.
 function PageSetupModal({ ctx, onCancel, onDone }) {
-  const { archetypes, arch, dirty, onSwitch, onReload, onMatchSite, aiMode, preview } = ctx;
+  const { archetypes, arch, dirty, onSwitch, onReload, copy, aiMode, preview } = ctx;
   return (
     <Modal
       icon={<GearIcon size={17} />}
@@ -67,7 +58,10 @@ function PageSetupModal({ ctx, onCancel, onDone }) {
       footer={<ModalFooter note="Cancel puts everything back." onCancel={onCancel} onDone={onDone} />}
     >
       <div className="lp-modal-cfg">
-        <MatchSite onMatchSite={onMatchSite} />
+        {copy.hasUrl ? (
+          <CopyMySite on={copy.on} busy={copy.busy} error={copy.error}
+            summary={copy.summary} onToggle={copy.onToggle} />
+        ) : null}
         <p className="lp-modal-l">Template</p>
         <div className="lp-templates">
           {Object.entries(archetypes).map(([k, label]) => (
@@ -126,7 +120,8 @@ function BlockConfigModal({ ctx, onCancel, onDone, onRemove }) {
 // <Puck> so it can drive editor state directly.
 export default function LandingShell({
   modal, setModal, archetypes, arch, dirty, saved, exporting, aiMode, viewports,
-  onSwitch, onReload, onExport, onMatchSite, onPersist, assetBase, downloadHref, setDispatch,
+  onSwitch, onReload, onExport, templateUrl, copyOn, onToggleCopy, onPersist,
+  assetBase, downloadHref, setDispatch,
 }) {
   // `config` here is the Puck config (for block labels); the landing config is
   // derived separately below via fromPuck
@@ -162,6 +157,25 @@ export default function LandingShell({
     snapshot.current = null;
     setModal(null);
   }, [setModal]);
+
+  // Copy my site styles: a committed mode switch (like the Template buttons),
+  // so after it applies we rebase the open modal's snapshot — Cancel then
+  // reverts later field tweaks, not the toggle itself.
+  const [copyBusy, setCopyBusy] = useState(false);
+  const [copyError, setCopyError] = useState(null);
+  const [copySummary, setCopySummary] = useState(null);
+  const toggleCopy = useCallback(async (on) => {
+    setCopyBusy(true); setCopyError(null);
+    try {
+      const r = await onToggleCopy(on);
+      if (r?.data) snapshot.current = r.data;
+      setCopySummary(r?.summary || null);
+    } catch (e) {
+      setCopyError(e?.detail || e?.message || "Couldn't scan the page.");
+    } finally {
+      setCopyBusy(false);
+    }
+  }, [onToggleCopy]);
 
   // Page setup edits the root, which Puck shows only when nothing is selected
   const openPageSetup = useCallback(() => {
@@ -239,7 +253,11 @@ export default function LandingShell({
       {modal === "page" && (
         <PageSetupModal
           ctx={{
-            archetypes, arch, dirty, onSwitch, onReload, onMatchSite, aiMode,
+            archetypes, arch, dirty, onSwitch, onReload, aiMode,
+            copy: {
+              hasUrl: !!templateUrl, on: copyOn, busy: copyBusy,
+              error: copyError, summary: copySummary, onToggle: toggleCopy,
+            },
             preview: { config, theme, assetBase, downloadHref },
           }}
           onCancel={cancel}
