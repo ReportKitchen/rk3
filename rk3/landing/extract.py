@@ -211,19 +211,34 @@ def default_doc_summary(sections: list[dict], snippet: str) -> dict:
             "blocks": [f"<p>{_esc(snippet)}</p>"] if snippet else []}
 
 
-def _toc(body, limit: int = 8) -> list[dict]:
-    """A landing-page 'what's inside', not a full outline. Take only the major
-    sections (level 2; fall back to level 3 if there are no level-2 headings)
-    and cap the count — nobody wants 185 lines on a landing page."""
-    heads = [h for h in _walk(body) if h.get("type") == "heading"]
-    for level in (2, 3):
-        items = [
-            {"text": h.get("text", "").strip(), "level": level, "anchor": h.get("id", "")}
-            for h in heads if h.get("level") == level and h.get("text", "").strip()
-        ]
-        if items:
-            return items[:limit]
-    return []
+def _toc(body, limit: int = 8, title: str = "", min_count: int = 3) -> list[dict]:
+    """A landing-page 'what's inside', not a full outline. The major-section
+    level varies by document — some use H1 for sections and H2 for the subtitle,
+    others the reverse — so don't hardcode level 2 (which returned a single item
+    on docs whose sections are H1). Pick the SHALLOWEST level that has enough
+    headings to be a real section series, drop back-matter and the doc title,
+    and cap the count."""
+    heads = [h for h in _walk(body)
+             if h.get("type") == "heading" and h.get("text", "").strip()
+             and not _SKIP_HEADING.match(h.get("text", ""))]
+    tnorm = _norm(title)
+    by_level: dict[int, list] = {}
+    for h in heads:
+        # skip the document title itself when it appears as a heading
+        hnorm = _norm(h.get("text", ""))
+        if tnorm and hnorm and (hnorm == tnorm or (len(hnorm) >= 8 and tnorm.startswith(hnorm))):
+            continue
+        by_level.setdefault(h.get("level", 99), []).append(h)
+    if not by_level:
+        return []
+    # shallowest (most major) level with a real series; else the most populous
+    chosen = next((lvl for lvl in sorted(by_level) if len(by_level[lvl]) >= min_count), None)
+    if chosen is None:
+        chosen = max(by_level, key=lambda lvl: len(by_level[lvl]))
+    return [
+        {"text": h.get("text", "").strip(), "level": chosen, "anchor": h.get("id", "")}
+        for h in by_level[chosen]
+    ][:limit]
 
 
 def _title_pieces(title: str) -> dict:
@@ -272,7 +287,7 @@ def extract_pieces(ir: dict) -> dict:
         "summary_source": "heuristic",
         "summary_sections": sections,  # whole verbatim intro sections, each id'd
         "doc_summary": default_doc_summary(sections, snippet),
-        "toc": _toc(body),
+        "toc": _toc(body, title=title),
         "highlights": _highlights(body),
         "findings": [],  # AI-only (filled by the AI pass); heuristics can't do this
         "cover_src": "pages/page-0001.png",
