@@ -71,23 +71,45 @@
 .lp-tile-grip { color: #fff; opacity: 0.35; flex: none; }
 
 /* ---- canvas ---- */
+/* padding-top reserves a band for the floating zoombar so the scroll area (and
+   therefore any block's action bar) starts BELOW it and never scrolls under it */
 .lp-canvas {
   position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column;
+  padding-top: 68px;
   background:
     repeating-linear-gradient(0deg, transparent 0 27px, rgba(48, 61, 97, 0.06) 27px 28px),
     repeating-linear-gradient(90deg, transparent 0 27px, rgba(48, 61, 97, 0.06) 27px 28px),
     var(--rk-paper);
 }
-.lp-canvas > div:last-child { flex: 1; min-height: 0; }
+/* the scroll area holds the scaled preview stage; sits below the zoombar band */
+.lp-scroll {
+  flex: 1; min-height: 0; overflow: auto;
+  display: flex; justify-content: center; align-items: flex-start;
+  padding: 8px 16px 24px;
+}
+.lp-stage-outer { flex: none; }
+.lp-stage { box-shadow: var(--rk-shadow-md); background: #fff; }
+.lp-stage .lp-PuckPreview, .lp-stage [data-puck-preview] { height: 100%; }
 
 .lp-zoombar {
-  position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 5;
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 6;
   display: flex; align-items: center; gap: 12px;
   background: #fff; border-radius: var(--rk-radius-pill); padding: 6px 8px 6px 16px;
   box-shadow: var(--rk-shadow-md); font-size: 12.5px; color: var(--rk-rhino-500);
 }
 .lp-zb-div { width: 1px; height: 16px; background: var(--rk-gray-200); flex: none; }
 .lp-saved { font-size: 11.5px; color: var(--rk-text-muted); min-width: 3.6em; }
+
+/* zoom control (separate from the viewport segment) */
+.lp-zoom { display: inline-flex; align-items: center; gap: 2px; }
+.lp-zoom button {
+  border: 0; background: none; cursor: pointer; color: var(--rk-rhino-500);
+  font: var(--rk-weight-semibold) 13px var(--rk-font-body); border-radius: 6px;
+  padding: 4px 7px; line-height: 1;
+}
+.lp-zoom button:hover:not(:disabled) { background: var(--rk-gray-100); color: var(--rk-text-strong); }
+.lp-zoom button:disabled { opacity: 0.35; cursor: default; }
+.lp-zoom .lp-zoom-pct { min-width: 3.4em; font-variant-numeric: tabular-nums; }
 
 .lp-setupchip {
   display: flex; align-items: center; gap: 7px; border: 0; background: none; padding: 0;

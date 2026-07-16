@@ -194,12 +194,47 @@ export default function LandingShell({
 
   // Puck doesn't mirror the `viewports` prop into ui.viewports.options, so the
   // options come from the same constant Puck was given; only `current` is state.
+  // Puck.Preview also ignores viewports/zoom entirely (that lives in Puck's stock
+  // Canvas), so we size and scale the preview ourselves.
   const vpState = appState.ui.viewports;
+  const vw = vpState.current.width;
   const setViewport = (v) =>
     dispatch({
       type: "setUi",
       ui: { viewports: { ...vpState, current: { width: v.width, height: v.height } } },
     });
+
+  // measure the scroll area so we can fit-scale wide viewports into it
+  const scrollRef = useRef(null);
+  const [view, setView] = useState({ w: 0, h: 0 });
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => setView({ w: el.clientWidth, h: el.clientHeight }));
+    ro.observe(el);
+    setView({ w: el.clientWidth, h: el.clientHeight });
+    return () => ro.disconnect();
+  }, []);
+
+  // zoom: null => auto-fit the viewport width into the scroll area; a number is a
+  // manual override (the zoom control). Reset to auto whenever the viewport changes.
+  const [zoomManual, setZoomManual] = useState(null);
+  useEffect(() => { setZoomManual(null); }, [vw]);
+  const fitZoom = view.w ? Math.max(0.1, Math.min(1, (view.w - 40) / vw)) : 1;
+  const zoom = zoomManual ?? fitZoom;
+  const ZOOM_STEPS = [0.25, 0.33, 0.5, 0.67, 0.8, 0.9, 1];
+  const stepZoom = (dir) => {
+    const i = ZOOM_STEPS.findIndex((s) => s >= zoom - 0.001);
+    const at = i < 0 ? ZOOM_STEPS.length - 1 : i;
+    setZoomManual(ZOOM_STEPS[Math.max(0, Math.min(ZOOM_STEPS.length - 1, at + (dir > 0 ? 1 : -1)))]);
+  };
+  // outer box takes the scaled (physical) size so layout/centering/scroll use it;
+  // the inner box is the logical viewport, scaled from its top-left to fill the outer
+  const outerStyle = { width: Math.round(vw * zoom), height: view.h || undefined };
+  const innerStyle = {
+    width: vw, height: view.h ? Math.round(view.h / zoom) : "100%",
+    transform: `scale(${zoom})`, transformOrigin: "top left",
+  };
 
   const selId = selectedItem?.props?.id;
   const blockCtx = useMemo(() => {
@@ -235,10 +270,19 @@ export default function LandingShell({
           <span className="lp-seg">
             {viewports.map((v) => (
               <button key={v.label} onClick={() => setViewport(v)}
-                className={v.width === vpState.current.width ? "on" : ""}>
+                className={v.width === vw ? "on" : ""} title={`${v.width}px`}>
                 {v.label}
               </button>
             ))}
+          </span>
+          <span className="lp-zb-div" />
+          <span className="lp-zoom">
+            <button onClick={() => stepZoom(-1)} disabled={zoom <= ZOOM_STEPS[0] + 0.001}
+              aria-label="Zoom out">−</button>
+            <button className="lp-zoom-pct" onClick={() => setZoomManual(null)}
+              title="Fit to window">{Math.round(zoom * 100)}%</button>
+            <button onClick={() => stepZoom(1)} disabled={zoom >= 1 - 0.001}
+              aria-label="Zoom in">+</button>
           </span>
           <span className="lp-zb-div" />
           <span className="lp-saved">{saved ? "Saved" : "Saving…"}</span>
@@ -247,7 +291,13 @@ export default function LandingShell({
             {exporting ? "Building…" : "Export"}
           </button>
         </div>
-        <Puck.Preview />
+        <div className="lp-scroll" ref={scrollRef}>
+          <div className="lp-stage-outer" style={outerStyle}>
+            <div className="lp-stage" style={innerStyle}>
+              <Puck.Preview />
+            </div>
+          </div>
+        </div>
       </div>
 
       {modal === "page" && (
