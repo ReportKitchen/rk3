@@ -1,5 +1,5 @@
 import React from "react";
-import { FieldLabel, usePuck } from "@measured/puck";
+import { usePuck } from "@measured/puck";
 import { themeProps } from "./css.js";
 import { ensureFont, primaryFamily } from "./fonts.js";
 import { useLandingOptions } from "./landingOptions.js";
@@ -7,6 +7,20 @@ import { getAiSummary } from "../api.js";
 import {
   Title, Summary, DocSummary, Cover, Hero, Toc, Highlights, Findings, Share, Download, SecondaryCta,
 } from "./LandingRenderer.jsx";
+
+// One compact field wrapper for the whole modal, matching the design kit.
+// It is BOTH Puck's fieldLabel override (built-in text/radio/textarea fields —
+// stacked, for the block config) and the label for our custom fields, which
+// pass `row` for the label-left / control-right rows the kit uses in Page setup.
+// Same markup either way, so landing.css styles every field uniformly.
+export function LpField({ label, row, children }) {
+  return (
+    <div className={"lp-field" + (row ? " row" : "")}>
+      {label ? <span className="lp-field-lbl">{label}</span> : null}
+      <div className="lp-field-ctl">{children}</div>
+    </div>
+  );
+}
 
 // Document Summary render: reads the global drag state so the empty media slot
 // (the floated-image drop target) only appears while something is being dragged.
@@ -36,14 +50,14 @@ function FloatPosition({ value, onChange }) {
   );
 }
 // Puck auto-labels only its built-in field types; custom fields must render
-// their own label (FieldLabel), or the panel shows bare controls
+// their own label (LpField), or the panel shows bare controls
 const floatTopField = {
   type: "custom",
   label: "Floated image position",
   render: ({ value, onChange }) => (
-    <FieldLabel label="Floated image position" el="div">
+    <LpField label="Floated image position" row>
       <FloatPosition value={value} onChange={onChange} />
-    </FieldLabel>
+    </LpField>
   ),
 };
 
@@ -68,9 +82,9 @@ const sectionField = {
   type: "custom",
   label: "Section (from the document)",
   render: ({ value, onChange }) => (
-    <FieldLabel label="Section (from the document)" el="div">
+    <LpField label="Section (from the document)">
       <SectionPicker value={value} onChange={onChange} />
-    </FieldLabel>
+    </LpField>
   ),
 };
 
@@ -81,22 +95,26 @@ const widthField = {
   type: "custom",
   label: "Content width",
   render: ({ value, onChange }) => (
-    <FieldLabel label="Content width" el="div">
+    <LpField label="Content width" row>
       <div className="lp-field-width">
         <input type="range" min="600" max="1200" step="20" value={value || 800}
           onChange={(e) => onChange(+e.target.value)} />
-        <input type="number" min="600" max="1200" value={value || 800}
-          onChange={(e) => onChange(Math.min(1200, Math.max(600, +e.target.value || 800)))} />
-        <span>px</span>
+        <span className="lp-chip">{value || 800} px</span>
       </div>
-    </FieldLabel>
+    </LpField>
   ),
 };
 
+// a real toggle switch (the kit's switch), replacing Puck's Off/On radio pair
 const onOff = (label) => ({
-  type: "radio",
+  type: "custom",
   label,
-  options: [{ label: "Off", value: false }, { label: "On", value: true }],
+  render: ({ value, onChange }) => (
+    <LpField label={label} row>
+      <button type="button" role="switch" aria-checked={!!value}
+        className={"lp-switch" + (value ? " on" : "")} onClick={() => onChange(!value)} />
+    </LpField>
+  ),
 });
 
 // A custom color-swatch field (Puck has no built-in color type).
@@ -104,13 +122,15 @@ const color = (label) => ({
   type: "custom",
   label,
   render: ({ value, onChange, name }) => (
-    <FieldLabel label={label} el="div">
+    <LpField label={label} row>
       <label className="lp-field-color">
-        <input type="color" name={name} value={value || "#000000"}
-          onChange={(e) => onChange(e.currentTarget.value)} />
-        <span>{value || "#000000"}</span>
+        <span className="lp-swatch" style={{ background: value || "#000000" }}>
+          <input type="color" name={name} value={value || "#000000"}
+            onChange={(e) => onChange(e.currentTarget.value)} />
+        </span>
+        <span className="lp-hex">{value || "#000000"}</span>
       </label>
-    </FieldLabel>
+    </LpField>
   ),
 });
 
@@ -145,9 +165,9 @@ const imageField = {
   type: "custom",
   label: "Image",
   render: ({ value, onChange }) => (
-    <FieldLabel label="Image" el="div">
+    <LpField label="Image" row>
       <ImagePicker value={value} onChange={onChange} />
-    </FieldLabel>
+    </LpField>
   ),
 };
 

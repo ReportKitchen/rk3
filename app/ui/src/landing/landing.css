@@ -243,7 +243,98 @@
 .lp-tmpl-reload { font-size: 13px; color: var(--rk-rhino-700); padding: 0 4px; border-radius: 4px; }
 .lp-tmpl-reload:hover { background: var(--rk-macaroni-300); }
 
-/* ---- fields (Puck renders these; we only set the surface around them) ---- */
+/* ---- fields ---- The whole modal uses one wrapper (LpField, also Puck's
+   fieldLabel override): `.lp-field` stacks label-over-control (block config);
+   `.lp-field.row` is the kit's label-left / control-right row (Page setup).
+   The controls inside are a mix of ours and Puck's built-ins (text/radio/
+   textarea), styled here by element so it doesn't matter which. */
+.lp-field {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 9px 0; border-bottom: 1px solid var(--rk-gray-100);
+}
+.lp-field.row {
+  flex-direction: row; align-items: center; justify-content: space-between; gap: 12px;
+}
+.lp-field-lbl { font-size: 12px; font-weight: var(--rk-weight-bold); color: var(--rk-text-strong); }
+.lp-field.row > .lp-field-lbl { flex: none; }
+.lp-field-ctl { min-width: 0; }
+.lp-field.row > .lp-field-ctl { display: flex; justify-content: flex-end; align-items: center; }
+/* Puck wraps each field; flatten its spacing and hide its label icon (the kit
+   labels are plain text) */
+.lp-modal-cfg [class*="PuckFields-field"] { margin: 0; }
+.lp-modal-cfg [class*="Input-labelIcon"] { display: none; }
+
+/* text / textarea / select — the kit's input (used by both our fields and
+   Puck's built-in text/textarea) */
+.lp-field-ctl input[type="text"], .lp-field-ctl input[type="url"],
+.lp-field-ctl input:not([type]), .lp-field-ctl textarea, .lp-field-ctl select,
+.lp-modal-cfg [class*="Input-input"] {
+  width: 100%; font-family: var(--rk-font-body); font-size: 13px; color: var(--rk-text-strong);
+  border: 1px solid var(--rk-border-strong); border-radius: var(--rk-radius-sm);
+  padding: 9px 11px; background: #fff; outline: none;
+}
+.lp-field-ctl textarea, .lp-modal-cfg textarea[class*="Input-input"] { min-height: 76px; resize: vertical; line-height: 1.5; }
+.lp-field-ctl input:focus, .lp-field-ctl textarea:focus, .lp-field-ctl select:focus,
+.lp-modal-cfg [class*="Input-input"]:focus {
+  border-color: var(--rk-rhino-700); box-shadow: 0 0 0 3px var(--rk-macaroni-100);
+}
+.lp-field.row .lp-field-ctl select { width: auto; min-width: 12em; }
+
+/* Puck's radio group (e.g. AI Summary style / length) -> compact segmented pills */
+.lp-modal-cfg [class*="Input-radioGroupItems"] {
+  display: inline-flex; flex-wrap: wrap; gap: 3px; background: var(--rk-gray-100);
+  border-radius: var(--rk-radius-sm); padding: 3px;
+}
+.lp-modal-cfg [class*="Input-radioGroupItems"] > * { margin: 0; }
+.lp-modal-cfg label[class*="Input-radio"] {
+  font-size: 12.5px; font-weight: var(--rk-weight-semibold); color: var(--rk-text-muted);
+  padding: 6px 12px; border-radius: 6px; cursor: pointer;
+}
+.lp-modal-cfg [class*="Input-radioInput"] { position: absolute; opacity: 0; pointer-events: none; }
+.lp-modal-cfg [class*="Input-radioInner"] { all: unset; }
+.lp-modal-cfg label[class*="Input-radio"]:has([class*="radioInput"]:checked) {
+  background: var(--rk-rhino-900); color: #fff;
+}
+
+/* toggle switch (the kit's switch) */
+.lp-switch {
+  appearance: none; width: 40px; height: 22px; border-radius: 999px; border: 0;
+  background: var(--rk-gray-300); position: relative; cursor: pointer; flex: none;
+  transition: background var(--rk-dur-fast) var(--rk-ease-out);
+}
+.lp-switch::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px;
+  border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(30, 39, 64, 0.3);
+  transition: left var(--rk-dur-fast) var(--rk-ease-out);
+}
+.lp-switch.on { background: var(--rk-rhino-700); }
+.lp-switch.on::after { left: 21px; }
+
+/* color swatch + hex (row) */
+.lp-field-color { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.lp-swatch {
+  position: relative; width: 22px; height: 22px; border-radius: 5px; overflow: hidden;
+  border: 1px solid var(--rk-border-strong); flex: none;
+}
+.lp-swatch input[type="color"] {
+  position: absolute; inset: -4px; width: 200%; height: 200%; padding: 0; border: 0; cursor: pointer;
+}
+.lp-hex {
+  font-size: 12px; color: var(--rk-text-body); font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+}
+
+/* content-width slider — short fixed slider + value chip (the kit's pattern),
+   so the row's label never clips */
+.lp-field-width { display: flex; align-items: center; gap: 9px; }
+.lp-field-width input[type="range"] { width: 92px; flex: none; accent-color: var(--rk-rhino-700); }
+.lp-chip {
+  display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  border: 1px solid var(--rk-border); border-radius: 6px; padding: 4px 9px;
+  font-size: 11.5px; color: var(--rk-text-body); font-variant-numeric: tabular-nums;
+}
+
+/* Document Summary section picker — bordered rows */
 .lp-section-pick { display: flex; flex-direction: column; gap: 6px; }
 .lp-section-pick label {
   display: flex; align-items: center; gap: 9px; padding: 9px 11px;
@@ -254,18 +345,6 @@
 .lp-section-pick label.active { border-color: var(--rk-rhino-700); background: var(--rk-macaroni-100); }
 .lp-section-pick .lp-sec-h { flex: 1; font-weight: var(--rk-weight-semibold); }
 .lp-section-pick .lp-sec-len { color: var(--rk-text-muted); font-variant-numeric: tabular-nums; font-size: 11px; }
-
-.lp-field-width { display: flex; align-items: center; gap: 0.5rem; }
-.lp-field-width input[type="range"] { flex: 1; accent-color: var(--rk-rhino-700); }
-.lp-field-width input[type="number"] { width: 4.5rem; padding: 0.2rem; }
-.lp-field-width span { color: var(--rk-text-muted); font-size: 0.8rem; }
-
-.lp-field-color { display: flex; align-items: center; gap: 0.5rem; }
-.lp-field-color input[type="color"] {
-  width: 2rem; height: 1.6rem; padding: 0; border: 1px solid var(--rk-border-strong);
-  border-radius: 4px; background: none; cursor: pointer;
-}
-.lp-field-color span { font-size: 0.8rem; color: var(--rk-text-muted); font-variant-numeric: tabular-nums; }
 
 /* ---- page simulator (Puck canvas only; never exported) ---- */
 .lp-sim { display: flex; flex-direction: column; min-height: 100%; background: #fff; }

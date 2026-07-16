@@ -8,7 +8,7 @@ import {
   getLandingTemplate, getArchetypes, getBlockDefaults, postLanding, postLandingTheme,
   getTemplateUrl, scanTemplate,
 } from "../api.js";
-import { puckConfig, TYPE_TO_PUCK } from "./puckConfig.jsx";
+import { puckConfig, TYPE_TO_PUCK, LpField } from "./puckConfig.jsx";
 import { toPuck, fromPuck, propsToPuck, themeToRoot } from "./puckAdapter.js";
 import { ensureFont, primaryFamily } from "./fonts.js";
 import { exportZip } from "./exportZip.js";
@@ -100,6 +100,9 @@ export default function LandingMaker({ doc }) {
         </ActionBar.Group>
       </ActionBar>
     ),
+    // built-in fields (block config text/radio/textarea) get the same compact
+    // wrapper as our custom fields, so the whole modal reads as one system
+    fieldLabel: LpField,
   }), []);
 
   useEffect(() => {
