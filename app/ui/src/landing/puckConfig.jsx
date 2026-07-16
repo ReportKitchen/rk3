@@ -197,8 +197,12 @@ export const puckConfig = {
         region
           ? <div className={"lp-sim-bar " + cls + " ghosted"}><img className="lp-ghost-img" src={region.src} alt="" /></div>
           : <div className={"lp-sim-bar " + cls}>{label}</div>;
+      // a host sidebar only fits beside the content on a wide (desktop) host;
+      // narrower hosts (laptop/mobile) stack or drop it, so hide the sim sidebars
+      // there — matching how the real site would render responsively
+      const hostWide = (appState?.ui?.viewports?.current?.width ?? 1200) >= 1000;
       const side = (on, region) => {
-        if (!on) return null;
+        if (!on || !hostWide) return null;
         return region
           ? <div className="lp-sim-side ghosted"><img className="lp-ghost-img" src={region.src} alt="" /></div>
           : <div className="lp-sim-side">Sidebar</div>;
