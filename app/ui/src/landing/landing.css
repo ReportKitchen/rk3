@@ -294,6 +294,21 @@
   background: #fff; color: var(--rk-text-strong); font-size: 12px; font-weight: var(--rk-weight-bold);
 }
 
+/* "show my header and footer" — under sidebars, only when Copy my site is on */
+.lp-chrome-row {
+  display: flex; align-items: center; gap: 9px; margin-top: 10px;
+  font-size: 12.5px; color: var(--rk-text-body); cursor: pointer;
+}
+.lp-chrome-row input {
+  appearance: none; margin: 0; width: 16px; height: 16px; flex: none; cursor: pointer;
+  border: 1.5px solid var(--rk-rhino-200); border-radius: 4px; background: #fff; position: relative;
+}
+.lp-chrome-row input:checked { background: var(--rk-rhino-700); border-color: var(--rk-rhino-700); }
+.lp-chrome-row input:checked::after {
+  content: ""; position: absolute; left: 4.5px; top: 1px; width: 4px; height: 8px;
+  border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+}
+
 /* ---- template picker (Content settings) ---- */
 .lp-templates { display: flex; flex-direction: column; gap: 6px; }
 .lp-tmpl {

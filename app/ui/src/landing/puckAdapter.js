@@ -20,6 +20,7 @@ export function themeToRoot(theme) {
     font: v["--lp-font"] || FONT,
     leftSidebar: !!pv.leftSidebar,
     rightSidebar: !!pv.rightSidebar,
+    showChrome: pv.showChrome !== false,   // default true
   };
 }
 
@@ -37,8 +38,11 @@ function rootToTheme(p = {}) {
       "--lp-h2-color": p.h2Color || "#111111",
       "--lp-font": p.font || FONT,
     },
-    // preview-only page context (sidebars); never used by the export
-    preview: { leftSidebar: !!p.leftSidebar, rightSidebar: !!p.rightSidebar },
+    // preview-only page context (sidebars, header/footer ghosts); not exported
+    preview: {
+      leftSidebar: !!p.leftSidebar, rightSidebar: !!p.rightSidebar,
+      showChrome: p.showChrome !== false,
+    },
   };
 }
 

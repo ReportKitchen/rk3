@@ -108,7 +108,7 @@ function TemplatePicker({ archetypes, arch, dirty, onSwitch, onReload }) {
 // (width, colours); sidebars are one combined control; the preview sits in a
 // minimal browser frame with an estimated fold line.
 function PageSetupModal({ ctx, onCancel, onDone }) {
-  const { copy, sidebars, preview } = ctx;
+  const { copy, sidebars, chrome, preview } = ctx;
   return (
     <Modal
       icon={<GearIcon size={17} />}
@@ -124,6 +124,12 @@ function PageSetupModal({ ctx, onCancel, onDone }) {
         ) : null}
         <Puck.Fields />
         <SidebarsControl left={sidebars.left} right={sidebars.right} onToggle={sidebars.onToggle} />
+        {chrome.show ? (
+          <label className="lp-chrome-row">
+            <input type="checkbox" checked={chrome.on} onChange={chrome.onToggle} />
+            Show my header and footer
+          </label>
+        ) : null}
       </div>
       <MiniPreview {...preview} chrome />
     </Modal>
@@ -312,13 +318,14 @@ export default function LandingShell({
   // sidebars are root props edited outside Puck.Fields; setData doesn't fire
   // onChange, so persist explicitly (like the copy toggle)
   const rootProps = appState.data.root?.props || {};
-  const toggleSidebar = (side) => {
+  const setRootProps = (patch) => {
     const cur = appState.data.root?.props || {};
-    const patch = side === "left" ? { leftSidebar: !cur.leftSidebar } : { rightSidebar: !cur.rightSidebar };
     const next = { ...appState.data, root: { props: { ...cur, ...patch } } };
     dispatch({ type: "setData", data: next });
     onPersist(next);
   };
+  const toggleSidebar = (side) => setRootProps(
+    side === "left" ? { leftSidebar: !rootProps.leftSidebar } : { rightSidebar: !rootProps.rightSidebar });
 
   const selId = selectedItem?.props?.id;
   const blockCtx = useMemo(() => {
@@ -394,6 +401,12 @@ export default function LandingShell({
               error: copyError, summary: copySummary, onToggle: toggleCopy,
             },
             sidebars: { left: !!rootProps.leftSidebar, right: !!rootProps.rightSidebar, onToggle: toggleSidebar },
+            chrome: {
+              // only offered when Copy my site is on (there's a header/footer to show)
+              show: copyOn && !!templateUrl,
+              on: rootProps.showChrome !== false,
+              onToggle: () => setRootProps({ showChrome: rootProps.showChrome === false }),
+            },
             preview: { config, theme, assetBase, downloadHref },
           }}
           onCancel={cancel}
