@@ -246,6 +246,33 @@ const richTextField = (label) => ({
   ),
 });
 
+// The Document Summary stores its body as an array of chunk strings so an image
+// can float between them (floatTop) and paraLimit can cap how many show. This
+// field edits that whole body as one rich-text area, splitting the result back
+// into top-level elements on change so both features keep working.
+function splitChunks(html) {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html || "";
+  const out = [];
+  tmp.childNodes.forEach((n) => {
+    if (n.nodeType === 1) out.push(n.outerHTML);
+    else if (n.nodeType === 3 && n.textContent.trim()) out.push("<p>" + n.textContent + "</p>");
+  });
+  return out;
+}
+const docBodyField = {
+  type: "custom",
+  label: "Section text",
+  render: ({ value, onChange }) => (
+    <LpField label="Section text">
+      <RichText
+        value={Array.isArray(value) ? value.join("") : (value || "")}
+        onChange={(html) => onChange(splitChunks(html))}
+      />
+    </LpField>
+  ),
+};
+
 // which networks to show — toggle chips, each with its brand glyph
 const shareNetworksField = {
   type: "custom",
@@ -468,6 +495,7 @@ export const puckConfig = {
       fields: {
         sectionId: sectionField,
         heading: { type: "text", label: "Heading" },
+        blocks: docBodyField,
         paraLimit: paraLimitField,
         // drag a Cover or Hero in here to float it inside the text
         media: { type: "slot", label: "Floated image (drag a cover/hero here)", allow: ["Cover", "Hero"] },
