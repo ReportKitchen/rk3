@@ -6,7 +6,7 @@ import { TYPE_TO_PUCK, PUCK_TO_TYPE, SLOT_PROPS } from "./puckConfig.jsx";
 const FONT = "'Public Sans', system-ui, -apple-system, sans-serif";
 
 // ---- theme <-> Puck root props ----
-function themeToRoot(theme) {
+export function themeToRoot(theme) {
   const v = theme?.vars || {};
   const pv = theme?.preview || {};
   return {

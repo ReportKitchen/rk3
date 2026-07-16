@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Puck, usePuck } from "@measured/puck";
 import { BlockLibrary } from "./blockLibrary.jsx";
 import Modal, { ModalFooter } from "./Modal.jsx";
@@ -22,12 +22,42 @@ const GearIcon = ({ size }) => svg(
     <path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.4 2.6a7 7 0 0 0-2 1.2l-2.5-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.5-1a7 7 0 0 0 2 1.2L10 21h4l.4-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.07-.4.1-.8.1-1.2z" />
   </>, size);
 const DocIcon = ({ size }) => svg(<path d="M6 3h9l4 4v14H6zM15 3v4h4M9 11h7M9 15h7" />, size);
+const WandIcon = ({ size }) => svg(
+  <><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8L19 13M15 9h0M17.8 6.2L19 5M3 21l9-9M12.2 6.2L11 5" /></>, size);
+
+// "Match my site": scan the client's published page and pre-fill the theme.
+function MatchSite({ onMatchSite }) {
+  const [state, setState] = useState("idle");   // idle | busy | done | error
+  const [msg, setMsg] = useState(null);
+  const run = async () => {
+    setState("busy"); setMsg(null);
+    try {
+      const s = await onMatchSite();
+      setState("done");
+      setMsg(`${s.font} · links ${s.accent} · ${s.side} · ${s.width}px`);
+    } catch (e) {
+      setState("error");
+      setMsg(e?.detail || e?.message || "Scan failed.");
+    }
+  };
+  return (
+    <div className="lp-match">
+      <button className="lp-btn-secondary lp-match-btn" onClick={run} disabled={state === "busy"}>
+        <WandIcon size={15} />
+        {state === "busy" ? "Scanning your site…" : "Match my site"}
+      </button>
+      <p className={"lp-match-note" + (state === "error" ? " err" : "")}>
+        {msg || "Pull colours, width and layout from your published page."}
+      </p>
+    </div>
+  );
+}
 
 // Page setup: everything that applies to the whole page rather than one block.
 // Puck.Fields with nothing selected renders the root fields, so the theme
 // controls come straight from puckConfig.root — no second definition of them.
 function PageSetupModal({ ctx, onCancel, onDone }) {
-  const { archetypes, arch, dirty, onSwitch, onReload, aiMode, preview } = ctx;
+  const { archetypes, arch, dirty, onSwitch, onReload, onMatchSite, aiMode, preview } = ctx;
   return (
     <Modal
       icon={<GearIcon size={17} />}
@@ -37,6 +67,7 @@ function PageSetupModal({ ctx, onCancel, onDone }) {
       footer={<ModalFooter note="Cancel puts everything back." onCancel={onCancel} onDone={onDone} />}
     >
       <div className="lp-modal-cfg">
+        <MatchSite onMatchSite={onMatchSite} />
         <p className="lp-modal-l">Template</p>
         <div className="lp-templates">
           {Object.entries(archetypes).map(([k, label]) => (
@@ -95,7 +126,7 @@ function BlockConfigModal({ ctx, onCancel, onDone, onRemove }) {
 // <Puck> so it can drive editor state directly.
 export default function LandingShell({
   modal, setModal, archetypes, arch, dirty, saved, exporting, aiMode, viewports,
-  onSwitch, onReload, onExport, assetBase, downloadHref, setDispatch,
+  onSwitch, onReload, onExport, onMatchSite, onPersist, assetBase, downloadHref, setDispatch,
 }) {
   // `config` here is the Puck config (for block labels); the landing config is
   // derived separately below via fromPuck
@@ -116,10 +147,16 @@ export default function LandingShell({
   }, [modal]);
 
   const cancel = useCallback(() => {
-    if (snapshot.current) dispatch({ type: "setData", data: snapshot.current });
+    const snap = snapshot.current;
+    if (snap) {
+      dispatch({ type: "setData", data: snap });
+      // setData doesn't fire onChange; persist the revert so an edit that
+      // already autosaved (or a Match my site) is undone in the file too
+      onPersist(snap);
+    }
     snapshot.current = null;
     setModal(null);
-  }, [dispatch, setModal]);
+  }, [dispatch, onPersist, setModal]);
 
   const done = useCallback(() => {
     snapshot.current = null;
@@ -202,7 +239,7 @@ export default function LandingShell({
       {modal === "page" && (
         <PageSetupModal
           ctx={{
-            archetypes, arch, dirty, onSwitch, onReload, aiMode,
+            archetypes, arch, dirty, onSwitch, onReload, onMatchSite, aiMode,
             preview: { config, theme, assetBase, downloadHref },
           }}
           onCancel={cancel}

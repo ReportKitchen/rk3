@@ -168,6 +168,11 @@ export const postLanding = (slug, config) =>
     body: JSON.stringify(config),
   }).then(json);
 
+// scan the client's own published page (config.json landingpage-template.url)
+// and get a theme derived from it, to pre-fill Page setup
+export const scanTemplate = (slug) =>
+  fetch(`/api/landing/${slug}/scan-template`, { method: "POST" }).then(json);
+
 export const postLandingTheme = (slug, theme) =>
   fetch(`/api/landing-theme/${slug}`, {
     method: "POST",

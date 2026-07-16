@@ -6,9 +6,10 @@ import "./landing.css";
 import {
   assetBase, sourceUrl, getIr, getLanding, getLandingTheme, getAiMode,
   getLandingTemplate, getArchetypes, getBlockDefaults, postLanding, postLandingTheme,
+  scanTemplate,
 } from "../api.js";
 import { puckConfig, TYPE_TO_PUCK } from "./puckConfig.jsx";
-import { toPuck, fromPuck, propsToPuck } from "./puckAdapter.js";
+import { toPuck, fromPuck, propsToPuck, themeToRoot } from "./puckAdapter.js";
 import { exportZip } from "./exportZip.js";
 import { guard } from "../errorBus.js";
 import { LandingOptions } from "./landingOptions.js";
@@ -176,6 +177,33 @@ export default function LandingMaker({ doc }) {
     reseed(tmpl, theme);
   }, [arch, slug, reseed]);
 
+  // "Match my site": scan the client's published page and apply its look to the
+  // page theme (colours/width/sidebars — via the root props). Returns a short
+  // summary for the button's status line. Applied inside the open Page setup
+  // modal, so its Cancel reverts it and Done keeps it, like any other edit.
+  const matchSite = useCallback(async () => {
+    const { theme } = await scanTemplate(slug);
+    const cur = dataRef.current || {};
+    const next = { ...cur, root: { props: themeToRoot(theme) } };
+    dataRef.current = next;
+    if (dispatchRef.current) dispatchRef.current({ type: "setData", data: next });
+    else { setInitial(next); setSeedKey((k) => k + 1); }
+    // setData doesn't fire Puck's onChange, so persist explicitly (like reseed)
+    const applied = fromPuck(next, archRef.current);
+    save(applied.config, applied.theme);
+    const font = (theme.vars["--lp-font"] || "").split(",")[0].replace(/["']/g, "").trim();
+    const side = theme.preview?.leftSidebar ? "left sidebar"
+      : theme.preview?.rightSidebar ? "right sidebar" : "no sidebar";
+    return { font, accent: theme.vars["--lp-accent"], side, width: theme.contentWidth };
+  }, [slug, save]);
+
+  // persist a specific Puck data object (used by the modal's Cancel, whose
+  // setData revert would otherwise leave the autosaved edits in the file)
+  const persist = useCallback((data) => {
+    const { config, theme } = fromPuck(data, archRef.current);
+    save(config, theme);
+  }, [save]);
+
   const onExport = useCallback(async () => {
     setExporting(true);
     try {
@@ -242,6 +270,8 @@ export default function LandingMaker({ doc }) {
             onSwitch={switchTemplate}
             onReload={reloadTemplate}
             onExport={onExport}
+            onMatchSite={matchSite}
+            onPersist={persist}
             assetBase={assetBase(slug)}
             downloadHref={sourceUrl(slug)}
             setDispatch={setDispatch}

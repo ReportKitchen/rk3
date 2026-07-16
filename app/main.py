@@ -29,7 +29,7 @@ from rk3.pipeline import build_status
 from rk3.toccompare import compare as toc_compare
 from rk3.landing.ai import (
     find_findings, find_intro_section, generate_landing_ai, generate_summary_variant)
-from rk3.landing.extract import build_default_theme
+from rk3.landing.extract import build_default_theme, theme_from_scan
 from rk3.landing.templates import ARCHETYPE_LABELS, block_defaults, build_config
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -1050,6 +1050,35 @@ def post_landing_theme(slug: str, theme: dict):
     path = _landing_path(slug, ".landing-theme.json")
     path.write_text(json.dumps(theme, indent=1, ensure_ascii=False))
     return {"saved": True}
+
+
+@app.post("/api/landing/{slug}/scan-template")
+def scan_landing_template(slug: str):
+    """Scan the client's own published page for its look and return a theme to
+    pre-fill Page setup. The URL comes from the doc's config.json
+    ('landingpage-template.url'); the owner set it, directing the scan.
+
+    This is a sync route, so FastAPI runs it in its threadpool — the sync
+    Playwright render in scan_page is off the event loop and safe here."""
+    from rk3.webscan import scan_page
+
+    src = source_for_slug(slug)
+    if src is None:
+        raise HTTPException(404, f"unknown document {slug!r}")
+    cfg_path = src.with_name(src.stem + ".config.json")
+    url = None
+    if cfg_path.exists():
+        try:
+            url = (json.loads(cfg_path.read_text()).get("landingpage-template") or {}).get("url")
+        except json.JSONDecodeError:
+            pass
+    if not url:
+        raise HTTPException(400, "No template URL is set for this document. Add "
+                                 "\"landingpage-template\": {\"url\": \"…\"} to its config.json.")
+    scan = scan_page(url)
+    if not scan.get("ok"):
+        raise HTTPException(502, f"Couldn't scan {url}: {scan.get('error', 'unknown error')}")
+    return {"url": url, "theme": theme_from_scan(scan), "scan": scan}
 
 
 @app.get("/api/source/{slug}")

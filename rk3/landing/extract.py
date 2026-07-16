@@ -280,6 +280,9 @@ def extract_pieces(ir: dict) -> dict:
     }
 
 
+_DEFAULT_FONT = "'Public Sans', system-ui, -apple-system, sans-serif"
+
+
 def build_default_theme(ir: dict) -> dict:
     """System-default look: black-on-white, Public Sans, centered 800px column.
 
@@ -294,6 +297,44 @@ def build_default_theme(ir: dict) -> dict:
             "--lp-text": "#111111",
             "--lp-heading": "#111111",
             "--lp-accent": "#1b4965",
-            "--lp-font": "'Public Sans', system-ui, -apple-system, sans-serif",
+            "--lp-font": _DEFAULT_FONT,
+        },
+    }
+
+
+def theme_from_scan(scan: dict) -> dict:
+    """Map a webscan PageStyle (rk3.webscan.scan_page) to a landing theme, to
+    pre-fill Page setup from the client's own published page. Same shape as
+    build_default_theme; falls back to the system defaults field by field so a
+    partial scan still yields a usable theme."""
+    c = scan.get("content") or {}
+    layout = scan.get("layout") or {}
+    link = c.get("link") or {}
+    heading = c.get("heading") or {}
+    sidebar = layout.get("sidebar") or {}
+
+    # snap the measured column to the width slider's range + step (600-1200 / 20)
+    width = c.get("width") or 800
+    width = max(600, min(1200, round(width / 20) * 20))
+
+    side = sidebar.get("side") if sidebar.get("present") else None
+    return {
+        "version": THEME_VERSION,
+        "source": "scan",
+        "contentWidth": width,
+        "vars": {
+            "--lp-page-bg": (scan.get("page") or {}).get("bg") or "#ffffff",
+            "--lp-content-bg": c.get("bg") or "#ffffff",
+            "--lp-text": c.get("textColor") or "#111111",
+            "--lp-heading": heading.get("color") or c.get("textColor") or "#111111",
+            "--lp-accent": link.get("color") or "#1b4965",
+            # captured for the export; the editor doesn't apply it yet (font is
+            # not a themeable field), so a scanned page still renders in the
+            # default face until font threading lands
+            "--lp-font": c.get("fontStack") or _DEFAULT_FONT,
+        },
+        "preview": {
+            "leftSidebar": side == "left",
+            "rightSidebar": side == "right",
         },
     }
