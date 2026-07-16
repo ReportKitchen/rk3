@@ -273,3 +273,15 @@
   color: var(--lp-text, #111); font-family: var(--lp-font, system-ui, sans-serif);
 }
 .lp-sim-content .lp-page { min-height: 100%; }
+
+/* ghost overlays: a faded picture of the client's real page chrome (from Copy
+   my site), so the content is seen in context. Canvas-only; never exported. */
+.lp-sim-bar.ghosted { height: auto; background: none; padding: 0; }
+.lp-sim-side.ghosted {
+  padding: 0; align-items: flex-start; overflow: hidden; background: none; border-color: #e2e2e6;
+}
+.lp-ghost-img {
+  display: block; width: 100%; height: auto;
+  opacity: 0.4; filter: grayscale(0.35);
+  pointer-events: none; user-select: none;
+}

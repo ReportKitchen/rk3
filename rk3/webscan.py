@@ -307,8 +307,10 @@ def _capture_regions(page, data: dict, out_dir: str) -> dict:
     def clip(name, box):
         if box["width"] < 8 or box["height"] < 8:
             return
+        # full_page so a clip below the fold (a footer far down a long page) is
+        # within the captured image — a plain clip only spans the viewport
         path = os.path.join(out_dir, f"{name}.png")
-        page.screenshot(path=path, clip=box)
+        page.screenshot(path=path, clip=box, full_page=True)
         out[name] = {"path": path, "box": {k: round(v) for k, v in box.items()}}
 
     clip("header", {"x": 0, "y": 0, "width": vw, "height": cb["y"]})

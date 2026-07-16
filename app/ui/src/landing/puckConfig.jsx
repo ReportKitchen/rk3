@@ -177,7 +177,7 @@ export const puckConfig = {
       font: FONT, leftSidebar: false, rightSidebar: false,
     },
     render: ({ contentWidth, pageBg, contentBg, textColor, headingColor, accent,
-               font, leftSidebar, rightSidebar, children }) => {
+               font, leftSidebar, rightSidebar, children, puck }) => {
       const { appState } = usePuck();
       // load the body font in the canvas iframe (this render runs inside it)
       React.useEffect(() => { ensureFont(primaryFamily(font), document); }, [font]);
@@ -189,22 +189,37 @@ export const puckConfig = {
           "--lp-font": font || FONT,
         },
       });
-      // simulate how the content sits inside a host page: grey header/footer
-      // always, optional left/right sidebars; our content column is centered
-      // and width-constrained, everything else is the host site's chrome
+      // "Copy my site styles" also crops the client's page chrome; when present,
+      // ghost those crops in place of the grey placeholders so the content is
+      // seen inside a faded picture of the real site. Not part of the export.
+      const ghost = puck?.metadata?.siteGhost || null;
+      const bar = (cls, region, label) =>
+        region
+          ? <div className={"lp-sim-bar " + cls + " ghosted"}><img className="lp-ghost-img" src={region.src} alt="" /></div>
+          : <div className={"lp-sim-bar " + cls}>{label}</div>;
+      const side = (on, region) => {
+        if (!on) return null;
+        return region
+          ? <div className="lp-sim-side ghosted"><img className="lp-ghost-img" src={region.src} alt="" /></div>
+          : <div className="lp-sim-side">Sidebar</div>;
+      };
+      const ghostSide = ghost?.sidebar;
+      // simulate how the content sits inside a host page: header/footer (grey, or
+      // a ghost of the real one), optional left/right sidebars; our content
+      // column is centered and width-constrained
       return (
         <div className={"lp-sim" + (appState?.ui?.isDragging ? " lp-dragging" : "")}>
-          <div className="lp-sim-bar lp-sim-header">Site header</div>
+          {bar("lp-sim-header", ghost?.header, "Site header")}
           <div className="lp-sim-mid">
-            {leftSidebar ? <div className="lp-sim-side">Sidebar</div> : null}
+            {side(leftSidebar, ghostSide?.side === "left" ? ghostSide : null)}
             <div className="lp-sim-area">
               <div className="lp-sim-content" style={style}>
                 <div className="lp-page">{children}</div>
               </div>
             </div>
-            {rightSidebar ? <div className="lp-sim-side">Sidebar</div> : null}
+            {side(rightSidebar, ghostSide?.side === "right" ? ghostSide : null)}
           </div>
-          <div className="lp-sim-bar lp-sim-footer">Site footer</div>
+          {bar("lp-sim-footer", ghost?.footer, "Site footer")}
         </div>
       );
     },

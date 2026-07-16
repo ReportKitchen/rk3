@@ -1088,12 +1088,23 @@ def scan_landing_template(slug: str):
     if not url:
         raise HTTPException(400, "No template URL is set for this document. Add "
                                  "\"landingpage-template\": {\"url\": \"…\"} to its config.json.")
-    scan = scan_page(url)
+    # crop the header/sidebar/footer into the doc's served output dir, for the
+    # ghost overlays on the canvas (regenerable; wiped on reconversion)
+    regions_dir = output_dir(slug) / "template"
+    scan = scan_page(url, regions_dir=str(regions_dir))
     if not scan.get("ok"):
         # a clean 400 with the reason, so the editor shows *why* rather than a
         # proxy timeout page (a slow/blocking site is a bad URL, not a 5xx)
         raise HTTPException(400, f"Couldn't read {url} — {scan.get('error', 'the page did not load')}.")
-    return {"url": url, "theme": theme_from_scan(scan), "scan": scan}
+    # region crops -> {src relative to the doc's asset base, dims, sidebar side}
+    side = ((scan.get("layout") or {}).get("sidebar") or {}).get("side")
+    regions = {}
+    for name, info in (scan.get("regions") or {}).items():
+        box = info["box"]
+        regions[name] = {"src": f"template/{name}.png", "w": box["width"], "h": box["height"]}
+        if name == "sidebar" and side:
+            regions[name]["side"] = side
+    return {"url": url, "theme": theme_from_scan(scan), "regions": regions, "scan": scan}
 
 
 @app.get("/api/source/{slug}")

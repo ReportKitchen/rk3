@@ -24,6 +24,15 @@ const VIEWPORTS = [
   { width: 1200, height: "auto", label: "Desktop" },
 ];
 
+// scanned page-chrome crops -> canvas ghost overlays (absolute URLs the sim can
+// load). null when there are no crops, so the sim falls back to grey placeholders.
+function buildGhost(regions, base) {
+  if (!regions) return null;
+  const mk = (r) => (r ? { src: `${base}/${r.src}`, w: r.w, h: r.h, side: r.side } : null);
+  const g = { header: mk(regions.header), sidebar: mk(regions.sidebar), footer: mk(regions.footer) };
+  return g.header || g.sidebar || g.footer ? g : null;
+}
+
 // fresh unique ids for a block and any nested slot blocks (templates use
 // positional ids that collide when merged across templates)
 function freshIds(b) {
@@ -55,9 +64,11 @@ export default function LandingMaker({ doc }) {
   const [modal, setModal] = useState(null);      // null | "page" | "block"
   const [templateUrl, setTemplateUrl] = useState(null);  // null => hide Copy my site
   const [copyOn, setCopyOn] = useState(false);   // "Copy my site styles" checkbox
-  // copy-my-site state persisted alongside the theme: { on, url, base, scanned }.
-  // base = the manual theme to restore when turned off; scanned = the cached
-  // client look. Not carried in Puck root props, so save() re-attaches it.
+  const [siteGhost, setSiteGhost] = useState(null);  // header/sidebar/footer crops for the canvas
+  // copy-my-site state persisted alongside the theme: { on, url, base, scanned,
+  // regions }. base = the manual theme to restore when turned off; scanned = the
+  // cached client look; regions = crop URLs. Not in Puck root props, so save()
+  // re-attaches it.
   const copySiteRef = useRef(null);
   const dataRef = useRef(null);
   const seedingRef = useRef(false);              // swallow the onChange right after a seed
@@ -104,6 +115,7 @@ export default function LandingMaker({ doc }) {
         setArch(config.template || "");
         copySiteRef.current = theme.copySite || null;
         setCopyOn(!!theme.copySite?.on);
+        setSiteGhost(theme.copySite?.on ? buildGhost(theme.copySite.regions, assetBase(slug)) : null);
         const d = toPuck(config, theme);
         dataRef.current = d;
         markSeeded();
@@ -220,10 +232,11 @@ export default function LandingMaker({ doc }) {
       let cs = copySiteRef.current || { on: false, url: templateUrl, base: null, scanned: null };
       if (on && !cs.scanned) {
         const r = await scanTemplate(slug);             // may throw -> caller shows why
-        cs = { ...cs, scanned: r.theme, url: r.url };
+        cs = { ...cs, scanned: r.theme, url: r.url, regions: r.regions || null };
       }
       cs = on ? { ...cs, on: true, base: cs.base || active } : { ...cs, on: false };
       copySiteRef.current = cs;
+      setSiteGhost(on ? buildGhost(cs.regions, assetBase(slug)) : null);
       const target = on ? cs.scanned : (cs.base || active);
       const data = applyTheme(target);
       const font = primaryFamily(target.vars?.["--lp-font"]);
@@ -277,7 +290,9 @@ export default function LandingMaker({ doc }) {
     // reach, which is what LandingOptions below is for.
     summarySections,
     blockDefaults: puckBlockDefaults,
-  }), [slug, images, summarySections, blockDefaults, puckBlockDefaults]);
+    // ghost overlays of the client's page chrome, drawn by the root sim render
+    siteGhost,
+  }), [slug, images, summarySections, blockDefaults, puckBlockDefaults, siteGhost]);
 
   // the same per-document options, for the custom *fields* (see landingOptions)
   const options = useMemo(() => ({ summarySections, images }), [summarySections, images]);
