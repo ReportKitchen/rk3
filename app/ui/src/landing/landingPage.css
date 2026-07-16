@@ -37,7 +37,9 @@
   font-size: 0.8rem; text-transform: var(--lp-h2-transform, uppercase); letter-spacing: 0.06em;
   color: var(--lp-h2-color, #666); margin: 0 0 0.6rem;
 }
-.lp-summary p { font-size: 1.15rem; margin: 0; }
+/* match the Document Summary body (1.05rem/1.6): a larger font here made the
+   AI Summary's line spacing read differently from the rest of the content */
+.lp-summary p { font-size: 1.05rem; line-height: 1.6; margin: 0; }
 
 /* Document Summary: a whole verbatim section, with an optional image floated
    in its media slot so the prose wraps around it */
@@ -99,7 +101,7 @@
   font-size: 1.7rem; font-weight: 700; line-height: 1.05;
   color: var(--lp-accent, #1b4965); font-variant-numeric: tabular-nums;
 }
-.lp-finding-text { font-size: 1.05rem; line-height: 1.45; }
+.lp-finding-text { font-size: 1.05rem; line-height: 1.6; }
 .lp-toc ul { list-style: none; margin: 0; padding: 0; }
 .lp-toc li { padding: 0.2rem 0; }
 .lp-toc li.lvl-3 { padding-left: 1rem; }
