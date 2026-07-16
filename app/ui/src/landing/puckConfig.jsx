@@ -336,10 +336,12 @@ export const puckConfig = {
   components: {
     Title: {
       label: "Title",
+      // textareas, not single-line inputs: report titles are long and were
+      // truncated in the narrow field column — these wrap and show the whole line
       fields: {
-        eyebrow: { type: "text", label: "Eyebrow (kicker)", contentEditable: true },
-        title: { type: "text", label: "Main title", contentEditable: true },
-        subtitle: { type: "text", label: "Subtitle / deck", contentEditable: true },
+        eyebrow: { type: "textarea", label: "Eyebrow (kicker)", contentEditable: true },
+        title: { type: "textarea", label: "Main title", contentEditable: true },
+        subtitle: { type: "textarea", label: "Subtitle / deck", contentEditable: true },
       },
       defaultProps: { eyebrow: "", title: "Document title", subtitle: "" },
       resolveData: insertDefaults("Title"),
