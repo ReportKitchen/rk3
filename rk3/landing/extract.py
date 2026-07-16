@@ -87,6 +87,70 @@ def _item_texts_of(node):
         yield leaf.strip()
 
 
+def _item_leaves_of(node):
+    """Each list item's first text-bearing leaf node, so callers can weave its
+    inline formatting (not just its plain text)."""
+    for it in node.get("children") or []:
+        leaf = next((ch for ch in (it.get("children") or []) if ch.get("text")), None)
+        if leaf:
+            yield leaf
+    for it in node.get("items") or []:   # legacy string/dict items
+        txt = (it.get("text", "") if isinstance(it, dict) else str(it)).strip()
+        if txt:
+            yield {"text": txt}
+
+
+# trademark/service marks the extractor recovered as plain letters or glyphs,
+# in trademark position — superscript so they look right
+def _marks_to_sup(s: str) -> str:
+    s = re.sub(r"(?<=[A-Za-z])(™|®|℠)", r"<sup>\1</sup>", s)
+    s = re.sub(r"(?<=[a-z])(TM|SM)(?=[^A-Za-z]|$)", r"<sup>\1</sup>", s)
+    return s
+
+
+def _weave(node) -> str:
+    """Inline HTML for a text node: keep bold/italic (and any superscripts),
+    drop footnote-reference markers (the report's own <sup> numbers, which read
+    as stray digits on a landing page). Links are left as plain text — a summary
+    has nowhere for the report's internal anchors to point.
+
+    A segment sweep splits the text at every emphasis boundary and re-opens
+    spans across boundaries, so overlaps stay well-formed and nothing is dropped
+    but the footnote refs."""
+    text = node.get("text") or ""
+    n = len(text)
+    if n == 0:
+        return ""
+    drop = bytearray(n)  # 1 = a footnote-ref character, removed from the output
+    for s, e, *_ in (node.get("refs") or []):
+        for i in range(max(0, s), min(n, e)):
+            drop[i] = 1
+    wraps = []  # (start, end, rank, open, close) — lower rank nests outermost
+    for s, e, *_ in (node.get("sups") or []):
+        wraps.append((max(0, s), min(n, e), 0, "<sup>", "</sup>"))
+    for s, e, kind in (node.get("emph") or []):
+        if kind in ("strong", "em"):
+            wraps.append((max(0, s), min(n, e), 1 if kind == "strong" else 2,
+                          f"<{kind}>", f"</{kind}>"))
+    wraps = [w for w in wraps if w[0] < w[1]]
+
+    def seg(a, b):
+        return _marks_to_sup(_esc("".join(text[j] for j in range(a, b) if not drop[j])))
+
+    if not wraps:
+        return seg(0, n)
+    bounds = sorted({0, n} | {b for w in wraps for b in (w[0], w[1])})
+    out = []
+    for a, b in zip(bounds, bounds[1:]):
+        piece = seg(a, b)
+        if not piece:
+            continue
+        active = sorted((w for w in wraps if w[0] <= a and w[1] >= b), key=lambda w: w[2])
+        out.append("".join(w[3] for w in active) + piece
+                   + "".join(w[4] for w in reversed(active)))
+    return "".join(out)
+
+
 def _flat(body):
     """Reading-order walk that does NOT descend into figures/asides (their inner
     text is caption/label noise, not part of a readable section). Lists and
@@ -106,15 +170,20 @@ def _section_blocks(nodes) -> list[str]:
         t = n.get("type")
         text = (n.get("text") or "").strip()
         if t == "paragraph" and text:
-            out.append(f"<p>{_esc(text)}</p>")
+            out.append(f"<p>{_weave(n)}</p>")
         elif t == "heading" and text and not _SKIP_HEADING.match(text):
             lvl = min(max(n.get("level", 3), 3), 4)  # sub-headings → h3/h4
-            out.append(f"<h{lvl}>{_esc(text)}</h{lvl}>")
+            out.append(f"<h{lvl}>{_weave(n)}</h{lvl}>")
         elif t == "list":
-            lis = "".join(f"<li>{_esc(it)}</li>"
-                          for it in _item_texts_of(n) if it)
+            lis = "".join(f"<li>{w}</li>" for w in map(_weave, _item_leaves_of(n)) if w)
             if lis:
-                out.append(f"<ul>{lis}</ul>")
+                # keep the source's list kind (ordered vs bulleted) and its start
+                if n.get("ordered"):
+                    start = n.get("start")
+                    attr = f' start="{start}"' if isinstance(start, int) and start != 1 else ""
+                    out.append(f"<ol{attr}>{lis}</ol>")
+                else:
+                    out.append(f"<ul>{lis}</ul>")
     return out
 
 

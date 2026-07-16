@@ -62,8 +62,10 @@
 .lp-docsum-body p { margin: 0 0 0.9rem; }
 .lp-docsum-body h3 { font-size: 1.15rem; margin: 1.4rem 0 0.5rem; }
 .lp-docsum-body h4 { font-size: 1rem; margin: 1.1rem 0 0.4rem; }
-.lp-docsum-body ul { margin: 0 0 0.9rem; padding-left: 1.3rem; }
+.lp-docsum-body ul, .lp-docsum-body ol { margin: 0 0 0.9rem; padding-left: 1.5rem; }
+.lp-docsum-body ol { list-style: decimal; }
 .lp-docsum-body li { margin: 0.3rem 0; }
+.lp-docsum-body sup { font-size: 0.72em; line-height: 0; }
 
 /* while dragging, cap tall images (a vertical cover can exceed the screen
    height, making it hard to drop) so the dragged element stays manageable.
