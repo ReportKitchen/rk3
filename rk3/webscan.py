@@ -174,6 +174,51 @@ _EXTRACT_JS = r"""
   else if (Math.abs(leftGap - rightGap) <= vw * 0.12) align = 'center';
   else align = leftGap > rightGap ? 'right' : 'left';
 
+  // --- 4. the SITE header only (the persistent masthead/nav), not the
+  // page-specific hero below it. The header crop should be the chrome that's
+  // the same on every page. Prefer a real <header>/[role=banner] at the top;
+  // if it's tall it has swallowed the hero, so fall back to the primary <nav>
+  // inside it. Never cross into the content column's top. --------------------
+  const atTop = (el) => {
+    const r = el.getBoundingClientRect();
+    return r.top <= 8 && r.width >= vw * 0.6 && r.height >= 24;
+  };
+  // the topmost prominent heading inside `el` (a page title / hero), if any
+  const heroTitleIn = (el) => {
+    for (const h of el.querySelectorAll('h1, h2')) {
+      const r = h.getBoundingClientRect();
+      if (vis(h) && parseFloat(cs(h).fontSize) >= 24 && r.top > el.getBoundingClientRect().top + 20) {
+        return r.top;
+      }
+    }
+    return 0;
+  };
+
+  let headerBottom = 0;
+  const banner = ['header[role="banner"]', '[role="banner"]', 'header',
+                  '#masthead', '.site-header', '.masthead']
+    .map((s) => document.querySelector(s)).find((el) => el && atTop(el));
+  if (banner) {
+    const br = banner.getBoundingClientRect();
+    headerBottom = br.bottom;
+    // If a tall banner has swallowed the page hero (a prominent title lives
+    // inside it, as on sites that theme the masthead per page), stop just above
+    // that title. If it hasn't (the whole banner is site chrome — logo, utility
+    // bar, nav), keep it whole. A separate <header> that is only the nav is
+    // short and never triggers this.
+    if (br.height > 200) {
+      const t = heroTitleIn(banner);
+      if (t) headerBottom = t;
+    }
+  } else {
+    const nav = document.querySelector('nav');
+    if (nav && atTop(nav)) headerBottom = nav.getBoundingClientRect().bottom;
+  }
+  // clamp: never below the content top, and drop a hero-sized result that still
+  // slipped through (a header taller than ~40% of the viewport is not a nav)
+  headerBottom = rnd(Math.min(headerBottom, cbox.y || headerBottom));
+  if (headerBottom > vh * 0.4 || headerBottom < 24) headerBottom = 0;
+
   return {
     content: {
       bg: effBg(para),
@@ -202,6 +247,7 @@ _EXTRACT_JS = r"""
       leftGap: rnd(leftGap),
       rightGap: rnd(rightGap),
       align,
+      headerHeight: headerBottom,     // site masthead/nav only (0 => not found)
       sidebar: (sides.left || sides.right)
         ? { present: true, side: sides.left ? 'left' : 'right', box: sides.left || sides.right }
         : { present: false },
@@ -213,6 +259,28 @@ _EXTRACT_JS = r"""
       wrapperClass: (typeof content.className === 'string' ? content.className : '') || null,
     },
   };
+}
+"""
+
+# Hide overlays that would foul the screenshots: bottom-anchored fixed bars
+# (cookie/consent banners, sticky CTAs) and full-screen fixed scrims. Run before
+# any capture. Top-anchored sticky/fixed headers are deliberately spared — that
+# chrome is what we want. Measurement already ignores fixed elements (they're out
+# of flow), so this only affects the pixels we grab.
+_HIDE_OVERLAYS_JS = r"""
+() => {
+  const vw = innerWidth, vh = innerHeight;
+  let n = 0;
+  for (const el of document.querySelectorAll('body *')) {
+    const s = getComputedStyle(el);
+    if (s.position !== 'fixed' && s.position !== 'sticky') continue;
+    const r = el.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) continue;
+    const bottomBar = (s.bottom === '0px' || Math.abs(r.bottom - vh) <= 6) && r.top > vh * 0.3;
+    const fullScrim = r.top <= 2 && r.bottom >= vh - 2 && r.width >= vw * 0.8 && r.height >= vh * 0.8;
+    if (bottomBar || fullScrim) { el.style.setProperty('display', 'none', 'important'); n++; }
+  }
+  return n;
 }
 """
 
@@ -264,6 +332,13 @@ def scan_page(url: str, *, timeout_ms: int = 20000,
 
             data = page.evaluate(_EXTRACT_JS)
 
+            # drop cookie/consent banners and full-screen scrims before any
+            # capture (and before hover, so a banner can't intercept it)
+            try:
+                page.evaluate(_HIDE_OVERLAYS_JS)
+            except Exception:
+                pass
+
             # link :hover colour needs a real hover — read the tagged link before
             # and after. Many sites only change the underline, leaving colour put.
             link = data.get("content", {}).get("link")
@@ -313,7 +388,10 @@ def _capture_regions(page, data: dict, out_dir: str) -> dict:
         page.screenshot(path=path, clip=box, full_page=True)
         out[name] = {"path": path, "box": {k: round(v) for k, v in box.items()}}
 
-    clip("header", {"x": 0, "y": 0, "width": vw, "height": cb["y"]})
+    # the site header only (masthead/nav); fall back to everything above the
+    # content when detection found nothing, but never grab the page hero
+    header_h = lay.get("headerHeight") or cb["y"]
+    clip("header", {"x": 0, "y": 0, "width": vw, "height": header_h})
     sb = lay["sidebar"]
     if sb.get("present"):
         s = sb["box"]
