@@ -324,9 +324,11 @@
 .lp-field.row > .lp-field-lbl { flex: none; }
 .lp-field-ctl { min-width: 0; }
 .lp-field.row > .lp-field-ctl { display: flex; justify-content: flex-end; align-items: center; }
-/* Puck wraps each field; flatten its spacing and hide its label icon (the kit
-   labels are plain text) */
-.lp-modal-cfg [class*="PuckFields-field"] { margin: 0; }
+/* Puck wraps each field with its own padding + a divider between fields; drop
+   both so only our .lp-field border shows one line between fields (not two).
+   Also hide Puck's label icon (the kit labels are plain text). */
+.lp-modal-cfg [class*="PuckFields-field"] { margin: 0; padding: 0; }
+.lp-modal-cfg [class*="PuckFields-field"] + [class*="PuckFields-field"] { border-top: 0; margin-top: 0; }
 .lp-modal-cfg [class*="Input-labelIcon"] { display: none; }
 
 /* text / textarea / select — the kit's input (used by both our fields and
@@ -345,20 +347,23 @@
 }
 .lp-field.row .lp-field-ctl select { width: auto; min-width: 12em; }
 
-/* Puck's radio group (e.g. AI Summary style / length) -> compact segmented pills */
+/* Puck's radio group (e.g. AI Summary style / length) -> segmented control:
+   a light track with a raised white pill for the selected option */
 .lp-modal-cfg [class*="Input-radioGroupItems"] {
-  display: inline-flex; flex-wrap: wrap; gap: 3px; background: var(--rk-gray-100);
-  border-radius: var(--rk-radius-sm); padding: 3px;
+  display: inline-flex; flex-wrap: wrap; gap: 2px; background: var(--rk-gray-100);
+  border: 1px solid var(--rk-border); border-radius: var(--rk-radius-sm); padding: 2px;
 }
 .lp-modal-cfg [class*="Input-radioGroupItems"] > * { margin: 0; }
 .lp-modal-cfg label[class*="Input-radio"] {
   font-size: 12.5px; font-weight: var(--rk-weight-semibold); color: var(--rk-text-muted);
-  padding: 6px 12px; border-radius: 6px; cursor: pointer;
+  padding: 6px 13px; border-radius: 6px; cursor: pointer;
+  transition: color var(--rk-dur-fast) var(--rk-ease-out);
 }
+.lp-modal-cfg label[class*="Input-radio"]:hover { color: var(--rk-text-strong); }
 .lp-modal-cfg [class*="Input-radioInput"] { position: absolute; opacity: 0; pointer-events: none; }
 .lp-modal-cfg [class*="Input-radioInner"] { all: unset; }
 .lp-modal-cfg label[class*="Input-radio"]:has([class*="radioInput"]:checked) {
-  background: var(--rk-rhino-900); color: #fff;
+  background: #fff; color: var(--rk-text-strong); box-shadow: var(--rk-shadow-sm);
 }
 
 /* color swatch + hex (row) */

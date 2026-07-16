@@ -11,10 +11,12 @@ const ident = (s) => s;
 
 export function Title({ eyebrow, title, subtitle, text }) {
   const main = title || text || ""; // text: back-compat with single-field titles
+  // an emptied field collapses away — no empty tag taking space in the output
+  if (!eyebrow && !main && !subtitle) return null;
   return (
     <header className="lp-block lp-title">
       {eyebrow ? <p className="lp-eyebrow">{eyebrow}</p> : null}
-      <h1>{main}</h1>
+      {main ? <h1>{main}</h1> : null}
       {subtitle ? <p className="lp-subtitle">{subtitle}</p> : null}
     </header>
   );
@@ -72,17 +74,16 @@ export function Hero({ src, alt, resolveAsset = ident }) {
 export function Toc({ items }) {
   const list = items || [];
   if (!list.length) return null;
+  // just a list of what's inside — not linked (there's nothing to link to)
   return (
-    <nav className="lp-block lp-toc" aria-label="Contents">
+    <section className="lp-block lp-toc" aria-label="Contents">
       <h2>Contents</h2>
       <ul>
         {list.map((it, i) => (
-          <li key={i} className={`lvl-${it.level || 2}`}>
-            {it.anchor ? <a href={`#${it.anchor}`}>{it.text}</a> : it.text}
-          </li>
+          <li key={i} className={`lvl-${it.level || 2}`}>{it.text}</li>
         ))}
       </ul>
-    </nav>
+    </section>
   );
 }
 

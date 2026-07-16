@@ -54,8 +54,9 @@ function FloatPosition({ value, onChange }) {
 const floatTopField = {
   type: "custom",
   label: "Floated image position",
+  // stacked (not a row): the label is long and would crash into the slider
   render: ({ value, onChange }) => (
-    <LpField label="Floated image position" row>
+    <LpField label="Floated image position">
       <FloatPosition value={value} onChange={onChange} />
     </LpField>
   ),
@@ -191,6 +192,20 @@ export const puckConfig = {
       const { appState } = usePuck();
       // load the body font in the canvas iframe (this render runs inside it)
       React.useEffect(() => { ensureFont(primaryFamily(font), document); }, [font]);
+      // fade the block toolbar in ~1s after hover (less flicker sweeping across
+      // blocks); fade out immediately. Injected into the iframe — Puck's action
+      // overlay lives here, not in the app document where landing.css loads.
+      React.useEffect(() => {
+        const id = "lp-toolbar-fade";
+        if (typeof document === "undefined" || document.getElementById(id)) return;
+        const s = document.createElement("style");
+        s.id = id;
+        s.textContent =
+          '[class*="DraggableComponent-actionsOverlay"]{transition:opacity .18s ease !important;transition-delay:0s !important}'
+          + '[class*="isSelected"] [class*="DraggableComponent-actionsOverlay"],'
+          + '[class*="--hover"] [class*="DraggableComponent-actionsOverlay"]{transition-delay:1s !important}';
+        document.head.appendChild(s);
+      }, []);
       const style = themeProps({
         contentWidth,
         vars: {
@@ -397,7 +412,7 @@ export const puckConfig = {
       render: () => <Share />,
     },
     Download: {
-      label: "Download CTA",
+      label: "Download Button",
       fields: {
         label: { type: "text", label: "Button text", contentEditable: true },
         bgColor: { ...color("Button color") },
@@ -410,7 +425,7 @@ export const puckConfig = {
       ),
     },
     SecondaryCta: {
-      label: "Secondary CTA",
+      label: "Secondary Button",
       fields: {
         label: { type: "text", label: "Button text", contentEditable: true },
         url: { type: "text", label: "Link URL" },
