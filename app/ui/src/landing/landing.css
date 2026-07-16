@@ -390,6 +390,22 @@
   font-size: 11.5px; color: var(--rk-text-body); font-variant-numeric: tabular-nums;
 }
 
+/* Download button — where's the PDF (bundle vs URL) */
+.lp-pdfsource { display: flex; flex-direction: column; gap: 6px; }
+.lp-radio-row {
+  display: flex; align-items: center; gap: 9px; padding: 9px 11px;
+  border: 1px solid var(--rk-border); border-radius: var(--rk-radius-sm);
+  cursor: pointer; font-size: 12.5px; color: var(--rk-text-body);
+}
+.lp-radio-row:hover { border-color: var(--rk-rhino-700); }
+.lp-radio-row.on { border-color: var(--rk-rhino-700); background: var(--rk-macaroni-100); }
+.lp-radio-row input { accent-color: var(--rk-rhino-700); flex: none; }
+.lp-pdf-url {
+  width: 100%; font-size: 13px; padding: 9px 11px; margin-top: 2px;
+  border: 1px solid var(--rk-border-strong); border-radius: var(--rk-radius-sm); outline: none;
+}
+.lp-pdf-url:focus { border-color: var(--rk-rhino-700); box-shadow: 0 0 0 3px var(--rk-macaroni-100); }
+
 /* Document Summary section picker — bordered rows */
 .lp-section-pick { display: flex; flex-direction: column; gap: 6px; }
 .lp-section-pick label {

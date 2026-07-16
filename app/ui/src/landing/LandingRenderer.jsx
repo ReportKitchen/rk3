@@ -133,10 +133,14 @@ export function Share() {
   );
 }
 
-export function Download({ label, bgColor, textColor, downloadHref }) {
+export function Download({ label, mode, url, bgColor, textColor, downloadHref }) {
+  // bundle => the exported/hosted PDF (download attr); url => the user's own
+  // hosted PDF (a plain link)
+  const useUrl = mode === "url";
+  const href = useUrl ? (url || "#") : (downloadHref || "#");
   return (
     <div className="lp-block lp-download">
-      <a className="lp-cta" href={downloadHref || "#"} download
+      <a className="lp-cta" href={href} {...(useUrl ? {} : { download: true })}
         style={{ background: bgColor || "#1b4965", color: textColor || "#fff" }}>
         {label || "Download the full report (PDF)"}
       </a>

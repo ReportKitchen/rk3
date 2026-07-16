@@ -200,6 +200,38 @@ const imageField = {
   ),
 };
 
+// Where the download button points: the PDF bundled into the export, or a URL
+// the user hosts it at. One control for the mode + (when URL) the address.
+function PdfSource({ value, onChange }) {
+  const v = value || { mode: "bundle", url: "" };
+  const set = (patch) => onChange({ ...v, ...patch });
+  return (
+    <div className="lp-pdfsource">
+      <label className={"lp-radio-row" + (v.mode !== "url" ? " on" : "")}>
+        <input type="radio" checked={v.mode !== "url"} onChange={() => set({ mode: "bundle" })} />
+        Include the PDF in my download
+      </label>
+      <label className={"lp-radio-row" + (v.mode === "url" ? " on" : "")}>
+        <input type="radio" checked={v.mode === "url"} onChange={() => set({ mode: "url" })} />
+        Use my URL
+      </label>
+      {v.mode === "url" ? (
+        <input className="lp-pdf-url" type="url" placeholder="https://…/report.pdf"
+          value={v.url || ""} onChange={(e) => set({ url: e.target.value })} />
+      ) : null}
+    </div>
+  );
+}
+const pdfSourceField = {
+  type: "custom",
+  label: "Where's your PDF?",
+  render: ({ value, onChange }) => (
+    <LpField label="Where's your PDF?">
+      <PdfSource value={value} onChange={onChange} />
+    </LpField>
+  ),
+};
+
 // Each landing block as a Puck component. render reuses our block components;
 // fields give contextual editing — inline contentEditable for text, scoped
 // color swatches for per-element colors.
@@ -462,13 +494,18 @@ export const puckConfig = {
       label: "Download Button",
       fields: {
         label: { type: "text", label: "Button text", contentEditable: true },
+        pdf: pdfSourceField,
         bgColor: { ...color("Button color") },
         textColor: { ...color("Text color") },
       },
-      defaultProps: { label: "Download the full report (PDF)", bgColor: "#1b4965", textColor: "#ffffff" },
+      defaultProps: {
+        label: "Download the full report (PDF)", pdf: { mode: "bundle", url: "" },
+        bgColor: "#1b4965", textColor: "#ffffff",
+      },
       resolveData: insertDefaults("Download"),
-      render: ({ label, bgColor, textColor, puck }) => (
-        <Download label={label} bgColor={bgColor} textColor={textColor} downloadHref={dlHref(puck)} />
+      render: ({ label, pdf, bgColor, textColor, puck }) => (
+        <Download label={label} mode={pdf?.mode} url={pdf?.url}
+          bgColor={bgColor} textColor={textColor} downloadHref={dlHref(puck)} />
       ),
     },
     SecondaryCta: {

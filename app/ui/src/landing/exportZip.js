@@ -22,8 +22,11 @@ const titleOf = (config) => {
 export async function exportZip(slug, config, theme, docName) {
   const zip = new JSZip();
 
-  const hasDownload = config.blocks.some((b) => b.type === "download");
-  const pdfHref = hasDownload ? `./${encodeURIComponent(docName)}` : "#";
+  // bundle the PDF only when a download button actually points at the bundled
+  // file (not when the user hosts it at their own URL)
+  const hasBundled = config.blocks.some(
+    (b) => b.type === "download" && b.props?.pdf?.mode !== "url");
+  const pdfHref = hasBundled ? `./${encodeURIComponent(docName)}` : "#";
 
   const html = renderToStaticMarkup(
     React.createElement(LandingRenderer, {
@@ -69,8 +72,8 @@ ${html}
     if (res.ok) imgFolder.file(basename(src), await res.blob());
   }
 
-  // bundle the source PDF so the Download CTA resolves locally
-  if (hasDownload) {
+  // bundle the source PDF so the Download button resolves locally
+  if (hasBundled) {
     const res = await fetch(sourceUrl(slug));
     if (res.ok) zip.file(docName, await res.blob());
   }
