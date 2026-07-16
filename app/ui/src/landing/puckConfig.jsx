@@ -24,15 +24,38 @@ export function LpField({ label, row, children }) {
 
 // Document Summary render: reads the global drag state so the empty media slot
 // (the floated-image drop target) only appears while something is being dragged.
-function DocSummaryRender({ heading, blocks, floatTop, media: Media }) {
+function DocSummaryRender({ heading, blocks, floatTop, paraLimit, media: Media }) {
   const { appState } = usePuck();
   return (
-    <DocSummary heading={heading} blocks={blocks} floatTop={floatTop}
+    <DocSummary heading={heading} blocks={blocks} floatTop={floatTop} paraLimit={paraLimit}
       dragging={appState?.ui?.isDragging}>
       {Media ? <Media /> : null}
     </DocSummary>
   );
 }
+
+// slider to cap how many chunks of a (often very long) section show. 0 = all.
+function ParaLimit({ value, onChange }) {
+  const { selectedItem } = usePuck();
+  const max = (selectedItem?.props?.blocks || []).length || 1;
+  const shown = value > 0 ? Math.min(value, max) : max;   // 0 => all
+  return (
+    <div className="lp-field-width">
+      <input type="range" min="1" max={max} step="1" value={shown}
+        onChange={(e) => onChange(+e.target.value >= max ? 0 : +e.target.value)} />
+      <span className="lp-chip">{shown} of {max}</span>
+    </div>
+  );
+}
+const paraLimitField = {
+  type: "custom",
+  label: "Paragraphs shown",
+  render: ({ value, onChange }) => (
+    <LpField label="Paragraphs shown">
+      <ParaLimit value={value || 0} onChange={onChange} />
+    </LpField>
+  ),
+};
 
 // slider to place the floated image between paragraphs: text above it runs
 // full-width, text from there wraps around it (a float only affects what
@@ -334,11 +357,12 @@ export const puckConfig = {
       fields: {
         sectionId: sectionField,
         heading: { type: "text", label: "Heading" },
+        paraLimit: paraLimitField,
         // drag a Cover or Hero in here to float it inside the text
         media: { type: "slot", label: "Floated image (drag a cover/hero here)", allow: ["Cover", "Hero"] },
         floatTop: floatTopField,
       },
-      defaultProps: { sectionId: "", heading: "Summary", blocks: [], media: [], floatTop: 0 },
+      defaultProps: { sectionId: "", heading: "Summary", blocks: [], media: [], floatTop: 0, paraLimit: 0 },
       // picking a Section swaps in that section's verbatim blocks + heading
       resolveData: ({ props }, { changed, trigger, metadata }) => {
         if (trigger === "insert") {

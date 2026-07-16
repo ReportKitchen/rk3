@@ -34,8 +34,11 @@ export function Summary({ text, source, heading }) {
 // Verbatim Document Summary: a whole intro/exec-summary section (rich HTML),
 // with an optional image floated in its media slot so the text wraps around it.
 // `children` is the slot content (a Cover/Hero), floated via CSS.
-export function DocSummary({ heading, blocks, floatTop, dragging, children }) {
-  const chunks = blocks || [];
+export function DocSummary({ heading, blocks, floatTop, paraLimit, dragging, children }) {
+  const all = blocks || [];
+  // paraLimit 0 = show all; otherwise cap the number of chunks (these sections
+  // can run very long)
+  const chunks = paraLimit > 0 ? all.slice(0, paraLimit) : all;
   // place the floated image *between* blocks: blocks before it run full-width,
   // blocks from there wrap around it (a float only affects following content)
   const at = Math.max(0, Math.min(floatTop || 0, chunks.length));
