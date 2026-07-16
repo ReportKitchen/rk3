@@ -46,19 +46,16 @@ function rootToTheme(p = {}) {
   };
 }
 
-// ---- per-block prop shape differences (Puck array fields store objects) ----
+// ---- per-block prop shape differences ----
+// (highlights used to store an array of bullet strings; it's now a single
+// rich-text `content` string, so no per-block reshaping is needed here — legacy
+// items[] pass through untouched and the block migrates them on load)
 export function propsToPuck(type, props) {
-  if (type === "highlights") {
-    return { ...props, items: (props.items || []).map((v) => ({ value: v })) };
-  }
   return { ...props };
 }
 
 function propsFromPuck(type, props) {
   const { id, ...rest } = props;
-  if (type === "highlights") {
-    return { ...rest, items: (rest.items || []).map((i) => (typeof i === "string" ? i : i.value)) };
-  }
   return rest;
 }
 

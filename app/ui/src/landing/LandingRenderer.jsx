@@ -91,13 +91,23 @@ export function Toc({ items }) {
   );
 }
 
-export function Highlights({ items, bgColor, heading }) {
-  const list = items || [];
-  if (!list.length) return null;
+const escapeHtml = (s) =>
+  String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+// legacy highlights stored an array of bullet strings (or Puck's {value}
+// wrappers); build the equivalent <ul> so old docs still render and can migrate
+export function itemsToUl(items) {
+  const strs = (items || []).map((i) => (typeof i === "string" ? i : i?.value)).filter(Boolean);
+  return strs.length ? "<ul>" + strs.map((t) => `<li>${escapeHtml(t)}</li>`).join("") + "</ul>" : "";
+}
+
+export function Highlights({ content, items, bgColor, heading }) {
+  const html = content || itemsToUl(items);
+  if (!html) return null;
   return (
     <section className="lp-block lp-highlights" style={bgColor ? { background: bgColor } : undefined}>
       <h2>{heading || "Highlights"}</h2>
-      <ul>{list.map((t, i) => <li key={i}>{t}</li>)}</ul>
+      <div className="lp-rich" dangerouslySetInnerHTML={{ __html: html }} />
     </section>
   );
 }
@@ -114,7 +124,9 @@ export function Findings({ heading, items }) {
         {list.map((it, i) => (
           <li key={i}>
             {it.stat ? <span className="lp-finding-stat">{it.stat}</span> : null}
-            {it.text ? <span className="lp-finding-text">{it.text}</span> : null}
+            {it.text ? (
+              <span className="lp-finding-text" dangerouslySetInnerHTML={{ __html: it.text }} />
+            ) : null}
           </li>
         ))}
       </ul>

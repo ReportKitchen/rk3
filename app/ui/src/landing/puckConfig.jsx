@@ -7,7 +7,7 @@ import { RichText } from "./RichText.jsx";
 import { getAiSummary } from "../api.js";
 import {
   Title, Summary, DocSummary, Cover, Hero, Toc, Highlights, Findings, Share, Download, SecondaryCta,
-  SHARE_NETWORKS, DEFAULT_NETWORKS, ShareGlyph,
+  SHARE_NETWORKS, DEFAULT_NETWORKS, ShareGlyph, itemsToUl,
 } from "./LandingRenderer.jsx";
 
 // One compact field wrapper for the whole modal, matching the design kit.
@@ -529,20 +529,26 @@ export const puckConfig = {
       label: "Highlights",
       fields: {
         heading: { type: "text", label: "Heading" },
-        items: {
-          type: "array",
-          label: "Points — 3–5 outcomes a reader cares about",
-          getItemSummary: (it) => it.value || "point",
-          arrayFields: { value: { type: "text" } },
-        },
+        content: richTextField("Points — 3–5 outcomes a reader cares about"),
         bgColor: { ...color("Box color") },
       },
-      defaultProps: { heading: "Highlights", items: [], bgColor: "#eef3fa" },
-      resolveData: insertDefaults("Highlights"),
-      // array fields store objects; map to strings for the renderer
-      render: ({ items, bgColor, heading }) => (
-        <Highlights heading={heading} bgColor={bgColor}
-          items={(items || []).map((i) => (typeof i === "string" ? i : i.value))} />
+      defaultProps: { heading: "Highlights", content: "", bgColor: "#eef3fa" },
+      // insert defaults, then migrate any legacy items[] (from older docs or the
+      // block default) into the rich-text list once
+      resolveData: ({ props }, { trigger, metadata }) => {
+        let p = props;
+        if (trigger === "insert" && metadata?.blockDefaults?.Highlights) {
+          p = { ...p, ...metadata.blockDefaults.Highlights };
+        }
+        if (!p.content && p.items && p.items.length) {
+          p = { ...p, content: itemsToUl(p.items), items: undefined };
+        }
+        return { props: p };
+      },
+      // pass items too, so a legacy block still renders on the canvas in the
+      // moment before resolveData migrates it to content
+      render: ({ heading, content, bgColor, items }) => (
+        <Highlights heading={heading} content={content} bgColor={bgColor} items={items} />
       ),
     },
     Findings: {
@@ -552,10 +558,11 @@ export const puckConfig = {
         items: {
           type: "array",
           label: "Findings — a figure + the fact it belongs to",
-          getItemSummary: (it) => [it.stat, it.text].filter(Boolean).join(" ").slice(0, 40) || "finding",
+          getItemSummary: (it) =>
+            [it.stat, (it.text || "").replace(/<[^>]+>/g, "")].filter(Boolean).join(" ").slice(0, 40) || "finding",
           arrayFields: {
             stat: { type: "text", label: "Stat (e.g. 47%, $2.3M)" },
-            text: { type: "textarea", label: "Finding" },
+            text: richTextField("Finding"),
           },
         },
       },
