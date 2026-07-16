@@ -26,7 +26,7 @@ export function Summary({ text, source, heading }) {
   return (
     <section className="lp-block lp-summary" data-source={source || undefined}>
       {heading ? <h2>{heading}</h2> : null}
-      <p>{text}</p>
+      <div className="lp-rich" dangerouslySetInnerHTML={{ __html: text || "" }} />
     </section>
   );
 }

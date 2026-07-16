@@ -3,6 +3,7 @@ import { usePuck } from "@measured/puck";
 import { themeProps } from "./css.js";
 import { ensureFont, primaryFamily } from "./fonts.js";
 import { useLandingOptions } from "./landingOptions.js";
+import { RichText } from "./RichText.jsx";
 import { getAiSummary } from "../api.js";
 import {
   Title, Summary, DocSummary, Cover, Hero, Toc, Highlights, Findings, Share, Download, SecondaryCta,
@@ -233,6 +234,18 @@ const pdfSourceField = {
   ),
 };
 
+// a reusable rich-text (HTML) field for the prose blocks — bold / italic /
+// heading / bullets / links, stored as an HTML string
+const richTextField = (label) => ({
+  type: "custom",
+  label,
+  render: ({ value, onChange }) => (
+    <LpField label={label}>
+      <RichText value={value} onChange={onChange} />
+    </LpField>
+  ),
+});
+
 // which networks to show — toggle chips, each with its brand glyph
 const shareNetworksField = {
   type: "custom",
@@ -425,7 +438,7 @@ export const puckConfig = {
           ],
         },
         heading: { type: "text", label: "Heading (optional)" },
-        text: { type: "textarea", label: "Summary", contentEditable: true },
+        text: richTextField("Summary"),
       },
       defaultProps: { style: "intro", length: "medium", heading: "", text: "A short summary of the document." },
       // changing Style/Length swaps in that variant. Combos already generated

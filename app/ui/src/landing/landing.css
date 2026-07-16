@@ -404,6 +404,26 @@
   text-transform: uppercase;
 }
 
+/* rich-text editor (react-simple-wysiwyg), themed to the kit */
+.lp-rte .rsw-editor {
+  border: 1px solid var(--rk-border); border-radius: 8px; overflow: hidden; background: #fff;
+}
+.lp-rte .rsw-editor:focus-within { border-color: var(--rk-rhino-700); }
+.lp-rte .rsw-toolbar {
+  background: var(--rk-gray-100); border-bottom: 1px solid var(--rk-border); padding: 2px;
+}
+.lp-rte .rsw-btn {
+  color: var(--rk-text-body); border-radius: 5px; width: 30px; height: 28px;
+}
+.lp-rte .rsw-btn:hover { background: #fff; }
+.lp-rte .rsw-btn[data-active="true"] { color: var(--rk-rhino-700); background: #fff; }
+.lp-rte .rsw-ce {
+  min-height: 92px; padding: 10px 12px; font-size: 13px; line-height: 1.55; color: var(--rk-text-body);
+}
+.lp-rte .rsw-ce:focus { outline: none; }
+.lp-rte .rsw-ce ul { padding-left: 1.3rem; list-style: disc; }
+.lp-rte .rsw-ce h3 { font-size: 1.05rem; font-weight: 700; margin: 0.4rem 0; }
+
 /* Social share — network picker (toggle chips) + button-style examples */
 .lp-share-picker { display: flex; flex-wrap: wrap; gap: 6px; }
 .lp-share-chip {
