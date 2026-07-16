@@ -62,11 +62,12 @@ export function Cover({ src, alt, resolveAsset = ident }) {
   );
 }
 
-export function Hero({ src, alt, resolveAsset = ident }) {
+export function Hero({ src, alt, caption, resolveAsset = ident }) {
   if (!src) return null;
   return (
     <figure className="lp-block lp-hero">
       <img src={resolveAsset(src)} alt={alt || ""} />
+      {caption ? <figcaption>{caption}</figcaption> : null}
     </figure>
   );
 }

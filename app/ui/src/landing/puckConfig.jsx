@@ -137,6 +137,23 @@ const insertDefaults = (key) => ({ props }, { trigger, metadata }) =>
     ? { props: { ...props, ...metadata.blockDefaults[key] } }
     : { props };
 
+// for image blocks (Cover/Hero): insert defaults, and when the picked image
+// changes, prefill alt (and caption, if the block has one) from that figure
+const imageMeta = (key) => ({ props }, { changed, trigger, metadata }) => {
+  if (trigger === "insert" && metadata?.blockDefaults?.[key]) {
+    return { props: { ...props, ...metadata.blockDefaults[key] } };
+  }
+  if (changed?.src) {
+    const img = (metadata?.images || []).find((im) => im.src === props.src);
+    if (img) {
+      const next = { ...props, alt: img.alt || props.alt || "" };
+      if ("caption" in props) next.caption = img.caption || "";
+      return { props: next };
+    }
+  }
+  return { props };
+};
+
 // image picker: a select over the document's figures. Reads LandingOptions, not
 // `puck.metadata` — a custom field's render never receives `puck`, so the old
 // `puck?.metadata?.images` silently resolved to [] and this only ever offered
@@ -338,17 +355,23 @@ export const puckConfig = {
     },
     Cover: {
       label: "Report cover",
-      fields: { src: imageField, alt: { type: "text" } },
+      fields: { src: imageField, alt: { type: "text", label: "Alt text" } },
       defaultProps: { src: "pages/page-0001.png", alt: "Document cover" },
-      resolveData: insertDefaults("Cover"),
+      resolveData: imageMeta("Cover"),
       render: ({ src, alt, puck }) => <Cover src={src} alt={alt} resolveAsset={resolver(puck)} />,
     },
     Hero: {
       label: "Hero image",
-      fields: { src: imageField, alt: { type: "text" } },
-      defaultProps: { src: "", alt: "Hero image" },
-      resolveData: insertDefaults("Hero"),
-      render: ({ src, alt, puck }) => <Hero src={src} alt={alt} resolveAsset={resolver(puck)} />,
+      fields: {
+        src: imageField,
+        caption: { type: "text", label: "Caption", contentEditable: true },
+        alt: { type: "text", label: "Alt text (for screen readers)" },
+      },
+      defaultProps: { src: "", caption: "", alt: "Hero image" },
+      resolveData: imageMeta("Hero"),
+      render: ({ src, caption, alt, puck }) => (
+        <Hero src={src} caption={caption} alt={alt} resolveAsset={resolver(puck)} />
+      ),
     },
     Toc: {
       label: "Table of contents",

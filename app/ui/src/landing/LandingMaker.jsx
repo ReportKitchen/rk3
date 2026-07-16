@@ -33,6 +33,16 @@ function buildGhost(regions, base) {
   return g.header || g.sidebar || g.footer ? g : null;
 }
 
+// a figure's caption text: a nested caption child (the "title" variant is the
+// caption proper; a "caption" variant is usually the source/credit line)
+function captionOf(fig) {
+  const caps = (fig.children || []).filter((c) => c.type === "caption");
+  const node = caps.find((c) => c.variant === "title") || caps[0];
+  if (!node) return "";
+  const inner = (node.children || []).filter((c) => c.text).map((c) => c.text).join(" ");
+  return (inner || node.text || "").replace(/ /g, " ").trim();
+}
+
 // fresh unique ids for a block and any nested slot blocks (templates use
 // positional ids that collide when merged across templates)
 function freshIds(b) {
@@ -129,8 +139,15 @@ export default function LandingMaker({ doc }) {
       if (!alive) return;
       const figs = (ir.body || []).filter((n) => n.type === "figure" && n.src);
       setImages([
-        { src: "pages/page-0001.png", label: "Page 1 (cover)" },
-        ...figs.map((f, i) => ({ src: f.src, label: `Figure ${i + 1} (${f.width}×${f.height})` })),
+        { src: "pages/page-0001.png", label: "Page 1 (cover)", alt: "", caption: "" },
+        ...figs.map((f, i) => ({
+          src: f.src, label: `Figure ${i + 1} (${f.width}×${f.height})`,
+          // the figure's own alt, and its caption (a nested caption child — the
+          // 'title' variant is the caption; a 'caption' variant is the credit),
+          // so picking an image can prefill both
+          alt: (f.alt || "").replace(/ /g, " ").trim(),
+          caption: captionOf(f),
+        })),
       ]);
     }).catch(guard("landing: load IR", null));
     return () => { alive = false; };
