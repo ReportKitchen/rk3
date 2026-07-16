@@ -216,16 +216,6 @@
 .lp-mini-doc { position: relative; flex: none; }
 .lp-mini-scale { transform-origin: top left; }
 .lp-mini-empty { font-size: 12px; color: var(--rk-text-muted); padding: 20px; margin: auto; }
-/* estimated first-screen fold */
-.lp-fold {
-  position: absolute; left: 0; right: 0; height: 0;
-  border-top: 1px dashed var(--rk-tomato-300); pointer-events: none;
-}
-.lp-fold span {
-  position: absolute; right: 0; top: 2px;
-  font-size: 9px; letter-spacing: 0.04em; text-transform: uppercase;
-  color: var(--rk-tomato-600); background: rgba(255, 255, 255, 0.85); padding: 1px 5px; border-radius: 3px;
-}
 
 /* ---- Copy my site styles (Page setup) ---- */
 .lp-copy {

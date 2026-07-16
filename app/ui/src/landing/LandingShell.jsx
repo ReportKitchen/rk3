@@ -125,7 +125,7 @@ function PageSetupModal({ ctx, onCancel, onDone }) {
         <Puck.Fields />
         <SidebarsControl left={sidebars.left} right={sidebars.right} onToggle={sidebars.onToggle} />
       </div>
-      <MiniPreview {...preview} chrome fold />
+      <MiniPreview {...preview} chrome />
     </Modal>
   );
 }

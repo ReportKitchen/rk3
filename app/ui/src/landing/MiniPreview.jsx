@@ -3,11 +3,6 @@ import { LandingRenderer } from "./LandingRenderer.jsx";
 import { themeProps } from "./css.js";
 import { ensureFont, primaryFamily } from "./fonts.js";
 
-// a browser viewport is ~800px tall; the landing page's "first screen" is
-// roughly that once the host chrome is accounted for — an estimate, drawn as a
-// dotted fold line when `fold` is set
-const FOLD_PX = 760;
-
 // The modals' live preview.
 //
 // Renders LandingRenderer — the same component the static export uses — so what
@@ -15,8 +10,8 @@ const FOLD_PX = 760;
 // approximation. (root.render / DocSummaryRender call usePuck, so Puck's own
 // <Render> can't be used here.) Fits the page to the frame width and scrolls
 // vertically when it's taller than fits; `chrome` wraps it in a minimal browser
-// frame, `fold` marks the estimated first screen.
-export default function MiniPreview({ config, theme, assetBase, downloadHref, chrome, fold }) {
+// frame.
+export default function MiniPreview({ config, theme, assetBase, downloadHref, chrome }) {
   const empty = !(config?.blocks || []).length;
   const contentWidth = theme?.contentWidth || 800;
   const viewRef = useRef(null);
@@ -73,11 +68,6 @@ export default function MiniPreview({ config, theme, assetBase, downloadHref, ch
                     resolveAsset={(src) => `${assetBase}/${src}`} downloadHref={downloadHref} />
                 </div>
               </div>
-              {fold ? (
-                <div className="lp-fold" style={{ top: Math.round(FOLD_PX * scale) }}>
-                  <span>estimated first screen</span>
-                </div>
-              ) : null}
             </div>
           )}
         </div>
