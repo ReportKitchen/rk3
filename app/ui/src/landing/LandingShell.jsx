@@ -22,6 +22,22 @@ const GearIcon = ({ size }) => svg(
     <path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.4 2.6a7 7 0 0 0-2 1.2l-2.5-1-2 3.4 2 1.6a7 7 0 0 0 0 2.4l-2 1.6 2 3.4 2.5-1a7 7 0 0 0 2 1.2L10 21h4l.4-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.07-.4.1-.8.1-1.2z" />
   </>, size);
 const DocIcon = ({ size }) => svg(<path d="M6 3h9l4 4v14H6zM15 3v4h4M9 11h7M9 15h7" />, size);
+const SlidersIcon = ({ size }) => svg(
+  <><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" /></>, size);
+const StarIcon = ({ size }) => svg(
+  <path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.8 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" />, size);
+
+// A paid-tier teaser: a star with a hover/focus note. There's no user model yet,
+// so it always shows; hide it behind a plan flag once we have one.
+function Upsell({ text }) {
+  return (
+    <span className="lp-upsell" tabIndex={0}>
+      <StarIcon size={13} />
+      <span className="lp-upsell-pop">{text}</span>
+    </span>
+  );
+}
+
 // "Copy my site styles": a toggle. On => apply the scanned client look; off =>
 // revert to the manual theme. `onToggle(on)` does the work and returns a summary
 // (and rebases the modal snapshot); this component owns only the busy/error UI.
@@ -44,16 +60,60 @@ function CopyMySite({ on, busy, error, summary, onToggle }) {
   );
 }
 
-// Page setup: everything that applies to the whole page rather than one block.
-// Puck.Fields with nothing selected renders the root fields, so the theme
-// controls come straight from puckConfig.root — no second definition of them.
+// One control for both host sidebars, drawn as the page layout it represents:
+// [Left] [Content] [Right], where Left/Right are checkboxes. Clearer and far
+// tighter than two separate toggles.
+function SidebarsControl({ left, right, onToggle }) {
+  return (
+    <div className="lp-field">
+      <span className="lp-field-lbl">Sidebars on your site</span>
+      <div className="lp-sidebars">
+        <label className={"lp-sb-cell" + (left ? " on" : "")}>
+          <input type="checkbox" checked={left} onChange={() => onToggle("left")} />
+          <span>Left</span>
+        </label>
+        <span className="lp-sb-content">Content</span>
+        <label className={"lp-sb-cell" + (right ? " on" : "")}>
+          <input type="checkbox" checked={right} onChange={() => onToggle("right")} />
+          <span>Right</span>
+        </label>
+      </div>
+    </div>
+  );
+}
+
+// Template picker (shared by Content settings)
+function TemplatePicker({ archetypes, arch, dirty, onSwitch, onReload }) {
+  return (
+    <div className="lp-templates">
+      {Object.entries(archetypes).map(([k, label]) => (
+        <button key={k} className={"lp-tmpl" + (k === arch ? " active" : "")}
+          onClick={() => k !== arch && onSwitch(k)}>
+          <span className="lp-tmpl-top">
+            <span className="lp-tmpl-name">{label}</span>
+            {k === arch && dirty && (
+              <span className="lp-tmpl-reload" role="button" title="Reset this template to its default"
+                onClick={(e) => { e.stopPropagation(); onReload(); }}>↻</span>
+            )}
+          </span>
+          <span className="lp-tmpl-desc">{ARCHETYPE_DESC[k] || ""}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// Page setup: how the page LOOKS (layout / style). Content choices — template,
+// AI — live in Content settings. Puck.Fields renders the root theme fields
+// (width, colours); sidebars are one combined control; the preview sits in a
+// minimal browser frame with an estimated fold line.
 function PageSetupModal({ ctx, onCancel, onDone }) {
-  const { archetypes, arch, dirty, onSwitch, onReload, copy, aiMode, preview } = ctx;
+  const { copy, sidebars, preview } = ctx;
   return (
     <Modal
       icon={<GearIcon size={17} />}
       title="Page setup"
-      meta="applies to the whole page"
+      meta="how the page looks"
       onCancel={onCancel}
       footer={<ModalFooter note="Cancel puts everything back." onCancel={onCancel} onDone={onDone} />}
     >
@@ -62,25 +122,39 @@ function PageSetupModal({ ctx, onCancel, onDone }) {
           <CopyMySite on={copy.on} busy={copy.busy} error={copy.error}
             summary={copy.summary} onToggle={copy.onToggle} />
         ) : null}
-        <p className="lp-modal-l">Template</p>
-        <div className="lp-templates">
-          {Object.entries(archetypes).map(([k, label]) => (
-            <button key={k} className={"lp-tmpl" + (k === arch ? " active" : "")}
-              onClick={() => k !== arch && onSwitch(k)}>
-              <span className="lp-tmpl-top">
-                <span className="lp-tmpl-name">{label}</span>
-                {k === arch && dirty && (
-                  <span className="lp-tmpl-reload" role="button" title="Reset this template to its default"
-                    onClick={(e) => { e.stopPropagation(); onReload(); }}>↻</span>
-                )}
-              </span>
-              <span className="lp-tmpl-desc">{ARCHETYPE_DESC[k] || ""}</span>
-            </button>
-          ))}
-        </div>
-        <p className="lp-modal-l">Page</p>
         <Puck.Fields />
-        <p className="lp-modal-l">Level of AI</p>
+        <SidebarsControl left={sidebars.left} right={sidebars.right} onToggle={sidebars.onToggle} />
+      </div>
+      <MiniPreview {...preview} chrome fold />
+    </Modal>
+  );
+}
+
+// Content settings: what's ON the page (template) and how it's written (AI).
+// Opened from the left bar. Single column, no preview.
+function ContentSettingsModal({ ctx, onCancel, onDone }) {
+  const { archetypes, arch, dirty, onSwitch, onReload, aiMode } = ctx;
+  return (
+    <Modal
+      icon={<SlidersIcon size={17} />}
+      title="Content settings"
+      meta="what's on the page"
+      width={520}
+      single
+      onCancel={onCancel}
+      footer={<button className="lp-btn-secondary lp-modal-cancel" onClick={onDone}>Done</button>}
+    >
+      <div className="lp-modal-cfg">
+        <p className="lp-modal-l">
+          Template
+          <Upsell text="On a paid plan you can customize and save your own templates." />
+        </p>
+        <TemplatePicker archetypes={archetypes} arch={arch} dirty={dirty}
+          onSwitch={onSwitch} onReload={onReload} />
+        <p className="lp-modal-l">
+          AI
+          <Upsell text="On a paid plan you can customize the AI prompts that write your summaries." />
+        </p>
         <p className="lp-modal-ai">
           {aiMode === "generate" ? "AI content generation"
             : aiMode === "analyze" ? "Analysis only — verbatim copy"
@@ -88,7 +162,6 @@ function PageSetupModal({ ctx, onCancel, onDone }) {
           <span> · set for this install, not per page</span>
         </p>
       </div>
-      <MiniPreview {...preview} />
     </Modal>
   );
 }
@@ -236,6 +309,17 @@ export default function LandingShell({
     transform: `scale(${zoom})`, transformOrigin: "top left",
   };
 
+  // sidebars are root props edited outside Puck.Fields; setData doesn't fire
+  // onChange, so persist explicitly (like the copy toggle)
+  const rootProps = appState.data.root?.props || {};
+  const toggleSidebar = (side) => {
+    const cur = appState.data.root?.props || {};
+    const patch = side === "left" ? { leftSidebar: !cur.leftSidebar } : { rightSidebar: !cur.rightSidebar };
+    const next = { ...appState.data, root: { props: { ...cur, ...patch } } };
+    dispatch({ type: "setData", data: next });
+    onPersist(next);
+  };
+
   const selId = selectedItem?.props?.id;
   const blockCtx = useMemo(() => {
     if (!selectedItem) return null;
@@ -246,8 +330,7 @@ export default function LandingShell({
       position: i >= 0 ? `block ${i + 1} of ${content.length}` : "",
       preview: {
         config: { ...config, blocks: config.blocks.filter((b) => b.id === selId) },
-        theme, assetBase, downloadHref, scale: 0.62,
-        caption: "Live preview — just this block",
+        theme, assetBase, downloadHref,
       },
     };
   }, [selectedItem, selId, appState.data.content, config, theme, assetBase, downloadHref, puckCfg]);
@@ -255,6 +338,9 @@ export default function LandingShell({
   return (
     <div className="lp-shell">
       <aside className="lp-lib">
+        <button className="lp-content-btn" onClick={() => setModal("content")}>
+          <SlidersIcon size={15} />Content settings
+        </button>
         <p className="lp-lib-h">Blocks — drag onto the page</p>
         <div className="lp-lib-list">
           <BlockLibrary canGenerate={aiMode === "generate"} canAnalyze={aiMode !== "none"} />
@@ -303,13 +389,20 @@ export default function LandingShell({
       {modal === "page" && (
         <PageSetupModal
           ctx={{
-            archetypes, arch, dirty, onSwitch, onReload, aiMode,
             copy: {
               hasUrl: !!templateUrl, on: copyOn, busy: copyBusy,
               error: copyError, summary: copySummary, onToggle: toggleCopy,
             },
+            sidebars: { left: !!rootProps.leftSidebar, right: !!rootProps.rightSidebar, onToggle: toggleSidebar },
             preview: { config, theme, assetBase, downloadHref },
           }}
+          onCancel={cancel}
+          onDone={done}
+        />
+      )}
+      {modal === "content" && (
+        <ContentSettingsModal
+          ctx={{ archetypes, arch, dirty, onSwitch, onReload, aiMode }}
           onCancel={cancel}
           onDone={done}
         />

@@ -5,7 +5,7 @@ import React, { useEffect, useRef } from "react";
 //
 // Cancel and Done are different verbs here, so closing must be explicit: Esc
 // and the scrim both mean Cancel (discard), never Done.
-export default function Modal({ icon, title, meta, width = 780, onCancel, footer, children }) {
+export default function Modal({ icon, title, meta, width = 780, single, onCancel, footer, children }) {
   const dialog = useRef(null);
 
   // Configure is clicked inside the canvas iframe, so without this the focus
@@ -37,7 +37,7 @@ export default function Modal({ icon, title, meta, width = 780, onCancel, footer
           {meta ? <span className="lp-modal-meta">{meta}</span> : null}
           <button className="lp-modal-x" onClick={onCancel} aria-label="Close">✕</button>
         </div>
-        <div className="lp-modal-b">{children}</div>
+        <div className={"lp-modal-b" + (single ? " single" : "")}>{children}</div>
         <div className="lp-modal-f">{footer}</div>
       </div>
     </div>

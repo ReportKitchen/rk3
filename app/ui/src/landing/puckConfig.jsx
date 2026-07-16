@@ -105,18 +105,6 @@ const widthField = {
   ),
 };
 
-// a real toggle switch (the kit's switch), replacing Puck's Off/On radio pair
-const onOff = (label) => ({
-  type: "custom",
-  label,
-  render: ({ value, onChange }) => (
-    <LpField label={label} row>
-      <button type="button" role="switch" aria-checked={!!value}
-        className={"lp-switch" + (value ? " on" : "")} onClick={() => onChange(!value)} />
-    </LpField>
-  ),
-});
-
 // A custom color-swatch field (Puck has no built-in color type).
 const color = (label) => ({
   type: "custom",
@@ -188,8 +176,10 @@ export const puckConfig = {
       // font has no UI control yet (set by the theme / Copy my site), but it is
       // a registered field so Puck round-trips the prop through root.props
       font: { type: "custom", render: () => null },
-      leftSidebar: { ...onOff("Left sidebar (your site)") },
-      rightSidebar: { ...onOff("Right sidebar (your site)") },
+      // sidebars are edited via one combined control in Page setup, not as Puck
+      // fields; null fields keep the props round-tripping through root.props
+      leftSidebar: { type: "custom", render: () => null },
+      rightSidebar: { type: "custom", render: () => null },
     },
     defaultProps: {
       contentWidth: 800, pageBg: "#ffffff", contentBg: "#ffffff",

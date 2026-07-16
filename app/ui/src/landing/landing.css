@@ -167,8 +167,11 @@
 .lp-modal-x:hover { background: var(--rk-gray-200); color: var(--rk-text-strong); }
 
 .lp-modal-b { display: grid; grid-template-columns: 330px 1fr; min-height: 0; flex: 1; }
+.lp-modal-b.single { grid-template-columns: 1fr; }
 .lp-modal-cfg { padding: 4px 22px 20px; border-right: 1px solid var(--rk-border); overflow-y: auto; }
+.lp-modal-b.single .lp-modal-cfg { border-right: 0; }
 .lp-modal-l {
+  display: flex; align-items: center; gap: 7px;
   font-size: 12px; font-weight: var(--rk-weight-bold); color: var(--rk-text-strong);
   margin: 16px 0 8px;
 }
@@ -187,22 +190,42 @@
 }
 .lp-modal-del:hover { text-decoration: underline; }
 
-/* ---- the modals' live preview ---- */
+/* ---- the modals' live preview: page fit-to-width inside a minimal browser
+   frame; scrolls when taller than fits; dotted line marks the estimated fold ---- */
 .lp-mini {
   background: var(--rk-gray-100); padding: 18px;
   display: flex; flex-direction: column; min-height: 0; min-width: 0;
 }
-.lp-mini-cap {
-  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--rk-text-muted); margin: 0 0 10px; flex: none;
+.lp-browser {
+  flex: 1; min-height: 0; display: flex; flex-direction: column;
+  background: #fff; border: 1px solid var(--rk-border); border-radius: 8px;
+  overflow: hidden; box-shadow: var(--rk-shadow-md);
 }
-.lp-mini-frame {
-  flex: 1; min-height: 0; overflow: hidden;
-  background: #fff; border-radius: 6px; box-shadow: var(--rk-shadow-md);
+.lp-browser-bar {
+  flex: none; display: flex; align-items: center; gap: 6px; padding: 8px 12px;
+  background: var(--rk-gray-100); border-bottom: 1px solid var(--rk-border);
 }
-/* the page renders at full size and is scaled down, so type stays proportional */
+.lp-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--rk-gray-300); flex: none; }
+.lp-browser-addr {
+  margin-left: 8px; flex: 1; min-width: 0; font-size: 10.5px; color: var(--rk-text-muted);
+  background: #fff; border: 1px solid var(--rk-border); border-radius: 999px; padding: 3px 12px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.lp-browser-view { flex: 1; min-height: 0; overflow: auto; display: flex; justify-content: center; }
+.lp-browser.bare { border-radius: 6px; }
+.lp-mini-doc { position: relative; flex: none; }
 .lp-mini-scale { transform-origin: top left; }
-.lp-mini-empty { font-size: 12px; color: var(--rk-text-muted); padding: 20px; margin: 0; }
+.lp-mini-empty { font-size: 12px; color: var(--rk-text-muted); padding: 20px; margin: auto; }
+/* estimated first-screen fold */
+.lp-fold {
+  position: absolute; left: 0; right: 0; height: 0;
+  border-top: 1px dashed var(--rk-tomato-300); pointer-events: none;
+}
+.lp-fold span {
+  position: absolute; right: 0; top: 2px;
+  font-size: 9px; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--rk-tomato-600); background: rgba(255, 255, 255, 0.85); padding: 1px 5px; border-radius: 3px;
+}
 
 /* ---- Copy my site styles (Page setup) ---- */
 .lp-copy {
@@ -229,7 +252,59 @@
 .lp-copy-note { margin: 8px 0 0; font-size: 11.5px; line-height: 1.45; color: var(--rk-text-muted); }
 .lp-copy-note.err { color: var(--rk-tomato-600); font-weight: var(--rk-weight-semibold); }
 
-/* ---- template picker (Page setup) ---- */
+/* ---- Content settings button (left bar, above Blocks) ---- */
+.lp-content-btn {
+  display: flex; align-items: center; gap: 8px; margin: 12px 14px 4px;
+  padding: 9px 12px; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: var(--rk-radius-sm);
+  background: rgba(255, 255, 255, 0.07); color: #fff; cursor: pointer;
+  font: var(--rk-weight-semibold) 12.5px var(--rk-font-body); text-align: left;
+  transition: background var(--rk-dur-fast) var(--rk-ease-out), border-color var(--rk-dur-fast) var(--rk-ease-out);
+}
+.lp-content-btn:hover { background: rgba(255, 255, 255, 0.13); border-color: var(--rk-macaroni); }
+.lp-content-btn svg { color: var(--rk-macaroni); flex: none; }
+
+/* ---- paid-tier upsell star ---- */
+.lp-upsell { position: relative; display: inline-flex; cursor: help; color: var(--rk-macaroni-600); }
+.lp-upsell svg { fill: var(--rk-macaroni); stroke: var(--rk-macaroni-600); }
+/* to the right of the star, vertically centered — a tooltip above would be
+   clipped by the modal body's vertical scroll */
+.lp-upsell-pop {
+  position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%);
+  width: 180px; padding: 8px 10px; border-radius: var(--rk-radius-sm);
+  background: var(--rk-rhino-900); color: #fff; font: 400 11px/1.4 var(--rk-font-body);
+  text-transform: none; letter-spacing: 0; box-shadow: var(--rk-shadow-md);
+  opacity: 0; visibility: hidden; transition: opacity var(--rk-dur-fast) var(--rk-ease-out); z-index: 5;
+}
+.lp-upsell:hover .lp-upsell-pop, .lp-upsell:focus .lp-upsell-pop { opacity: 1; visibility: visible; }
+
+/* ---- sidebars: one control drawn as the page layout ---- */
+.lp-sidebars {
+  display: grid; grid-template-columns: 1fr 1.3fr 1fr; align-items: stretch;
+  border: 1px solid var(--rk-border-strong); border-radius: var(--rk-radius-sm); overflow: hidden;
+}
+.lp-sb-cell {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 11px 8px; cursor: pointer; font-size: 12px; font-weight: var(--rk-weight-semibold);
+  color: var(--rk-text-muted); background: var(--rk-gray-100);
+}
+.lp-sb-cell:hover { background: var(--rk-gray-200); }
+.lp-sb-cell.on { background: var(--rk-macaroni-100); color: var(--rk-text-strong); }
+.lp-sb-cell input {
+  appearance: none; margin: 0; width: 15px; height: 15px; flex: none; cursor: pointer;
+  border: 1.5px solid var(--rk-rhino-200); border-radius: 4px; background: #fff; position: relative;
+}
+.lp-sb-cell.on input { background: var(--rk-rhino-700); border-color: var(--rk-rhino-700); }
+.lp-sb-cell.on input::after {
+  content: ""; position: absolute; left: 4px; top: 1px; width: 3px; height: 7px;
+  border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+}
+.lp-sb-content {
+  display: flex; align-items: center; justify-content: center;
+  border-left: 1px solid var(--rk-border); border-right: 1px solid var(--rk-border);
+  background: #fff; color: var(--rk-text-strong); font-size: 12px; font-weight: var(--rk-weight-bold);
+}
+
+/* ---- template picker (Content settings) ---- */
 .lp-templates { display: flex; flex-direction: column; gap: 6px; }
 .lp-tmpl {
   text-align: left; border: 1px solid var(--rk-border); border-radius: var(--rk-radius-sm);
@@ -295,20 +370,6 @@
 .lp-modal-cfg label[class*="Input-radio"]:has([class*="radioInput"]:checked) {
   background: var(--rk-rhino-900); color: #fff;
 }
-
-/* toggle switch (the kit's switch) */
-.lp-switch {
-  appearance: none; width: 40px; height: 22px; border-radius: 999px; border: 0;
-  background: var(--rk-gray-300); position: relative; cursor: pointer; flex: none;
-  transition: background var(--rk-dur-fast) var(--rk-ease-out);
-}
-.lp-switch::after {
-  content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px;
-  border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(30, 39, 64, 0.3);
-  transition: left var(--rk-dur-fast) var(--rk-ease-out);
-}
-.lp-switch.on { background: var(--rk-rhino-700); }
-.lp-switch.on::after { left: 21px; }
 
 /* color swatch + hex (row) */
 .lp-field-color { display: flex; align-items: center; gap: 8px; cursor: pointer; }
