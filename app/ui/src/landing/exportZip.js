@@ -12,6 +12,33 @@ const esc = (s) =>
 
 const basename = (src) => src.split("/").pop();
 
+// Wires the share buttons at click time from the LIVE page URL, so a hosted
+// copy shares its own address wherever it lands. Copy link / Instagram (no web
+// share intent) copy the URL to the clipboard and flash "Copied!".
+const SHARE_JS = `(function(){
+  var b=function(u,t){return{
+    linkedin:"https://www.linkedin.com/sharing/share-offsite/?url="+u,
+    x:"https://twitter.com/intent/tweet?url="+u+"&text="+t,
+    bluesky:"https://bsky.app/intent/compose?text="+t+"%20"+u,
+    facebook:"https://www.facebook.com/sharer/sharer.php?u="+u
+  };};
+  Array.prototype.forEach.call(document.querySelectorAll("[data-share]"),function(a){
+    a.addEventListener("click",function(e){
+      e.preventDefault();
+      var u=encodeURIComponent(location.href),t=encodeURIComponent(document.title||"");
+      var net=a.getAttribute("data-share");
+      if(net==="link"||net==="instagram"){
+        if(navigator.clipboard)navigator.clipboard.writeText(location.href);
+        a.classList.add("lp-share-copied");
+        setTimeout(function(){a.classList.remove("lp-share-copied");},1400);
+        return;
+      }
+      var url=b(u,t)[net];
+      if(url)window.open(url,"_blank","noopener,noreferrer,width=600,height=540");
+    });
+  });
+})();`;
+
 const titleOf = (config) => {
   const p = config.blocks.find((b) => b.type === "title")?.props || {};
   return p.title || p.text || ""; // text: back-compat with single-field titles
@@ -27,6 +54,8 @@ export async function exportZip(slug, config, theme, docName) {
   const hasBundled = config.blocks.some(
     (b) => b.type === "download" && b.props?.pdf?.mode !== "url");
   const pdfHref = hasBundled ? `./${encodeURIComponent(docName)}` : "#";
+
+  const hasShare = config.blocks.some((b) => b.type === "share");
 
   const html = renderToStaticMarkup(
     React.createElement(LandingRenderer, {
@@ -52,6 +81,7 @@ ${themeCssVars(theme)}
 <div class="lp-page">
 ${html}
 </div>
+${hasShare ? `<script>${SHARE_JS}</script>` : ""}
 </body>
 </html>
 `;

@@ -404,6 +404,44 @@
   text-transform: uppercase;
 }
 
+/* Social share — network picker (toggle chips) + button-style examples */
+.lp-share-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+.lp-share-chip {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  font-size: 12px; font-weight: var(--rk-weight-semibold); color: var(--rk-text-muted);
+  padding: 6px 10px; border: 1px solid var(--rk-border); border-radius: 7px; background: #fff;
+  transition: color var(--rk-dur-fast) var(--rk-ease-out),
+              border-color var(--rk-dur-fast) var(--rk-ease-out);
+}
+.lp-share-chip svg { opacity: 0.45; }
+.lp-share-chip:hover { border-color: var(--rk-rhino-200); }
+.lp-share-chip.on {
+  color: var(--rk-rhino-700); border-color: var(--rk-rhino-700);
+  box-shadow: inset 0 0 0 1px var(--rk-rhino-700);
+}
+.lp-share-chip.on svg { opacity: 1; }
+
+.lp-stylepick { display: flex; gap: 8px; }
+.lp-stylepick-opt {
+  flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 12px 6px 9px; border: 1px solid var(--rk-border); border-radius: 9px;
+  background: #fff; cursor: pointer;
+  transition: border-color var(--rk-dur-fast) var(--rk-ease-out);
+}
+.lp-stylepick-opt:hover { border-color: var(--rk-rhino-200); }
+.lp-stylepick-opt.on { border-color: var(--rk-rhino-700); box-shadow: inset 0 0 0 1px var(--rk-rhino-700); }
+.lp-stylepick-cap { font-size: 11.5px; font-weight: var(--rk-weight-semibold); color: var(--rk-text-muted); }
+.lp-stylepick-opt.on .lp-stylepick-cap { color: var(--rk-rhino-700); }
+.lp-stylepick-demo {
+  display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px;
+}
+.lp-stylepick-demo.demo-plain { color: var(--rk-rhino-700); }
+.lp-stylepick-demo.demo-round, .lp-stylepick-demo.demo-square {
+  background: var(--rk-rhino-700); color: #fff;
+}
+.lp-stylepick-demo.demo-round { border-radius: 50%; }
+.lp-stylepick-demo.demo-square { border-radius: 7px; }
+
 /* content-width slider — short fixed slider + value chip (the kit's pattern),
    so the row's label never clips */
 .lp-field-width { display: flex; align-items: center; gap: 9px; }

@@ -6,6 +6,7 @@ import { useLandingOptions } from "./landingOptions.js";
 import { getAiSummary } from "../api.js";
 import {
   Title, Summary, DocSummary, Cover, Hero, Toc, Highlights, Findings, Share, Download, SecondaryCta,
+  SHARE_NETWORKS, DEFAULT_NETWORKS, ShareGlyph,
 } from "./LandingRenderer.jsx";
 
 // One compact field wrapper for the whole modal, matching the design kit.
@@ -228,6 +229,62 @@ const pdfSourceField = {
   render: ({ value, onChange }) => (
     <LpField label="Where's your PDF?">
       <PdfSource value={value} onChange={onChange} />
+    </LpField>
+  ),
+};
+
+// which networks to show — toggle chips, each with its brand glyph
+const shareNetworksField = {
+  type: "custom",
+  label: "Networks",
+  render: ({ value, onChange }) => {
+    // fall back to the same defaults the block renders with, so a share block
+    // placed before this field existed shows its real state (and toggling one
+    // chip doesn't wipe the rest)
+    const v = value || DEFAULT_NETWORKS;
+    return (
+      <LpField label="Networks">
+        <div className="lp-share-picker">
+          {SHARE_NETWORKS.map((n) => {
+            const on = !!v[n.key];
+            return (
+              <button type="button" key={n.key}
+                className={"lp-share-chip" + (on ? " on" : "")}
+                onClick={() => onChange({ ...v, [n.key]: !on })}>
+                <ShareGlyph net={n.key} size={15} />
+                <span>{n.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </LpField>
+    );
+  },
+};
+
+// button style, shown as examples not names: plain icon vs filled round/square
+const SHARE_STYLES = [
+  { key: "plain", label: "Plain" },
+  { key: "round", label: "Round" },
+  { key: "square", label: "Square" },
+];
+const shareStyleField = {
+  type: "custom",
+  label: "Button style",
+  render: ({ value, onChange }) => (
+    <LpField label="Button style">
+      <div className="lp-stylepick">
+        {SHARE_STYLES.map((s) => (
+          <button type="button" key={s.key}
+            className={"lp-stylepick-opt" + ((value || "plain") === s.key ? " on" : "")}
+            onClick={() => onChange(s.key)}>
+            <span className={"lp-stylepick-demo demo-" + s.key}>
+              <ShareGlyph net="linkedin" size={16} />
+            </span>
+            <span className="lp-stylepick-cap">{s.label}</span>
+          </button>
+        ))}
+      </div>
     </LpField>
   ),
 };
@@ -495,9 +552,20 @@ export const puckConfig = {
     },
     Share: {
       label: "Social share",
-      fields: {},
-      defaultProps: {},
-      render: () => <Share />,
+      fields: {
+        heading: { type: "text", label: "Heading", contentEditable: true },
+        networks: shareNetworksField,
+        style: shareStyleField,
+      },
+      defaultProps: {
+        heading: "Share",
+        networks: { linkedin: true, x: true, link: true },
+        style: "plain",
+      },
+      resolveData: insertDefaults("Share"),
+      render: ({ heading, networks, style }) => (
+        <Share heading={heading} networks={networks} style={style} />
+      ),
     },
     Download: {
       label: "Download Button",
