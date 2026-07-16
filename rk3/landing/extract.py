@@ -381,8 +381,7 @@ def build_default_theme(ir: dict) -> dict:
             "--lp-text": "#111111",
             "--lp-heading": "#111111",
             "--lp-accent": "#1b4965",
-            "--lp-h2-color": "#666666",
-            "--lp-h2-transform": "uppercase",
+            "--lp-h2-color": "#111111",
             "--lp-font": _DEFAULT_FONT,
         },
     }

@@ -11,7 +11,9 @@
   font-family: var(--lp-font, system-ui, sans-serif);
   line-height: 1.6;
 }
-.lp-page { min-height: 100vh; padding: 40px 20px; }
+/* the page background fills the whole landing-page area; the content column
+   (blocks) is centred within at --lp-width */
+.lp-page { min-height: 100vh; padding: 40px 20px; background: var(--lp-page-bg, #ffffff); }
 
 .lp-content,
 .lp-page > * {
@@ -33,9 +35,12 @@
   text-transform: uppercase; letter-spacing: 0.08em; color: var(--lp-accent, #1b4965);
 }
 .lp-subtitle { margin: 0.6rem 0 0; font-size: 1.2rem; color: #555; font-weight: 400; }
-.lp-summary h2 {
-  font-size: 0.8rem; text-transform: var(--lp-h2-transform, uppercase); letter-spacing: 0.06em;
-  color: var(--lp-h2-color, #666); margin: 0 0 0.6rem;
+/* section headings (H2): a real heading — normal case, the heading colour,
+   a bit larger than body. NOT the tracked-out eyebrow treatment. */
+.lp-summary h2, .lp-docsum h2, .lp-toc h2, .lp-highlights h2, .lp-findings h2 {
+  font-size: 1.35rem; font-weight: 700; line-height: 1.3;
+  text-transform: none; letter-spacing: normal;
+  color: var(--lp-h2-color, #111); margin: 0 0 0.7rem;
 }
 /* match the Document Summary body (1.05rem/1.6): a larger font here made the
    AI Summary's line spacing read differently from the rest of the content */
@@ -43,10 +48,6 @@
 
 /* Document Summary: a whole verbatim section, with an optional image floated
    in its media slot so the prose wraps around it */
-.lp-docsum h2 {
-  font-size: 0.8rem; text-transform: var(--lp-h2-transform, uppercase); letter-spacing: 0.06em;
-  color: var(--lp-h2-color, #666); margin: 0 0 0.8rem;
-}
 .lp-docsum-media {
   float: right; width: 40%; max-width: 360px; margin: 0 0 1rem 1.5rem;
 }
@@ -84,11 +85,6 @@
   margin-top: 0.5rem; font-size: 0.85rem; line-height: 1.45; color: #666;
 }
 
-.lp-toc h2, .lp-highlights h2, .lp-findings h2 {
-  font-size: 0.8rem; text-transform: var(--lp-h2-transform, uppercase); letter-spacing: 0.06em;
-  color: var(--lp-h2-color, #666); margin: 0 0 0.6rem;
-}
-
 /* Findings: a headline figure (stat) beside the fact it belongs to */
 .lp-findings ul { list-style: none; margin: 0; padding: 0; }
 .lp-findings li {
@@ -103,7 +99,7 @@
 }
 .lp-finding-text { font-size: 1.05rem; line-height: 1.6; }
 .lp-toc ul { list-style: none; margin: 0; padding: 0; }
-.lp-toc li { padding: 0.2rem 0; }
+.lp-toc li { padding: 0.2rem 0; font-size: 1.05rem; line-height: 1.6; }
 .lp-toc li.lvl-3 { padding-left: 1rem; }
 .lp-toc li.lvl-4 { padding-left: 2rem; }
 .lp-toc a { color: var(--lp-accent, #1b4965); text-decoration: none; }
@@ -111,7 +107,7 @@
 
 /* highlights background comes from the block's bgColor prop (inline) */
 .lp-highlights ul { margin: 0; padding-left: 1.2rem; }
-.lp-highlights li { margin: 0.3rem 0; }
+.lp-highlights li { margin: 0.3rem 0; font-size: 1.05rem; line-height: 1.6; }
 
 .lp-share { display: flex; align-items: center; gap: 0.75rem; }
 .lp-share .lp-share-label {

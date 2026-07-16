@@ -246,12 +246,8 @@ export const puckConfig = {
       textColor: { ...color("Body text") },
       headingColor: { ...color("Title") },
       accent: { ...color("Accent / links") },
-      // set once for every section heading (H2), not per block
+      // one colour for every section heading (H2), set here not per block
       h2Color: { ...color("Section headings") },
-      h2Caps: {
-        type: "radio", label: "Section headings case",
-        options: [{ label: "Normal", value: false }, { label: "ALL CAPS", value: true }],
-      },
       // font has no UI control yet (set by the theme / Copy my site), but it is
       // a registered field so Puck round-trips the prop through root.props
       font: { type: "custom", render: () => null },
@@ -263,11 +259,11 @@ export const puckConfig = {
     defaultProps: {
       contentWidth: 800, pageBg: "#ffffff", contentBg: "#ffffff",
       textColor: "#111111", headingColor: "#111111", accent: "#1b4965",
-      h2Color: "#666666", h2Caps: true,
+      h2Color: "#111111",
       font: FONT, leftSidebar: false, rightSidebar: false,
     },
     render: ({ contentWidth, pageBg, contentBg, textColor, headingColor, accent,
-               h2Color, h2Caps, font, leftSidebar, rightSidebar, children, puck }) => {
+               h2Color, font, leftSidebar, rightSidebar, children, puck }) => {
       const { appState } = usePuck();
       // load the body font in the canvas iframe (this render runs inside it)
       React.useEffect(() => { ensureFont(primaryFamily(font), document); }, [font]);
@@ -290,7 +286,7 @@ export const puckConfig = {
         vars: {
           "--lp-page-bg": pageBg, "--lp-content-bg": contentBg,
           "--lp-text": textColor, "--lp-heading": headingColor, "--lp-accent": accent,
-          "--lp-h2-color": h2Color, "--lp-h2-transform": h2Caps ? "uppercase" : "none",
+          "--lp-h2-color": h2Color,
           "--lp-font": font || FONT,
         },
       });
@@ -317,12 +313,14 @@ export const puckConfig = {
       // a ghost of the real one), optional left/right sidebars; our content
       // column is centered and width-constrained
       return (
-        <div className={"lp-sim" + (appState?.ui?.isDragging ? " lp-dragging" : "")}>
+        // theme vars on the sim root so they reach BOTH the content column and
+        // the full-width area behind it (the page background)
+        <div className={"lp-sim" + (appState?.ui?.isDragging ? " lp-dragging" : "")} style={style}>
           {bar("lp-sim-header", ghost?.header, "Site header")}
           <div className="lp-sim-mid">
             {side(leftSidebar, ghostSide?.side === "left" ? ghostSide : null)}
             <div className="lp-sim-area">
-              <div className="lp-sim-content" style={style}>
+              <div className="lp-sim-content">
                 <div className="lp-page">{children}</div>
               </div>
             </div>

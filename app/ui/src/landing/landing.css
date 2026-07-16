@@ -439,10 +439,14 @@
   color: #a0a0a8; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em;
 }
 /* content area = remaining space; the column is centered within it */
-.lp-sim-area { flex: 1; min-width: 0; display: flex; justify-content: center; }
+/* the page background fills the whole content area (not just the width-capped
+   column), matching the export where it's on <body> */
+.lp-sim-area {
+  flex: 1; min-width: 0; display: flex; justify-content: center;
+  background: var(--lp-page-bg, #ffffff);
+}
 .lp-sim-content {
   flex: 0 1 auto; width: var(--lp-width, 800px); max-width: 100%;
-  background: var(--lp-page-bg, #ffffff);
   color: var(--lp-text, #111); font-family: var(--lp-font, system-ui, sans-serif);
 }
 .lp-sim-content .lp-page { min-height: 100%; }
