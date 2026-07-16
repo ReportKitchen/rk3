@@ -244,8 +244,14 @@ export const puckConfig = {
       pageBg: { ...color("Page background") },
       contentBg: { ...color("Content background") },
       textColor: { ...color("Body text") },
-      headingColor: { ...color("Headings") },
+      headingColor: { ...color("Title") },
       accent: { ...color("Accent / links") },
+      // set once for every section heading (H2), not per block
+      h2Color: { ...color("Section headings") },
+      h2Caps: {
+        type: "radio", label: "Section headings case",
+        options: [{ label: "Normal", value: false }, { label: "ALL CAPS", value: true }],
+      },
       // font has no UI control yet (set by the theme / Copy my site), but it is
       // a registered field so Puck round-trips the prop through root.props
       font: { type: "custom", render: () => null },
@@ -257,10 +263,11 @@ export const puckConfig = {
     defaultProps: {
       contentWidth: 800, pageBg: "#ffffff", contentBg: "#ffffff",
       textColor: "#111111", headingColor: "#111111", accent: "#1b4965",
+      h2Color: "#666666", h2Caps: true,
       font: FONT, leftSidebar: false, rightSidebar: false,
     },
     render: ({ contentWidth, pageBg, contentBg, textColor, headingColor, accent,
-               font, leftSidebar, rightSidebar, children, puck }) => {
+               h2Color, h2Caps, font, leftSidebar, rightSidebar, children, puck }) => {
       const { appState } = usePuck();
       // load the body font in the canvas iframe (this render runs inside it)
       React.useEffect(() => { ensureFont(primaryFamily(font), document); }, [font]);
@@ -283,6 +290,7 @@ export const puckConfig = {
         vars: {
           "--lp-page-bg": pageBg, "--lp-content-bg": contentBg,
           "--lp-text": textColor, "--lp-heading": headingColor, "--lp-accent": accent,
+          "--lp-h2-color": h2Color, "--lp-h2-transform": h2Caps ? "uppercase" : "none",
           "--lp-font": font || FONT,
         },
       });
