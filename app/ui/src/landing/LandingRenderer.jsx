@@ -134,6 +134,27 @@ export function Findings({ heading, items }) {
   );
 }
 
+// A pulled story or case study: a verbatim quote (when the story has one),
+// a short narrative, and an attribution. Personal stories lead with the quote;
+// a case study (no personal quote) leads with the narrative.
+export function Storytelling({ subject, quote, narrative, attribution, page }) {
+  if (!quote && !narrative) return null;
+  const initial = (subject || attribution || "").trim().charAt(0).toUpperCase();
+  return (
+    <section className="lp-block lp-story">
+      {page ? <p className="lp-story-src">From the report · {page}</p> : null}
+      {quote ? <blockquote className="lp-story-quote">{quote}</blockquote> : null}
+      {narrative ? <p className="lp-story-body">{narrative}</p> : null}
+      {attribution ? (
+        <p className="lp-story-attr">
+          {initial ? <span className="lp-story-avatar" aria-hidden="true">{initial}</span> : null}
+          <span>{attribution}</span>
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
 // Monochrome brand glyphs (fill: currentColor, so they take the link colour in
 // "plain" style and white on the filled buttons). Same set feeds the block, the
 // network picker, and the style preview.
@@ -216,8 +237,8 @@ export function SecondaryCta({ label, url, bgColor, textColor }) {
 
 export const BLOCKS = {
   title: Title, summary: Summary, docSummary: DocSummary, cover: Cover, hero: Hero,
-  toc: Toc, highlights: Highlights, findings: Findings, share: Share, download: Download,
-  secondaryCta: SecondaryCta,
+  toc: Toc, highlights: Highlights, findings: Findings, storytelling: Storytelling,
+  share: Share, download: Download, secondaryCta: SecondaryCta,
 };
 
 // Render one block, recursing into the media slot (nested blocks become the

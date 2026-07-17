@@ -65,10 +65,21 @@ guidance_task:
     Produce the guidance JSON:
     - documentRead: whatItIs / audience / coreMessage — a crisp read for a user
       who may not know this doc.
-    - stats: up to 6 SUBSTANTIVE outcome numbers {value, fact}. Empty if none.
+    - stats: up to 10 CANDIDATE numbers, strongest first, each {value, fact,
+      page}. Cast a wide net — include every substantive outcome number AND
+      borderline ones the user might want to feature (they'll pick); the strong
+      ones must come first. Still skip pure incidental counts (funders,
+      reviewers, authors, page/figure counts, dates). page = the page it appears
+      on — the document is marked with [p. N] page breaks, so cite the nearest
+      one as "p. N" (or "" if genuinely unclear). Empty list only if the doc
+      truly has no numbers.
     - stories: real-world examples — named people AND case studies of
-      programs/places/projects/orgs — each {subject, kind, whatHappened,
-      strength}, ranked. Empty only if the doc has no concrete examples at all.
+      programs/places/projects/orgs — each {subject, kind, quote, narrative,
+      attribution, page, strength}, ranked. quote = a short VERBATIM pull-quote
+      from the document if the story has one ("" for a case study with no
+      personal quote); narrative = 1–2 sentence body of what happened;
+      attribution = "Name · role/source"; page = "p. N" from the nearest [p. N]
+      marker. Empty only if the doc has no concrete examples at all.
     - recommendedPage: the smart default — length, coverLayout, summaryChoice,
       and blocks as an ORDERED list.
     - reasons: one grounded line each for length / summaryChoice (mention the

@@ -122,7 +122,10 @@ TEMPLATES = {"research": _research, "campaign": _campaign, "annual": _annual, "t
 
 def _findings_from_guidance(p, g):
     stats = g.get("stats") or []
-    items = [{"stat": s["value"], "text": s["fact"]} for s in stats] or p["findings"]
+    # carry the page ref (shown in the fact-picker); fall back to the heuristic
+    # findings only if guidance found no numbers
+    items = ([{"stat": s["value"], "text": s["fact"], "page": s.get("page", "")} for s in stats]
+             or p["findings"])
     if not items:
         return None
     return {"type": "findings", "props": {"items": items, "heading": "What the research shows"}}
@@ -133,10 +136,10 @@ def _story_block(g):
     if not stories:
         return None
     s = next((x for x in stories if x.get("strength") == "strongest"), stories[0])
-    # verbatim quote/narrative enrichment is a follow-up; for now the guidance
-    # summary carries the block (subject + kind + what happened)
     return {"type": "storytelling", "props": {
-        "subject": s["subject"], "kind": s["kind"], "narrative": s["whatHappened"]}}
+        "subject": s["subject"], "kind": s["kind"], "quote": s.get("quote", ""),
+        "narrative": s.get("narrative", ""), "attribution": s.get("attribution", ""),
+        "page": s.get("page", "")}}
 
 
 _GUIDED = {

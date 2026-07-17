@@ -6,7 +6,8 @@ import { useLandingOptions } from "./landingOptions.js";
 import { RichText } from "./RichText.jsx";
 import { getAiSummary } from "../api.js";
 import {
-  Title, Summary, DocSummary, Cover, Hero, Toc, Highlights, Findings, Share, Download, SecondaryCta,
+  Title, Summary, DocSummary, Cover, Hero, Toc, Highlights, Findings, Storytelling,
+  Share, Download, SecondaryCta,
   SHARE_NETWORKS, DEFAULT_NETWORKS, ShareGlyph, itemsToUl,
 } from "./LandingRenderer.jsx";
 
@@ -598,6 +599,21 @@ export const puckConfig = {
       resolveData: insertDefaults("Findings"),
       render: ({ heading, items }) => <Findings heading={heading} items={items} />,
     },
+    Storytelling: {
+      label: "Storytelling",
+      fields: {
+        quote: { type: "textarea", label: "Quote (verbatim; blank for a case study)", contentEditable: true },
+        narrative: { type: "textarea", label: "Narrative", contentEditable: true },
+        attribution: { type: "text", label: "Attribution (Name · role/source)", contentEditable: true },
+        page: { type: "text", label: "Source page" },
+      },
+      defaultProps: { subject: "", quote: "", narrative: "", attribution: "", page: "" },
+      resolveData: insertDefaults("Storytelling"),
+      render: ({ subject, quote, narrative, attribution, page }) => (
+        <Storytelling subject={subject} quote={quote} narrative={narrative}
+          attribution={attribution} page={page} />
+      ),
+    },
     Share: {
       label: "Social share",
       fields: {
@@ -653,8 +669,8 @@ export const puckConfig = {
 // component type <-> our block type (Puck keys are capitalized)
 export const TYPE_TO_PUCK = {
   title: "Title", summary: "Summary", docSummary: "DocSummary", cover: "Cover", hero: "Hero",
-  toc: "Toc", highlights: "Highlights", findings: "Findings", share: "Share", download: "Download",
-  secondaryCta: "SecondaryCta",
+  toc: "Toc", highlights: "Highlights", findings: "Findings", storytelling: "Storytelling",
+  share: "Share", download: "Download", secondaryCta: "SecondaryCta",
 };
 // props that hold slot content (nested blocks), by Puck type
 export const SLOT_PROPS = { DocSummary: ["media"] };

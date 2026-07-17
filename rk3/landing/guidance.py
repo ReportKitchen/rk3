@@ -28,11 +28,16 @@ def _walk(nodes):
 
 # ---- tier 1: deterministic profile (incl. the whole-doc text the model reads) ----
 def _full_text(ir: dict, cap: int = 240000) -> str:
-    """Every text node in reading order — headings marked, list items bulleted —
-    so stats/stories in lists, captions, and asides aren't missed (a front-only
-    window is why the old extractor grabbed funders over outcomes)."""
-    out, total = [], 0
+    """Every text node in reading order — headings marked, list items bulleted,
+    and a [p. N] marker whenever the page changes so the model can cite real page
+    numbers for stats/stories. (A front-only window is why the old extractor
+    grabbed funders over outcomes.)"""
+    out, total, last_page = [], 0, None
     for n in _walk(ir.get("body", [])):
+        pg = n.get("page")
+        if pg and pg != last_page:
+            out.append(f"\n[p. {pg}]")
+            last_page = pg
         t, txt = n.get("type"), (n.get("text") or "").strip()
         if not txt:
             continue
@@ -86,13 +91,17 @@ SCHEMA = {
                          "required": ["whatItIs", "audience", "coreMessage"],
                          "properties": {k: {"type": "string"} for k in ("whatItIs", "audience", "coreMessage")}},
         "stats": {"type": "array", "items": {"type": "object", "additionalProperties": False,
-                  "required": ["value", "fact"],
-                  "properties": {"value": {"type": "string"}, "fact": {"type": "string"}}}},
+                  "required": ["value", "fact", "page"],
+                  "properties": {"value": {"type": "string"}, "fact": {"type": "string"},
+                                 "page": {"type": "string"}}}},
         "stories": {"type": "array", "items": {"type": "object", "additionalProperties": False,
-                    "required": ["subject", "kind", "whatHappened", "strength"],
+                    "required": ["subject", "kind", "quote", "narrative", "attribution", "page", "strength"],
                     "properties": {"subject": {"type": "string"},
                                    "kind": {"type": "string", "enum": ["personal", "caseStudy"]},
-                                   "whatHappened": {"type": "string"},
+                                   "quote": {"type": "string"},
+                                   "narrative": {"type": "string"},
+                                   "attribution": {"type": "string"},
+                                   "page": {"type": "string"},
                                    "strength": {"type": "string", "enum": ["strongest", "solid", "thin"]}}}},
         "recommendedPage": {"type": "object", "additionalProperties": False,
                             "required": ["length", "coverLayout", "summaryChoice", "blocks"],
