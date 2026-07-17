@@ -4,6 +4,16 @@ question: {kind: static, text: "How much do you want to say?"}
 sub: {kind: static, text: "Pick a depth — every choice starts as a fully drafted page. Switch anytime."}
 control_label: {kind: static, text: "How much to say"}
 category: {kind: static, text: "Length"}
+
+# word-count bar (replaces the length dropdown): total page words + a zone read
+wordcount_label: {kind: static, text: "Page length"}
+words:
+  kind: template
+  text: "{n, plural, one {# word} other {# words}}"
+  tokens: [n]
+zone.short: {kind: static, text: "a bit short"}
+zone.good: {kind: static, text: "good length"}
+zone.long: {kind: static, text: "a bit long"}
 # shown after a length switch — the non-destructive promise
 nondestructive: {kind: static, text: "Switching trims or restores text — nothing is lost."}
 most_pages_badge: {kind: static, text: "Most pages"}

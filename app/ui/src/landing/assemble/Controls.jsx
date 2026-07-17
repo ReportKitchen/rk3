@@ -1,23 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import { t } from "../../content.js";
-import { LENGTHS, COVERS } from "./model.js";
+import { COVERS, pageWords, WC_SHORT, WC_LONG } from "./model.js";
 import { Icon } from "./icons.jsx";
 
 const shortLabel = (h) => (h && h.length > 18 ? h.slice(0, 17).trim() + "…" : (h || ""));
 
-// Right column: the two page-shape controls (Length, Cover), the grayscale "rough
-// draft" of the page (cover layout + the on-sections + CTA), and the nudge toward
-// Wordsmith.
-export default function Controls({ length, cover, onLength, onCover, sections, cta, ai, onWordsmith }) {
+// Right column: the Cover control + a page word-count read (with zones), the
+// grayscale outline of the page (cover layout + the on-sections + CTA), and the
+// nudge toward Wordsmith.
+export default function Controls({ cover, onCover, sections, cta, ai, onWordsmith }) {
   const rows = buildRows(sections, cta, ai);
+  const words = pageWords(sections, ai);
   return (
     <div className="asm-col asm-col-right">
       <div className="asm-controls">
-        <Dropdown
-          category={t("lpm.length.category")} value={length} options={LENGTHS} onPick={onLength}
-          label={(id) => t(`lpm.length.${id}.title`)} advice={(id) => t(`lpm.length.${id}.promise`)}
-          glyph={<LengthGlyph />}
-        />
         <Dropdown
           category={t("lpm.cover.category")} value={cover} options={COVERS} onPick={onCover}
           label={(id) => t(`lpm.cover.${id}.title`)} advice={(id) => t(`lpm.cover.${id}.line`)}
@@ -25,9 +21,10 @@ export default function Controls({ length, cover, onLength, onCover, sections, c
         />
       </div>
 
+      <WordCountBar words={words} />
+
       <div className="asm-page-head">
         <span className="asm-page-head-title">{t("lpm.assemble.page_heading")}</span>
-        <span className="asm-page-head-note">{t("lpm.assemble.rough_draft_label")}</span>
       </div>
 
       <div className="asm-page">
@@ -39,7 +36,6 @@ export default function Controls({ length, cover, onLength, onCover, sections, c
             <SectionSkeleton section={s} />
           </div>
         ))}
-        <div className="asm-page-foot">{t("lpm.assemble.rough_draft_note")}</div>
       </div>
 
       <div className="asm-nudge">
@@ -229,13 +225,29 @@ function Dropdown({ category, value, options, onPick, label, advice, glyph, opti
   );
 }
 
-function LengthGlyph() {
+// Total page words with a zone read (a bit short / good length / a bit long) —
+// the guidance that replaces the blunt short/middle/long control.
+function WordCountBar({ words }) {
+  const zone = words < WC_SHORT ? "short" : words > WC_LONG ? "long" : "good";
+  const good = zone === "good";
+  const max = WC_LONG * 1.35;
+  const clamp = (v) => Math.max(0, Math.min(100, v));
+  const pct = clamp((words / max) * 100);
+  const shortPct = (WC_SHORT / max) * 100;
+  const longPct = (WC_LONG / max) * 100;
   return (
-    <span style={{ width: 30, display: "flex", flexDirection: "column", gap: 2.5 }}>
-      <span style={{ height: 4, background: "var(--rk-rhino-300)", borderRadius: 2 }} />
-      <span style={{ height: 4, background: "var(--rk-rhino-300)", borderRadius: 2, width: "75%" }} />
-      <span style={{ height: 4, background: "var(--rk-rhino-300)", borderRadius: 2, width: "50%" }} />
-    </span>
+    <div className="asm-wc">
+      <div className="asm-wc-head">
+        <span className="asm-wc-label">{t("lpm.length.wordcount_label")}</span>
+        <span className={"asm-wc-read" + (good ? " is-good" : " is-off")}>
+          {t("lpm.length.words", { n: words })} · {t(`lpm.length.zone.${zone}`)}
+        </span>
+      </div>
+      <div className="asm-wc-track">
+        <div className="asm-wc-good" style={{ left: `${shortPct}%`, width: `${longPct - shortPct}%` }} />
+        <div className={"asm-wc-marker" + (good ? " is-good" : " is-off")} style={{ left: `${pct}%` }} />
+      </div>
+    </div>
   );
 }
 

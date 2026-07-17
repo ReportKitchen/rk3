@@ -5,6 +5,26 @@ preview_label: {kind: static, text: "Preview"}
 preview_updates: {kind: static, text: "updates as you pick"}
 add: {kind: static, text: "Add to page"}
 remove: {kind: static, text: "Remove"}
+
+# welcome panel — shown in the center before anything is selected
+welcome.title: {kind: static, text: "Let’s shape your landing page"}
+welcome.body:
+  kind: static
+  text: "On the left are the meaningful bits we pulled from your report — the introduction, the highlights, and the calls to action. Click any one to see how it’ll look, adjust it, and decide whether to feature it."
+welcome.hint: {kind: static, text: "The outline on the right updates as you go."}
+
+# CTA editing (button text + link)
+cta.text_label: {kind: static, text: "Button text"}
+cta.url_label: {kind: static, text: "Link (URL)"}
+cta.url_ph: {kind: static, text: "https://…"}
+cta.download_url_ph: {kind: static, text: "Leave blank to bundle the PDF itself"}
+
+# social share editing
+share.networks_label: {kind: static, text: "Networks"}
+share.style_label: {kind: static, text: "Button style"}
+share.style.plain: {kind: static, text: "Plain"}
+share.style.round: {kind: static, text: "Round"}
+share.style.square: {kind: static, text: "Square"}
 or_drag: {kind: static, text: "or drag it into place"}
 reopen_hint: {kind: static, text: "You can reopen this anytime"}
 why_block_tab: {kind: static, text: "Why this block"}
@@ -19,7 +39,7 @@ voice.meta:
   kind: template
   text: "AI-written · about {words} words · fine-tune in Wordsmith"
   tokens: [words]
-loading: {kind: static, text: "Drafting…"}
+loading: {kind: static, text: "Drafting"}
 
 # --- Findings: pick which numbers ---
 findings.heading:
@@ -50,12 +70,12 @@ voice.subtitle:
   kind: template
   text: "Drafted from all {pages} pages · pick the voice"
   tokens: [pages]
-voice.intro.label: {kind: static, text: "Report intro"}
-voice.intro.note: {kind: static, text: "its own opening words"}
-voice.neutral.label: {kind: static, text: "Neutral"}
-voice.neutral.note: {kind: static, text: "clear and even"}
-voice.hardsell.label: {kind: static, text: "Hard sell"}
-voice.hardsell.note: {kind: static, text: "lead with urgency"}
+voice.intro.label: {kind: static, text: "Introduce the report"}
+voice.intro.note: {kind: static, text: "This report shows…"}
+voice.neutral.label: {kind: static, text: "Neutral intro"}
+voice.neutral.note: {kind: static, text: "Families today face…"}
+voice.hardsell.label: {kind: static, text: "Urgent intro"}
+voice.hardsell.note: {kind: static, text: "Time is running out for…"}
 voice.try_another: {kind: static, text: "Try another take"}
 voice.fine_tune: {kind: static, text: "Fine-tune the words later in Wordsmith"}
 voice.add:

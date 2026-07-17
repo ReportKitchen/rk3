@@ -1,18 +1,22 @@
 import React, { useEffect } from "react";
 import { t } from "../../content.js";
-import { LandingRenderer } from "../LandingRenderer.jsx";
-import { PRESENTATIONS } from "./model.js";
+import { LandingRenderer, SHARE_NETWORKS } from "../LandingRenderer.jsx";
+import { PRESENTATIONS, REC_WORDS, wordCount, effectiveProse, trimProse } from "./model.js";
 import { Icon, BLOCK_ICONS } from "./icons.jsx";
+import WhiskLoader from "./WhiskLoader.jsx";
 
 const VOICES = ["intro", "neutral", "hardsell"];
+const SHARE_STYLES = ["plain", "round", "square"];
 
 // Center column: inspect one thing — a content section, the AI Summary, or a CTA —
 // see it rendered exactly "as it will appear" (the real block components), read
-// why it earns a place, adjust how it looks, and add/remove it.
+// why it earns a place, adjust it, and add/remove it. Before anything is picked,
+// a friendly welcome panel.
 export default function Inspector({
   sel, sections, cta, ai, defs, slug, length,
-  onToggleSection, onToggleCta, onSetPresentation, onSetQuotePull, onToggleAi, onAiVoice,
+  onToggleSection, onToggleCta, onSetPresentation, onSetQuotePull, onSetTrimmed, onToggleAi, onAiVoice, onPatchCta,
 }) {
+  if (!sel) return <Welcome />;
   if (sel === "ai-summary") {
     return <AiInspector ai={ai} onToggle={onToggleAi} onVoice={onAiVoice} />;
   }
@@ -23,11 +27,27 @@ export default function Inspector({
         section={section}
         onToggle={() => onToggleSection(section.id)}
         onSetQuotePull={(pull) => onSetQuotePull(section.id, pull)}
+        onSetTrimmed={(v) => onSetTrimmed(section.id, v)}
       />
     );
   }
   // otherwise it's a CTA key
-  return <CtaInspector sel={sel} cta={cta} defs={defs} onToggle={() => onToggleCta(sel)} />;
+  return <CtaInspector sel={sel} cta={cta} onToggle={() => onToggleCta(sel)} onPatch={onPatchCta} />;
+}
+
+function Welcome() {
+  return (
+    <div className="asm-col asm-col-mid">
+      <div className="asm-welcome">
+        <span className="asm-insp-icon" style={{ width: 44, height: 44 }}>
+          <Icon name="pencil-line" size={22} />
+        </span>
+        <h2 className="asm-welcome-title">{t("lpm.inspector.welcome.title")}</h2>
+        <p className="asm-welcome-body">{t("lpm.inspector.welcome.body")}</p>
+        <p className="asm-welcome-hint">{t("lpm.inspector.welcome.hint")}</p>
+      </div>
+    </div>
+  );
 }
 
 function AddRemove({ on, onToggle }) {
@@ -42,10 +62,10 @@ function AddRemove({ on, onToggle }) {
   );
 }
 
-function SectionInspector({ section, onToggle, onSetQuotePull }) {
+function SectionInspector({ section, onToggle, onSetQuotePull, onSetTrimmed }) {
   const presLabel = t(`lpm.sections.pres.${section.presentation}`);
   const config = { blocks: [{ type: "section", id: section.id, props: {
-    heading: section.heading, presentation: section.presentation, prose: section.prose,
+    heading: section.heading, presentation: section.presentation, prose: effectiveProse(section),
     bullets: section.bullets, cards: section.cards, quote: section.quote, steps: section.steps,
   } }] };
   const hasContent =
@@ -54,6 +74,8 @@ function SectionInspector({ section, onToggle, onSetQuotePull }) {
     (section.presentation === "statCards" && (section.cards || []).length) ||
     (section.presentation === "quote" && section.quote?.text) ||
     (section.presentation === "steps" && (section.steps || []).length);
+  // long verbatim prose gets a Full / Trimmed control (this is where we trim)
+  const trimmable = section.presentation === "prose" && wordCount(section.prose) > REC_WORDS;
 
   return (
     <div className="asm-col asm-col-mid">
@@ -71,7 +93,7 @@ function SectionInspector({ section, onToggle, onSetQuotePull }) {
       </div>
       {section.summary && <p className="asm-insp-blurb">{section.summary}</p>}
 
-      {/* adjust how it looks — for quotes: standard vs pullquote */}
+      {/* quotes: standard vs pullquote */}
       {section.presentation === "quote" && (
         <>
           <div className="asm-eyebrow">{t("lpm.sections.how_label")}</div>
@@ -83,6 +105,24 @@ function SectionInspector({ section, onToggle, onSetQuotePull }) {
               className={"asm-chip" + (section.quote?.pull ? " is-active" : "")}
               onClick={() => onSetQuotePull(true)}>{t("lpm.sections.quote.pull")}</button>
           </div>
+        </>
+      )}
+
+      {/* long prose: full vs trimmed */}
+      {trimmable && (
+        <>
+          <div className="asm-eyebrow">{t("lpm.sections.length_label")}</div>
+          <div className="asm-chips">
+            <button type="button"
+              className={"asm-chip" + (!section.trimmed ? " is-active" : "")}
+              onClick={() => onSetTrimmed(false)}>{t("lpm.sections.length.full")}</button>
+            <button type="button"
+              className={"asm-chip" + (section.trimmed ? " is-active" : "")}
+              onClick={() => onSetTrimmed(true)}>{t("lpm.sections.length.trimmed")}</button>
+          </div>
+          {section.trimmed && (
+            <p className="asm-trim-note">{t("lpm.sections.length.trimmed_note", { n: wordCount(trimProse(section.prose)) })}</p>
+          )}
         </>
       )}
 
@@ -137,23 +177,84 @@ function AiInspector({ ai, onToggle, onVoice }) {
 
       <div className="asm-eyebrow">{t("lpm.inspector.preview_label")}</div>
       <div className="asm-secpv">
-        {ai.loading
-          ? <p className="asm-pv-loading">{t("lpm.inspector.loading")}</p>
-          : ai.prose
-            ? <div className="lp-body"><LandingRenderer config={config} /></div>
-            : <p className="asm-pv-empty">{t("lpm.inspector.loading")}</p>}
+        {ai.loading || !ai.prose
+          ? <div style={{ padding: "18px 0" }}><WhiskLoader size={84} caption={t("lpm.inspector.loading")} /></div>
+          : <div className="lp-body"><LandingRenderer config={config} /></div>}
       </div>
     </div>
   );
 }
 
-function CtaInspector({ sel, cta, defs, onToggle }) {
-  const label = sel === "download" ? (cta.downloadLabel || defs?.download?.label)
-    : sel === "secondary" ? (cta.secondaryLabel || defs?.secondaryCta?.label) : "";
-  const config =
-    sel === "download" ? { blocks: [{ type: "download", props: { label } }] }
-    : sel === "secondary" ? { blocks: [{ type: "secondaryCta", props: { label } }] }
-    : { blocks: [{ type: "share", props: {} }] };
+function Field({ label, children }) {
+  return (
+    <label className="asm-field">
+      <span className="asm-field-label">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function CtaInspector({ sel, cta, onToggle, onPatch }) {
+  // editable props + a live preview built from the current cta state
+  let config, editor;
+  if (sel === "download") {
+    config = { blocks: [{ type: "download", props: {
+      label: cta.downloadLabel, mode: cta.downloadUrl ? "url" : "bundle", url: cta.downloadUrl } }] };
+    editor = (
+      <>
+        <Field label={t("lpm.inspector.cta.text_label")}>
+          <input className="asm-input" value={cta.downloadLabel}
+            onChange={(e) => onPatch({ downloadLabel: e.target.value })} />
+        </Field>
+        <Field label={t("lpm.inspector.cta.url_label")}>
+          <input className="asm-input" value={cta.downloadUrl} placeholder={t("lpm.inspector.cta.download_url_ph")}
+            onChange={(e) => onPatch({ downloadUrl: e.target.value })} />
+        </Field>
+      </>
+    );
+  } else if (sel === "secondary") {
+    config = { blocks: [{ type: "secondaryCta", props: { label: cta.secondaryLabel, url: cta.secondaryUrl } }] };
+    editor = (
+      <>
+        <Field label={t("lpm.inspector.cta.text_label")}>
+          <input className="asm-input" value={cta.secondaryLabel}
+            onChange={(e) => onPatch({ secondaryLabel: e.target.value })} />
+        </Field>
+        <Field label={t("lpm.inspector.cta.url_label")}>
+          <input className="asm-input" value={cta.secondaryUrl} placeholder={t("lpm.inspector.cta.url_ph")}
+            onChange={(e) => onPatch({ secondaryUrl: e.target.value })} />
+        </Field>
+      </>
+    );
+  } else {
+    // social share — networks + button style
+    const nets = cta.shareNetworks || {};
+    config = { blocks: [{ type: "share", props: { networks: nets, style: cta.shareStyle } }] };
+    editor = (
+      <>
+        <div className="asm-field-label">{t("lpm.inspector.share.networks_label")}</div>
+        <div className="asm-share-nets">
+          {SHARE_NETWORKS.map((n) => (
+            <button key={n.key} type="button"
+              className={"asm-chip" + (nets[n.key] ? " is-active" : "")}
+              onClick={() => onPatch({ shareNetworks: { ...nets, [n.key]: !nets[n.key] } })}>
+              {n.label}
+            </button>
+          ))}
+        </div>
+        <div className="asm-field-label" style={{ marginTop: 12 }}>{t("lpm.inspector.share.style_label")}</div>
+        <div className="asm-chips">
+          {SHARE_STYLES.map((st) => (
+            <button key={st} type="button"
+              className={"asm-chip" + (cta.shareStyle === st ? " is-active" : "")}
+              onClick={() => onPatch({ shareStyle: st })}>
+              {t(`lpm.inspector.share.style.${st}`)}
+            </button>
+          ))}
+        </div>
+      </>
+    );
+  }
   return (
     <div className="asm-col asm-col-mid">
       <div className="asm-insp-head">
@@ -164,6 +265,7 @@ function CtaInspector({ sel, cta, defs, onToggle }) {
         <AddRemove on={!!cta[sel]} onToggle={onToggle} />
       </div>
       <p className="asm-insp-blurb">{t(`lpm.blocks.${sel}.what`)} {t(`lpm.blocks.${sel}.when`)}</p>
+      <div className="asm-fields">{editor}</div>
       <div className="asm-eyebrow">{t("lpm.inspector.preview_label")}</div>
       <div className="asm-secpv">
         <div className="lp-body"><LandingRenderer config={config} /></div>

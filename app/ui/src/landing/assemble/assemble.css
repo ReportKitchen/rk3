@@ -14,11 +14,27 @@
   overflow: hidden;
 }
 .asm-loading {
-  padding: 3rem;
-  text-align: center;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--rk-text-muted);
   font-family: var(--rk-font-body), sans-serif;
 }
+/* whisk loader (WhiskLoader.jsx) */
+.asm-whisk { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.asm-whisk-cap {
+  font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--rk-text-muted); display: inline-flex; align-items: center;
+}
+.asm-whisk-dots { display: inline-flex; gap: 4px; margin-left: 5px; }
+.asm-whisk-dots span {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--rk-tomato); opacity: 0.25; animation: asm-dot 1s infinite;
+}
+.asm-whisk-dots span:nth-child(2) { animation-delay: 0.15s; }
+.asm-whisk-dots span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes asm-dot { 0%, 80%, 100% { opacity: 0.22; } 40% { opacity: 1; } }
 
 /* ---------------- Chrome (top stepper) ---------------- */
 .asm-chrome {
@@ -182,6 +198,31 @@
 }
 .asm-insp-blurb { margin: 0 0 16px; font-size: 13.5px; line-height: 1.55; color: var(--rk-text-body); }
 .asm-insp-meta { font-size: 12px; color: var(--rk-text-muted); margin-top: 3px; }
+
+/* welcome panel (nothing selected yet) */
+.asm-welcome { max-width: 440px; margin: 12% auto 0; text-align: center; }
+.asm-welcome .asm-insp-icon { margin: 0 auto 14px; }
+.asm-welcome-title {
+  font-family: var(--rk-font-display), sans-serif; font-weight: 800;
+  font-size: 22px; letter-spacing: -0.01em; color: var(--rk-text-strong); margin: 0 0 10px;
+}
+.asm-welcome-body { font-size: 14px; line-height: 1.6; color: var(--rk-text-body); margin: 0 0 10px; }
+.asm-welcome-hint { font-size: 13px; color: var(--rk-text-muted); margin: 0; }
+
+/* editable fields (CTA text/URL) */
+.asm-fields { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+.asm-field { display: flex; flex-direction: column; gap: 4px; }
+.asm-field-label {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--rk-rhino-500); margin-bottom: 5px; display: block;
+}
+.asm-input {
+  font-family: inherit; font-size: 13.5px; padding: 8px 11px;
+  border: 1px solid var(--rk-border-strong); border-radius: var(--rk-radius-xs);
+  background: var(--rk-white); color: var(--rk-text-strong); width: 100%;
+}
+.asm-input:focus { outline: none; border-color: var(--rk-rhino-700); }
+.asm-share-nets { display: flex; flex-wrap: wrap; gap: 7px; }
 
 /* content-sections rebuild (BACKLOG/61) */
 .asm-noai-notice {
@@ -356,6 +397,21 @@
 .asm-select-opt-name { font-size: 12.5px; font-weight: 700; color: var(--rk-text-strong); }
 .asm-select-opt-advice { font-size: 11.5px; color: var(--rk-text-muted); }
 .asm-select-opt-check { color: var(--rk-success); flex: none; display: inline-flex; }
+
+/* word-count bar (right rail) */
+.asm-wc { margin-bottom: 18px; }
+.asm-wc-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 7px; }
+.asm-wc-label { font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--rk-rhino-500); }
+.asm-wc-read { font-size: 11.5px; font-weight: 700; }
+.asm-wc-read.is-good { color: var(--rk-success); }
+.asm-wc-read.is-off { color: var(--rk-tomato-600); }
+.asm-wc-track { position: relative; height: 6px; border-radius: 3px; background: var(--rk-gray-200); }
+.asm-wc-good { position: absolute; top: 0; bottom: 0; background: rgba(46, 139, 87, 0.18); border-radius: 3px; }
+.asm-wc-marker { position: absolute; top: -3px; width: 3px; height: 12px; border-radius: 2px; transform: translateX(-50%); }
+.asm-wc-marker.is-good { background: var(--rk-success); }
+.asm-wc-marker.is-off { background: var(--rk-tomato-500); }
+/* trim note in the section inspector */
+.asm-trim-note { font-size: 11.5px; color: var(--rk-text-muted); margin: 8px 0 0; line-height: 1.4; }
 
 .asm-page-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
 .asm-page-head-title { font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--rk-rhino-500); }

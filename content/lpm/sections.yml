@@ -8,7 +8,7 @@ intro.sub: {kind: static, text: "How the page opens — your report’s own fore
 # The AI Summary — the ONE section AI writes (a pitch in a voice you pick), not
 # your report's words. Opt-in; lives in the Introduction group.
 ai.heading: {kind: static, text: "AI Summary"}
-ai.caption: {kind: static, text: "A punchy pitch in a voice you pick — the one part AI writes, not your report."}
+ai.caption: {kind: static, text: "Concise introduction in one of several tones."}
 ai.badge: {kind: static, text: "AI-written"}
 ai.voice_label: {kind: static, text: "Pick the voice"}
 highlights.title: {kind: static, text: "Highlights"}
@@ -39,5 +39,13 @@ pres.steps: {kind: static, text: "Steps"}
 how_label: {kind: static, text: "How it looks"}
 quote.standard: {kind: static, text: "Standard"}
 quote.pull: {kind: static, text: "Pullquote"}
+# prose length trim (long summaries)
+length_label: {kind: static, text: "Length"}
+length.full: {kind: static, text: "Full"}
+length.trimmed: {kind: static, text: "Trimmed"}
+length.trimmed_note:
+  kind: template
+  text: "Trimmed to about {n} words at a paragraph break. Fine-tune in Wordsmith."
+  tokens: [n]
 # the note under a placeholder (no-AI) section
 placeholder_hint: {kind: static, text: "Nothing here yet — you’ll add this in Wordsmith."}

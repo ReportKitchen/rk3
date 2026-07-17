@@ -2,10 +2,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import "./assemble.css";
 import "../landingPage.css"; // block-render styles, reused by the previews + Wordsmith
 import { getBlockDefaults, getAiSummary } from "../../api.js";
-import { loadContent } from "../../content.js";
+import { loadContent, t } from "../../content.js";
 import { guard } from "../../errorBus.js";
-import { LENGTHS, SUMMARY_LENGTH, defaultSectionOn } from "./model.js";
+import { LENGTHS, SUMMARY_LENGTH, defaultSectionOn, titleCase, wordCount, AUTO_TRIM_OVER } from "./model.js";
 import Chrome from "./Chrome.jsx";
+import WhiskLoader from "./WhiskLoader.jsx";
 import SectionLibrary from "./SectionLibrary.jsx";
 import Inspector from "./Inspector.jsx";
 import Controls from "./Controls.jsx";
@@ -22,6 +23,7 @@ const getSections = (slug) =>
 export default function AssembleMaker({ doc }) {
   const slug = doc.slug;
   const [ready, setReady] = useState(false);
+  const [booted, setBooted] = useState(false);    // content bundle loaded (for the loader caption)
   const [error, setError] = useState(null);
   const [docRead, setDocRead] = useState(null);   // {whatItIs,audience,coreMessage}
   const [noai, setNoai] = useState(false);
@@ -42,6 +44,7 @@ export default function AssembleMaker({ doc }) {
     setReady(false); setError(null);
     setAi({ on: false, voice: "neutral", prose: "", loading: false });
     loadContent("lpm")
+      .then(() => { if (alive) setBooted(true); })
       .then(() => Promise.all([
         getSections(slug).catch(guard("assemble: sections", null)),
         getBlockDefaults(slug).catch(guard("assemble: block defaults", null)),
@@ -55,10 +58,12 @@ export default function AssembleMaker({ doc }) {
         const on = defaultSectionOn(raw, len);
         const secs = raw.map((s, i) => ({
           id: `sec-${i}`,
-          heading: s.heading, summary: s.summary, role: s.role, presentation: s.presentation,
+          heading: titleCase(s.heading), summary: s.summary, role: s.role, presentation: s.presentation,
           page: s.page, strength: s.strength, verbatim: s.verbatim,
           prose: s.prose, bullets: s.bullets, cards: s.cards, quote: s.quote, steps: s.steps,
           on: on[i],
+          // long verbatim summaries default to trimmed (they can run screens)
+          trimmed: s.presentation === "prose" && wordCount(s.prose) > AUTO_TRIM_OVER,
         }));
         setSections(secs);
         setDocRead(art.documentRead || null);
@@ -69,23 +74,17 @@ export default function AssembleMaker({ doc }) {
         setCover(rec.cover || "beside");
         setCta({
           download: true, secondary: false, share: true,
-          downloadLabel: defaults?.download?.label || "",
-          secondaryLabel: defaults?.secondaryCta?.label || "",
+          downloadLabel: defaults?.download?.label || "", downloadUrl: "",
+          secondaryLabel: defaults?.secondaryCta?.label || "", secondaryUrl: "",
+          shareNetworks: { linkedin: true, x: true, link: true },
+          shareStyle: "plain",
         });
-        setSel(secs.find((s) => s.on)?.id || secs[0]?.id || "download");
+        setSel(null);   // open on the friendly welcome panel
         setReady(true);
       })
       .catch((e) => { if (alive) { setError(e); setReady(true); } });
     return () => { alive = false; };
   }, [slug]);
-
-  const changeLength = useCallback((next) => {
-    setLength(next);
-    setSections((prev) => {
-      const on = defaultSectionOn(prev, next);
-      return prev.map((s, i) => ({ ...s, on: on[i] }));
-    });
-  }, []);
 
   const toggleSection = useCallback((id) => {
     setSections((prev) => prev.map((s) => (s.id === id ? { ...s, on: !s.on } : s)));
@@ -100,9 +99,15 @@ export default function AssembleMaker({ doc }) {
       (s.id === id ? { ...s, quote: { ...s.quote, pull } } : s)));
   }, []);
 
+  const setTrimmed = useCallback((id, trimmed) => {
+    setSections((prev) => prev.map((s) => (s.id === id ? { ...s, trimmed } : s)));
+  }, []);
+
   const toggleCta = useCallback((key) => {
     setCta((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
+
+  const patchCta = useCallback((patch) => setCta((prev) => ({ ...prev, ...patch })), []);
 
   const toggleAi = useCallback(() => setAi((a) => ({ ...a, on: !a.on })), []);
 
@@ -119,7 +124,13 @@ export default function AssembleMaker({ doc }) {
   const title = defs?.title || null;
   const coverAsset = defs?.cover || null;
 
-  if (!ready) return <div className="asm-root"><div className="asm-loading">Loading editor…</div></div>;
+  if (!ready) return (
+    <div className="asm-root">
+      <div className="asm-loading">
+        <WhiskLoader size={150} caption={booted ? t("lpm.assemble.loading") : undefined} />
+      </div>
+    </div>
+  );
 
   return (
     <div className="asm-root">
@@ -144,10 +155,10 @@ export default function AssembleMaker({ doc }) {
             slug={slug} length={length}
             onToggleSection={toggleSection} onToggleCta={toggleCta}
             onSetPresentation={setPresentation} onSetQuotePull={setQuotePull}
-            onToggleAi={toggleAi} onAiVoice={fetchAiVoice}
+            onSetTrimmed={setTrimmed} onToggleAi={toggleAi} onAiVoice={fetchAiVoice} onPatchCta={patchCta}
           />
           <Controls
-            length={length} cover={cover} onLength={changeLength} onCover={setCover}
+            cover={cover} onCover={setCover}
             title={title} coverAsset={coverAsset} sections={sections} cta={cta} ai={ai}
             onWordsmith={() => setMode("wordsmith")}
           />

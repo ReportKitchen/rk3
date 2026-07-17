@@ -3,6 +3,9 @@
 # Screen header (the mock's "What should this page say?" question).
 header: {kind: static, text: "What should this page say?"}
 
+# whisk-loader caption while the sections engine reads the document
+loading: {kind: static, text: "Reading your report"}
+
 # The "we found N …" lines. Tokens are declared; the frontend renders full ICU
 # so "1 story" vs "8 stories" lives in the string, not in code. To reword this
 # ("Stories reach people and we found {n} in your document") edit `text` — same
@@ -35,10 +38,8 @@ subhead_action:
   kind: static
   text: "Add, swap, or drop blocks below — each card tells you when it earns its place."
 
-# the deliberately-rough right-rail preview
-page_heading: {kind: static, text: "Your page"}
-rough_draft_label: {kind: static, text: "Rough draft"}
-rough_draft_note: {kind: static, text: "— rough draft · not the real design —"}
+# the right-rail outline of the page
+page_heading: {kind: static, text: "Landing Page Outline"}
 
 # nudge from the preview toward Wordsmith
 wordsmith_nudge:
