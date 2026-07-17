@@ -12,7 +12,7 @@
    @font-face plus a remote @import. The two tool faces are <link>ed from
    index.html instead, per the kit's own guidance. */
 
-@import "../../../design-system/tokens/colors.css";
-@import "../../../design-system/tokens/typography.css";
-@import "../../../design-system/tokens/spacing.css";
-@import "../../../design-system/tokens/effects.css";
+@import "../../../design-system/round-1/tokens/colors.css";
+@import "../../../design-system/round-1/tokens/typography.css";
+@import "../../../design-system/round-1/tokens/spacing.css";
+@import "../../../design-system/round-1/tokens/effects.css";
