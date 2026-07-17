@@ -42,11 +42,14 @@ _QUOTE = {"type": "object", "additionalProperties": False,
 
 _SECTION = {
     "type": "object", "additionalProperties": False,
-    "required": ["heading", "summary", "presentation", "page", "strength",
+    "required": ["heading", "summary", "role", "presentation", "page", "strength",
                  "verbatim", "prose", "bullets", "cards", "quote", "steps"],
     "properties": {
         "heading": {"type": "string"},
         "summary": {"type": "string"},
+        # intro = the document's own front-matter (foreword/introduction/exec
+        # summary/overview); body = everything else. Drives a separate UI group.
+        "role": {"type": "string", "enum": ["intro", "body"]},
         "presentation": {"type": "string", "enum": _PRESENTATIONS},
         "page": {"type": "string"},
         "strength": {"type": "string", "enum": _STRENGTHS},
@@ -98,8 +101,8 @@ def _empty_content() -> dict:
             "quote": {"text": "", "attribution": "", "pull": False}, "steps": []}
 
 
-def _section(heading, summary, presentation, *, verbatim, strength, page="", **content_over) -> dict:
-    s = {"heading": heading, "summary": summary, "presentation": presentation,
+def _section(heading, summary, presentation, *, verbatim, strength, role="body", page="", **content_over) -> dict:
+    s = {"heading": heading, "summary": summary, "role": role, "presentation": presentation,
          "page": page, "strength": strength, "verbatim": verbatim}
     s.update(_empty_content())
     s.update(content_over)
@@ -117,11 +120,11 @@ def fallback(ir: dict) -> dict:
     blocks = ds.get("blocks") or []
     heading = ds.get("heading") or content.text("shared.analysis.noai.intro_heading")
     if blocks:
-        sections.append(_section(heading, "", "prose", verbatim=True, strength="strongest",
-                                 prose="".join(blocks)))
+        sections.append(_section(heading, "", "prose", role="intro", verbatim=True,
+                                 strength="strongest", prose="".join(blocks)))
     elif p.get("summary"):
-        sections.append(_section(heading, "", "prose", verbatim=True, strength="solid",
-                                 prose=f"<p>{p['summary']}</p>"))
+        sections.append(_section(heading, "", "prose", role="intro", verbatim=True,
+                                 strength="solid", prose=f"<p>{p['summary']}</p>"))
     # canned placeholders — real recommendations, empty content for the user to fill
     sections.append(_section(content.text("shared.analysis.noai.findings.heading"),
                              content.text("shared.analysis.noai.findings.note"),

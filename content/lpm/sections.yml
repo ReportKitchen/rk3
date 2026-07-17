@@ -2,6 +2,8 @@
 # the meaningful sections the AI pulled from the document (the star of Assemble);
 # the CTA scaffolding sits beside them.
 
+intro.title: {kind: static, text: "Introduction"}
+intro.sub: {kind: static, text: "How the page opens — your report’s own foreword and summary."}
 highlights.title: {kind: static, text: "Highlights"}
 highlights.sub: {kind: static, text: "The meaningful bits we pulled from your report — pick what to feature."}
 cta.title: {kind: static, text: "Call to action"}

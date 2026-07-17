@@ -52,7 +52,7 @@ export default function AssembleMaker({ doc }) {
         const on = defaultSectionOn(raw, len);
         const secs = raw.map((s, i) => ({
           id: `sec-${i}`,
-          heading: s.heading, summary: s.summary, presentation: s.presentation,
+          heading: s.heading, summary: s.summary, role: s.role, presentation: s.presentation,
           page: s.page, strength: s.strength, verbatim: s.verbatim,
           prose: s.prose, bullets: s.bullets, cards: s.cards, quote: s.quote, steps: s.steps,
           on: on[i],

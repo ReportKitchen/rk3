@@ -163,7 +163,9 @@ sections_task:
       document's own intro/summary section(s). Each: heading (the document's own
       framing — its literal section title for intro/summary/foreword sections),
       summary (a short descriptive phrase naming the section — a plain, parallel
-      label, NOT a pitch; see the system prompt), presentation (one primitive), and
+      label, NOT a pitch; see the system prompt), role ("intro" for the document's
+      own front-matter — foreword / introduction / executive summary / overview;
+      "body" for every other section), presentation (one primitive), and
       ONLY that primitive's content field filled (prose / bullets / cards / quote /
       steps), the others empty. page = "p. N" from the nearest [p. N] marker ("" if
       unclear). strength = strongest|solid|thin. verbatim = true unless you had to

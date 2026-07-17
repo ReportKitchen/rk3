@@ -28,6 +28,22 @@ export function defaultSectionOn(sections, length) {
 // The CTA scaffolding (fixed — not AI sections). Kept as its own small group.
 export const CTA_KEYS = ["download", "secondary", "share"];
 
+// Split sections into the document's intro/summary (foreword, introduction, exec
+// summary…) and the body, for the two left-column groups. Uses the AI's `role`
+// tag when present; falls back to the leading run of prose sections for caches
+// generated before `role` existed.
+export function splitSections(sections) {
+  if (sections.some((s) => s.role)) {
+    return {
+      intro: sections.filter((s) => s.role === "intro"),
+      body: sections.filter((s) => s.role !== "intro"),
+    };
+  }
+  let i = 0;
+  while (i < sections.length && sections[i].presentation === "prose") i += 1;
+  return { intro: sections.slice(0, i), body: sections.slice(i) };
+}
+
 // Assemble the render config (title + cover + on-sections + CTA) from the section
 // state — feeds the rough page, the Wordsmith render, and export.
 export function buildSectionConfig({ title, cover, sections, cta }) {
