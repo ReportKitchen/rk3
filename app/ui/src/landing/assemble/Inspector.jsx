@@ -177,9 +177,13 @@ function AiInspector({ ai, onToggle, onVoice }) {
 
       <div className="asm-eyebrow">{t("lpm.inspector.preview_label")}</div>
       <div className="asm-secpv">
-        {ai.loading || !ai.prose
+        {ai.loading
           ? <div style={{ padding: "18px 0" }}><WhiskLoader size={84} caption={t("lpm.inspector.loading")} /></div>
-          : <div className="lp-body"><LandingRenderer config={config} /></div>}
+          : ai.prose
+            ? <div className="lp-body"><LandingRenderer config={config} /></div>
+            : ai.fetched
+              ? <p className="asm-pv-empty">{t("lpm.inspector.ai_failed")}</p>
+              : <div style={{ padding: "18px 0" }}><WhiskLoader size={84} caption={t("lpm.inspector.loading")} /></div>}
       </div>
     </div>
   );

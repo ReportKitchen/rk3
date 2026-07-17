@@ -53,6 +53,25 @@ export function pageWords(sections, ai) {
   return n;
 }
 
+// The recommended default on/off set: keep the strongest sections (they come
+// ordered) up to a word budget that lands the page squarely in the good zone —
+// some on, some off — rather than dumping everything on. `sections` must already
+// carry their `trimmed` flags so the counts match what's shown.
+export function recommendOn(sections) {
+  const target = Math.round(WC_LONG * 0.9);   // ~450 — headroom under the "a bit long" line
+  const on = sections.map(() => false);
+  let total = 0;
+  sections.forEach((s, i) => {
+    const w = sectionWords(s);
+    if (i === 0 || total + w <= target) { on[i] = true; total += w; }
+  });
+  // clear the "a bit short" floor if we came in under it
+  for (let i = 0; i < sections.length && total < WC_SHORT; i++) {
+    if (!on[i]) { on[i] = true; total += sectionWords(sections[i]); }
+  }
+  return on;
+}
+
 // ---- AI content-sections model (BACKLOG/61) --------------------------------
 // presentation primitive -> library icon + human label key
 export const PRESENTATIONS = {

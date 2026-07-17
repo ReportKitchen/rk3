@@ -10,6 +10,8 @@ pass generates the three styles at the default length in one call; other
 (style, length) combinations are generated lazily, on demand, and cached.
 """
 
+import re
+
 from rk3.ai import complete_json
 from rk3.landing.extract import _flat, _walk
 from rk3.prompts import load_prompt
@@ -206,8 +208,26 @@ def find_findings(ir: dict, verbatim: bool = False) -> list[dict]:
     return complete_json(FINDINGS_SYSTEM, user, _FINDINGS_SCHEMA)["findings"][:10]
 
 
+def _degenerate(text: str) -> bool:
+    """True when a model summary has collapsed into fragment/word-salad — the
+    ".. science.. potential.. for every child.." failure mode. Lets us retry
+    instead of shipping the brain-fart."""
+    if not text:
+        return False
+    if text.count("..") >= 4:
+        return True
+    frags = [f.strip() for f in re.split(r"[.!?]+", text) if f.strip()]
+    if frags:
+        shortish = sum(1 for f in frags if len(f.split()) <= 2)
+        if shortish >= 5 or shortish / len(frags) >= 0.4:
+            return True
+    return False
+
+
 def generate_summary_variant(ir: dict, style: str, length: str) -> str:
-    """Lazy pass: one executive-summary variant for a given (style, length)."""
+    """Lazy pass: one executive-summary variant for a given (style, length).
+    Retries a couple of times if the model degenerates into word-salad, and
+    returns "" rather than shipping garbage (the caller/UI then shows nothing)."""
     style = style if style in STYLES else DEFAULT_STYLE
     length = length if length in LENGTHS else DEFAULT_LENGTH
     title = (ir.get("title") or "").strip()
@@ -219,4 +239,9 @@ def generate_summary_variant(ir: dict, style: str, length: str) -> str:
         f"Length: {LENGTHS[length]}\n"
         "Be accurate to the document; do not invent facts, numbers, or names."
     )
-    return complete_json(SYSTEM, user, _VARIANT_SCHEMA)["summary"]
+    text = ""
+    for _ in range(3):
+        text = (complete_json(SYSTEM, user, _VARIANT_SCHEMA).get("summary") or "").strip()
+        if not _degenerate(text):
+            return text
+    return ""   # persistent brain-fart — better nothing than garbage

@@ -4,7 +4,7 @@ import "../landingPage.css"; // block-render styles, reused by the previews + Wo
 import { getBlockDefaults, getAiSummary } from "../../api.js";
 import { loadContent, t } from "../../content.js";
 import { guard } from "../../errorBus.js";
-import { LENGTHS, SUMMARY_LENGTH, defaultSectionOn, titleCase, wordCount, AUTO_TRIM_OVER } from "./model.js";
+import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, wordCount, AUTO_TRIM_OVER } from "./model.js";
 import Chrome from "./Chrome.jsx";
 import WhiskLoader from "./WhiskLoader.jsx";
 import SectionLibrary from "./SectionLibrary.jsx";
@@ -14,6 +14,13 @@ import Wordsmith from "./Wordsmith.jsx";
 
 const getSections = (slug) =>
   fetch(`/api/landing/${slug}/sections`).then((r) => r.json());
+
+const LOADING_PHRASES = [
+  "lpm.assemble.loading.reading", "lpm.assemble.loading.highlights",
+  "lpm.assemble.loading.stats", "lpm.assemble.loading.quotes",
+  "lpm.assemble.loading.outline", "lpm.assemble.loading.summary",
+  "lpm.assemble.loading.polish",
+];
 
 // Content-first Landing Page Maker (the AI-sections rebuild, BACKLOG/61). The
 // sections engine proposes the document's meaningful sections in its own words;
@@ -37,12 +44,12 @@ export default function AssembleMaker({ doc }) {
   const [cover, setCover] = useState("beside");
   const [cta, setCta] = useState({ download: true, secondary: false, share: true });
   // the opt-in AI Summary — the ONE AI-written section (a pitch in a chosen voice)
-  const [ai, setAi] = useState({ on: false, voice: "neutral", prose: "", loading: false });
+  const [ai, setAi] = useState({ on: false, voice: "neutral", prose: "", loading: false, fetched: false });
 
   useEffect(() => {
     let alive = true;
     setReady(false); setError(null);
-    setAi({ on: false, voice: "neutral", prose: "", loading: false });
+    setAi({ on: false, voice: "neutral", prose: "", loading: false, fetched: false });
     loadContent("lpm")
       .then(() => { if (alive) setBooted(true); })
       .then(() => Promise.all([
@@ -55,16 +62,18 @@ export default function AssembleMaker({ doc }) {
         const rec = art.recommendedPage || {};
         const len = LENGTHS.includes(rec.length) ? rec.length : "middle";
         const raw = art.sections || [];
-        const on = defaultSectionOn(raw, len);
         const secs = raw.map((s, i) => ({
           id: `sec-${i}`,
           heading: titleCase(s.heading), summary: s.summary, role: s.role, presentation: s.presentation,
           page: s.page, strength: s.strength, verbatim: s.verbatim,
           prose: s.prose, bullets: s.bullets, cards: s.cards, quote: s.quote, steps: s.steps,
-          on: on[i],
+          on: false,
           // long verbatim summaries default to trimmed (they can run screens)
           trimmed: s.presentation === "prose" && wordCount(s.prose) > AUTO_TRIM_OVER,
         }));
+        // recommend some-on/some-off so the opening page lands in the good zone
+        const on = recommendOn(secs);
+        secs.forEach((s, i) => { s.on = on[i]; });
         setSections(secs);
         setDocRead(art.documentRead || null);
         setNoai(!!sd?.noai);
@@ -116,9 +125,9 @@ export default function AssembleMaker({ doc }) {
     setAi((a) => ({ ...a, voice, loading: true }));
     getAiSummary(slug, voice, SUMMARY_LENGTH[length] || "medium")
       .then((text) => setAi((a) => (a.voice === voice
-        ? { ...a, loading: false, prose: text ? text.split(/\n\n+/).map((p) => `<p>${p.trim()}</p>`).join("") : "" }
+        ? { ...a, loading: false, fetched: true, prose: text ? text.split(/\n\n+/).map((p) => `<p>${p.trim()}</p>`).join("") : "" }
         : a)))
-      .catch(() => setAi((a) => ({ ...a, loading: false })));
+      .catch(() => setAi((a) => ({ ...a, loading: false, fetched: true })));
   }, [slug, length]);
 
   const title = defs?.title || null;
@@ -127,7 +136,7 @@ export default function AssembleMaker({ doc }) {
   if (!ready) return (
     <div className="asm-root">
       <div className="asm-loading">
-        <WhiskLoader size={150} caption={booted ? t("lpm.assemble.loading") : undefined} />
+        <WhiskLoader size={150} captions={booted ? LOADING_PHRASES.map((k) => t(k)) : undefined} />
       </div>
     </div>
   );

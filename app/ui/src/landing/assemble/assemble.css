@@ -13,28 +13,44 @@
   flex-direction: column;
   overflow: hidden;
 }
+/* editor-load loader sits ~a third from the top, not dead-centre */
 .asm-loading {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  padding-top: 24vh;
   color: var(--rk-text-muted);
   font-family: var(--rk-font-body), sans-serif;
 }
-/* whisk loader (WhiskLoader.jsx) */
-.asm-whisk { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+/* whisk loader (WhiskLoader.jsx) — CSS conical precession via an animated angle */
+@property --asm-phi { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+.asm-whisk { display: flex; flex-direction: column; align-items: center; gap: 20px; --whisk-h: 150px; }
+.asm-whisk-scene {
+  perspective: 620px; perspective-origin: 50% 42%;
+  width: calc(var(--whisk-h) * 0.62); height: calc(var(--whisk-h) * 1.28);
+  display: grid; place-items: center;
+}
+.asm-whisk-spin {
+  height: var(--whisk-h); aspect-ratio: 10.2 / 42.2;
+  transform-style: preserve-3d; transform-origin: 50% 52%;
+  transform: rotateY(var(--asm-phi)) rotateX(26deg) rotateY(calc(-1 * var(--asm-phi)));
+  animation: asm-precess 1.6s linear infinite; will-change: transform;
+}
+.asm-whisk-svg { width: 100%; height: 100%; display: block; }
+@keyframes asm-precess { from { --asm-phi: 0deg; } to { --asm-phi: 360deg; } }
+.asm-whisk-shadow {
+  width: calc(var(--whisk-h) * 0.5); height: 14px; margin-top: -12px; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(30, 39, 64, 0.18), rgba(30, 39, 64, 0));
+  animation: asm-shadow 1.6s linear infinite; filter: blur(1px);
+}
+@keyframes asm-shadow { 0%, 100% { transform: scaleX(1); opacity: 0.5; } 50% { transform: scaleX(0.72); opacity: 0.3; } }
 .asm-whisk-cap {
-  font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+  font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700;
   color: var(--rk-text-muted); display: inline-flex; align-items: center;
 }
-.asm-whisk-dots { display: inline-flex; gap: 4px; margin-left: 5px; }
-.asm-whisk-dots span {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: var(--rk-tomato); opacity: 0.25; animation: asm-dot 1s infinite;
-}
-.asm-whisk-dots span:nth-child(2) { animation-delay: 0.15s; }
-.asm-whisk-dots span:nth-child(3) { animation-delay: 0.3s; }
-@keyframes asm-dot { 0%, 80%, 100% { opacity: 0.22; } 40% { opacity: 1; } }
+.asm-whisk-dots::after { content: ""; animation: asm-dots 1.4s steps(4, end) infinite; }
+@keyframes asm-dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } 100% { content: ""; } }
 
 /* ---------------- Chrome (top stepper) ---------------- */
 .asm-chrome {
@@ -116,7 +132,14 @@
 }
 .asm-col { min-height: 0; overflow-y: auto; }
 .asm-col-left { padding: 26px 22px; border-right: 1px solid var(--rk-border); }
-.asm-col-mid { padding: 26px 32px; border-right: 1px solid var(--rk-border); background: var(--rk-cream); }
+.asm-col-mid {
+  padding: 26px 32px; border-right: 1px solid var(--rk-border);
+  /* graph-paper ground (from the previous design) so the white preview floats */
+  background:
+    repeating-linear-gradient(0deg, transparent 0 27px, rgba(48, 61, 97, 0.05) 27px 28px),
+    repeating-linear-gradient(90deg, transparent 0 27px, rgba(48, 61, 97, 0.05) 27px 28px),
+    var(--rk-paper);
+}
 .asm-col-right { padding: 26px 24px; display: flex; flex-direction: column; }
 
 .asm-h1 {
@@ -244,8 +267,9 @@
 }
 /* the section/CTA "as it will appear" preview — renders the REAL components */
 .asm-secpv {
-  background: #fff; border: 1px solid var(--rk-border);
-  border-radius: var(--rk-radius-xs); padding: 22px 26px; color: #111;
+  background: #fff; border: 1px solid rgba(30, 39, 64, 0.06);
+  border-radius: var(--rk-radius-sm); padding: 24px 28px; color: #111;
+  box-shadow: var(--rk-shadow-md);   /* soft lift off the graph paper */
 }
 .asm-secpv .lp-section, .asm-secpv .lp-block { margin: 0; padding: 0; }
 
@@ -374,7 +398,11 @@
 }
 .asm-select-trigger:hover { border-color: var(--rk-border-strong); }
 .asm-select.is-open .asm-select-trigger { border-color: var(--rk-rhino-700); border-radius: var(--rk-radius-sm) var(--rk-radius-sm) 0 0; }
-.asm-select-glyph { width: 30px; flex: none; display: flex; }
+/* the cover-layout mini-diagrams sit in a soft-outlined white box (as before) */
+.asm-select-glyph {
+  flex: none; display: flex; padding: 4px;
+  background: var(--rk-white); border: 1px solid var(--rk-border); border-radius: 3px;
+}
 .asm-select-body { flex: 1; min-width: 0; text-align: left; }
 .asm-select-label { display: block; font-size: 13px; color: var(--rk-text-strong); }
 .asm-select-label .asm-select-cat { color: var(--rk-text-muted); }

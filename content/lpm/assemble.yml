@@ -3,8 +3,16 @@
 # Screen header (the mock's "What should this page say?" question).
 header: {kind: static, text: "What should this page say?"}
 
-# whisk-loader caption while the sections engine reads the document
-loading: {kind: static, text: "Reading your report"}
+# whisk-loader captions while the sections engine reads the document — the
+# frontend cycles these every few seconds; each is generic enough to show alone,
+# loop, or stop early.
+loading.reading: {kind: static, text: "Reading your report"}
+loading.highlights: {kind: static, text: "Finding the highlights"}
+loading.stats: {kind: static, text: "Looking for the numbers"}
+loading.quotes: {kind: static, text: "Pulling the best quotes"}
+loading.outline: {kind: static, text: "Shaping the outline"}
+loading.summary: {kind: static, text: "Choosing what to feature"}
+loading.polish: {kind: static, text: "Almost there"}
 
 # The "we found N …" lines. Tokens are declared; the frontend renders full ICU
 # so "1 story" vs "8 stories" lives in the string, not in code. To reword this

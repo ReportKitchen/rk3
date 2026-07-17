@@ -10,7 +10,7 @@ remove: {kind: static, text: "Remove"}
 welcome.title: {kind: static, text: "Let’s shape your landing page"}
 welcome.body:
   kind: static
-  text: "On the left are the meaningful bits we pulled from your report — the introduction, the highlights, and the calls to action. Click any one to see how it’ll look, adjust it, and decide whether to feature it."
+  text: "We’ve selected what we think are the strongest pieces of your report — but you’re the expert. Click any block on the left to see how it’ll look, adjust it, and choose whether to feature it."
 welcome.hint: {kind: static, text: "The outline on the right updates as you go."}
 
 # CTA editing (button text + link)
@@ -40,6 +40,7 @@ voice.meta:
   text: "AI-written · about {words} words · fine-tune in Wordsmith"
   tokens: [words]
 loading: {kind: static, text: "Drafting"}
+ai_failed: {kind: static, text: "Couldn’t draft this one — try another voice."}
 
 # --- Findings: pick which numbers ---
 findings.heading:
