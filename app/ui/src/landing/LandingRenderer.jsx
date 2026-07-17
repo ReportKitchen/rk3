@@ -442,9 +442,11 @@ export function Section({ heading, presentation, prose, bullets, cards, quote, s
     (presentation === "quote" && q.text) ||
     (presentation === "steps" && (steps || []).length);
   if (!heading && !hasContent) return null;
+  // a pullquote is self-contained — no heading sitting right on top of it
+  const showHeading = heading && presentation !== "quote";
   return (
     <section className="lp-block lp-section" data-pres={presentation}>
-      {heading ? <h2>{heading}</h2> : null}
+      {showHeading ? <h2>{heading}</h2> : null}
       {presentation === "prose" && (
         <div className="lp-rich" dangerouslySetInnerHTML={{ __html: prose || "" }} />
       )}
