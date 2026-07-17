@@ -8,6 +8,31 @@ const VOICES = ["intro", "neutral", "hardsell"];
 
 const itemText = (it) => (typeof it === "string" ? it : (it?.value || it?.text || ""));
 const wordCount = (s) => (String(s || "").replace(/<[^>]+>/g, " ").trim().match(/\S+/g) || []).length;
+const textLen = (h) => String(h || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().length;
+
+// A representative excerpt of the verbatim exec-summary section. The section can
+// be dozens of blocks (Oxfam: 55), and its FIRST block is often a bare subheading
+// ("A decade of division") — showing only that misrepresents a rich summary as one
+// line. Concatenate leading blocks up to a text budget; if the whole section is a
+// stub, fall back to the heuristic snippet, then flag it as genuinely short.
+function execExcerpt(defs) {
+  const chunks = (defs.docSummary?.blocks || []).filter(Boolean);
+  const BUDGET = 620;
+  const out = [];
+  let len = 0;
+  for (const c of chunks) {
+    out.push(c);
+    len += textLen(c);
+    if (len >= BUDGET) break;
+  }
+  const html = out.join("");
+  if (textLen(html) >= 60) return { html, short: false };
+  // thin section — prefer the heuristic snippet
+  const snip = defs.summary?.text || "";
+  if (textLen(snip) >= 60) return { html: /<\w/.test(snip) ? snip : `<p>${snip}</p>`, short: false };
+  const fallback = html || (snip ? `<p>${snip}</p>` : "");
+  return { html: fallback, short: true };
+}
 // a short label for a (sometimes long) story subject: first clause + page
 function shortSubject(s) {
   const base = (s.subject || s.attribution || "").split(/[—,·]/)[0].trim();
@@ -124,12 +149,12 @@ export default function Inspector({
 // The "as it will appear" sample, per block.
 function Preview({ sel, defs, aiText, aiLoading, voice, pickedFacts, story }) {
   if (sel === "execSummary") {
-    const chunks = defs.docSummary?.blocks || [];
-    const html = chunks[0] || defs.summary?.text || "";
+    const { html, short } = execExcerpt(defs);
+    if (!html) return <p className="asm-pv-empty">{t("lpm.inspector.exec.empty")}</p>;
     return (
       <>
-        <div className="asm-pv-ai" dangerouslySetInnerHTML={{ __html: html }} />
-        <p className="asm-pv-meta">{t("lpm.inspector.exec.meta")}</p>
+        <div className="asm-pv-ai asm-pv-rich" dangerouslySetInnerHTML={{ __html: html }} />
+        <p className="asm-pv-meta">{t(short ? "lpm.inspector.exec.short" : "lpm.inspector.exec.meta")}</p>
       </>
     );
   }

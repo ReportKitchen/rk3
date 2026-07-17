@@ -11,7 +11,10 @@ why_block_tab: {kind: static, text: "Why this block"}
 preview_tab: {kind: static, text: "Preview & choices"}
 
 # preview meta lines (shown under the rendered sample)
-exec.meta: {kind: static, text: "Verbatim from your report — its own words"}
+exec.meta: {kind: static, text: "Verbatim from your report — its own words (opening shown)"}
+# when the verbatim section is barely there — steer to the AI Summary
+exec.short: {kind: static, text: "This is all we could pull verbatim — the AI Summary may read better here."}
+exec.empty: {kind: static, text: "We couldn’t pull a verbatim summary from this report. Try the AI Summary instead."}
 voice.meta:
   kind: template
   text: "AI-written · about {words} words · fine-tune in Wordsmith"
