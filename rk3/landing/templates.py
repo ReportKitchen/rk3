@@ -147,29 +147,67 @@ _GUIDED = {
     "download": lambda p, g: _download(),
     "secondary": lambda p, g: _secondary("Learn more"),
     "share": lambda p, g: _share(),
-    "aiSummary": lambda p, g: _summary(p),
 }
+
+# --- length model: how short/middle/long shape the page. Non-destructive — the
+# full content is always re-derivable from the guidance + pieces, so switching
+# length never loses anything (per the "nothing is lost" promise). ---
+_EVIDENCE = ("highlights", "findings", "toc", "storytelling")
+_LENGTH = {
+    "short":  {"evidence": 0,    "summary": "short",  "docsum_paras": 2, "drop_cta": ("secondary",)},
+    "middle": {"evidence": 1,    "summary": "medium", "docsum_paras": 5, "drop_cta": ("secondary",)},
+    "long":   {"evidence": None, "summary": "long",   "docsum_paras": 0, "drop_cta": ()},
+}
+COVER_LAYOUTS = ("onTop", "beside", "inset", "textForward")
+
+
+def _select(order, length):
+    """Which recommended blocks survive at this length, keeping the order:
+    short drops all evidence, middle keeps the single strongest (first in the
+    guidance order), long keeps everything; drop the secondary CTA below long."""
+    rule = _LENGTH[length]
+    ev, out = 0, []
+    for key in order:
+        if key in _EVIDENCE:
+            if rule["evidence"] is not None and ev >= rule["evidence"]:
+                continue
+            ev += 1
+        elif key in rule["drop_cta"]:
+            continue
+        out.append(key)
+    return out
 
 
 def build_from_guidance(ir: dict, name: str = "", ai: dict | None = None,
-                        guidance: dict | None = None) -> dict:
+                        guidance: dict | None = None, length: str | None = None,
+                        cover: str | None = None) -> dict:
     """Assemble the default page from the guidance engine's recommendedPage —
-    which blocks, in what order, at what length. Title + Cover are page
-    fundamentals (Title always; Cover placed per coverLayout). Falls back to the
-    archetype builder if guidance is missing."""
+    which blocks, in what order, shaped by a length (short/middle/long) and a
+    cover layout (both default to the engine's recommendation, overridable so the
+    UI's controls just re-request). Title + Cover are page fundamentals. Falls
+    back to the archetype builder if guidance is missing."""
     g = (guidance or {}).get("guidance") or {}
     rp = g.get("recommendedPage") or {}
     order = rp.get("blocks") or []
     if not order:
         return build_config(ir, name=name, ai=ai)
+    length = length if length in _LENGTH else (rp.get("length") if rp.get("length") in _LENGTH else "middle")
+    layout = cover if cover in COVER_LAYOUTS else (rp.get("coverLayout") if rp.get("coverLayout") in COVER_LAYOUTS else "beside")
+    rule = _LENGTH[length]
     p = _pieces(ir, ai)
-    layout = rp.get("coverLayout") or "beside"
-    floated_cover = layout in ("beside", "inset") and "execSummary" in order
+    kept = _select(order, length)
+    floated_cover = layout in ("beside", "inset") and "execSummary" in kept
     blocks = [_title(p)]
-    for key in order:
+    for key in kept:
         if key == "execSummary":
             b = (_doc_summary(p, "Executive summary", with_cover=floated_cover)
                  if p["summary_sections"] else _summary(p, "Executive summary"))
+            if b and b["type"] == "docSummary":
+                b["props"]["paraLimit"] = rule["docsum_paras"]  # cap sections at this length
+        elif key == "aiSummary":
+            b = _summary(p)
+            if b:
+                b["props"]["length"] = rule["summary"]  # depth follows the page length
         else:
             b = _GUIDED.get(key, lambda p, g: None)(p, g)
         if b:
@@ -178,7 +216,8 @@ def build_from_guidance(ir: dict, name: str = "", ai: dict | None = None,
     if not floated_cover and layout != "textForward" and p.get("cover_src"):
         blocks.insert(1, _cover(p))
     _assign_ids(blocks)
-    return {"version": 1, "template": "guided", "length": rp.get("length", "middle"), "blocks": blocks}
+    return {"version": 1, "template": "guided", "length": length,
+            "coverLayout": layout, "coverSide": "left", "blocks": blocks}
 
 
 def _pieces(ir: dict, ai: dict | None = None) -> dict:

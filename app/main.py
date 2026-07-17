@@ -1042,15 +1042,17 @@ def refresh_landing_guidance(slug: str):
 
 
 @app.get("/api/landing/{slug}/guided")
-def get_landing_guided(slug: str):
+def get_landing_guided(slug: str, length: Optional[str] = None, cover: Optional[str] = None):
     """The guidance-driven default page config — the smart draft the redesigned
     Assemble opens with (blocks/order/length from recommendedPage, content from
-    the extracted pieces + guidance stats/story). Falls back to the archetype
-    builder when guidance is unavailable."""
+    the extracted pieces + guidance stats/story). `length` (short/middle/long) and
+    `cover` (onTop/beside/inset/textForward) override the engine's picks, so the
+    UI's controls just re-request. Falls back to the archetype builder when
+    guidance is unavailable."""
     from rk3.landing.templates import build_from_guidance
     ir = _ir_for(slug)
-    return build_from_guidance(ir, name=_doc_name(slug),
-                               ai=_landing_ai(slug, ir), guidance=_guidance(slug, ir))
+    return build_from_guidance(ir, name=_doc_name(slug), ai=_landing_ai(slug, ir),
+                               guidance=_guidance(slug, ir), length=length, cover=cover)
 
 
 @app.get("/api/landing/{slug}/ai-summary")
