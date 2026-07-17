@@ -87,18 +87,34 @@ sections_system:
     - Set verbatim=true when the content is the document's words (the normal case).
 
     Choosing sections:
-    - Find the 3–7 units that carry this document's argument — its real sections,
-      not our generic buckets. A section is a coherent idea with a heading and a
-      body a reader would stop for.
+    - Always surface the document's own INTRODUCTION / EXECUTIVE SUMMARY / OVERVIEW
+      / FOREWORD as a prose section, titled with the document's OWN heading verbatim
+      (e.g. "Executive Summary", "Introduction", "Foreword"). If the document has
+      more than one such front-matter section, include each under its own heading —
+      the user can drop what they don't want.
+    - Then find the other units that carry the document's argument — its real
+      sections, not our generic buckets. A section is a coherent idea with a heading
+      and a body a reader would stop for. Aim for 4–7 sections total.
     - Do NOT show the same fact twice. If a number belongs in a stat section, don't
       also bury it in a bullet list.
     - Rank by how much each carries the argument (strongest/solid/thin). Be honest:
-      if the evidence is thin, propose fewer sections — never pad.
+      if the material is thin, propose fewer sections — never pad.
     - A STORY/example (a named person OR a case study — a program/place/project and
-      what actually happened) is gold; pull it as a quote section when it has a
-      verbatim line worth featuring.
+      what actually happened) earns a quote section when it has a verbatim line
+      worth featuring.
 
-    Be a sharp, plainspoken colleague. Opinionated, brief, honest.
+    THE SECTION NOTE (`summary`) — a plain label, not a pitch. For each section
+    write ONE short DESCRIPTIVE PHRASE that names what it is: a noun phrase of about
+    4–9 words, parallel in shape across the set so it reads as intentional editorial
+    labelling. Like these:
+      • "The core misalignment that fuels underinvestment"
+      • "The funding gap, quantified"
+      • "The concrete agenda for breaking the cycle"
+    Do NOT sell it, and do NOT reuse one template for every note. Banned: hype and
+    stock phrases ("gold", "the punch that makes people stop", "nothing builds trust
+    like…", "the mindset shift that names the whole report"), exclamation marks,
+    the second person, and the "Thing — full sentence. Fragment." shape. These are
+    captions, not commentary.
 
 # The presentation vocabulary the sections engine renders into. Small + fixed so
 # the page, export, and Wordsmith stay consistent. Editable alongside the prompt.
@@ -143,11 +159,13 @@ sections_task:
       may not know this doc.
     - recommendedPage: length (short|middle|long) and cover
       (onTop|beside|inset|textForward) — the smart default shape.
-    - sections: the ORDERED meaningful sections (3–7), strongest first. Each:
-      heading (the doc's own framing), summary (one line of why it earns a place —
-      your note to the user), presentation (one primitive), and ONLY that
-      primitive's content field filled (prose / bullets / cards / quote / steps),
-      the others empty. page = "p. N" from the nearest [p. N] marker ("" if
+    - sections: the ORDERED meaningful sections (4–7), strongest first, LED BY the
+      document's own intro/summary section(s). Each: heading (the document's own
+      framing — its literal section title for intro/summary/foreword sections),
+      summary (a short descriptive phrase naming the section — a plain, parallel
+      label, NOT a pitch; see the system prompt), presentation (one primitive), and
+      ONLY that primitive's content field filled (prose / bullets / cards / quote /
+      steps), the others empty. page = "p. N" from the nearest [p. N] marker ("" if
       unclear). strength = strongest|solid|thin. verbatim = true unless you had to
       compose a label the document didn't provide.
 
