@@ -1,0 +1,15 @@
+# lpm.wordsmith.* — the light top-to-bottom text-cleanup mode.
+
+back_to_assemble: {kind: static, text: "Assemble"}
+back_to_assemble_hint: {kind: static, text: "to change what's on the page"}
+# reading estimate above the page
+read_estimate:
+  kind: template
+  text: "{words} words · reads in about {min} min"
+  tokens: [words, min]
+help:
+  kind: static
+  text: "Click any line and type. Bold, italics, lists, and links — that's the whole toolbox, on purpose."
+nudge_back:
+  kind: static
+  text: "Wrong blocks, not wrong words? Head back to Assemble."

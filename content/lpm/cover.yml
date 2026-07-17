@@ -1,0 +1,22 @@
+# lpm.cover.* — the "how the cover sits" layout picker (4 presets around the cover).
+
+question: {kind: static, text: "How should the cover sit?"}
+sub: {kind: static, text: "Sized and placed for you — switch anytime."}
+control_label: {kind: static, text: "How the cover sits"}
+# the cover always carries its own metadata (date, authors) wherever it lands
+metadata_note:
+  kind: template
+  text: "The cover carries its metadata — {meta} — wherever it sits."
+  tokens: [meta]
+
+onTop.title: {kind: static, text: "Cover on top"}
+onTop.line: {kind: static, text: "Cover leads full-width; content stacks below. Big, formal."}
+
+beside.title: {kind: static, text: "Cover beside"}
+beside.line: {kind: static, text: "Cover flanks the intro (left or right). The confident default."}
+
+inset.title: {kind: static, text: "Cover inset"}
+inset.line: {kind: static, text: "A smaller cover nested in the opening text — the “float” done for you."}
+
+textForward.title: {kind: static, text: "Text-forward"}
+textForward.line: {kind: static, text: "Cover shrinks to a thumbnail (or none). For pages that lead with words."}

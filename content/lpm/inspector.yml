@@ -1,0 +1,62 @@
+# lpm.inspector.* — the per-block preview-and-adjust surface (the center column):
+# see the block as it'll appear, then make its choices before/while adding it.
+
+preview_label: {kind: static, text: "Preview — as it will appear"}
+preview_updates: {kind: static, text: "updates as you pick"}
+add: {kind: static, text: "Add to page"}
+or_drag: {kind: static, text: "or drag it into place"}
+reopen_hint: {kind: static, text: "You can reopen this anytime"}
+why_block_tab: {kind: static, text: "Why this block"}
+preview_tab: {kind: static, text: "Preview & choices"}
+
+# --- Findings: pick which numbers ---
+findings.heading:
+  kind: template
+  text: "We found {n, plural, one {# number} other {# numbers}} in your PDF"
+  tokens: [n]
+findings.pick_hint: {kind: static, text: "Checked ones appear on the page, in this order. Drag to reorder."}
+findings.picked:
+  kind: template
+  text: "{n} picked · 3–5 read best"
+  tokens: [n]
+findings.show_more:
+  kind: template
+  text: "Show {n} more"
+  tokens: [n]
+findings.add:
+  kind: template
+  text: "Add with these {n, plural, one {# number} other {# numbers}}"
+  tokens: [n]
+
+# --- AI Summary: pick the voice (the "taste test") ---
+voice.subtitle:
+  kind: template
+  text: "Drafted from all {pages} pages · pick the voice"
+  tokens: [pages]
+voice.intro.label: {kind: static, text: "Report intro"}
+voice.intro.note: {kind: static, text: "its own opening words"}
+voice.neutral.label: {kind: static, text: "Neutral"}
+voice.neutral.note: {kind: static, text: "clear and even"}
+voice.hardsell.label: {kind: static, text: "Hard sell"}
+voice.hardsell.note: {kind: static, text: "lead with urgency"}
+voice.try_another: {kind: static, text: "Try another take"}
+voice.fine_tune: {kind: static, text: "Fine-tune the words later in Wordsmith"}
+voice.add:
+  kind: template
+  text: "Add the {voice} take"
+  tokens: [voice]
+voice.use_exec: {kind: static, text: "Prefer the report's own words? Use Exec Summary instead →"}
+
+# --- Storytelling: pick which story / case study ---
+story.heading:
+  kind: template
+  text: "Whose story? · {n, plural, one {# found} other {# found}}"
+  tokens: [n]
+story.add:
+  kind: template
+  text: "Add {subject}'s story"
+  tokens: [subject]
+story.more_words:
+  kind: template
+  text: "+ {n} more words"
+  tokens: [n]

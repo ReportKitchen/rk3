@@ -1,0 +1,26 @@
+# lpm.length.* — the short / middle / long "how much to say" starter + control.
+
+question: {kind: static, text: "How much do you want to say?"}
+sub: {kind: static, text: "Pick a depth — every choice starts as a fully drafted page. Switch anytime."}
+control_label: {kind: static, text: "How much to say"}
+# shown after a length switch — the non-destructive promise
+nondestructive: {kind: static, text: "Switching trims or restores text — nothing is lost."}
+most_pages_badge: {kind: static, text: "Most pages"}
+
+# first-run line — what we found in the doc (drives the "we read your PDF" moment)
+read_summary:
+  kind: template
+  text: "We read your PDF — {pages} pages, {chapters} chapters, {stories} stories"
+  tokens: [pages, chapters, stories]
+
+short.title: {kind: static, text: "Short"}
+short.promise: {kind: static, text: "The essentials: a sharp intro and a call to action. No evidence section."}
+short.contents: {kind: static, text: "AI Summary · Download — a fast, skimmable teaser."}
+
+middle.title: {kind: static, text: "Middle"}
+middle.promise: {kind: static, text: "Intro + your strongest evidence + CTA. Sections capped at ~300 words."}
+middle.contents: {kind: static, text: "AI Summary · Findings · Download + share"}
+
+long.title: {kind: static, text: "Long"}
+long.promise: {kind: static, text: "The full pitch: complete exec summary, every evidence block, uncapped."}
+long.contents: {kind: static, text: "Exec Summary · Findings · Story · Contents · CTA"}
