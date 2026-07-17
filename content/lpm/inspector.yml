@@ -1,13 +1,22 @@
 # lpm.inspector.* — the per-block preview-and-adjust surface (the center column):
 # see the block as it'll appear, then make its choices before/while adding it.
 
-preview_label: {kind: static, text: "Preview — as it will appear"}
+preview_label: {kind: static, text: "Preview"}
 preview_updates: {kind: static, text: "updates as you pick"}
 add: {kind: static, text: "Add to page"}
+remove: {kind: static, text: "Remove"}
 or_drag: {kind: static, text: "or drag it into place"}
 reopen_hint: {kind: static, text: "You can reopen this anytime"}
 why_block_tab: {kind: static, text: "Why this block"}
 preview_tab: {kind: static, text: "Preview & choices"}
+
+# preview meta lines (shown under the rendered sample)
+exec.meta: {kind: static, text: "Verbatim from your report — its own words"}
+voice.meta:
+  kind: template
+  text: "AI-written · about {words} words · fine-tune in Wordsmith"
+  tokens: [words]
+loading: {kind: static, text: "Drafting…"}
 
 # --- Findings: pick which numbers ---
 findings.heading:
@@ -27,6 +36,11 @@ findings.add:
   kind: template
   text: "Add with these {n, plural, one {# number} other {# numbers}}"
   tokens: [n]
+findings.add_own: {kind: static, text: "+ Add your own number"}
+findings.own_stat_ph: {kind: static, text: "42%"}
+findings.own_text_ph: {kind: static, text: "what the number measures"}
+findings.own_save: {kind: static, text: "Add"}
+findings.own_cancel: {kind: static, text: "Cancel"}
 
 # --- AI Summary: pick the voice (the "taste test") ---
 voice.subtitle:

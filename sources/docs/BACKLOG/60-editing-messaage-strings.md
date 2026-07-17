@@ -1,0 +1,2 @@
+Message strings are stored in YML files in content/ 
+It would be great if I could flip LPM into an editor mode, and see all the messaging bits outlined, and I click on one and get a modal letting me update that message's YML.  Bonus points if I can fire off a git commit right from there when I'm done making changes.

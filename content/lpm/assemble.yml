@@ -36,7 +36,8 @@ subhead_action:
   text: "Add, swap, or drop blocks below — each card tells you when it earns its place."
 
 # the deliberately-rough right-rail preview
-rough_draft_label: {kind: static, text: "Rough draft — words come next"}
+page_heading: {kind: static, text: "Your page"}
+rough_draft_label: {kind: static, text: "Rough draft"}
 rough_draft_note: {kind: static, text: "— rough draft · not the real design —"}
 
 # nudge from the preview toward Wordsmith

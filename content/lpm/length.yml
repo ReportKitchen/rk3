@@ -3,6 +3,7 @@
 question: {kind: static, text: "How much do you want to say?"}
 sub: {kind: static, text: "Pick a depth — every choice starts as a fully drafted page. Switch anytime."}
 control_label: {kind: static, text: "How much to say"}
+category: {kind: static, text: "Length"}
 # shown after a length switch — the non-destructive promise
 nondestructive: {kind: static, text: "Switching trims or restores text — nothing is lost."}
 most_pages_badge: {kind: static, text: "Most pages"}

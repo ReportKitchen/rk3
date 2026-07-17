@@ -3,6 +3,22 @@
 # about" line (e.g. "you've got three hard numbers: 46%, 60%, 100%") is NOT here
 # — that's generated per doc by the guidance engine (shared.analysis.*).
 
+# --- library column header ---
+library.title: {kind: static, text: "Blocks"}
+library.sub: {kind: static, text: "Click one to inspect and adjust it in the middle."}
+new_badge: {kind: static, text: "NEW"}
+
+# --- block display names (shown on cards + the inspector header) ---
+execSummary.name: {kind: static, text: "Exec Summary"}
+aiSummary.name: {kind: static, text: "AI Summary"}
+highlights.name: {kind: static, text: "Highlights"}
+findings.name: {kind: static, text: "Findings"}
+toc.name: {kind: static, text: "Table of Contents"}
+storytelling.name: {kind: static, text: "Storytelling"}
+download.name: {kind: static, text: "Download"}
+secondary.name: {kind: static, text: "Secondary action"}
+share.name: {kind: static, text: "Social share"}
+
 # --- bucket headers ---
 bucket.intro.title: {kind: static, text: "Intro"}
 bucket.intro.sub: {kind: static, text: "How the page opens"}

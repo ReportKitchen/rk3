@@ -3,6 +3,7 @@
 question: {kind: static, text: "How should the cover sit?"}
 sub: {kind: static, text: "Sized and placed for you — switch anytime."}
 control_label: {kind: static, text: "How the cover sits"}
+category: {kind: static, text: "Cover"}
 # the cover always carries its own metadata (date, authors) wherever it lands
 metadata_note:
   kind: template

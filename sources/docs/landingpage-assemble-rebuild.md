@@ -1,8 +1,33 @@
 # LPM Assemble/Wordsmith rebuild — executable plan (content-first pivot)
 
-**Status:** backend DONE (the spine). UI TO BUILD. This replaces the Puck LPM
-**entirely** — the owner approved wiping the Puck workflow. Design is LOCKED in
-`design-system/round-2/`. Pick this up and build the UI slice by slice.
+**Status:** backend DONE + **UI DONE** (all 7 slices built, screenshot-verified vs
+round-2). The Puck LPM is retired. Design was LOCKED in `design-system/round-2/`.
+
+## UI BUILT — where it lives
+- **`app/ui/src/landing/assemble/`** — the bespoke Assemble/Wordsmith React:
+  `AssembleMaker.jsx` (default export, mounted in DocumentView), `Chrome.jsx`
+  (stepper), `BlockLibrary.jsx` (left), `Inspector.jsx` (center — previews +
+  findings picker + AI voice + story picker), `Controls.jsx` (right — length/cover
+  dropdowns + grayscale rough page), `Wordsmith.jsx` (contentEditable + floating
+  B/I/list/link toolbar, renders the real page via `renderToStaticMarkup(LandingRenderer)`),
+  `model.js` (bucket/length model, ports `_select`), `icons.jsx` (inline lucide),
+  `assemble.css` (`asm-*` classes on `--rk-*` tokens).
+- **Mounted:** `DocumentView.jsx` lazy-imports `AssembleMaker` for `tab==="landing"`.
+- **Retired (deleted):** LandingMaker/puckConfig/LandingShell/MiniPreview/puckAdapter/
+  landingOptions/blockLibrary/RichText + `@measured/puck` + `react-simple-wysiwyg` deps.
+- **Content added:** block display names + library header (`lpm.blocks.*`), inspector
+  meta/own-fact keys, length/cover `category`, `assemble.page_heading` (121 entries).
+- **Known v1 gaps (follow-ups):** fact drag-reorder is visual-only (grip shown, no DnD);
+  Assemble edits aren't persisted to `.landing.json` yet (Wordsmith re-fetches `/guided`
+  for current length/cover, then filters to the added set + applies picked facts, but
+  block toggles that add a block absent from the current-length `/guided` won't render in
+  Wordsmith); Wordsmith text edits live in the DOM, not yet written back to the config.
+
+---
+## Original plan (kept for reference)
+
+This replaced the Puck LPM **entirely** — the owner approved wiping the Puck
+workflow. Design is LOCKED in `design-system/round-2/`.
 
 ---
 

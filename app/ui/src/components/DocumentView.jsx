@@ -14,7 +14,7 @@ import TocCompare from "./TocCompare.jsx";
 import ReviewBoard from "./ReviewBoard.jsx";
 
 // Puck is heavy (~90kB gzip); load the Landing Page Maker only when its tab opens
-const LandingMaker = lazy(() => import("../landing/LandingMaker.jsx"));
+const AssembleMaker = lazy(() => import("../landing/assemble/AssembleMaker.jsx"));
 
 // content-area views; "convert" is the full document view (html + pdf), the
 // rest are alternate representations of the same content
@@ -865,7 +865,7 @@ export default function DocumentView({
 
         {tab === "landing" && (
           <Suspense fallback={<div className="hint" style={{ padding: "2rem" }}>Loading editor…</div>}>
-            <LandingMaker doc={doc} />
+            <AssembleMaker doc={doc} />
           </Suspense>
         )}
       </div>

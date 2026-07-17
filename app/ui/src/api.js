@@ -159,6 +159,20 @@ export const getArchetypes = () => fetch(`/api/landing-archetypes`).then(json);
 export const getAiSummary = (slug, style, length) =>
   fetch(`/api/landing/${slug}/ai-summary?style=${style}&length=${length}`)
     .then(json).then((d) => d.text);
+
+// content-first Assemble: the guidance artifact (what content earns a place, the
+// smart default page, per-block notes) and the guidance-driven default page
+// config. `length`/`cover` override the engine's picks so the UI's controls just
+// re-request.
+export const getGuidance = (slug) =>
+  fetch(`/api/landing/${slug}/guidance`).then(json);
+export const getGuided = (slug, length, cover) => {
+  const qs = new URLSearchParams();
+  if (length) qs.set("length", length);
+  if (cover) qs.set("cover", cover);
+  const q = qs.toString();
+  return fetch(`/api/landing/${slug}/guided${q ? `?${q}` : ""}`).then(json);
+};
 export const getAiMode = () => fetch(`/api/ai-mode`).then(json).then((d) => d.mode);
 
 export const postLanding = (slug, config) =>
