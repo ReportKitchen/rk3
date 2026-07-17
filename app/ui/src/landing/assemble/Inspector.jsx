@@ -1,82 +1,103 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React from "react";
 import { t } from "../../content.js";
-import { getAiSummary } from "../../api.js";
-import { SUMMARY_LENGTH } from "./model.js";
+import { LandingRenderer } from "../LandingRenderer.jsx";
+import { PRESENTATIONS } from "./model.js";
 import { Icon, BLOCK_ICONS } from "./icons.jsx";
 
-const VOICES = ["intro", "neutral", "hardsell"];
-
-const itemText = (it) => (typeof it === "string" ? it : (it?.value || it?.text || ""));
-const wordCount = (s) => (String(s || "").replace(/<[^>]+>/g, " ").trim().match(/\S+/g) || []).length;
-const textLen = (h) => String(h || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().length;
-
-// A representative excerpt of the verbatim exec-summary section. The section can
-// be dozens of blocks (Oxfam: 55), and its FIRST block is often a bare subheading
-// ("A decade of division") — showing only that misrepresents a rich summary as one
-// line. Concatenate leading blocks up to a text budget; if the whole section is a
-// stub, fall back to the heuristic snippet, then flag it as genuinely short.
-function execExcerpt(defs) {
-  const chunks = (defs.docSummary?.blocks || []).filter(Boolean);
-  const BUDGET = 620;
-  const out = [];
-  let len = 0;
-  for (const c of chunks) {
-    out.push(c);
-    len += textLen(c);
-    if (len >= BUDGET) break;
-  }
-  const html = out.join("");
-  if (textLen(html) >= 60) return { html, short: false };
-  // thin section — prefer the heuristic snippet
-  const snip = defs.summary?.text || "";
-  if (textLen(snip) >= 60) return { html: /<\w/.test(snip) ? snip : `<p>${snip}</p>`, short: false };
-  const fallback = html || (snip ? `<p>${snip}</p>` : "");
-  return { html: fallback, short: true };
-}
-// a short label for a (sometimes long) story subject: first clause + page
-function shortSubject(s) {
-  const base = (s.subject || s.attribution || "").split(/[—,·]/)[0].trim();
-  return base.length > 26 ? base.slice(0, 25).trim() + "…" : base;
-}
-
-// Center column: inspect one block — see it "as it will appear", make its
-// choices (which facts, which voice, whose story), and add/remove it.
+// Center column: inspect one thing — a content section or a CTA — see it rendered
+// exactly "as it will appear" (the real block components), read why it earns a
+// place, adjust how it looks, and add/remove it.
 export default function Inspector({
-  slug, sel, guidance, blockDefaults, added, onToggle, length, pages,
-  stats, checkedFacts, setCheckedFacts, onAddOwnFact,
-  voice, setVoice, stories, person, setPerson,
+  sel, sections, cta, defs, onToggleSection, onToggleCta, onSetPresentation, onSetQuotePull,
 }) {
-  const isAdded = added.has(sel);
-  const defs = blockDefaults || {};
+  const section = sections.find((s) => s.id === sel);
+  if (section) {
+    return (
+      <SectionInspector
+        section={section}
+        onToggle={() => onToggleSection(section.id)}
+        onSetQuotePull={(pull) => onSetQuotePull(section.id, pull)}
+      />
+    );
+  }
+  // otherwise it's a CTA key
+  return <CtaInspector sel={sel} cta={cta} defs={defs} onToggle={() => onToggleCta(sel)} />;
+}
 
-  // ---- AI summary text (lazy, cached by voice:length) ----
-  const [aiText, setAiText] = useState("");
-  const [aiLoading, setAiLoading] = useState(false);
-  const aiCache = useRef(new Map());
-  useEffect(() => {
-    if (sel !== "aiSummary") return;
-    const slen = SUMMARY_LENGTH[length] || "medium";
-    const key = `${voice}:${slen}`;
-    const cached = aiCache.current.get(key);
-    if (cached !== undefined) { setAiText(cached); setAiLoading(false); return; }
-    let alive = true;
-    setAiLoading(true);
-    getAiSummary(slug, voice, slen)
-      .then((text) => { if (!alive) return; aiCache.current.set(key, text || ""); setAiText(text || ""); })
-      .catch(() => { if (alive) setAiText(""); })
-      .finally(() => { if (alive) setAiLoading(false); });
-    return () => { alive = false; };
-  }, [sel, voice, length, slug]);
+function AddRemove({ on, onToggle }) {
+  return on ? (
+    <button type="button" className="asm-btn-remove" onClick={onToggle}>
+      <Icon name="minus" size={13} />{t("lpm.inspector.remove")}
+    </button>
+  ) : (
+    <button type="button" className="asm-btn-add" onClick={onToggle}>
+      <Icon name="plus" size={13} />{t("lpm.inspector.add")}
+    </button>
+  );
+}
 
-  const pickedFacts = useMemo(
-    () => checkedFacts.map((i) => stats[i]).filter(Boolean),
-    [checkedFacts, stats]);
-  const over = pickedFacts.length > 5;
-  const curStory = stories[person] || stories[0] || null;
+function SectionInspector({ section, onToggle, onSetQuotePull }) {
+  const presLabel = t(`lpm.sections.pres.${section.presentation}`);
+  const config = { blocks: [{ type: "section", id: section.id, props: {
+    heading: section.heading, presentation: section.presentation, prose: section.prose,
+    bullets: section.bullets, cards: section.cards, quote: section.quote, steps: section.steps,
+  } }] };
+  const hasContent =
+    (section.presentation === "prose" && section.prose) ||
+    (section.presentation === "bullets" && (section.bullets || []).length) ||
+    (section.presentation === "statCards" && (section.cards || []).length) ||
+    (section.presentation === "quote" && section.quote?.text) ||
+    (section.presentation === "steps" && (section.steps || []).length);
 
-  const toggleFact = (i) =>
-    setCheckedFacts((prev) => (prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]));
+  return (
+    <div className="asm-col asm-col-mid">
+      <div className="asm-insp-head">
+        <span className="asm-insp-icon">
+          <Icon name={PRESENTATIONS[section.presentation]?.icon || "file-text"} size={20} />
+        </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="asm-insp-name">{section.heading}</div>
+          <div className="asm-insp-meta">
+            {presLabel}{section.page ? ` · ${section.page}` : ""}
+            {section.verbatim && <span className="asm-verbatim-badge">{t("lpm.sections.verbatim_badge")}</span>}
+          </div>
+        </div>
+        <AddRemove on={section.on} onToggle={onToggle} />
+      </div>
+      {section.summary && <p className="asm-insp-blurb">{section.summary}</p>}
 
+      {/* adjust how it looks — for quotes: standard vs pullquote */}
+      {section.presentation === "quote" && (
+        <>
+          <div className="asm-eyebrow">{t("lpm.sections.how_label")}</div>
+          <div className="asm-chips">
+            <button type="button"
+              className={"asm-chip" + (!section.quote?.pull ? " is-active" : "")}
+              onClick={() => onSetQuotePull(false)}>{t("lpm.sections.quote.standard")}</button>
+            <button type="button"
+              className={"asm-chip" + (section.quote?.pull ? " is-active" : "")}
+              onClick={() => onSetQuotePull(true)}>{t("lpm.sections.quote.pull")}</button>
+          </div>
+        </>
+      )}
+
+      <div className="asm-eyebrow">{t("lpm.inspector.preview_label")}</div>
+      <div className="asm-secpv">
+        {hasContent
+          ? <div className="lp-body"><LandingRenderer config={config} /></div>
+          : <p className="asm-pv-empty">{t("lpm.sections.placeholder_hint")}</p>}
+      </div>
+    </div>
+  );
+}
+
+function CtaInspector({ sel, cta, defs, onToggle }) {
+  const label = sel === "download" ? (cta.downloadLabel || defs?.download?.label)
+    : sel === "secondary" ? (cta.secondaryLabel || defs?.secondaryCta?.label) : "";
+  const config =
+    sel === "download" ? { blocks: [{ type: "download", props: { label } }] }
+    : sel === "secondary" ? { blocks: [{ type: "secondaryCta", props: { label } }] }
+    : { blocks: [{ type: "share", props: {} }] };
   return (
     <div className="asm-col asm-col-mid">
       <div className="asm-insp-head">
@@ -84,216 +105,13 @@ export default function Inspector({
         <div style={{ flex: 1 }}>
           <div className="asm-insp-name">{t(`lpm.blocks.${sel}.name`)}</div>
         </div>
-        {isAdded ? (
-          <button type="button" className="asm-btn-remove" onClick={() => onToggle(sel)}>
-            <Icon name="minus" size={13} />{t("lpm.inspector.remove")}
-          </button>
-        ) : (
-          <button type="button" className="asm-btn-add" onClick={() => onToggle(sel)}>
-            <Icon name="plus" size={13} />{t("lpm.inspector.add")}
-          </button>
-        )}
+        <AddRemove on={!!cta[sel]} onToggle={onToggle} />
       </div>
-      <p className="asm-insp-blurb">
-        {t(`lpm.blocks.${sel}.what`)} {t(`lpm.blocks.${sel}.when`)}
-      </p>
-
-      {/* per-block choices, above the preview */}
-      {sel === "aiSummary" && (
-        <div className="asm-chips">
-          {VOICES.map((v) => (
-            <button
-              key={v} type="button"
-              className={"asm-chip" + (voice === v ? " is-active" : "")}
-              onClick={() => setVoice(v)}
-            >
-              {t(`lpm.inspector.voice.${v}.label`)}{" "}
-              <span className="asm-chip-desc">— {t(`lpm.inspector.voice.${v}.note`)}</span>
-            </button>
-          ))}
-        </div>
-      )}
-      {sel === "storytelling" && stories.length > 0 && (
-        <div className="asm-chips">
-          {stories.map((s, i) => (
-            <button
-              key={i} type="button"
-              className={"asm-chip asm-chip-person" + (person === i ? " is-active" : "")}
-              onClick={() => setPerson(i)}
-            >
-              {shortSubject(s)}{s.page ? ` · ${s.page}` : ""}
-            </button>
-          ))}
-        </div>
-      )}
-
+      <p className="asm-insp-blurb">{t(`lpm.blocks.${sel}.what`)} {t(`lpm.blocks.${sel}.when`)}</p>
       <div className="asm-eyebrow">{t("lpm.inspector.preview_label")}</div>
-      <div className="asm-preview">
-        <Preview
-          sel={sel} defs={defs} aiText={aiText} aiLoading={aiLoading} voice={voice}
-          pickedFacts={pickedFacts} story={curStory}
-        />
+      <div className="asm-secpv">
+        <div className="lp-body"><LandingRenderer config={config} /></div>
       </div>
-
-      {/* Findings: the fact-picker lives here (a user fact is just another item) */}
-      {sel === "findings" && (
-        <FactPicker
-          stats={stats} checkedFacts={checkedFacts} onToggle={toggleFact}
-          over={over} onAddOwnFact={onAddOwnFact}
-        />
-      )}
     </div>
-  );
-}
-
-// The "as it will appear" sample, per block.
-function Preview({ sel, defs, aiText, aiLoading, voice, pickedFacts, story }) {
-  if (sel === "execSummary") {
-    const { html, short } = execExcerpt(defs);
-    if (!html) return <p className="asm-pv-empty">{t("lpm.inspector.exec.empty")}</p>;
-    return (
-      <>
-        <div className="asm-pv-ai asm-pv-rich" dangerouslySetInnerHTML={{ __html: html }} />
-        <p className="asm-pv-meta">{t(short ? "lpm.inspector.exec.short" : "lpm.inspector.exec.meta")}</p>
-      </>
-    );
-  }
-  if (sel === "aiSummary") {
-    if (aiLoading) return <p className="asm-pv-loading">{t("lpm.inspector.loading")}</p>;
-    return (
-      <>
-        <p className="asm-pv-ai">{aiText || defs.summary?.text || ""}</p>
-        <p className="asm-pv-meta">{t("lpm.inspector.voice.meta", { words: wordCount(aiText) })}</p>
-      </>
-    );
-  }
-  if (sel === "highlights") {
-    const items = (defs.highlights?.items || []).map(itemText).filter(Boolean);
-    return (
-      <>
-        {defs.highlights?.heading && <div className="asm-pv-h-sm">{defs.highlights.heading}</div>}
-        <ul className="asm-pv-bullets">{items.map((it, i) => <li key={i}>{it}</li>)}</ul>
-      </>
-    );
-  }
-  if (sel === "findings") {
-    return (
-      <>
-        {defs.findings?.heading && <div className="asm-pv-h">{defs.findings.heading}</div>}
-        {pickedFacts.length === 0
-          ? <p className="asm-pv-empty">Nothing picked — check a number below to see it here.</p>
-          : (
-            <div className="asm-pv-findings">
-              {pickedFacts.slice(0, 6).map((f, i) => (
-                <div key={i}>
-                  <div className="asm-pv-finding-n">{f.value}</div>
-                  <div className="asm-pv-finding-t">{f.fact}</div>
-                </div>
-              ))}
-            </div>
-          )}
-      </>
-    );
-  }
-  if (sel === "toc") {
-    const items = defs.toc?.items || [];
-    return (
-      <>
-        <div className="asm-pv-h-sm">Inside the report</div>
-        <div className="asm-pv-toc">
-          {items.map((it, i) => <div key={i}>{it.text}</div>)}
-        </div>
-      </>
-    );
-  }
-  if (sel === "storytelling") {
-    if (!story) return <p className="asm-pv-empty">No story found in this document.</p>;
-    return (
-      <>
-        {story.quote && <p className="asm-pv-story-quote">“{story.quote}”</p>}
-        {story.narrative && <p className="asm-pv-story-body">{story.narrative}</p>}
-        {story.attribution && <p className="asm-pv-story-attr">{story.attribution}{story.page ? ` · ${story.page}` : ""}</p>}
-      </>
-    );
-  }
-  if (sel === "download") {
-    return (
-      <div className="asm-pv-cta">
-        <span className="asm-pv-cta-primary">{defs.download?.label || "Download the report (PDF)"}</span>
-      </div>
-    );
-  }
-  if (sel === "secondary") {
-    return (
-      <div className="asm-pv-cta">
-        <span className="asm-pv-cta-secondary">{defs.secondaryCta?.label || "Learn more"}</span>
-        <span className="asm-pv-cta-note">label + link are yours to set</span>
-      </div>
-    );
-  }
-  if (sel === "share") {
-    return (
-      <div className="asm-pv-cta">
-        <span style={{ fontSize: 14, color: "#333" }}>Share:</span>
-        {["LinkedIn", "Bluesky", "Email"].map((n) => <span key={n} className="asm-pv-share-chip">{n}</span>)}
-      </div>
-    );
-  }
-  return null;
-}
-
-// Findings fact-picker: checkboxes over the doc's stats, with pages shown, a
-// 3–5 cap that turns tomato when exceeded, and an "add your own" row (a user
-// fact is just another {value, fact, page} item).
-function FactPicker({ stats, checkedFacts, onToggle, over, onAddOwnFact }) {
-  const [showForm, setShowForm] = useState(false);
-  const [stat, setStat] = useState("");
-  const [text, setText] = useState("");
-  const save = () => {
-    if (!stat.trim() && !text.trim()) return;
-    onAddOwnFact({ value: stat.trim(), fact: text.trim(), page: "" });
-    setStat(""); setText(""); setShowForm(false);
-  };
-  return (
-    <>
-      <div className="asm-facts-head">
-        <span className="asm-facts-title">{t("lpm.inspector.findings.heading", { n: stats.length })}</span>
-        <span className={"asm-facts-cap" + (over ? " is-over" : "")}>
-          {t("lpm.inspector.findings.picked", { n: checkedFacts.length })}
-        </span>
-      </div>
-      <p className="asm-facts-hint">{t("lpm.inspector.findings.pick_hint")}</p>
-      <div className="asm-facts-grid">
-        {stats.map((f, i) => {
-          const checked = checkedFacts.includes(i);
-          return (
-            <button
-              key={i} type="button"
-              className={"asm-fact" + (checked ? " is-checked" : "")}
-              onClick={() => onToggle(i)}
-            >
-              <span className="asm-fact-grip" aria-hidden="true">⠿</span>
-              <span className="asm-fact-box">{checked && <Icon name="check" size={11} />}</span>
-              <span className="asm-fact-text"><b>{f.value}</b> {f.fact}</span>
-              {f.page && <span className="asm-fact-page">{f.page}</span>}
-            </button>
-          );
-        })}
-        {showForm ? (
-          <div className="asm-fact-own-form">
-            <input className="asm-own-stat" value={stat} placeholder={t("lpm.inspector.findings.own_stat_ph")}
-              onChange={(e) => setStat(e.target.value)} autoFocus />
-            <input className="asm-own-text" value={text} placeholder={t("lpm.inspector.findings.own_text_ph")}
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && save()} />
-            <button type="button" className="asm-btn-add" onClick={save}>{t("lpm.inspector.findings.own_save")}</button>
-          </div>
-        ) : (
-          <button type="button" className="asm-fact-own" onClick={() => setShowForm(true)}>
-            {t("lpm.inspector.findings.add_own")}
-          </button>
-        )}
-      </div>
-    </>
   );
 }

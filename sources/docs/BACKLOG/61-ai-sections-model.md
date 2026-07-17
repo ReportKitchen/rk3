@@ -1,8 +1,39 @@
 # AI content sections — the block-model reframe (content-first, verbatim-first)
 
-**Status:** DECIDED 2026-07-17 (owner). Backend keystone in progress. Replaces the
-fixed block catalog (execSummary/highlights/findings/toc/storytelling/…) with
-**AI-identified semantic sections**. Supersedes the Highlights-vs-Findings split.
+**Status:** SHIPPED 2026-07-17 (owner-approved). Backend engine + renderer
+primitives + full Assemble/Wordsmith UI rewire all landed and screenshot-verified
+on Oxfam + teacher-prep. Replaces the fixed block catalog
+(execSummary/highlights/findings/toc/storytelling/…) with **AI-identified semantic
+sections**; supersedes the Highlights-vs-Findings split.
+
+## What shipped
+- **Engine** — `rk3/landing/sections.py` (`generate` + `fallback`), schema, prompts
+  `shared.analysis.sections_*`, `GET/POST /api/landing/{slug}/sections`.
+- **Renderer** — `Section` component in `LandingRenderer.jsx` (type `section`) +
+  relative-unit primitive CSS in `landingPage.css` (`.lp-sec-*`; em/%, currentColor
+  — so exported sections adopt the host site's type/colour). Export parity via the
+  existing `landingPage.css?raw` bundling.
+- **UI** — `app/ui/src/landing/assemble/`: `AssembleMaker` loads `/sections` +
+  holds section state; `SectionLibrary` (**Highlights** = the AI sections, the
+  star + **Call to action**); `Inspector` renders the real primitive "as it will
+  appear" + presentation adjust (quote standard⇄pullquote) + add/remove;
+  `Controls` rough page from the on-sections; `Wordsmith` renders the sections
+  page editable. Copy in `content/lpm/sections.yml`. Retired `BlockLibrary` +
+  the old catalog model.
+- **"YOUR WORDS" badge** surfaces `verbatim:true` on every section (trust signal).
+
+## Follow-ups (not yet done)
+- Section reorder (drag) — cards are toggle/select only.
+- Persist the assembled config to `.landing.json` (Wordsmith edits still live in
+  the DOM only; no structured write-back).
+- Cover `beside`/`inset` float treatment (currently the cover leads full-width for
+  every layout except text-forward).
+- Presentation swaps beyond quote pull (e.g. offer bullets⇄statCards where a
+  section's content supports both — needs the engine to emit both shapes).
+- AI-summary-as-alternative-intro (the one rewritten-voice block) as an opt-in.
+
+---
+### Original decision record (kept for reference)
 
 ## Why (the trigger)
 Two problems, one root. On the Oxfam Davos doc the Highlights *card note* said

@@ -1,32 +1,27 @@
 import React, { useEffect, useRef, useState } from "react";
 import { t } from "../../content.js";
-import { LENGTHS, COVERS, orderedKeys } from "./model.js";
+import { LENGTHS, COVERS } from "./model.js";
 import { Icon } from "./icons.jsx";
 
-// Right column: the two page-shape controls (Length, Cover) as dropdowns, the
-// grayscale "rough draft" of the page (cover layout + block sections), and the
-// nudge toward Wordsmith. Length/Cover changes re-request /guided upstream.
-export default function Controls({ length, cover, onLength, onCover, added, stats, checkedFacts, onWordsmith }) {
-  const keys = orderedKeys(added);
-  const pickedCount = checkedFacts.filter((i) => stats[i]).length;
+const shortLabel = (h) => (h && h.length > 18 ? h.slice(0, 17).trim() + "…" : (h || ""));
 
+// Right column: the two page-shape controls (Length, Cover), the grayscale "rough
+// draft" of the page (cover layout + the on-sections + CTA), and the nudge toward
+// Wordsmith.
+export default function Controls({ length, cover, onLength, onCover, sections, cta, onWordsmith }) {
+  const rows = buildRows(sections, cta);
   return (
     <div className="asm-col asm-col-right">
       <div className="asm-controls">
         <Dropdown
-          category={t("lpm.length.category")}
-          value={length} options={LENGTHS} onPick={onLength}
-          label={(id) => t(`lpm.length.${id}.title`)}
-          advice={(id) => t(`lpm.length.${id}.promise`)}
+          category={t("lpm.length.category")} value={length} options={LENGTHS} onPick={onLength}
+          label={(id) => t(`lpm.length.${id}.title`)} advice={(id) => t(`lpm.length.${id}.promise`)}
           glyph={<LengthGlyph />}
         />
         <Dropdown
-          category={t("lpm.cover.category")}
-          value={cover} options={COVERS} onPick={onCover}
-          label={(id) => t(`lpm.cover.${id}.title`)}
-          advice={(id) => t(`lpm.cover.${id}.line`)}
-          glyph={<CoverGlyph id={cover} />}
-          optionGlyph={(id) => <CoverGlyph id={id} />}
+          category={t("lpm.cover.category")} value={cover} options={COVERS} onPick={onCover}
+          label={(id) => t(`lpm.cover.${id}.title`)} advice={(id) => t(`lpm.cover.${id}.line`)}
+          glyph={<CoverGlyph id={cover} />} optionGlyph={(id) => <CoverGlyph id={id} />}
         />
       </div>
 
@@ -37,10 +32,8 @@ export default function Controls({ length, cover, onLength, onCover, added, stat
 
       <div className="asm-page">
         <CoverSkeleton cover={cover} />
-        {keys.length === 0 && (
-          <div className="asm-page-empty">Your page is empty — add a block</div>
-        )}
-        {buildSections(keys, pickedCount).map((s, i) => (
+        {rows.length === 0 && <div className="asm-page-empty">Your page is empty — add a section</div>}
+        {rows.map((s, i) => (
           <div key={i} className="asm-pp-sec">
             <span className="asm-pp-label">{s.label}</span>
             <SectionSkeleton section={s} />
@@ -59,24 +52,24 @@ export default function Controls({ length, cover, onLength, onCover, added, stat
   );
 }
 
-// map the added keys to rough-page sections (CTA blocks fold into one row)
-function buildSections(keys, pickedCount) {
+// on-sections + CTA -> rough-page rows
+function buildRows(sections, cta) {
   const out = [];
-  const ctaParts = [];
-  const cta = { download: false, secondary: false, share: false };
-  for (const key of keys) {
-    if (key === "execSummary") out.push({ label: t("lpm.blocks.execSummary.name"), kind: "text" });
-    else if (key === "aiSummary") out.push({ label: t("lpm.blocks.aiSummary.name"), kind: "text" });
-    else if (key === "highlights") out.push({ label: t("lpm.blocks.highlights.name"), kind: "bullets" });
-    else if (key === "findings") out.push({ label: t("lpm.blocks.findings.name"), kind: "stats", cols: Math.min(Math.max(pickedCount, 1), 4) });
-    else if (key === "toc") out.push({ label: t("lpm.blocks.toc.name"), kind: "toc" });
-    else if (key === "storytelling") out.push({ label: t("lpm.blocks.storytelling.name"), kind: "story" });
-    else if (key === "download") { cta.download = true; ctaParts.push("Download"); }
-    else if (key === "secondary") { cta.secondary = true; ctaParts.push("action"); }
-    else if (key === "share") { cta.share = true; ctaParts.push("share"); }
+  for (const s of sections) {
+    if (!s.on) continue;
+    const label = shortLabel(s.heading);
+    if (s.presentation === "statCards") out.push({ label, kind: "stats", cols: Math.min(Math.max((s.cards || []).length, 1), 4) });
+    else if (s.presentation === "bullets") out.push({ label, kind: "bullets" });
+    else if (s.presentation === "quote") out.push({ label, kind: "story" });
+    else if (s.presentation === "steps") out.push({ label, kind: "steps", n: Math.min((s.steps || []).length || 3, 4) });
+    else out.push({ label, kind: "text" });
   }
+  const parts = [];
+  if (cta.download) parts.push("Download");
+  if (cta.secondary) parts.push("action");
+  if (cta.share) parts.push("share");
   if (cta.download || cta.secondary || cta.share) {
-    out.push({ label: ctaParts.join(" + "), kind: "cta", ...cta });
+    out.push({ label: parts.join(" + "), kind: "cta", download: cta.download, secondary: cta.secondary, social: cta.share });
   }
   return out;
 }
@@ -107,13 +100,13 @@ function SectionSkeleton({ section }) {
       </div>
     );
   }
-  if (section.kind === "toc") {
+  if (section.kind === "steps") {
     return (
       <div className="asm-pp-rows">
-        {[100, 100, 80].map((w, i) => (
-          <div key={i} style={{ display: "flex", gap: 6 }}>
-            <span className="asm-pp-row" style={{ flex: 1, maxWidth: `${w}%` }} />
-            <span className="asm-pp-row" style={{ width: 10, background: "#bbb" }} />
+        {Array.from({ length: section.n }).map((_, i) => (
+          <div key={i} className="asm-pp-bullet">
+            <span style={{ width: 8, height: 8, borderRadius: "50%", border: "1.5px solid #999", flex: "none" }} />
+            <span className="asm-pp-row" style={{ flex: 1, maxWidth: "82%" }} />
           </div>
         ))}
       </div>
@@ -122,9 +115,8 @@ function SectionSkeleton({ section }) {
   if (section.kind === "story") {
     return (
       <div className="asm-pp-rows">
-        <span className="asm-pp-story-img" />
-        <span className="asm-pp-row" />
-        <span className="asm-pp-row" style={{ width: "60%" }} />
+        <span className="asm-pp-row" style={{ height: 7, width: "88%" }} />
+        <span className="asm-pp-row" style={{ height: 7, width: "60%" }} />
         <span className="asm-pp-row" style={{ width: "40%", background: "#aaa", marginTop: 2 }} />
       </div>
     );
@@ -134,7 +126,7 @@ function SectionSkeleton({ section }) {
       <div className="asm-pp-cta">
         {section.download && <div className="asm-pp-cta-primary" />}
         {section.secondary && <div className="asm-pp-cta-secondary" />}
-        {section.share && (
+        {section.social && (
           <div className="asm-pp-cta-social">
             <span className="asm-pp-social-dot" /><span className="asm-pp-social-dot" /><span className="asm-pp-social-dot" />
           </div>
@@ -142,7 +134,7 @@ function SectionSkeleton({ section }) {
       </div>
     );
   }
-  // text
+  // text (prose)
   return (
     <div className="asm-pp-rows">
       <div className="asm-pp-row" /><div className="asm-pp-row" />
@@ -151,7 +143,6 @@ function SectionSkeleton({ section }) {
   );
 }
 
-// The cover block at the top of the rough page, sized/placed per layout.
 function CoverSkeleton({ cover }) {
   if (cover === "beside") {
     return (
@@ -188,7 +179,6 @@ function CoverSkeleton({ cover }) {
       </div>
     );
   }
-  // textForward
   return (
     <div style={{ marginBottom: 14 }}>
       <div className="asm-pp-line" style={{ height: 11, marginBottom: 5 }} />
@@ -201,7 +191,6 @@ function CoverSkeleton({ cover }) {
   );
 }
 
-// ---- custom dropdown (trigger + menu) ----
 function Dropdown({ category, value, options, onPick, label, advice, glyph, optionGlyph }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -224,10 +213,7 @@ function Dropdown({ category, value, options, onPick, label, advice, glyph, opti
       {open && (
         <div className="asm-select-menu">
           {options.map((id) => (
-            <button
-              key={id} type="button" className="asm-select-opt"
-              onClick={() => { onPick(id); setOpen(false); }}
-            >
+            <button key={id} type="button" className="asm-select-opt" onClick={() => { onPick(id); setOpen(false); }}>
               {optionGlyph && <span className="asm-select-glyph">{optionGlyph(id)}</span>}
               <span style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
                 <span className="asm-select-opt-name" style={{ display: "block" }}>{label(id)}</span>
@@ -242,7 +228,6 @@ function Dropdown({ category, value, options, onPick, label, advice, glyph, opti
   );
 }
 
-// three descending bars — the "length" glyph
 function LengthGlyph() {
   return (
     <span style={{ width: 30, display: "flex", flexDirection: "column", gap: 2.5 }}>
@@ -253,7 +238,6 @@ function LengthGlyph() {
   );
 }
 
-// mini cover-layout diagram
 function CoverGlyph({ id }) {
   const bar = { background: "var(--rk-gray-200)", borderRadius: 1, height: 3 };
   const rhino = { background: "var(--rk-rhino-300)", borderRadius: 1 };
@@ -281,7 +265,6 @@ function CoverGlyph({ id }) {
       </span>
     );
   }
-  // beside
   return (
     <span style={{ width: 30, display: "flex", gap: 2 }}>
       <span style={{ ...rhino, width: 13, height: 16, flex: "none" }} />

@@ -1,0 +1,30 @@
+# lpm.sections.* — the AI content-sections rebuild (BACKLOG/61). "Highlights" =
+# the meaningful sections the AI pulled from the document (the star of Assemble);
+# the CTA scaffolding sits beside them.
+
+highlights.title: {kind: static, text: "Highlights"}
+highlights.sub: {kind: static, text: "The meaningful bits we pulled from your report — pick what to feature."}
+cta.title: {kind: static, text: "Call to action"}
+cta.sub: {kind: static, text: "What you want the reader to do."}
+
+# shown when AI is off (the functional fallback)
+noai_notice:
+  kind: static
+  text: "AI is off — showing your report’s own summary plus a couple of sections to fill in yourself."
+# a section whose content is the document's own words earns this trust badge
+verbatim_badge: {kind: static, text: "your words"}
+empty: {kind: static, text: "No sections yet — turn AI on, or add wording in Wordsmith."}
+
+# presentation-primitive labels (shown on cards + in the inspector's how-it-looks control)
+pres.prose: {kind: static, text: "Prose"}
+pres.bullets: {kind: static, text: "Bullets"}
+pres.statCards: {kind: static, text: "Stat cards"}
+pres.quote: {kind: static, text: "Quote"}
+pres.steps: {kind: static, text: "Steps"}
+
+# inspector: adjust how a section looks
+how_label: {kind: static, text: "How it looks"}
+quote.standard: {kind: static, text: "Standard"}
+quote.pull: {kind: static, text: "Pullquote"}
+# the note under a placeholder (no-AI) section
+placeholder_hint: {kind: static, text: "Nothing here yet — you’ll add this in Wordsmith."}

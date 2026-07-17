@@ -235,10 +235,65 @@ export function SecondaryCta({ label, url, bgColor, textColor }) {
   );
 }
 
+// A content SECTION (the AI-sections model, BACKLOG/61): one meaningful unit of
+// the document, in its own heading + words, rendered with one presentation
+// primitive. Styling lives in landingPage.css (.lp-sec-*) and is deliberately
+// RELATIVE (em/%, inherits font + colour) so the exported section drops into the
+// host site's own CSS.
+export function Section({ heading, presentation, prose, bullets, cards, quote, steps }) {
+  const q = quote || {};
+  const hasContent =
+    (presentation === "prose" && prose) ||
+    (presentation === "bullets" && (bullets || []).length) ||
+    (presentation === "statCards" && (cards || []).length) ||
+    (presentation === "quote" && q.text) ||
+    (presentation === "steps" && (steps || []).length);
+  if (!heading && !hasContent) return null;
+  return (
+    <section className="lp-block lp-section" data-pres={presentation}>
+      {heading ? <h2>{heading}</h2> : null}
+      {presentation === "prose" && (
+        <div className="lp-rich" dangerouslySetInnerHTML={{ __html: prose || "" }} />
+      )}
+      {presentation === "bullets" && (bullets || []).length ? (
+        <ul className="lp-sec-bullets">
+          {bullets.map((b, i) => <li key={i} dangerouslySetInnerHTML={{ __html: b }} />)}
+        </ul>
+      ) : null}
+      {presentation === "statCards" && (cards || []).length ? (
+        <div className="lp-sec-stats">
+          {cards.map((c, i) => (
+            <div key={i} className="lp-sec-stat">
+              <div className="lp-sec-stat-v">{c.value}</div>
+              <div className="lp-sec-stat-l" dangerouslySetInnerHTML={{ __html: c.label || "" }} />
+            </div>
+          ))}
+        </div>
+      ) : null}
+      {presentation === "quote" && q.text ? (
+        <figure className={"lp-sec-quote" + (q.pull ? " is-pull" : "")}>
+          <blockquote>{q.text}</blockquote>
+          {q.attribution ? <figcaption>{q.attribution}</figcaption> : null}
+        </figure>
+      ) : null}
+      {presentation === "steps" && (steps || []).length ? (
+        <ol className="lp-sec-steps">
+          {steps.map((s, i) => (
+            <li key={i}>
+              {s.label ? <span className="lp-sec-step-l">{s.label}</span> : null}
+              {s.body ? <span className="lp-sec-step-b" dangerouslySetInnerHTML={{ __html: s.body }} /> : null}
+            </li>
+          ))}
+        </ol>
+      ) : null}
+    </section>
+  );
+}
+
 export const BLOCKS = {
   title: Title, summary: Summary, docSummary: DocSummary, cover: Cover, hero: Hero,
   toc: Toc, highlights: Highlights, findings: Findings, storytelling: Storytelling,
-  share: Share, download: Download, secondaryCta: SecondaryCta,
+  share: Share, download: Download, secondaryCta: SecondaryCta, section: Section,
 };
 
 // Render one block, recursing into the media slot (nested blocks become the

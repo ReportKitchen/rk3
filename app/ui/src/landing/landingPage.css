@@ -180,3 +180,60 @@
 }
 .lp-cta:hover { filter: brightness(1.08); }
 .lp-cta-outline { border: 1px solid currentColor; }
+
+/* -------------------------------------------------------------------------
+   Content SECTIONS (the AI-sections model, BACKLOG/61). Deliberately RELATIVE:
+   type scale in em (multiples of the inherited body size, not px), colour via
+   inherit / currentColor, indents in em/%. That's what lets an exported section
+   adopt the target site's own font, colour, and rhythm instead of fighting it. */
+.lp-section { margin: 2.2em 0; }
+.lp-section > h2 {
+  font-size: 1.4em; line-height: 1.2; margin: 0 0 0.6em;
+  color: var(--lp-heading, inherit);
+}
+.lp-section .lp-rich > :first-child { margin-top: 0; }
+.lp-section .lp-rich p { margin: 0 0 0.8em; line-height: 1.6; }
+
+/* bullets — the doc's own key points */
+.lp-sec-bullets { margin: 0; padding-left: 1.3em; }
+.lp-sec-bullets li { margin: 0.5em 0; line-height: 1.55; }
+
+/* stat cards — a big number beside the fact it proves */
+.lp-sec-stats {
+  display: flex; flex-wrap: wrap; gap: 1.6em 2em; margin: 0;
+}
+.lp-sec-stat { flex: 1 1 8em; min-width: 7em; }
+.lp-sec-stat-v { font-size: 2.4em; font-weight: 700; line-height: 1.05; color: var(--lp-heading, inherit); }
+.lp-sec-stat-l { font-size: 0.9em; line-height: 1.45; margin-top: 0.35em; opacity: 0.8; }
+
+/* quote — standard (quiet inline) vs pull (big showcased pullquote) */
+.lp-sec-quote { margin: 0; }
+.lp-sec-quote blockquote {
+  margin: 0; padding: 0 0 0 1em; border-left: 0.15em solid currentColor;
+  font-size: 1.15em; line-height: 1.5; font-style: italic;
+}
+.lp-sec-quote figcaption { margin-top: 0.6em; font-size: 0.9em; opacity: 0.7; font-style: normal; }
+.lp-sec-quote.is-pull blockquote {
+  border: 0; padding: 0; font-style: normal; font-weight: 600;
+  font-size: 1.7em; line-height: 1.3; text-indent: -0.05em;
+}
+.lp-sec-quote.is-pull blockquote::before {
+  content: "\201C"; /* left double quote */
+  display: block; font-size: 2.2em; line-height: 0.6; opacity: 0.25; margin-bottom: 0.1em;
+}
+.lp-sec-quote.is-pull figcaption { margin-top: 0.8em; font-size: 0.85em; }
+
+/* steps — ordered actions in the doc's own language */
+.lp-sec-steps { margin: 0; padding: 0; list-style: none; counter-reset: lp-step; }
+.lp-sec-steps > li {
+  counter-increment: lp-step; position: relative;
+  padding-left: 2.4em; margin: 0.9em 0; line-height: 1.55;
+}
+.lp-sec-steps > li::before {
+  content: counter(lp-step); position: absolute; left: 0; top: 0;
+  width: 1.7em; height: 1.7em; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 0.1em solid currentColor; font-size: 0.85em; font-weight: 700;
+}
+.lp-sec-step-l { font-weight: 700; }
+.lp-sec-step-l + .lp-sec-step-b::before { content: " — "; opacity: 0.6; }
