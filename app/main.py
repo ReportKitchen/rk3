@@ -1005,6 +1005,42 @@ def refresh_landing_ai(slug: str):
     return {"refreshed": ai is not None}
 
 
+def _guidance(slug: str, ir: dict) -> dict | None:
+    """The cached guidance-engine pass (next to the source, once per doc) — the
+    editorial spine of Assemble: what content earns a place, the smart default
+    page, per-block notes. AI-only (it authors judgment); None when AI can't
+    generate or the call fails."""
+    path = _landing_path(slug, ".landing-guidance.json")
+    if path.exists():
+        return json.loads(path.read_text())
+    if not ai_can_generate():
+        return None
+    from rk3.landing import guidance
+    try:
+        data = guidance.generate(ir)
+    except Exception:
+        return None
+    path.write_text(json.dumps(data, indent=1, ensure_ascii=False))
+    return data
+
+
+@app.get("/api/landing/{slug}/guidance")
+def get_landing_guidance(slug: str):
+    """The guidance artifact (generated + cached on first access)."""
+    g = _guidance(slug, _ir_for(slug))
+    if g is None:
+        raise HTTPException(503, "guidance unavailable — AI is off or the call failed")
+    return g
+
+
+@app.post("/api/landing/{slug}/guidance/refresh")
+def refresh_landing_guidance(slug: str):
+    """Discard and regenerate the guidance artifact."""
+    _landing_path(slug, ".landing-guidance.json").unlink(missing_ok=True)
+    g = _guidance(slug, _ir_for(slug))
+    return {"refreshed": g is not None}
+
+
 @app.get("/api/landing/{slug}/ai-summary")
 def get_ai_summary(slug: str, style: str, length: str):
     """Lazily generate (and cache) one AI summary variant for a (style, length).

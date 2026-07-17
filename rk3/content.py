@@ -119,14 +119,16 @@ def validate() -> list[str]:
         for f in _REQUIRED.get(e["kind"], []):
             if not e.get(f):
                 errs.append(f"{key}: kind '{e['kind']}' requires non-empty '{f}'")
-        used = set()
-        for field in ("text", "fallback", "prompt"):
-            if e.get(field):
-                used |= set(re.findall(r"\{(\w+)\b", e[field]))
-        undeclared = used - set(e.get("tokens", []))
-        if undeclared:
-            errs.append(f"{key}: uses {sorted(undeclared)} but declares tokens "
-                        f"{sorted(e.get('tokens', []))}")
+        # token declarations only matter for the kinds the registry interpolates
+        # (template's `text`, ai's `fallback`). A prompt's braces are usually
+        # literal prose (JSON shapes, examples), so don't check those.
+        interp = {"template": "text", "ai": "fallback"}.get(e["kind"])
+        if interp and e.get(interp):
+            used = set(re.findall(r"\{(\w+)\b", e[interp]))
+            undeclared = used - set(e.get("tokens", []))
+            if undeclared:
+                errs.append(f"{key}: uses {sorted(undeclared)} but declares tokens "
+                            f"{sorted(e.get('tokens', []))}")
     return errs
 
 

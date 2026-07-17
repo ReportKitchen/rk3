@@ -40,3 +40,38 @@ findings_system:
   text: |
     You extract the key quantified findings from a document for a landing page.
     Work only from the provided document; never invent numbers, facts, or names.
+
+# The block set the guidance engine reasons over (shared — any app's guidance
+# needs it). Kept here as prompt context, editable alongside the system prompt.
+block_catalog:
+  kind: prompt
+  description: The block catalog shown to the guidance engine.
+  text: |
+    Blocks you advise on (bucket · key · what it is):
+    INTRO — execSummary (the report's own words, verbatim; trustworthy, can run
+    long) · aiSummary (we write a punchy pitch in a chosen voice)
+    EVIDENCE — highlights (3-5 key points as bullets) · findings (headline stats:
+    big number + the fact it proves) · toc (the report's chapters, to signal
+    depth) · storytelling (a real person's story OR a case study — a program /
+    place / project and what happened there)
+    CTA — download (the PDF button, always the anchor) · secondary
+    (donate/subscribe/contact) · share (social buttons + links)
+
+# The task instructions appended after the document. Editable prompt prose.
+guidance_task:
+  kind: prompt
+  description: The guidance engine's task instructions (what JSON to produce).
+  text: |
+    Produce the guidance JSON:
+    - documentRead: whatItIs / audience / coreMessage — a crisp read for a user
+      who may not know this doc.
+    - stats: up to 6 SUBSTANTIVE outcome numbers {value, fact}. Empty if none.
+    - stories: real-world examples — named people AND case studies of
+      programs/places/projects/orgs — each {subject, kind, whatHappened,
+      strength}, ranked. Empty only if the doc has no concrete examples at all.
+    - recommendedPage: the smart default — length, coverLayout, summaryChoice,
+      and blocks as an ORDERED list.
+    - reasons: one grounded line each for length / summaryChoice (mention the
+      ~word count) / coverLayout.
+    - blocks: a verdict (recommended/optional/skip) + a one-line note in our
+      voice, for EACH catalog key.
