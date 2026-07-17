@@ -1055,6 +1055,38 @@ def get_landing_guided(slug: str, length: Optional[str] = None, cover: Optional[
                                guidance=_guidance(slug, ir), length=length, cover=cover)
 
 
+def _sections(slug: str, ir: dict) -> dict:
+    """The AI content-sections artifact (BACKLOG/61): the doc's meaningful sections
+    in its own words + presentation primitives. Cached per doc next to the source.
+    Always returns something — drops to the functional no-AI fallback when AI is
+    off or the call fails (the fallback is not cached, so it upgrades when AI is on)."""
+    path = _landing_path(slug, ".landing-sections.json")
+    if path.exists():
+        return json.loads(path.read_text())
+    from rk3.landing import sections
+    if not ai_can_generate():
+        return sections.fallback(ir)
+    try:
+        data = sections.generate(ir)
+    except Exception:
+        return sections.fallback(ir)
+    path.write_text(json.dumps(data, indent=1, ensure_ascii=False))
+    return data
+
+
+@app.get("/api/landing/{slug}/sections")
+def get_landing_sections(slug: str):
+    """The AI content sections (generated + cached on first access; no-AI fallback)."""
+    return _sections(slug, _ir_for(slug))
+
+
+@app.post("/api/landing/{slug}/sections/refresh")
+def refresh_landing_sections(slug: str):
+    """Discard and regenerate the sections artifact."""
+    _landing_path(slug, ".landing-sections.json").unlink(missing_ok=True)
+    return _sections(slug, _ir_for(slug))
+
+
 @app.get("/api/landing/{slug}/ai-summary")
 def get_ai_summary(slug: str, style: str, length: str):
     """Lazily generate (and cache) one AI summary variant for a (style, length).

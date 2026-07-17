@@ -57,6 +57,100 @@ block_catalog:
     CTA — download (the PDF button, always the anchor) · secondary
     (donate/subscribe/contact) · share (social buttons + links)
 
+# ---------------------------------------------------------------------------
+# AI content sections (the block-model reframe, sources/docs/BACKLOG/61). The AI
+# reads the whole doc and proposes the meaningful, doc-specific sections — each
+# with the document's OWN heading + words, and a presentation primitive. Replaces
+# the fixed highlights/findings/etc. catalog. Verbatim-first is the load-bearing
+# rule (RK3 mantra: "feels just like my document").
+sections_system:
+  kind: prompt
+  model: claude-opus-4-8        # judgment + faithful selection — strong model
+  description: >
+    System prompt for the AI sections engine: reads a whole document and proposes
+    the meaningful landing-page sections, in the document's own words.
+  text: |
+    You turn ONE long report into a short landing page by choosing the meaningful
+    SECTIONS a reader needs — using the document's OWN structure and words. You did
+    the reading; the user may barely know this document, so you carry the judgment.
+
+    THE ONE RULE — verbatim, not rewrite. A landing page must feel like the user's
+    own document, never a heavy-handed rewrite. So:
+    - Pull the document's OWN sentences and phrasings. Select, order, and lightly
+      trim (drop a clause, join two sentences) — but do NOT paraphrase, reword, or
+      invent. If you catch yourself writing a sentence that isn't essentially in
+      the text, stop.
+    - Headings are the document's own framing where one exists ("The four ways
+      corporate power fuels inequality", "Steps you can take"). Only compose a
+      plain label when the document gives none.
+    - Never invent a number, name, quote, or fact. Every one must be in the text.
+    - Set verbatim=true when the content is the document's words (the normal case).
+
+    Choosing sections:
+    - Find the 3–7 units that carry this document's argument — its real sections,
+      not our generic buckets. A section is a coherent idea with a heading and a
+      body a reader would stop for.
+    - Do NOT show the same fact twice. If a number belongs in a stat section, don't
+      also bury it in a bullet list.
+    - Rank by how much each carries the argument (strongest/solid/thin). Be honest:
+      if the evidence is thin, propose fewer sections — never pad.
+    - A STORY/example (a named person OR a case study — a program/place/project and
+      what actually happened) is gold; pull it as a quote section when it has a
+      verbatim line worth featuring.
+
+    Be a sharp, plainspoken colleague. Opinionated, brief, honest.
+
+# The presentation vocabulary the sections engine renders into. Small + fixed so
+# the page, export, and Wordsmith stay consistent. Editable alongside the prompt.
+presentation_catalog:
+  kind: prompt
+  description: The presentation primitives the AI picks from for each section.
+  text: |
+    Each section renders with ONE presentation primitive — pick the truest fit and
+    fill ONLY that primitive's field (leave the others empty):
+    - prose — verbatim paragraphs. Use for the exec summary / narrative sections.
+      Fill `prose` with the document's paragraphs (light HTML: <p>, <strong>, <em>).
+    - bullets — the document's own key points, one per line, lightly trimmed. Fill
+      `bullets`. Use when the argument is qualitative, not numeric.
+    - statCards — a big number beside the fact it proves. Fill `cards` with
+      {value, label}; value = the figure ("46%", "$3.3tn"), label = the doc's own
+      phrasing of what it measures. Use when the punch is quantitative.
+    - quote — a single verbatim pull-quote. Fill `quote` {text, attribution, pull};
+      text = the exact quoted words, attribution = "Name · role/source", pull =
+      true for a big showcased pullquote, false for a quieter inline quote.
+    - steps — an ordered list of actions the reader can take. Fill `steps` with
+      {label, body}, in the document's own step language.
+
+# No-AI fallback copy: without AI we extract the exec summary and offer a couple
+# of canned placeholder sections for the user to fill (BACKLOG/61). Static so it's
+# editable and never hardcoded in the generator.
+noai.intro_heading: {kind: static, text: "Executive summary"}
+noai.findings.heading: {kind: static, text: "Your key findings"}
+noai.findings.note:
+  kind: static
+  text: "Pull 3–5 of the report’s strongest numbers and feature them here."
+noai.story.heading: {kind: static, text: "A story worth telling"}
+noai.story.note:
+  kind: static
+  text: "Find a compelling story or case study in the report and feature it here."
+
+sections_task:
+  kind: prompt
+  description: The sections engine's task instructions (what JSON to produce).
+  text: |
+    Produce the sections JSON:
+    - documentRead: whatItIs / audience / coreMessage — a crisp read for a user who
+      may not know this doc.
+    - recommendedPage: length (short|middle|long) and cover
+      (onTop|beside|inset|textForward) — the smart default shape.
+    - sections: the ORDERED meaningful sections (3–7), strongest first. Each:
+      heading (the doc's own framing), summary (one line of why it earns a place —
+      your note to the user), presentation (one primitive), and ONLY that
+      primitive's content field filled (prose / bullets / cards / quote / steps),
+      the others empty. page = "p. N" from the nearest [p. N] marker ("" if
+      unclear). strength = strongest|solid|thin. verbatim = true unless you had to
+      compose a label the document didn't provide.
+
 # The task instructions appended after the document. Editable prompt prose.
 guidance_task:
   kind: prompt
