@@ -1,0 +1,67 @@
+{
+ "version": 1,
+ "source": "system",
+ "contentWidth": 800,
+ "vars": {
+  "--lp-page-bg": "#ffffff",
+  "--lp-content-bg": "#ffffff",
+  "--lp-text": "#111111",
+  "--lp-heading": "#111111",
+  "--lp-accent": "#1b4965",
+  "--lp-font": "'Public Sans', system-ui, -apple-system, sans-serif"
+ },
+ "preview": {
+  "leftSidebar": false,
+  "rightSidebar": false
+ },
+ "copySite": {
+  "on": false,
+  "url": "https://ccrjustice.org/foia-basics-activists",
+  "base": {
+   "version": 1,
+   "source": "system",
+   "contentWidth": 800,
+   "vars": {
+    "--lp-page-bg": "#ffffff",
+    "--lp-content-bg": "#ffffff",
+    "--lp-text": "#111111",
+    "--lp-heading": "#111111",
+    "--lp-accent": "#1b4965",
+    "--lp-font": "'Public Sans', system-ui, -apple-system, sans-serif"
+   },
+   "preview": {
+    "leftSidebar": false,
+    "rightSidebar": false
+   }
+  },
+  "scanned": {
+   "version": 1,
+   "source": "system",
+   "contentWidth": 900,
+   "vars": {
+    "--lp-page-bg": "#ffffff",
+    "--lp-content-bg": "#ffffff",
+    "--lp-text": "#313131",
+    "--lp-heading": "#313131",
+    "--lp-accent": "#1b4965",
+    "--lp-font": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans\", sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\""
+   },
+   "preview": {
+    "leftSidebar": false,
+    "rightSidebar": false
+   }
+  },
+  "regions": {
+   "header": {
+    "src": "template/header.png",
+    "w": 1280,
+    "h": 128
+   },
+   "footer": {
+    "src": "template/footer.png",
+    "w": 1280,
+    "h": 1600
+   }
+  }
+ }
+}

@@ -1,0 +1,33 @@
+
+My thoughts:
+- I like that there's a lot of room for our guidance and help.  I don't love all the words on here but that's fine -- I'll want to evolve those over time.
+  - this does bring up a point -- I want to be able to edit all these text pieces easily.  In the past we've discussed options for something like a headless CMS that I could use to manage the different text pieces.  I'd like to revisit that.
+  - I'd also like some of these text pieces to be built by AI, assuming the user has AI enabled.
+  - I'd also like to be able to 
+
+
+
+ - "The whole editorial voice, especially "which should I pick?" recommendations that make a call for this doc."
+  - I probably feel this because we're looking at several alternatives, but in our final design we need to make sure flat instructions/requirements "Pick one" and guidance "One is usually enough" are visually distinct.  
+
+
+- The sparse/bad document: maybe we need a "Write my own block" where we can suggest something the page needs, that we couldn't find, that they can write in, with a little guidance.
+
+
+- Title/headline editing lives in Wordsmith (it's text) — worth confirming that's the intent.
+ - I think that's fine -- I've never seen one of these where the title wasn't right at the top, and we've been pretty good in extracting title and subtitle, but we should provide some guidance in Wordsmith if something's missing, or suggestions of what to add, ie "We couldn't identify these, consider adding them: date, authors" etc
+
+
+ we have this review surface called "nformation patterns — corpus view" but I want something more tuned to LPM - each of LPM's blocks, and the content we've identified from each document
+
+## Global notes
+- we should call it your report or document, not your pdf "We found 3 in your PDF."
+ 
+ ## Back burner
+- what value is added if we detect they have a toolkit, resource guide, policy manual, specific annual report, or something other than generic "report?"
+
+
+- story example has "read her full story in the report ->"  Depending on use and feedback, we may want to expand this to produce multiple HTML pages, so a 120 page report gets 5 html pages, instead of a single "landing page."  
+
+
+

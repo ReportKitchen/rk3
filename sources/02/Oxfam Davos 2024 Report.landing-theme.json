@@ -1,17 +1,79 @@
 {
  "version": 1,
  "source": "system",
- "contentWidth": 800,
+ "contentWidth": 820,
  "vars": {
-  "--lp-page-bg": "#ffffff",
+  "--lp-page-bg": "#f2f2f2",
   "--lp-content-bg": "#ffffff",
-  "--lp-text": "#111111",
-  "--lp-heading": "#111111",
-  "--lp-accent": "#1b4965",
-  "--lp-font": "'Public Sans', system-ui, -apple-system, sans-serif"
+  "--lp-text": "#121212",
+  "--lp-heading": "#121212",
+  "--lp-accent": "#121212",
+  "--lp-h2-color": "#666666",
+  "--lp-font": "opensans, \"system-ui\""
  },
  "preview": {
-  "leftSidebar": false,
-  "rightSidebar": false
+  "leftSidebar": true,
+  "rightSidebar": false,
+  "showChrome": false
+ },
+ "copySite": {
+  "on": true,
+  "url": "https://policy-practice.oxfam.org/resources/inequality-inc-how-corporate-power-divides-our-world-and-the-need-for-a-new-era-621583/",
+  "base": {
+   "version": 1,
+   "source": "system",
+   "contentWidth": 800,
+   "vars": {
+    "--lp-page-bg": "#ffffff",
+    "--lp-content-bg": "#ffffff",
+    "--lp-text": "#111111",
+    "--lp-heading": "#111111",
+    "--lp-accent": "#1b4965",
+    "--lp-h2-color": "#666666",
+    "--lp-font": "'Public Sans', system-ui, -apple-system, sans-serif"
+   },
+   "preview": {
+    "leftSidebar": true,
+    "rightSidebar": false,
+    "showChrome": true
+   }
+  },
+  "scanned": {
+   "version": 1,
+   "source": "system",
+   "contentWidth": 820,
+   "vars": {
+    "--lp-page-bg": "#f2f2f2",
+    "--lp-content-bg": "#ffffff",
+    "--lp-text": "#121212",
+    "--lp-heading": "#121212",
+    "--lp-accent": "#121212",
+    "--lp-h2-color": "#666666",
+    "--lp-font": "opensans, \"system-ui\""
+   },
+   "preview": {
+    "leftSidebar": true,
+    "rightSidebar": false,
+    "showChrome": false
+   }
+  },
+  "regions": {
+   "header": {
+    "src": "template/header.png",
+    "w": 1280,
+    "h": 803
+   },
+   "sidebar": {
+    "src": "template/sidebar.png",
+    "w": 320,
+    "h": 1100,
+    "side": "left"
+   },
+   "footer": {
+    "src": "template/footer.png",
+    "w": 1280,
+    "h": 1600
+   }
+  }
  }
 }

@@ -1,0 +1,143 @@
+{
+  "slug": "02--compelling-investment-case-climate-adaptation",
+  "profile": {
+    "title": "The Compelling Investment Case for Climate Adaptation",
+    "approxWords": 1944,
+    "approxPages": 4,
+    "headings": 15,
+    "introSectionWords": null
+  },
+  "guidance": {
+    "documentRead": {
+      "whatItIs": "A WRI research brief making the economic case for climate adaptation, summarizing a paper that analyzed 320 adaptation projects using the 'triple dividend' framework.",
+      "audience": "Governments, development partners, and climate finance decision-makers who see adaptation as a cost rather than an investment.",
+      "coreMessage": "Adaptation isn't a financial burden \u2014 it's one of the smartest investments available, returning over $10.50 per $1 with benefits that accrue even when disasters never strike."
+    },
+    "stats": [
+      {
+        "value": "$10.50+",
+        "fact": "Benefits yielded over 10 years for every $1 invested in adaptation."
+      },
+      {
+        "value": "$359 billion",
+        "fact": "The annual gap between funding needed to adapt to climate change and what's available."
+      },
+      {
+        "value": "$1.4 trillion",
+        "fact": "Expected 10-year benefits from the analyzed investments, which cost over $133 billion."
+      },
+      {
+        "value": "27%",
+        "fact": "Average return on individual adaptation investments analyzed."
+      },
+      {
+        "value": "78%+",
+        "fact": "Average returns for health-sector adaptation investments \u2014 the highest of any sector."
+      },
+      {
+        "value": "65%+",
+        "fact": "Share of monetized benefits unrelated to expected climate shocks \u2014 accruing even without disasters."
+      }
+    ],
+    "stories": [
+      {
+        "subject": "Transformative Riverine Management Project, Durban, South Africa",
+        "kind": "caseStudy",
+        "whatHappened": "Nature-based wetland rehabilitation cut flood losses, created jobs, boosted food and bioenergy production, and sequestered carbon \u2014 benefits valued at nearly six times project cost.",
+        "strength": "strongest"
+      },
+      {
+        "subject": "Heritage Colombia Project",
+        "kind": "caseStudy",
+        "whatHappened": "Forest restoration and land management delivered $1.45 billion in emissions-reduction value, topping the $1.2 billion in avoided losses.",
+        "strength": "strongest"
+      },
+      {
+        "subject": "Social and Economic Inclusion Project, Kenya",
+        "kind": "caseStudy",
+        "whatHappened": "Targeted drought-prone regions with cash transfers, nutritional counseling, and community health workers to fight child malnutrition and boost productivity.",
+        "strength": "solid"
+      },
+      {
+        "subject": "Weather and Climate Services Regional Project, Bangladesh",
+        "kind": "caseStudy",
+        "whatHappened": "Piloted community early warning systems, portals, and kiosks in four districts to help farmers manage climate risks and protect livelihoods.",
+        "strength": "solid"
+      },
+      {
+        "subject": "Sustainable Urban Development Project, Fortaleza, Brazil",
+        "kind": "caseStudy",
+        "whatHappened": "Restored wetlands in Rachel de Quieroz Park to buffer floods, raise property values, and deliver social benefits to low-income women.",
+        "strength": "solid"
+      },
+      {
+        "subject": "Resilient Landscapes and Livelihoods Project, Ethiopia",
+        "kind": "caseStudy",
+        "whatHappened": "Restored degraded watersheds with terraces and tree planting while training communities in sustainable farming and grazing.",
+        "strength": "solid"
+      },
+      {
+        "subject": "Hubei Yichang Rural Green Development Project, China",
+        "kind": "caseStudy",
+        "whatHappened": "Modernized agriculture with waste treatment and resilient infrastructure; productivity gains surpassed avoided flood losses.",
+        "strength": "thin"
+      }
+    ],
+    "recommendedPage": {
+      "length": "middle",
+      "coverLayout": "beside",
+      "summaryChoice": "exec",
+      "blocks": [
+        "execSummary",
+        "highlights",
+        "storytelling",
+        "findings",
+        "download",
+        "share"
+      ]
+    },
+    "reasons": {
+      "length": "At ~1944 words with a rich mix of stats and seven project examples, there's enough substance for a middle-length page without padding.",
+      "summaryChoice": "The intro is a clean, punchy human-written case \u2014 lead with it as an exec summary rather than a generated one.",
+      "coverLayout": "A strong lead photo pairs well beside the compelling headline stat, keeping the number and image both prominent."
+    },
+    "blocks": {
+      "aiSummary": {
+        "verdict": "skip",
+        "note": "The document's own intro is sharp enough \u2014 no need to auto-generate a competing summary."
+      },
+      "execSummary": {
+        "verdict": "recommended",
+        "note": "The intro nails the whole argument in four tight paragraphs; use it verbatim as the anchor."
+      },
+      "highlights": {
+        "verdict": "recommended",
+        "note": "Six standout stats ($10.50, 27%, $1.4T, 78%) carry this page \u2014 lead with them."
+      },
+      "findings": {
+        "verdict": "recommended",
+        "note": "The triple-dividend framework and sector returns are the analytic backbone worth spelling out."
+      },
+      "toc": {
+        "verdict": "skip",
+        "note": "Too short and single-threaded to need navigation."
+      },
+      "storytelling": {
+        "verdict": "recommended",
+        "note": "Seven concrete project case studies across countries \u2014 Durban and Colombia are the vivid ones to feature."
+      },
+      "download": {
+        "verdict": "recommended",
+        "note": "This is a brief pointing to the full WRI paper \u2014 the download link is the clear next step."
+      },
+      "secondary": {
+        "verdict": "optional",
+        "note": "Could link to the WRI research hub, but the primary paper download covers it."
+      },
+      "share": {
+        "verdict": "optional",
+        "note": "Shareable advocacy piece, but only if you want social reach."
+      }
+    }
+  }
+}

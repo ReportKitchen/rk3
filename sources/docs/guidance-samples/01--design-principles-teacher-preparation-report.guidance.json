@@ -1,0 +1,157 @@
+{
+  "slug": "01--design-principles-teacher-preparation-report",
+  "profile": {
+    "title": "Acknowledgments",
+    "approxWords": 30742,
+    "approxPages": 68,
+    "headings": 50,
+    "introSectionWords": 1715
+  },
+  "guidance": {
+    "documentRead": {
+      "whatItIs": "A research-grounded report from the Learning Policy Institute and EdPrepLab laying out five design principles for teacher preparation programs built on the science of learning and development (SoLD).",
+      "audience": "Teacher educators, preparation program leaders, accrediting/licensing bodies, and education policymakers.",
+      "coreMessage": "Teacher preparation should be redesigned around how people actually learn and develop \u2014 grounding candidates in deep knowledge of learners, equitable mindsets, experiential learning, pedagogical modeling, and communities of practice."
+    },
+    "stats": [
+      {
+        "value": "46%",
+        "fact": "About 46% of U.S. children each year are exposed to violence, crime, abuse, or psychological trauma, homelessness, or food insecurity."
+      },
+      {
+        "value": "100%",
+        "fact": "In a survey, 100% of Alverno teacher candidates said they often experienced collaborative learning in their coursework and felt prepared to set norms for a productive classroom community."
+      },
+      {
+        "value": "60%+",
+        "fact": "When teachers learned about similarities with students, Black and Latino/a students' grades rose enough to close the grade gap with White students by over 60%."
+      },
+      {
+        "value": "99 studies",
+        "fact": "A meta-analysis of 99 studies found the affective quality of teacher\u2013student relationships was significantly related to student engagement and achievement."
+      },
+      {
+        "value": "3.3 million",
+        "fact": "An estimated 3.3 million students are suspended and miss school time each year, disproportionately students of color and students with disabilities."
+      },
+      {
+        "value": "~10%",
+        "fact": "An action-research survey found about 10% of the June Jordan School for Equity student population was undocumented \u2014 a figure that surprised staff."
+      }
+    ],
+    "stories": [
+      {
+        "subject": "Luisa Costa's Spanish/Farsi model lesson at Bank Street",
+        "kind": "caseStudy",
+        "whatHappened": "An instructor teaches a fruit-vocabulary lesson entirely in Spanish (and previously Farsi) to put English-speaking candidates in the shoes of a language learner, modeling scaffolding strategies.",
+        "strength": "strongest"
+      },
+      {
+        "subject": "Ted Pollen's 4th-grade math class (Bank Street/Midtown West)",
+        "kind": "caseStudy",
+        "whatHappened": "A cooperating teacher guides students through a hands-on study of range, mean, median, and mode using their own measured heights, scaffolding with questions while student teachers observe.",
+        "strength": "strongest"
+      },
+      {
+        "subject": "San Francisco Teacher Residency seminar with JJSE students",
+        "kind": "caseStudy",
+        "whatHappened": "High school students of color teach residents a lesson on supporting undocumented students, flipping roles; one student, Wendy, shares her personal story about her undocumented parents.",
+        "strength": "strongest"
+      },
+      {
+        "subject": "Lily, teacher candidate at Alverno/Walker Elementary",
+        "kind": "personal",
+        "whatHappened": "A student teacher runs a collaborative iPad-storage math lesson for 4th-graders using the CUBE strategy and shared Google Docs to build problem-solving and collaboration skills.",
+        "strength": "solid"
+      },
+      {
+        "subject": "Hinkley High School PDS partnership with CU Denver",
+        "kind": "caseStudy",
+        "whatHappened": "Candidate Maria Sanchez co-teaches a probability unit with clinical teacher Joan Simmons, using gallery walks and group reasoning in a school that centers relationships and deeper learning.",
+        "strength": "solid"
+      },
+      {
+        "subject": "Montclair State\u2013Newark (East Side High) residency",
+        "kind": "caseStudy",
+        "whatHappened": "A decade-long residency partnership raised teacher quality, hired program graduates, and improved student achievement and STEM enrollment.",
+        "strength": "solid"
+      },
+      {
+        "subject": "Vanderbilt video analysis (John, Peter)",
+        "kind": "personal",
+        "whatHappened": "Candidates analyze videos of their own tutoring/teaching to shift intellectual work to students and leverage multilingual resources.",
+        "strength": "solid"
+      },
+      {
+        "subject": "Art Backpack program at Benjamin Franklin Elementary (Newark/Montclair)",
+        "kind": "caseStudy",
+        "whatHappened": "A family-school-university intervention sends art activities home; participating students consistently scored higher on standardized tests.",
+        "strength": "thin"
+      },
+      {
+        "subject": "Sandra at Stanford (STEP) place-value lesson",
+        "kind": "personal",
+        "whatHappened": "A candidate practices asset-based talk moves in a 3rd-grade place-value lesson after analyzing classroom video in her methods course.",
+        "strength": "thin"
+      }
+    ],
+    "recommendedPage": {
+      "length": "long",
+      "coverLayout": "textForward",
+      "summaryChoice": "exec",
+      "blocks": [
+        "execSummary",
+        "highlights",
+        "storytelling",
+        "findings",
+        "toc",
+        "download",
+        "secondary",
+        "share"
+      ]
+    },
+    "reasons": {
+      "length": "At ~30,742 words with five detailed principles and many vignettes, this is a dense report that warrants a long, well-structured page.",
+      "summaryChoice": "The document has a strong ~1,715-word executive summary that already frames all five principles cleanly \u2014 use it rather than a synthesized AI blurb.",
+      "coverLayout": "There's no compelling cover image described, and the value is in the ideas and framework, so lead with text."
+    },
+    "blocks": {
+      "aiSummary": {
+        "verdict": "optional",
+        "note": "Only needed if you want a shorter plain-language hook; the exec summary already does the job."
+      },
+      "execSummary": {
+        "verdict": "recommended",
+        "note": "Ready-made and authoritative \u2014 it names the five principles and the whole-child framing."
+      },
+      "highlights": {
+        "verdict": "recommended",
+        "note": "Pull the five design principles plus a few punchy stats (46% trauma exposure, 60%+ grade-gap closure) as scannable takeaways."
+      },
+      "findings": {
+        "verdict": "recommended",
+        "note": "The 'what the science says' sections give solid research-backed points worth listing."
+      },
+      "toc": {
+        "verdict": "recommended",
+        "note": "Long, multi-section document \u2014 a table of contents helps readers navigate the five principles."
+      },
+      "storytelling": {
+        "verdict": "recommended",
+        "note": "This is the report's real strength \u2014 rich classroom vignettes from Bank Street, Alverno, SFTR, Hinkley and more make it vivid."
+      },
+      "download": {
+        "verdict": "recommended",
+        "note": "A 68-page report people will want to keep \u2014 offer the full PDF."
+      },
+      "secondary": {
+        "verdict": "optional",
+        "note": "Link the companion Design Principles for Schools and EdPrepLab resources for interested readers."
+      },
+      "share": {
+        "verdict": "optional",
+        "note": "Fine to include, but not central for a policy/practitioner audience."
+      }
+    }
+  }
+}

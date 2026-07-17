@@ -1,0 +1,61 @@
+{
+ "version": 1,
+ "source": "system",
+ "contentWidth": 800,
+ "vars": {
+  "--lp-page-bg": "#ffffff",
+  "--lp-content-bg": "#ffffff",
+  "--lp-text": "#111111",
+  "--lp-heading": "#111111",
+  "--lp-accent": "#1b4965",
+  "--lp-h2-color": "#111111",
+  "--lp-font": "'Public Sans', system-ui, -apple-system, sans-serif"
+ },
+ "preview": {
+  "leftSidebar": false,
+  "rightSidebar": false,
+  "showChrome": true
+ },
+ "copySite": {
+  "on": false,
+  "url": "https://www.pointsoflight.org/from-nice-to-necessary-unleashing-the-impact-of-volunteering-through-transformative-investment/",
+  "base": {
+   "version": 1,
+   "source": "system",
+   "contentWidth": 800,
+   "vars": {
+    "--lp-page-bg": "#ffffff",
+    "--lp-content-bg": "#ffffff",
+    "--lp-text": "#111111",
+    "--lp-heading": "#111111",
+    "--lp-accent": "#1b4965",
+    "--lp-h2-color": "#111111",
+    "--lp-font": "'Public Sans', system-ui, -apple-system, sans-serif"
+   },
+   "preview": {
+    "leftSidebar": false,
+    "rightSidebar": false,
+    "showChrome": true
+   }
+  },
+  "scanned": {
+   "version": 1,
+   "source": "system",
+   "contentWidth": 1060,
+   "vars": {
+    "--lp-page-bg": "#ffffff",
+    "--lp-content-bg": "#ffffff",
+    "--lp-text": "#555555",
+    "--lp-heading": "#ffffff",
+    "--lp-accent": "#2b2e32",
+    "--lp-h2-color": "#111111",
+    "--lp-font": "\"Rethink Sans\", sans-serif"
+   },
+   "preview": {
+    "leftSidebar": true,
+    "rightSidebar": true,
+    "showChrome": true
+   }
+  }
+ }
+}

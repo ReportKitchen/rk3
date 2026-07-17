@@ -1,0 +1,113 @@
+{
+ "version": 1,
+ "template": "annual",
+ "blocks": [
+  {
+   "id": "title-10934a38-42e8-42a6-902b-98cfefdb1280",
+   "type": "title",
+   "props": {
+    "eyebrow": "ADVANCING MOBILITY FROM POVERTY",
+    "title": "A Toolkit for Housing and Education Partnerships",
+    "subtitle": "Cross-sector collaboration to close disparity gaps and enable economic mobility"
+   }
+  },
+  {
+   "id": "Summary-dbf7e0f9-0568-4131-9f0a-7045ade1294b",
+   "type": "summary",
+   "props": {
+    "style": "hardsell",
+    "length": "medium",
+    "heading": "Executive summary",
+    "text": "The disparities are stark and the stakes could not be higher: the average white household earns ten times more than the average Black household, 73% of white households own a home compared to 40% of Black households, and families one missed paycheck from eviction cannot give children the stability they need to learn. Two pandemics — COVID-19 and systemic racism — have exposed just how inseparable housing and education truly are, demanding urgent action. For too long, these sectors have worked in silos, leaving intractable problems unsolved. This toolkit proves that does not have to be the case. Built from real, on-the-ground work in Dayton, Memphis, and Racine and grounded in rigorous research, it gives partners the practical resources to align around shared outcomes and improve lives at unprecedented scale. Now more than ever, communities must stop thinking in silos and start building real, sustainable solutions — and this is where to begin."
+   }
+  },
+  {
+   "id": "docSummary-dfeb5606-7180-410f-9bc7-5765ad360d18",
+   "type": "docSummary",
+   "props": {
+    "heading": "INTRODUCTION",
+    "sectionId": "s0",
+    "blocks": [
+     "<h3>INTRODUCTION</h3>",
+     "<p>Children and families across the United States experience racial and economic disparities that stem from a complex web of systems designed to perpetuate inequities. High rates of family homelessness, low rates of high school graduation and stagnating incomes all point to systems that fail to serve a large portion of the U.S. population — particularly people of color. Although economic growth has propelled some communities forward, systemic challenges and persistent disparities remain a defining issue for many. Wealth disparities are divided along racial lines, with the average white household earning 10 times more than the average Black household.</p>",
+     "<p>This racial wealth gap is the direct result of historical injustices and biased policies that are present in numerous systems, including in housing and education. Evidence of these biased systems surrounds us and is readily apparent in the disparate housing and education outcomes experienced by families across the United States. Examples of these disparities are illustrated in the graphic below.</p>",
+     "<h4>73% own a home, of white households</h4>",
+     "<h4>compared to</h4>",
+     "<p>40%</p>",
+     "<h4>of Black households</h4>",
+     "<h4>hold a bachelor’s 24% of white adults degree or higher, of Black adults compared to</h4>",
+     "<p>34%</p>",
+     "<h4>over the age of 25</h4>",
+     "<h4>over the age of 25</h4>",
+     "<p>The stark reality of these disparities has not gone unnoticed. Although both the housing and education sectors are on the front lines of addressing these challenges, much of this work has been done in silos. Collaborative partnerships between these sectors offer a promising pathway for addressing the root causes of generational poverty.</p>",
+     "<p>This toolkit highlights case studies of emerging partnerships between housing and education organizations focused on a set of shared outcomes — or shared goals — that enable organizations from both sectors to come together to close disparity gaps and enable economic mobility in their communities. The toolkit offers resources and examples for others looking to engage in similar collaborations.</p>",
+     "<h4>Defining Economic Mobility</h4>",
+     "<p>Economic mobility typically is measured in quantifiable or economic terms, such as increases in income, assets or wealth. Although useful for measurement, these terms fail to capture the full context of the disparities and systemic challenges that influence an individual’s ability to improve their economic status. The US Partnership on Mobility from Poverty, a partnership funded by the Gates Foundation and supported by the Urban Institute, expanded this definition through its collaborative work in 2018.</p>",
+     "<p>The partnership — composed of leaders in academia, the faith community, philanthropy and the private sector — defined mobility from poverty using three interrelated principles: <em>economic success,</em> such as higher income and greater wealth; <em>power and autonomy,</em> referring to an individual’s sense of control over the trajectory of their lives; <em>and being valued in community,</em> or a person’s sense of belonging. Throughout this toolkit, the term “economic mobility” is intended to reflect all three aspects of mobility from poverty.</p>",
+     "<h4>Economic Success</h4>",
+     "<h3>Mobility</h3>",
+     "<h4>Being Valued in Community</h4>",
+     "<h4>Power and Autonomy</h4>",
+     "<p>The Partnership’s collective ambition is that all people achieve a reasonable standard of living with the dignity that comes from having power over their lives and being engaged in and valued by their community.</p>",
+     "<h4>A Pathway to Economic Mobility</h4>",
+     "<p>Housing and education are important foundations for future success that underpin many aspects of mobility from poverty. With stable, well-connected and affordable housing, individuals and families can save money, access needed resources, improve their health, remain rooted in community, and even build wealth and access equity through homeownership. Research demonstrates that an individual’s housing stability during childhood directly affects their education experiences and future economic wellbeing as an adult. With quality education, children can build confidence, develop interpersonal skills, pursue academic achievement and access opportunities for future growth.</p>",
+     "<p>With growing wealth and income inequality, the need to improve economic mobility for households with lower incomes becomes more urgent each year. For both the housing and the education sectors, structural racism, continued disinvestment, and persistent racial and economic disparities often are glaringly evident in urban and rural communities alike. The deliberate physical and economic segregation of people of color, in particular of Black Americans, has created high rates of residential and educational segregation. The resulting concentration of poverty has inhibited neighborhood investment and led to poor quality housing and under-resourced schools.</p>",
+     "<p>In the housing sector, disinvestment in minority neighborhoods and discriminatory practices like redlining have been well documented for decades, resulting in an enormous loss of wealth for generations of people of color. In education, the achievement gap, disparate college attainment rates, and unequal school spending remain critical disadvantages and challenges. Nearly half of Black children, at 45 percent, attend high-poverty schools. This is more than five times the rate of white children attending high-poverty schools, at 8 percent, and is only one indication of many in a system that has perpetuated segregation and fails to serve all children and families equitably.</p>",
+     "<p>As the housing and education sectors begin to partner and align their work toward economic mobility, it is critical to bring racial equity to the forefront. This toolkit focuses on racial equity as an outcome for families, an approach to systems transformation and a key part of the cross-sector partnership process.</p>",
+     "<p>The recognition that stable, affordable housing is needed to achieve good educational outcomes — and that better educational outcomes are needed for improving the life trajectories of lowincome children — provides the ideal mission alignment between affordable housing providers and schools. </p>",
+     "<h4>Aligning National Partners to Support Local Solutions</h4>",
+     "<p>This toolkit emerged from a collaboration among Ballmer Group, Enterprise Community Partners and StriveTogether, driven by a belief in the power of cross-sector partnerships to transform inequitable systems. Cross-sector partnerships are increasingly recognized as a way to go beyond the work of addressing disparities to focus more intentionally on root causes, bringing together stakeholders from different industries, perspectives and backgrounds. Supported by Ballmer Group, Enterprise Community Partners and StriveTogether have worked to bring together housing and education partners at the local level, centered on the goal of advancing economic mobility for households with low incomes.</p>",
+     "<p>This toolkit is based on strong evidence and informed by the work of communities exploring and implementing housing and education partnerships (see <strong>Appendix G</strong> for more information). This resource reflects the contribution of expertise and research from the Urban Institute, conducted in collaboration with Enterprise, and captured in the following brief: <strong>Aligning Housing and Education: Evidence of Promising Practices and Structural Challenges</strong>, released in mid- 2020. The toolkit also includes lessons from Enterprise’s engagement in supporting cross-sector collaborations across the country. The toolkit’s approach to partnership and systems transformation is also heavily influenced by the <strong>StriveTogether Theory of Action<sup>TM</sup>.</strong></p>",
+     "<h4>Focusing on one issue alone will never bring about the change we hope to see. </h4>",
+     "<h4>Toolkit Overview</h4>",
+     "<p>Organized into two primary sections, this toolkit is intended as a resource for individuals and organizations seeking to build and advance cross-sector partnerships to accelerate the achievement of shared outcomes. The first section provides background information on the housing and education sectors, including an overview of funding sources, regulation, governance structures and common actors. This section also outlines the housing and education outcomes that Enterprise Community Partners and StriveTogether seek through their work, offering a useful starting point for identifying shared outcomes and aligning work.</p>",
+     "<p>The second section of the toolkit is organized around stages of developing and implementing housing and education partnerships focused on shared outcomes. Through Enterprise’s work in providing technical assistance and capacity building for housing and education collaboration, as well as Urban Institute’s related research, five key stages of partnership emerged as a common trajectory for housing and education partnerships. These stages move from assessing existing conditions to understand local needs to using the power of partnership to advocate for systems change. It is important to note that individuals and organizations may move through these stages in a different order than presented here due to the local context or partnership opportunities.</p>",
+     "<p>The following table summarizes the partnership stages and highlights how each can connect to the <strong>StriveTogether Theory of Action<sup>TM</sup></strong>, an established framework that shows how youth-focused collaborations can advance through a series of six “gateways” toward systems transformation. The toolkit’s partnership stages complement the theory of action and focus specifically on the steps that housing and education practitioners can undertake to develop and implement a partnership focused on shared outcomes.</p>"
+    ],
+    "floatTop": 0,
+    "media": [
+     {
+      "id": "cover-03ea8a20-4a05-42e4-becc-4e2b9b598bcd",
+      "type": "cover",
+      "props": {
+       "src": "pages/page-0001.png",
+       "alt": "INTRODUCTION — cover"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "highlights-c49481d2-2373-439f-a861-b1499fcfd077",
+   "type": "highlights",
+   "props": {
+    "heading": "Key findings",
+    "bgColor": "#eef3fa",
+    "content": "<ul><li>The average white household earns roughly 10 times more than the average Black household, reflecting a racial wealth gap rooted in biased housing and education policy.</li><li>73% of white households own a home compared with 40% of Black households.</li><li>34% of white adults over age 25 hold a bachelor's degree or higher, compared with 24% of Black adults.</li><li>Cross-sector housing and education partnerships organized around shared outcomes offer a promising pathway to address the root causes of generational poverty.</li><li>The toolkit draws on 18 months of direct technical assistance in Dayton, OH; Memphis, TN; and Racine, WI, plus Urban Institute research, to provide case studies and practical resources.</li></ul>"
+   }
+  },
+  {
+   "id": "secondaryCta-ff358ee4-ca56-45b4-b85e-4dc4623350b6",
+   "type": "secondaryCta",
+   "props": {
+    "label": "Learn more",
+    "url": "",
+    "bgColor": "#ffffff",
+    "textColor": "#1b4965"
+   }
+  },
+  {
+   "id": "download-4a8c297d-b472-474f-a653-2491c37aaa4f",
+   "type": "download",
+   "props": {
+    "label": "Download the full report (PDF)",
+    "pdf": {
+     "mode": "bundle",
+     "url": ""
+    },
+    "bgColor": "#1b4965",
+    "textColor": "#ffffff"
+   }
+  }
+ ]
+}

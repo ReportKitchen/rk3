@@ -1,0 +1,19 @@
+{
+ "version": 1,
+ "source": "system",
+ "contentWidth": 800,
+ "vars": {
+  "--lp-page-bg": "#ffffff",
+  "--lp-content-bg": "#ffffff",
+  "--lp-text": "#111111",
+  "--lp-heading": "#111111",
+  "--lp-accent": "#1b4965",
+  "--lp-h2-color": "#111111",
+  "--lp-font": "'Public Sans', system-ui, -apple-system, sans-serif"
+ },
+ "preview": {
+  "leftSidebar": false,
+  "rightSidebar": false,
+  "showChrome": true
+ }
+}

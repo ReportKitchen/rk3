@@ -1,0 +1,136 @@
+{
+ "version": 1,
+ "template": "research",
+ "blocks": [
+  {
+   "id": "b1",
+   "type": "title",
+   "props": {
+    "eyebrow": "Advancing Climate Action, Health and Social Justice",
+    "title": "Philanthropic Foundation Funding for Clean Air",
+    "subtitle": "Tracking the scale, gaps and growth of global air-quality philanthropy, 2015–2022"
+   }
+  },
+  {
+   "id": "Toc-84eff544-ccf6-41f2-9a39-b5eea8f16770",
+   "type": "toc",
+   "props": {
+    "items": [
+     {
+      "text": "KEY FINDINGS AND RECOMMENDATIONS",
+      "level": 3,
+      "anchor": "key-findings-and-recommendations"
+     },
+     {
+      "text": "FUNDING CLEAN AIR FOR CLIMATE, HEALTH AND SOCIAL- JUSTICE BENEFITS",
+      "level": 3,
+      "anchor": "funding-clean-air-for-climate-health-and-social-justice-bene"
+     },
+     {
+      "text": "COUNTING THE COSTS OF AIR POLLUTION",
+      "level": 3,
+      "anchor": "counting-the-costs-of-air-pollution"
+     },
+     {
+      "text": "HOW REDUCING AIR POLLUTION DRIVES HEALTH GAINS",
+      "level": 3,
+      "anchor": "how-reducing-air-pollution-drives-health-gains"
+     },
+     {
+      "text": "TRENDS IN FUNDING BY PHILANTHROPIC FOUNDATIONS",
+      "level": 3,
+      "anchor": "trends-in-funding-by-philanthropic-foundations"
+     },
+     {
+      "text": "THE TIME IS RIPE FOR PHILANTHROPY TO EMBRACE CLEAN AIR AS A ROUTE TO BETTER HEALTH, CLIMATE AND SOCIAL JUSTICE",
+      "level": 3,
+      "anchor": "the-time-is-ripe-for-philanthropy-to-embrace-clean-air-as-a-"
+     },
+     {
+      "text": "METHODOLOGY",
+      "level": 3,
+      "anchor": "methodology"
+     }
+    ]
+   }
+  },
+  {
+   "id": "Highlights-9de9babf-2ce5-4e96-9607-7bd4dcafe2f1",
+   "type": "highlights",
+   "props": {
+    "heading": "Highlights",
+    "bgColor": "#eef3fa",
+    "content": "<h3><h3><div><ul><li><span style=\"font-size: 1.05rem; font-weight: normal;\">$330 million in known philanthropic funding went to air-quality projects from 2015 to 2022 — more than quadrupling since 2015, but with growth slowing to an estimated $71.3 million in 2022.</span></li></ul></div></h3></h3><ul><li>air-quality funding remains under 0.1% of all foundation funding, a persistent pattern of underinvestment.</li><li>Africa and Latin America — among the most polluted regions — received just 1% and 2% of total funding respectively.</li><li>Climate, energy and environment foundations provided 77% of air-quality funding; over $30 million flowed through re-granters in 2021 and 2022.</li><li>Air pollution causes 8.3 million deaths each year, yet air-quality data projects — the foundation of clean-air action — receive the least funding.</li></ul>"
+   }
+  },
+  {
+   "id": "b2",
+   "type": "docSummary",
+   "props": {
+    "heading": "KEY FINDINGS",
+    "sectionId": "s1",
+    "blocks": [
+     "<ul><li><strong>A total of $330 million of known funding went to air-quality projects between 2015 and 2022.</strong> Since 2015, the level of investment to air-quality projects has more than quadrupled, indicating funders’ growing commitment. However, the level of funding from foundations to air quality in 2022, estimated at $71.3 million, has increased only slightly since 2021, suggesting a slowdown in year-on-year growth.</li><li><strong>Outdoor air-quality funding continues to account for less than 0.1% of all foundation funding</strong>; this comparative underfunding of air quality is a consistent trend between 2015 and 2022.</li><li><strong>Newcomers to air-quality funding and an increase in funding channelled to regranters are spurring growth.</strong> In 2021 and 2022, more than $30 million of philanthropic foundation funding was invested through re-granters.</li><li><strong>Foundations focusing on climate, energy and environment (CEE) provide the highest amount of funding to air-quality initiatives</strong>, accounting for 77% of overall funding between 2015 and 2022. Foundations motivated by enhancing social equity, and those focused on health provide the second and third highest funding for tackling air pollution.</li><li><strong>Some of the regions with the highest air pollution receive the lowest funding,</strong> with Africa and Latin America received only 1% and 2% of the total funding (2015-2022).</li><li><strong>Compared to other clean-air initiatives, air-quality data projects receive comparably less funding</strong> and the lowest level of the total funding observed in 2022. Air-quality data underpins action on clean air, yet major data gaps exist at both neighbourhood and global scales.</li></ul>"
+    ],
+    "floatTop": 0,
+    "media": [
+     {
+      "id": "Cover-b2563cee-c595-4718-b3df-4b8f7cbcded7",
+      "type": "cover",
+      "props": {
+       "src": "pages/page-0001.png",
+       "alt": "PHILANTHROPIC FOUNDATION FUNDING FOR CLEAN AIR — cover"
+      }
+     },
+     {
+      "id": "Hero-dea7e209-88fb-461d-88dc-a872b5b585e2",
+      "type": "hero",
+      "props": {
+       "src": "images/fig-001.png",
+       "caption": "this is a thing",
+       "alt": "Figure from page 1"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "b4",
+   "type": "toc",
+   "props": {
+    "items": [
+     {
+      "text": "ADVANCING CLIMATE ACTION, HEALTH AND SOCIAL JUSTICE",
+      "level": 2,
+      "anchor": "advancing-climate-action-health-and-social-justice"
+     }
+    ]
+   }
+  },
+  {
+   "id": "b5",
+   "type": "download",
+   "props": {
+    "label": "Download the full report (PDF)",
+    "bgColor": "#1b4965",
+    "textColor": "#ffffff"
+   }
+  },
+  {
+   "id": "Share-176261a2-f65b-4d38-9e65-84bc27607712",
+   "type": "share",
+   "props": {
+    "heading": "Share",
+    "networks": {
+     "linkedin": true,
+     "x": true,
+     "link": true,
+     "bluesky": true,
+     "facebook": true,
+     "instagram": true
+    },
+    "style": "square"
+   }
+  }
+ ]
+}

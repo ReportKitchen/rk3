@@ -1,0 +1,135 @@
+{
+  "slug": "02--foia-basics-for-activists-may-2019",
+  "profile": {
+    "title": "FOIA BASICS FOR ACTIVISTS",
+    "approxWords": 8073,
+    "approxPages": 18,
+    "headings": 38,
+    "introSectionWords": 833
+  },
+  "guidance": {
+    "documentRead": {
+      "whatItIs": "A practical how-to guide from the Center for Constitutional Rights on using FOIA and state open records laws to support activism and organizing.",
+      "audience": "Activists, organizers, and social movements \u2014 plus lawyers who support them.",
+      "coreMessage": "Anyone can use FOIA to pry loose government records for a campaign \u2014 but it's slow, so plan your strategy, write your request carefully, and be ready to appeal or litigate."
+    },
+    "stats": [
+      {
+        "value": "300,000+ pages",
+        "fact": "NDLON v. ICE ultimately produced over 300,000 pages of information on the Secure Communities program."
+      },
+      {
+        "value": "3+ years",
+        "fact": "The NDLON v. ICE litigation took over three years to complete."
+      },
+      {
+        "value": "20 business days",
+        "fact": "FOIA requires federal agencies to determine and notify a requester of their response within 20 business days."
+      },
+      {
+        "value": "90 days",
+        "fact": "You have 90 days to appeal any determination made by a federal agency."
+      },
+      {
+        "value": "9 exemptions",
+        "fact": "Federal agencies can invoke nine statutory exemptions to redact or withhold documents."
+      }
+    ],
+    "stories": [
+      {
+        "subject": "NDLON v. ICE (Secure Communities campaign)",
+        "kind": "caseStudy",
+        "whatHappened": "The National Day Laborer Organizing Network used FOIA to expose how ICE's Secure Communities program worked, winning 300,000+ pages after 3+ years of litigation and a landmark ruling from Judge Shira Scheindlin.",
+        "strength": "strongest"
+      },
+      {
+        "subject": "St. Charles Parish Sheriff records request (Dakota Access Pipeline)",
+        "kind": "caseStudy",
+        "whatHappened": "CCR filed a narrow 2017 state records request about the sheriff's trip to observe DAPL protests, received some documents within weeks, then litigated for more over the following year.",
+        "strength": "solid"
+      },
+      {
+        "subject": "Color of Change surveillance request",
+        "kind": "caseStudy",
+        "whatHappened": "CCR and Color of Change filed a FOIA about DHS/FBI surveillance of Movement for Black Lives activists, deliberately telling a story in the request itself as an advocacy tool.",
+        "strength": "solid"
+      },
+      {
+        "subject": "Detention Watch Network \u2014 'Banking on Detention' report",
+        "kind": "caseStudy",
+        "whatHappened": "Using information produced by their FOIA request, DWN and CCR released the 2015 report 'Banking on Detention.'",
+        "strength": "thin"
+      },
+      {
+        "subject": "Herman Ferguson records requests",
+        "kind": "caseStudy",
+        "whatHappened": "CCR's early-1990s public records requests supporting activist Herman Ferguson revealed the extent to which the FBI and NYPD were surveilling him and his organization.",
+        "strength": "thin"
+      },
+      {
+        "subject": "Louisiana Bucket Brigade / Bayou Bridge Pipeline",
+        "kind": "caseStudy",
+        "whatHappened": "Director Anne Rolfes described how her group and grassroots partners filed a state records request seeking the truth about a new pipeline threatening land, water, and health.",
+        "strength": "thin"
+      }
+    ],
+    "recommendedPage": {
+      "length": "middle",
+      "coverLayout": "textForward",
+      "summaryChoice": "exec",
+      "blocks": [
+        "execSummary",
+        "highlights",
+        "storytelling",
+        "findings",
+        "toc",
+        "download",
+        "secondary",
+        "share"
+      ]
+    },
+    "reasons": {
+      "length": "At ~8,073 words of dense practical how-to across many sections, a middle-length page fits \u2014 enough room to lay out the process without dumping the whole manual.",
+      "summaryChoice": "The doc has a genuine ~833-word intro/overview written by the authors, so lead with the exec summary rather than a synthetic one.",
+      "coverLayout": "It's a text-heavy resource guide with no strong hero image, so a text-forward layout suits it best."
+    },
+    "blocks": {
+      "aiSummary": {
+        "verdict": "optional",
+        "note": "The doc already has a solid authored overview \u2014 use AI only if you want a punchier one-liner."
+      },
+      "execSummary": {
+        "verdict": "recommended",
+        "note": "The 833-word intro clearly states what FOIA is, who this is for, and why it matters \u2014 lean on it."
+      },
+      "highlights": {
+        "verdict": "recommended",
+        "note": "A few concrete numbers here \u2014 300,000 pages, 3 years, 20-day and 90-day clocks \u2014 give readers something to stop for."
+      },
+      "findings": {
+        "verdict": "recommended",
+        "note": "This is a process guide, so pull out the actionable takeaways: how to write, file, track, appeal, and litigate a request."
+      },
+      "toc": {
+        "verdict": "recommended",
+        "note": "The guide has clear, logical stages (before you begin, writing, admin process, reviewing, litigating) \u2014 a TOC helps readers navigate."
+      },
+      "storytelling": {
+        "verdict": "recommended",
+        "note": "Real cases carry this \u2014 NDLON v. ICE is vivid and specific, backed by several other named campaigns."
+      },
+      "download": {
+        "verdict": "recommended",
+        "note": "It's a reference guide people will want to keep \u2014 offer the full PDF prominently."
+      },
+      "secondary": {
+        "verdict": "optional",
+        "note": "Point to CCR's Open Records Project site and trainings, which the doc explicitly mentions."
+      },
+      "share": {
+        "verdict": "optional",
+        "note": "Useful for a movement audience but not central; keep it low-key."
+      }
+    }
+  }
+}

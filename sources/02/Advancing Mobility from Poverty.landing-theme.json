@@ -1,0 +1,61 @@
+{
+ "version": 1,
+ "source": "system",
+ "contentWidth": 780,
+ "vars": {
+  "--lp-page-bg": "#ffffff",
+  "--lp-content-bg": "#ffffff",
+  "--lp-text": "#242527",
+  "--lp-heading": "#242527",
+  "--lp-accent": "#052656",
+  "--lp-h2-color": "#666666",
+  "--lp-font": "\"Public Sans\", sans-serif"
+ },
+ "preview": {
+  "leftSidebar": false,
+  "rightSidebar": false,
+  "showChrome": true
+ },
+ "copySite": {
+  "on": true,
+  "url": "https://www.enterprisecommunity.org/learning-center/resources/advancing-mobility-poverty",
+  "base": {
+   "version": 1,
+   "source": "system",
+   "contentWidth": 780,
+   "vars": {
+    "--lp-page-bg": "#ffffff",
+    "--lp-content-bg": "#ffffff",
+    "--lp-text": "#242527",
+    "--lp-heading": "#242527",
+    "--lp-accent": "#052656",
+    "--lp-h2-color": "#666666",
+    "--lp-font": "'Public Sans', system-ui, -apple-system, sans-serif"
+   },
+   "preview": {
+    "leftSidebar": false,
+    "rightSidebar": true,
+    "showChrome": true
+   }
+  },
+  "scanned": {
+   "version": 1,
+   "source": "system",
+   "contentWidth": 780,
+   "vars": {
+    "--lp-page-bg": "#ffffff",
+    "--lp-content-bg": "#ffffff",
+    "--lp-text": "#242527",
+    "--lp-heading": "#242527",
+    "--lp-accent": "#052656",
+    "--lp-h2-color": "#666666",
+    "--lp-font": "\"Public Sans\", sans-serif"
+   },
+   "preview": {
+    "leftSidebar": false,
+    "rightSidebar": false,
+    "showChrome": true
+   }
+  }
+ }
+}

@@ -1,0 +1,58 @@
+{
+ "version": 1,
+ "template": "campaign",
+ "blocks": [
+  {
+   "id": "title-2f873ee0-760e-4c7c-be40-440f055add02",
+   "type": "title",
+   "props": {
+    "eyebrow": "An Open Letter to Leaders",
+    "title": "From Nice to Necessary",
+    "subtitle": "Unleashing the Impact of Volunteering Through Transformative Investment"
+   }
+  },
+  {
+   "id": "Summary-c2291575-5ff6-402e-bbf7-7141d1e303fc",
+   "type": "summary",
+   "props": {
+    "style": "intro",
+    "length": "medium",
+    "heading": "Executive summary",
+    "text": "When a hurricane strikes, volunteers are the first to show up; when a young person needs a mentor, a caring adult steps in to change a life. Yet too often we treat volunteering as a 'nice to have' rather than a driving force for change. In this report, informed by research from The Bridgespan Group, we at Points of Light set out to understand how to drive transformative change in volunteering and elevate it from secondary to central in how we achieve impact. We share why volunteering meets this moment—supporting well-being, reducing loneliness, helping nonprofits meet rising demand, and building civic trust across divides. We call on social impact leaders and philanthropic partners to recognize volunteers as essential, invest in volunteer infrastructure, and help shift the narrative. And we lay out a shared vision for a national volunteer movement to double the number of volunteers by 2035."
+   }
+  },
+  {
+   "id": "highlights-68ac95c7-c7b9-4020-94b9-0382f571185d",
+   "type": "highlights",
+   "props": {
+    "heading": "Highlights",
+    "bgColor": "#eef3fa",
+    "content": "<ul><li>Nearly one-third of the nonprofit workforce is made up of volunteers, yet national participation is stuck at just 28 percent</li><li>About half of critical volunteer roles go unfilled each year, leaving essential work undone</li><li>Roughly 22 percent of young people seeking mentorship are on a waitlist for a mentor, even as youth mental health disorders rose more than 40 percent in the decade before 2019</li><li>Volunteers are the backbone of disaster response, rapidly mobilizing after hurricanes, wildfires, and tornadoes</li><li>Points of Light aims to build a cross-sector coalition to double the number of volunteers by 2035</li></ul>"
+   }
+  },
+  {
+   "id": "download-de3e639c-6e0c-4a0d-8d94-0dd4bcf17b72",
+   "type": "download",
+   "props": {
+    "label": "Download the full report (PDF)",
+    "bgColor": "#1b4965",
+    "textColor": "#ffffff"
+   }
+  },
+  {
+   "id": "secondaryCta-be736161-7c43-4f30-8f5e-fa421808e4f8",
+   "type": "secondaryCta",
+   "props": {
+    "label": "Learn more",
+    "url": "",
+    "bgColor": "#ffffff",
+    "textColor": "#1b4965"
+   }
+  },
+  {
+   "id": "share-2f9c6a73-8c4c-4bf8-83eb-7696d22f63f8",
+   "type": "share",
+   "props": {}
+  }
+ ]
+}
