@@ -124,7 +124,11 @@ def validate() -> list[str]:
         # literal prose (JSON shapes, examples), so don't check those.
         interp = {"template": "text", "ai": "fallback"}.get(e["kind"])
         if interp and e.get(interp):
-            used = set(re.findall(r"\{(\w+)\b", e[interp]))
+            # ICU-aware: a token is a variable REFERENCE — `{name}` or the arg of a
+            # `{name, plural/select, ...}`. Match `{` + ident + `,` or `}` only, so
+            # plural/select BRANCH content ({# section}, {your report's opening}) is
+            # not mistaken for a token.
+            used = set(re.findall(r"\{(\w+)\s*[,}]", e[interp]))
             undeclared = used - set(e.get("tokens", []))
             if undeclared:
                 errs.append(f"{key}: uses {sorted(undeclared)} but declares tokens "

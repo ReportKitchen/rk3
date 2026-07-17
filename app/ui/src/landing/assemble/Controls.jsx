@@ -51,7 +51,7 @@ export default function Controls({ cover, onCover, sections, cta, ai, onWordsmit
 // AI summary (if on) + on-sections + CTA -> rough-page rows
 function buildRows(sections, cta, ai) {
   const out = [];
-  if (ai && ai.on) out.push({ label: t("lpm.sections.ai.heading"), kind: "text" });
+  if (ai && ai.on) out.push({ label: ai.heading || t("lpm.sections.ai.heading"), kind: "text" });
   for (const s of sections) {
     if (!s.on) continue;
     const label = shortLabel(s.heading);

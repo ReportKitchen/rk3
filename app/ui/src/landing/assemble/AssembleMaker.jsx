@@ -4,7 +4,7 @@ import "../landingPage.css"; // block-render styles, reused by the previews + Wo
 import { getBlockDefaults, getAiSummary } from "../../api.js";
 import { loadContent, t } from "../../content.js";
 import { guard } from "../../errorBus.js";
-import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, wordCount, AUTO_TRIM_OVER } from "./model.js";
+import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, wordCount, AUTO_TRIM_OVER, pickAiHeading } from "./model.js";
 import Chrome from "./Chrome.jsx";
 import WhiskLoader from "./WhiskLoader.jsx";
 import SectionLibrary from "./SectionLibrary.jsx";
@@ -75,6 +75,7 @@ export default function AssembleMaker({ doc }) {
         const on = recommendOn(secs);
         secs.forEach((s, i) => { s.on = on[i]; });
         setSections(secs);
+        setAi((a) => ({ ...a, heading: pickAiHeading(secs) }));   // a title the doc doesn't already use
         setDocRead(art.documentRead || null);
         setNoai(!!sd?.noai);
         setGenError(sd?.error || null);

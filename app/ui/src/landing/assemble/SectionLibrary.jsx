@@ -18,7 +18,8 @@ export default function SectionLibrary({ sections, cta, ai, sel, noai, genError,
       {notice}
 
       <Group
-        title={t("lpm.sections.intro.title")} sub={t("lpm.sections.intro.sub")}
+        title={t("lpm.sections.intro.title")}
+        sub={t("lpm.sections.intro.sub", { n: intro.length, ai: noai ? "no" : "yes" })}
         first={!notice}
       >
         {intro.map((s) => <SectionCard key={s.id} s={s} sel={sel} onSelect={onSelect} />)}
@@ -44,9 +45,7 @@ export default function SectionLibrary({ sections, cta, ai, sel, noai, genError,
               <span className="asm-card-name">{t(`lpm.blocks.${key}.name`)}</span>
               <span className="asm-card-guidance">{t(`lpm.blocks.${key}.what`)}</span>
             </span>
-            {cta[key]
-              ? <Icon name="check" size={14} className="asm-card-check" />
-              : <Icon name="chevron-right" size={14} className="asm-card-chev" />}
+            <OnBadge on={cta[key]} />
           </button>
         ))}
       </Group>
@@ -64,6 +63,14 @@ function Group({ title, sub, first, children }) {
   );
 }
 
+// on/off status at a glance: a filled green check when featured, a faint empty
+// ring when not.
+function OnBadge({ on }) {
+  return on
+    ? <span className="asm-on-badge is-on"><Icon name="check" size={11} /></span>
+    : <span className="asm-on-badge" />;
+}
+
 function SectionCard({ s, sel, onSelect }) {
   return (
     <button
@@ -78,9 +85,7 @@ function SectionCard({ s, sel, onSelect }) {
         <span className="asm-card-name">{s.heading}</span>
         <span className="asm-card-guidance">{s.summary || t("lpm.sections.placeholder_hint")}</span>
       </span>
-      {s.on
-        ? <Icon name="check" size={14} className="asm-card-check" />
-        : <Icon name="chevron-right" size={14} className="asm-card-chev" />}
+      <OnBadge on={s.on} />
     </button>
   );
 }
@@ -102,9 +107,7 @@ function AiCard({ ai, sel, onSelect }) {
         </span>
         <span className="asm-card-guidance">{t("lpm.sections.ai.caption")}</span>
       </span>
-      {ai.on
-        ? <Icon name="check" size={14} className="asm-card-check" />
-        : <Icon name="chevron-right" size={14} className="asm-card-chev" />}
+      <OnBadge on={ai.on} />
     </button>
   );
 }

@@ -9,6 +9,15 @@ export const COVERS = ["onTop", "beside", "inset", "textForward"];
 // page length (short/middle/long) → AI-summary length axis (short/medium/long)
 export const SUMMARY_LENGTH = { short: "short", middle: "medium", long: "long" };
 
+// The AI Summary needs a natural page heading (the exec summary has the doc's own
+// title; this one is ours). Pick an intro word the document doesn't already use.
+const AI_HEADING_CANDIDATES = ["Summary", "Introduction", "Overview", "About"];
+export function pickAiHeading(sections) {
+  const used = (sections || []).map((s) => (s.heading || "").toLowerCase());
+  const taken = (word) => used.some((h) => h.includes(word.toLowerCase()));
+  return AI_HEADING_CANDIDATES.find((c) => !taken(c)) || "Summary";
+}
+
 // summary trimming + the page word-count zones
 export const REC_WORDS = 120;                 // recommended summary length
 export const AUTO_TRIM_OVER = 200;            // auto-trim a prose summary longer than this
@@ -149,10 +158,10 @@ export function buildSectionConfig({ title, cover, sections, cta, ai }) {
   if (cover && cover.src && cover.layout !== "textForward") {
     blocks.push({ type: "cover", id: "cover", props: { src: cover.src, alt: cover.alt || "" } });
   }
-  // the opt-in AI Summary leads the content (a headingless prose pitch)
+  // the opt-in AI Summary leads the content, under a natural heading
   if (ai && ai.on && ai.prose) {
     blocks.push({ type: "section", id: "ai-summary",
-      props: { heading: "", presentation: "prose", prose: ai.prose,
+      props: { heading: ai.heading || "", presentation: "prose", prose: ai.prose,
                bullets: [], cards: [], quote: {}, steps: [] } });
   }
   for (const s of sections) {

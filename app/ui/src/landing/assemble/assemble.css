@@ -206,6 +206,16 @@
 }
 .asm-card-check { color: var(--rk-success); flex: none; display: inline-flex; }
 .asm-card-chev { color: var(--rk-gray-300); flex: none; display: inline-flex; }
+/* prominent on/off status: filled green check (featured) vs faint empty ring */
+.asm-on-badge {
+  width: 19px; height: 19px; flex: none; border-radius: 50%;
+  border: 1.5px solid var(--rk-gray-300);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.asm-on-badge.is-on {
+  background: var(--rk-success); border-color: var(--rk-success); color: #fff;
+  box-shadow: 0 1px 2px rgba(46, 139, 87, 0.35);
+}
 
 /* ---------------- Center: inspector ---------------- */
 .asm-insp-head { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }

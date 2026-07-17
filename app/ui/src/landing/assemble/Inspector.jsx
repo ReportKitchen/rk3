@@ -144,7 +144,7 @@ function AiInspector({ ai, onToggle, onVoice }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const config = { blocks: [{ type: "section", props: {
-    heading: "", presentation: "prose", prose: ai.prose,
+    heading: ai.heading || "", presentation: "prose", prose: ai.prose,
     bullets: [], cards: [], quote: {}, steps: [],
   } }] };
   return (

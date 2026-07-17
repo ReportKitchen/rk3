@@ -3,7 +3,10 @@
 # the CTA scaffolding sits beside them.
 
 intro.title: {kind: static, text: "Introduction"}
-intro.sub: {kind: static, text: "How the page opens — your report’s own foreword and summary."}
+intro.sub:
+  kind: template
+  text: "How the page opens — {n, plural, =0 {your report’s opening} one {# section pulled from your document} other {# sections pulled from your document}}{ai, select, yes {, plus a concise summary we drafted} other {}}."
+  tokens: [n, ai]
 
 # The AI Summary — the ONE section AI writes (a pitch in a voice you pick), not
 # your report's words. Opt-in; lives in the Introduction group.
