@@ -4,7 +4,7 @@ import "../landingPage.css"; // block-render styles, reused by the previews + Wo
 import { getBlockDefaults, getAiSummary } from "../../api.js";
 import { loadContent, t } from "../../content.js";
 import { guard } from "../../errorBus.js";
-import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, wordCount, AUTO_TRIM_OVER, pickAiHeading, STAT_TREATMENT_ORDER } from "./model.js";
+import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, wordCount, AUTO_TRIM_OVER, pickAiHeading, STAT_TREATMENT_ORDER, normalizeCover } from "./model.js";
 import Chrome from "./Chrome.jsx";
 import WhiskLoader from "./WhiskLoader.jsx";
 import SectionLibrary from "./SectionLibrary.jsx";
@@ -91,7 +91,7 @@ export default function AssembleMaker({ doc }) {
         setGenError(sd?.error || null);
         setDefs(defaults || {});
         setLength(len);
-        setCover(rec.cover || "beside");
+        setCover(normalizeCover(rec.cover));
         setCta({
           download: true, secondary: false, share: true,
           downloadLabel: defaults?.download?.label || "", downloadUrl: "",
@@ -125,6 +125,20 @@ export default function AssembleMaker({ doc }) {
 
   const setTreatment = useCallback((id, treatment) => {
     setSections((prev) => prev.map((s) => (s.id === id ? { ...s, treatment } : s)));
+  }, []);
+
+  // reorder within a group: swap a section with its nearest same-role neighbour
+  const moveSection = useCallback((id, dir) => {
+    setSections((prev) => {
+      const i = prev.findIndex((s) => s.id === id);
+      if (i < 0) return prev;
+      let j = i + dir;
+      while (j >= 0 && j < prev.length && prev[j].role !== prev[i].role) j += dir;
+      if (j < 0 || j >= prev.length) return prev;
+      const next = prev.slice();
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
   }, []);
 
   const toggleCta = useCallback((key) => {
@@ -172,7 +186,7 @@ export default function AssembleMaker({ doc }) {
         <div className="asm-grid">
           <SectionLibrary
             sections={sections} cta={cta} ai={ai} sel={sel} noai={noai} genError={genError}
-            docRead={docRead} onSelect={setSel}
+            docRead={docRead} onSelect={setSel} onMove={moveSection}
           />
           <Inspector
             sel={sel} sections={sections} cta={cta} ai={ai} defs={defs}

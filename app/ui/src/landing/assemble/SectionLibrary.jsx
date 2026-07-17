@@ -6,13 +6,17 @@ import { Icon, BLOCK_ICONS } from "./icons.jsx";
 // Left column, three groups top-to-bottom: Introduction (the document's own
 // foreword / summary), Highlights (the meaningful body sections — the star), and
 // Call to action (the fixed scaffolding). Click a card to inspect and adjust it.
-export default function SectionLibrary({ sections, cta, ai, sel, noai, genError, docRead, onSelect }) {
+export default function SectionLibrary({ sections, cta, ai, sel, noai, genError, docRead, onSelect, onMove }) {
   const notice = genError
     ? <div className="asm-error-notice">{t("lpm.sections.error_notice", { reason: genError })}</div>
     : noai
       ? <div className="asm-noai-notice">{t("lpm.sections.noai_notice")}</div>
       : null;
   const { intro, body } = splitSections(sections);
+  const cards = (group) => group.map((s, i) => (
+    <SectionCard key={s.id} s={s} sel={sel} onSelect={onSelect} onMove={onMove}
+      canUp={i > 0} canDown={i < group.length - 1} />
+  ));
   return (
     <div className="asm-col asm-col-left">
       {notice}
@@ -22,7 +26,7 @@ export default function SectionLibrary({ sections, cta, ai, sel, noai, genError,
         sub={t("lpm.sections.intro.sub", { n: intro.length, ai: noai ? "no" : "yes" })}
         first={!notice}
       >
-        {intro.map((s) => <SectionCard key={s.id} s={s} sel={sel} onSelect={onSelect} />)}
+        {cards(intro)}
         {!noai && <AiCard ai={ai} sel={sel} onSelect={onSelect} />}
       </Group>
 
@@ -30,7 +34,7 @@ export default function SectionLibrary({ sections, cta, ai, sel, noai, genError,
         title={t("lpm.sections.highlights.title")} sub={t("lpm.sections.highlights.sub")}
       >
         {body.length === 0 && <p className="asm-sub">{t("lpm.sections.empty")}</p>}
-        {body.map((s) => <SectionCard key={s.id} s={s} sel={sel} onSelect={onSelect} />)}
+        {cards(body)}
       </Group>
 
       <Group title={t("lpm.sections.cta.title")} sub={t("lpm.sections.cta.sub")}>
@@ -71,12 +75,14 @@ function OnBadge({ on }) {
     : <span className="asm-on-badge" />;
 }
 
-function SectionCard({ s, sel, onSelect }) {
+function SectionCard({ s, sel, onSelect, onMove, canUp, canDown }) {
+  // a div (not a button) so the up/down move buttons can nest inside
   return (
-    <button
-      type="button"
+    <div
       className={"asm-card" + (sel === s.id ? " is-selected" : "")}
+      role="button" tabIndex={0}
       onClick={() => onSelect(s.id)}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(s.id); } }}
     >
       <span className="asm-card-icon">
         <Icon name={PRESENTATIONS[s.presentation]?.icon || "file-text"} size={15} />
@@ -85,8 +91,14 @@ function SectionCard({ s, sel, onSelect }) {
         <span className="asm-card-name">{s.heading}</span>
         <span className="asm-card-guidance">{s.summary || t("lpm.sections.placeholder_hint")}</span>
       </span>
+      <span className="asm-card-move">
+        <button type="button" aria-label="Move up" disabled={!canUp}
+          onClick={(e) => { e.stopPropagation(); onMove(s.id, -1); }}><Icon name="chevron-up" size={13} /></button>
+        <button type="button" aria-label="Move down" disabled={!canDown}
+          onClick={(e) => { e.stopPropagation(); onMove(s.id, 1); }}><Icon name="chevron-down" size={13} /></button>
+      </span>
       <OnBadge on={s.on} />
-    </button>
+    </div>
   );
 }
 

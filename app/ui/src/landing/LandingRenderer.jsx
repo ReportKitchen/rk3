@@ -57,12 +57,36 @@ export function DocSummary({ heading, blocks, floatTop, paraLimit, dragging, chi
   );
 }
 
-export function Cover({ src, alt, resolveAsset = ident }) {
+export function Cover({ src, alt, layout, resolveAsset = ident }) {
   if (!src) return null;
   return (
-    <figure className="lp-block lp-cover">
+    <figure className={"lp-block lp-cover" + (layout ? " lp-cover-" + layout : "")}>
       <img src={resolveAsset(src)} alt={alt || ""} />
     </figure>
+  );
+}
+
+// Masthead: the cover and the title side by side (report covers are too tall for
+// full-width "on top"). `variant` places the cover — beside = left, right =
+// opposite, thumb = a small cover on the right (text-forward). Content follows
+// below. Flex, not float, so it paints reliably in the in-app editor too.
+export function Masthead({ cover, title, variant = "beside", resolveAsset = ident }) {
+  const tp = title || {};
+  const main = tp.title || tp.text || "";
+  const coverEl = cover?.src ? (
+    <figure className="lp-masthead-cover"><img src={resolveAsset(cover.src)} alt={cover.alt || ""} /></figure>
+  ) : null;
+  const titleEl = (
+    <div className="lp-masthead-title">
+      {tp.eyebrow ? <p className="lp-eyebrow">{tp.eyebrow}</p> : null}
+      {main ? <h1>{main}</h1> : null}
+      {tp.subtitle ? <p className="lp-subtitle">{tp.subtitle}</p> : null}
+    </div>
+  );
+  return (
+    <header className={"lp-block lp-masthead lp-masthead-" + variant}>
+      {variant === "beside" ? <>{coverEl}{titleEl}</> : <>{titleEl}{coverEl}</>}
+    </header>
   );
 }
 
@@ -260,7 +284,14 @@ export function statTreatmentsFor(cards) {
   });
 }
 
-function StatCards({ cards, treatment = "cards" }) {
+function StatCards(props) {
+  // wrap in a query container so treatments reflow to THIS width, not the section
+  // (the section stays a normal block so a floated cover can intrude into it)
+  const inner = StatCardsInner(props);
+  return inner ? <div className="lp-statwrap">{inner}</div> : null;
+}
+
+function StatCardsInner({ cards, treatment = "cards" }) {
   const list = (cards || []).filter((c) => c && (c.value || c.label));
   if (!list.length) return null;
   const t = statTreatmentsFor(list).includes(treatment) ? treatment : "cards";
@@ -386,6 +417,7 @@ export const BLOCKS = {
   title: Title, summary: Summary, docSummary: DocSummary, cover: Cover, hero: Hero,
   toc: Toc, highlights: Highlights, findings: Findings, storytelling: Storytelling,
   share: Share, download: Download, secondaryCta: SecondaryCta, section: Section,
+  masthead: Masthead,
 };
 
 // Render one block, recursing into the media slot (nested blocks become the

@@ -10,14 +10,11 @@ metadata_note:
   text: "The cover carries its metadata — {meta} — wherever it sits."
   tokens: [meta]
 
-onTop.title: {kind: static, text: "Cover on top"}
-onTop.line: {kind: static, text: "Cover leads full-width; content stacks below. Big, formal."}
-
 beside.title: {kind: static, text: "Cover beside"}
-beside.line: {kind: static, text: "Cover flanks the intro (left or right). The confident default."}
+beside.line: {kind: static, text: "Cover on the left, title on the right, content below. The confident default."}
 
-inset.title: {kind: static, text: "Cover inset"}
-inset.line: {kind: static, text: "A smaller cover nested in the opening text — the “float” done for you."}
+floatRight.title: {kind: static, text: "Cover right"}
+floatRight.line: {kind: static, text: "Title on the left, cover on the right, content below. Flips the default."}
 
 textForward.title: {kind: static, text: "Text-forward"}
-textForward.line: {kind: static, text: "Cover shrinks to a thumbnail (or none). For pages that lead with words."}
+textForward.line: {kind: static, text: "The cover shrinks to a small thumbnail so the words lead."}

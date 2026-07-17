@@ -183,6 +183,17 @@
   transition: transform 240ms var(--rk-ease-out), border-color 240ms var(--rk-ease-out), box-shadow 240ms var(--rk-ease-out);
 }
 .asm-card:hover { box-shadow: var(--rk-shadow-sm); }
+.asm-card:focus-visible { outline: 2px solid var(--rk-focus-ring); outline-offset: 2px; }
+/* up/down reorder controls — appear on hover/focus */
+.asm-card-move { display: flex; flex-direction: column; gap: 1px; flex: none; opacity: 0; transition: opacity 140ms var(--rk-ease-out); }
+.asm-card:hover .asm-card-move, .asm-card:focus-within .asm-card-move { opacity: 1; }
+.asm-card-move button {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 15px; padding: 0; border: 0; background: transparent;
+  color: var(--rk-rhino-500); cursor: pointer; border-radius: 3px;
+}
+.asm-card-move button:hover { background: var(--rk-gray-100); color: var(--rk-rhino-700); }
+.asm-card-move button:disabled { opacity: 0.25; cursor: default; }
 .asm-card.is-selected {
   border-color: var(--rk-rhino-700);
   transform: translateX(22px);
@@ -436,15 +447,19 @@
 .asm-select-opt-advice { font-size: 11.5px; color: var(--rk-text-muted); }
 .asm-select-opt-check { color: var(--rk-success); flex: none; display: inline-flex; }
 
+/* Accent picker + word-count share a row */
+.asm-rail-row { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 18px; }
+.asm-rail-row .asm-accent { margin-bottom: 0; flex: none; }
+.asm-rail-row .asm-wc { margin-bottom: 0; flex: 1; min-width: 0; }
+
 /* accent-colour picker (right rail) */
-.asm-accent { margin-bottom: 16px; }
 .asm-accent-label {
   display: block; font-size: 12.5px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.08em; color: var(--rk-rhino-500); margin-bottom: 8px;
 }
-.asm-accent-row { display: flex; gap: 8px; align-items: center; }
+.asm-accent-row { display: flex; gap: 5px; align-items: center; }
 .asm-swatch {
-  width: 24px; height: 24px; border-radius: 50%; flex: none; cursor: pointer;
+  width: 19px; height: 19px; border-radius: 50%; flex: none; cursor: pointer;
   border: 2px solid var(--rk-white); box-shadow: 0 0 0 1px var(--rk-border-strong);
   padding: 0;
 }

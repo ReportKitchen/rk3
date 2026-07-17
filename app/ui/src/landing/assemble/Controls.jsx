@@ -21,8 +21,10 @@ export default function Controls({ cover, onCover, accent, onAccent, sections, c
         />
       </div>
 
-      <AccentPicker accent={accent} onAccent={onAccent} />
-      <WordCountBar words={words} />
+      <div className="asm-rail-row">
+        <AccentPicker accent={accent} onAccent={onAccent} />
+        <WordCountBar words={words} />
+      </div>
 
       <div className="asm-page-head">
         <span className="asm-page-head-title">{t("lpm.assemble.page_heading")}</span>
@@ -145,7 +147,7 @@ function CoverSkeleton({ cover }) {
   if (cover === "beside") {
     return (
       <div style={{ display: "flex", gap: 12, marginBottom: 14 }}>
-        <div className="asm-pp-cover" style={{ width: "42%", aspectRatio: "3 / 4" }}>COVER</div>
+        <div className="asm-pp-cover" style={{ width: "40%", aspectRatio: "3 / 4" }}>COVER</div>
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5, paddingTop: 4 }}>
           <div className="asm-pp-line" style={{ height: 11 }} />
           <div className="asm-pp-line" style={{ height: 11, width: "70%" }} />
@@ -154,37 +156,28 @@ function CoverSkeleton({ cover }) {
       </div>
     );
   }
-  if (cover === "onTop") {
+  if (cover === "floatRight") {
+    // title left, cover right
     return (
-      <div style={{ marginBottom: 14 }}>
-        <div className="asm-pp-cover" style={{ height: 64, marginBottom: 8 }}>COVER</div>
-        <div className="asm-pp-line" style={{ height: 11, marginBottom: 5 }} />
-        <div className="asm-pp-line" style={{ height: 11, width: "70%" }} />
-      </div>
-    );
-  }
-  if (cover === "inset") {
-    return (
-      <div style={{ marginBottom: 14 }}>
-        <div className="asm-pp-line" style={{ height: 11, marginBottom: 5 }} />
-        <div className="asm-pp-line" style={{ height: 11, width: "65%", marginBottom: 9 }} />
-        <div style={{ display: "flex", gap: 10 }}>
-          <div className="asm-pp-cover" style={{ width: "30%", aspectRatio: "3 / 4", fontSize: 8, flex: "none" }}>COVER</div>
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5 }}>
-            {["100%", "100%", "85%", "60%"].map((w, i) => <div key={i} className="asm-pp-faint" style={{ height: 5, width: w }} />)}
-          </div>
+      <div style={{ display: "flex", gap: 12, marginBottom: 14 }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5, paddingTop: 4 }}>
+          <div className="asm-pp-line" style={{ height: 11 }} />
+          <div className="asm-pp-line" style={{ height: 11, width: "70%" }} />
+          <div className="asm-pp-faint" style={{ height: 4, width: "55%", marginTop: 6 }} />
         </div>
+        <div className="asm-pp-cover" style={{ width: "40%", aspectRatio: "3 / 4" }}>COVER</div>
       </div>
     );
   }
+  // textForward — a small thumbnail on the right, words lead
   return (
-    <div style={{ marginBottom: 14 }}>
-      <div className="asm-pp-line" style={{ height: 11, marginBottom: 5 }} />
-      <div className="asm-pp-line" style={{ height: 11, width: "70%", marginBottom: 8 }} />
-      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-        <div style={{ width: 22, height: 29, background: "#c9ccd4", borderRadius: 1, flex: "none" }} />
-        <div className="asm-pp-faint" style={{ height: 4, flex: 1, maxWidth: "55%" }} />
+    <div style={{ display: "flex", gap: 10, marginBottom: 14, alignItems: "flex-start" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5, paddingTop: 2 }}>
+        <div className="asm-pp-line" style={{ height: 11 }} />
+        <div className="asm-pp-line" style={{ height: 11, width: "72%" }} />
+        <div className="asm-pp-faint" style={{ height: 4, width: "60%", marginTop: 6 }} />
       </div>
+      <div className="asm-pp-cover" style={{ width: 26, height: 34, flex: "none", fontSize: 0 }} />
     </div>
   );
 }
@@ -276,30 +269,28 @@ function WordCountBar({ words }) {
 function CoverGlyph({ id }) {
   const bar = { background: "var(--rk-gray-200)", borderRadius: 1, height: 3 };
   const rhino = { background: "var(--rk-rhino-300)", borderRadius: 1 };
-  if (id === "onTop") {
-    return (
-      <span style={{ width: 30, display: "flex", flexDirection: "column", gap: 2 }}>
-        <span style={{ ...rhino, height: 9 }} /><span style={bar} /><span style={{ ...bar, width: "70%" }} />
-      </span>
-    );
-  }
-  if (id === "inset") {
+  if (id === "floatRight") {
+    // lines wrapping around a small cover box at top-right
     return (
       <span style={{ width: 30, display: "flex", gap: 2 }}>
-        <span style={{ ...rhino, width: 9, height: 11, flex: "none" }} />
         <span style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
           <span style={bar} /><span style={bar} /><span style={{ ...bar, width: "80%" }} />
         </span>
+        <span style={{ ...rhino, width: 9, height: 11, flex: "none" }} />
       </span>
     );
   }
   if (id === "textForward") {
     return (
-      <span style={{ width: 30, display: "flex", flexDirection: "column", gap: 2 }}>
-        <span style={{ ...rhino, height: 4 }} /><span style={bar} /><span style={bar} /><span style={{ ...bar, width: "65%" }} />
+      <span style={{ width: 30, display: "flex", gap: 2 }}>
+        <span style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2, justifyContent: "center" }}>
+          <span style={bar} /><span style={bar} /><span style={{ ...bar, width: "70%" }} />
+        </span>
+        <span style={{ ...rhino, width: 6, height: 8, flex: "none" }} />
       </span>
     );
   }
+  // beside: cover box left, lines right
   return (
     <span style={{ width: 30, display: "flex", gap: 2 }}>
       <span style={{ ...rhino, width: 13, height: 16, flex: "none" }} />

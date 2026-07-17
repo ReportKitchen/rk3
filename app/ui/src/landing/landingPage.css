@@ -93,6 +93,23 @@
   display: block; width: 100%; height: auto;
   border: 1px solid #e6e6e6; border-radius: 4px;
 }
+
+/* cover layouts (BACKLOG/43): report covers are very TALL, so "on top" is gone.
+   The cover + title sit side by side (flex masthead); content follows below.
+   beside = cover left; right = cover right; thumb = a small cover (text-forward). */
+.lp-masthead { display: flex; gap: 1.8em; align-items: flex-start; }
+.lp-masthead-cover { flex: none; width: 38%; max-width: 260px; margin: 0; padding: 0; }
+.lp-masthead-cover img { display: block; width: 100%; height: auto; border: 1px solid #e6e6e6; border-radius: 4px; }
+.lp-masthead-title { flex: 1; min-width: 0; }
+.lp-masthead-title h1 { font-size: 2.1rem; font-weight: 700; margin: 0; line-height: 1.15; color: var(--lp-heading, #111); }
+.lp-masthead-thumb .lp-masthead-cover { width: 22%; max-width: 130px; }
+@container (max-width: 30em) {
+  .lp-masthead { flex-direction: column; }
+  .lp-masthead-right { flex-direction: column-reverse; }
+  .lp-masthead-cover { width: 55%; }
+}
+/* the page itself is the container for the masthead reflow */
+.lp-body { container-type: inline-size; }
 .lp-hero figcaption {
   margin-top: 0.5rem; font-size: 0.85rem; line-height: 1.45; color: #666;
 }
@@ -186,7 +203,8 @@
    type scale in em (multiples of the inherited body size, not px), colour via
    inherit / currentColor, indents in em/%. That's what lets an exported section
    adopt the target site's own font, colour, and rhythm instead of fighting it. */
-.lp-section { margin: 2.2em 0; container-type: inline-size; }
+.lp-section { margin: 2.2em 0; }
+.lp-statwrap { container-type: inline-size; }
 .lp-section > h2 {
   font-size: 1.4em; line-height: 1.2; margin: 0 0 0.6em;
   color: var(--lp-heading, inherit);

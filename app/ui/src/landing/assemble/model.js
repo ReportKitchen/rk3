@@ -4,7 +4,15 @@
 // present, filter, and assemble them into a render config.
 
 export const LENGTHS = ["short", "middle", "long"];
-export const COVERS = ["onTop", "beside", "inset", "textForward"];
+// cover layouts (BACKLOG/43): "on top" is gone — report covers are too tall for
+// full-width. beside = cover-left/title-right; floatRight = cover floats in the
+// opening; textForward = a small thumbnail.
+export const COVERS = ["beside", "floatRight", "textForward"];
+// map the guidance engine's older cover values onto the new set
+export function normalizeCover(v) {
+  const m = { onTop: "beside", inset: "floatRight", beside: "beside", floatRight: "floatRight", textForward: "textForward" };
+  return m[v] || "beside";
+}
 
 // page length (short/middle/long) → AI-summary length axis (short/medium/long)
 export const SUMMARY_LENGTH = { short: "short", middle: "medium", long: "long" };
@@ -155,13 +163,17 @@ export function splitSections(sections) {
 // state — feeds the rough page, the Wordsmith render, and export.
 export function buildSectionConfig({ title, cover, sections, cta, ai }) {
   const blocks = [];
-  if (title && (title.title || title.eyebrow || title.subtitle)) {
-    blocks.push({ type: "title", id: "title", props: title });
-  }
-  // cover as a top block for every layout except text-forward (the beside/inset
-  // float treatment is a later refinement — for now the cover leads the page)
-  if (cover && cover.src && cover.layout !== "textForward") {
-    blocks.push({ type: "cover", id: "cover", props: { src: cover.src, alt: cover.alt || "" } });
+  const hasTitle = title && (title.title || title.eyebrow || title.subtitle);
+  const hasCover = cover && cover.src;
+  const layout = cover?.layout;
+  // beside = cover left / title right; floatRight = cover right; textForward =
+  // small cover (thumb) on the right. All render as a flex masthead + content below.
+  const variant = layout === "floatRight" ? "right" : layout === "textForward" ? "thumb" : "beside";
+  if (hasTitle && hasCover) {
+    blocks.push({ type: "masthead", id: "masthead", props: { cover: { src: cover.src, alt: cover.alt || "" }, title, variant } });
+  } else {
+    if (hasCover) blocks.push({ type: "cover", id: "cover", props: { src: cover.src, alt: cover.alt || "" } });
+    if (hasTitle) blocks.push({ type: "title", id: "title", props: title });
   }
   // the opt-in AI Summary leads the content, under a natural heading
   if (ai && ai.on && ai.prose) {
