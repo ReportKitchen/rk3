@@ -12,6 +12,14 @@
    }
   },
   {
+   "id": "Cover-0cfd742f-c96a-4742-bffa-5993fc2a691b",
+   "type": "cover",
+   "props": {
+    "src": "pages/page-0001.png",
+    "alt": "EXECUTIVE SUMMARY — cover"
+   }
+  },
+  {
    "id": "Summary-fc68025f-76bf-45e1-8cc1-bcd42451c6d9",
    "type": "summary",
    "props": {

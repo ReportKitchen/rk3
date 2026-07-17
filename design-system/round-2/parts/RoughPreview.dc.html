@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/colors.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/effects.css">
+</helmet>
+<div style="border:2px dashed var(--rk-border-strong);border-radius:var(--rk-radius-sm);background:var(--rk-white);padding:18px 16px;font-family:'Public Sans',sans-serif;filter:grayscale(0.35)">
+  <sc-if value="{{ isBeside }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:12px;margin-bottom:12px">
+      <div style="width:42%;aspect-ratio:3/4;background:#c9ccd4;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;letter-spacing:0.06em;color:#777">COVER</div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:5px;padding-top:4px">
+        <div style="height:11px;background:#3a3a3a;border-radius:2px"></div>
+        <div style="height:11px;background:#3a3a3a;border-radius:2px;width:70%"></div>
+        <div style="height:5px;background:#ddd;border-radius:2px;margin-top:4px"></div>
+        <div style="height:5px;background:#ddd;border-radius:2px"></div>
+        <div style="height:5px;background:#ddd;border-radius:2px;width:80%"></div>
+        <div style="height:4px;background:#eee;border-radius:2px;width:55%;margin-top:5px"></div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isInset }}" hint-placeholder-val="{{ false }}">
+    <div style="margin-bottom:12px">
+      <div style="height:11px;background:#3a3a3a;border-radius:2px;margin-bottom:5px"></div>
+      <div style="height:11px;background:#3a3a3a;border-radius:2px;width:65%;margin-bottom:9px"></div>
+      <div style="display:flex;gap:10px">
+        <div style="width:30%;aspect-ratio:3/4;background:#c9ccd4;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;letter-spacing:0.06em;color:#777;flex:none">COVER</div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+          <div style="height:5px;background:#ddd;border-radius:2px"></div>
+          <div style="height:5px;background:#ddd;border-radius:2px"></div>
+          <div style="height:5px;background:#ddd;border-radius:2px;width:85%"></div>
+          <div style="height:5px;background:#ddd;border-radius:2px"></div>
+          <div style="height:5px;background:#ddd;border-radius:2px;width:60%"></div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isTop }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:12px;margin-bottom:12px">
+      <div style="width:42%;aspect-ratio:3/4;background:#c9ccd4;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;letter-spacing:0.06em;color:#777">COVER</div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:5px;padding-top:4px">
+        <div style="height:11px;background:#3a3a3a;border-radius:2px"></div>
+        <div style="height:11px;background:#3a3a3a;border-radius:2px;width:70%"></div>
+        <div style="height:4px;background:#eee;border-radius:2px;width:55%;margin-top:6px"></div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-for list="{{ sections }}" as="s" hint-placeholder-count="3">
+    <div style="position:relative;border:1px solid transparent;border-radius:3px;padding:7px 8px;margin:0 -8px" style-hover="border-color:var(--rk-rhino-200);background:var(--rk-gray-100)">
+      <span style="position:absolute;top:-7px;left:8px;font-size:8.5px;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;background:var(--rk-rhino-700);color:#fff;border-radius:3px;padding:1.5px 6px;font-family:var(--rk-font-body),sans-serif">{{ s.label }}</span>
+      <sc-if value="{{ s.isStats }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:8px;padding-top:4px">
+          <div style="flex:1"><div style="height:14px;background:#555;border-radius:2px;width:75%"></div><div style="height:4px;background:#ddd;border-radius:2px;margin-top:4px"></div><div style="height:4px;background:#ddd;border-radius:2px;margin-top:3px;width:80%"></div></div>
+          <div style="flex:1"><div style="height:14px;background:#555;border-radius:2px;width:75%"></div><div style="height:4px;background:#ddd;border-radius:2px;margin-top:4px"></div><div style="height:4px;background:#ddd;border-radius:2px;margin-top:3px;width:70%"></div></div>
+          <div style="flex:1"><div style="height:14px;background:#555;border-radius:2px;width:75%"></div><div style="height:4px;background:#ddd;border-radius:2px;margin-top:4px"></div><div style="height:4px;background:#ddd;border-radius:2px;margin-top:3px;width:85%"></div></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ s.isText }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:4px;padding-top:4px">
+          <div style="height:5px;background:#ddd;border-radius:2px"></div>
+          <div style="height:5px;background:#ddd;border-radius:2px"></div>
+          <div style="height:5px;background:#ddd;border-radius:2px;width:72%"></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ s.isToc }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:4px;padding-top:4px">
+          <div style="display:flex;gap:6px"><div style="height:5px;background:#ddd;border-radius:2px;flex:1"></div><div style="height:5px;background:#bbb;border-radius:2px;width:10px"></div></div>
+          <div style="display:flex;gap:6px"><div style="height:5px;background:#ddd;border-radius:2px;flex:1"></div><div style="height:5px;background:#bbb;border-radius:2px;width:10px"></div></div>
+          <div style="display:flex;gap:6px"><div style="height:5px;background:#ddd;border-radius:2px;flex:1;max-width:80%"></div><div style="height:5px;background:#bbb;border-radius:2px;width:10px"></div></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ s.isCta }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:6px;align-items:center;padding-top:4px">
+          <div style="width:64px;height:16px;background:#3a3a3a;border-radius:3px"></div>
+          <div style="width:52px;height:16px;border:1.5px solid #999;border-radius:3px"></div>
+          <div style="margin-left:auto;display:flex;gap:4px"><div style="width:11px;height:11px;background:#ccc;border-radius:2px"></div><div style="width:11px;height:11px;background:#ccc;border-radius:2px"></div><div style="width:11px;height:11px;background:#ccc;border-radius:2px"></div></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ s.managed }}" hint-placeholder-val="{{ false }}">
+        <span style="position:absolute;top:-7px;right:8px;display:none;gap:3px" style-hover="display:inline-flex"></span>
+      </sc-if>
+    </div>
+  </sc-for>
+  <div style="margin-top:10px;text-align:center;font-size:10px;letter-spacing:0.07em;text-transform:uppercase;color:var(--rk-gray-500);font-family:var(--rk-font-body),sans-serif">— rough draft · not the real design —</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:330,&quot;height&quot;:520},&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;plain&quot;,&quot;managed&quot;,&quot;beside&quot;,&quot;inset&quot;],&quot;default&quot;:&quot;plain&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const v = this.props.variant ?? 'plain';
+    const managed = v === 'managed';
+    const mk = (label, kind) => ({ label, managed, isStats: kind==='stats', isText: kind==='text', isToc: kind==='toc', isCta: kind==='cta' });
+    return {
+      isBeside: v === 'beside' || v === 'plain' || managed,
+      isInset: v === 'inset',
+      isTop: false,
+      sections: [ mk('AI Summary','text'), mk('Findings','stats'), mk('Contents','toc'), mk('Download + share','cta') ],
+    };
+  }
+}
+</script>
+</body>
+</html>

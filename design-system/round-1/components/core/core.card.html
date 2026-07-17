@@ -1,0 +1,76 @@
+<!-- @dsCard group="Components" viewport="820x430" name="Core — Buttons, Links, Tags, Badges" subtitle="Actions and labels" -->
+<!doctype html>
+<html><head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Mulish:ital,wght@0,300..900;1,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  body{margin:0;padding:26px 28px;background:var(--rk-paper);font-family:var(--rk-font-body);}
+  .grid{display:flex;flex-direction:column;gap:22px;}
+  .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;}
+  .lab{font-family:var(--rk-font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--rk-text-muted);margin-bottom:9px;}
+  .blk > div:last-child{}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="../../_ds_bundle.js"></script>
+<script type="text/babel">
+  const { Button, Link, Tag, Badge, Eyebrow, Icon } = window.ReportKitchenDesignSystem_07c3a7;
+  function Demo(){
+    return (
+      <div className="grid">
+        <div className="blk">
+          <div className="lab">Button — variants</div>
+          <div className="row">
+            <Button variant="primary" iconRight="arrow-right">Get started</Button>
+            <Button variant="secondary">See our work</Button>
+            <Button variant="accent">Book a tasting</Button>
+            <Button variant="ghost" iconLeft="play">Watch demo</Button>
+          </div>
+        </div>
+        <div className="blk">
+          <div className="lab">Button — sizes · pill · disabled</div>
+          <div className="row">
+            <Button size="sm">Small</Button>
+            <Button size="md">Medium</Button>
+            <Button size="lg">Large</Button>
+            <Button pill iconLeft="upload">Upload PDF</Button>
+            <Button disabled>Disabled</Button>
+          </div>
+        </div>
+        <div className="row" style={{gap:48,alignItems:'flex-start'}}>
+          <div className="blk">
+            <div className="lab">Links</div>
+            <div className="row"><Link href="#">Explore our work</Link><Link emphasis="macaroni" href="#">See pricing</Link></div>
+          </div>
+          <div className="blk">
+            <div className="lab">Icons (Lucide)</div>
+            <div className="row" style={{color:'var(--rk-rhino-700)'}}>
+              <Icon name="file-text"/><Icon name="upload"/><Icon name="wand-sparkles"/><Icon name="bar-chart-3"/><Icon name="table-2"/><Icon name="map"/>
+            </div>
+          </div>
+        </div>
+        <div className="row" style={{gap:48,alignItems:'flex-start'}}>
+          <div className="blk">
+            <div className="lab">Tags</div>
+            <div className="row"><Tag tone="tomato">Housing</Tag><Tag tone="macaroni">Toolkit</Tag><Tag tone="muffin">Research</Tag><Tag interactive active>All</Tag><Tag interactive>Foundations</Tag></div>
+          </div>
+          <div className="blk">
+            <div className="lab">Badges &amp; Eyebrow</div>
+            <div className="row"><Badge tone="success" dot>Available now</Badge><Badge tone="soon" dot>Coming soon</Badge><Eyebrow>Our Work</Eyebrow></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo/>);
+  setTimeout(()=>window.lucide&&window.lucide.createIcons(), 60);
+</script>
+</body></html>

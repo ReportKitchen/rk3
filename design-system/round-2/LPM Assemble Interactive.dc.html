@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/colors.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/typography.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/effects.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/styles.css">
+<script src="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/_ds_bundle.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Mulish:ital,wght@0,300..900;1,400..700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#f0eee9;font-family:var(--rk-font-body),system-ui,sans-serif}a{color:var(--rk-text-link)}a:hover{color:var(--rk-text-link-hover)}</style>
+</helmet>
+<div style="width:1440px;margin:24px auto;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden">
+  <dc-import name="parts/LpmChrome" mode="assemble" hint-size="100%,56px"></dc-import>
+  <div style="display:grid;grid-template-columns:1fr 420px;background:var(--rk-paper);min-height:940px;align-items:start">
+    <div style="padding:36px 40px;border-right:1px solid var(--rk-border)">
+      <h1 style="font-family:var(--rk-font-display);font-weight:800;font-size:28px;letter-spacing:-0.02em;color:var(--rk-text-strong);margin:0 0 6px">What should this page say?</h1>
+      <p style="margin:0;font-size:15px;line-height:1.6;color:var(--rk-text-body);max-width:640px">We read all 81 pages and drafted a page from the strongest material. Click a card to see why it earns its place — and the exact text it would use.</p>
+      <sc-for list="{{ buckets }}" as="bk" hint-placeholder-count="3">
+        <div style="margin-top:26px">
+          <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:4px">
+            <span style="display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-tomato)"><span style="width:18px;height:2px;background:var(--rk-tomato)"></span>{{ bk.name }}</span>
+            <span style="font-size:13px;color:var(--rk-text-muted)">{{ bk.tag }}</span>
+            <span style="font-size:12.5px;color:var(--rk-text-muted);font-style:italic;margin-left:auto">{{ bk.hint }}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:10px;align-items:start">
+            <sc-for list="{{ bk.blocks }}" as="b" hint-placeholder-count="2">
+              <div style="background:var(--rk-white);border:{{ b.cardBorder }};border-radius:var(--rk-radius-md);padding:16px 18px;cursor:pointer;box-shadow:{{ b.cardShadow }};grid-column:{{ b.span }}" style-hover="box-shadow:var(--rk-shadow-md)" onClick="{{ b.onExpand }}">
+                <div style="display:flex;gap:14px">
+                  <span style="width:34px;height:34px;flex:none;border-radius:var(--rk-radius-sm);background:{{ b.iconBg }};color:{{ b.iconFg }};display:inline-flex;align-items:center;justify-content:center"><i data-lucide="{{ b.icon }}" style="width:18px;height:18px"></i></span>
+                  <div style="flex:1;min-width:0">
+                    <div style="display:flex;align-items:center;gap:8px">
+                      <span style="font-family:var(--rk-font-display);font-weight:700;font-size:16.5px;color:var(--rk-text-strong)">{{ b.name }}</span>
+                      <sc-if value="{{ b.isNew }}" hint-placeholder-val="{{ false }}"><span style="font-size:10.5px;font-weight:800;letter-spacing:0.06em;background:var(--rk-macaroni-500);color:var(--rk-rhino-900);border-radius:var(--rk-radius-pill);padding:2px 8px">NEW</span></sc-if>
+                      <sc-if value="{{ b.added }}" hint-placeholder-val="{{ false }}"><span onClick="{{ b.onToggle }}" style="margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--rk-rhino-700);border:1px solid var(--rk-border-strong);background:var(--rk-gray-100);border-radius:var(--rk-radius-pill);padding:3px 10px;cursor:pointer" style-hover="background:var(--rk-gray-200);color:var(--rk-rhino-900)"><i data-lucide="minus" style="width:13px;height:13px"></i>Remove</span></sc-if>
+                      <sc-if value="{{ b.notAdded }}" hint-placeholder-val="{{ true }}"><span onClick="{{ b.onToggle }}" style="margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--rk-tomato-600);border:1px solid var(--rk-tomato-300);background:var(--rk-white);border-radius:var(--rk-radius-pill);padding:3px 10px;cursor:pointer" style-hover="background:var(--rk-tomato-100)"><i data-lucide="plus" style="width:13px;height:13px"></i>Add</span></sc-if>
+                    </div>
+                    <p style="margin:6px 0 0;font-size:13.5px;line-height:1.5;color:var(--rk-text-body)">{{ b.what }}</p>
+                    <sc-if value="{{ b.collapsed }}" hint-placeholder-val="{{ true }}"><p style="margin:5px 0 0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)"><b style="color:var(--rk-rhino-500)">{{ b.whenLead }}</b> {{ b.when }}</p></sc-if>
+                  </div>
+                  <span style="flex:none;color:var(--rk-text-muted);align-self:flex-start;margin-top:2px"><i data-lucide="{{ b.chev }}" style="width:16px;height:16px"></i></span>
+                </div>
+                <sc-if value="{{ b.expanded }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin:14px 0 0;border-top:1px dashed var(--rk-border-strong);padding-top:13px;cursor:default" onClick="{{ stop }}">
+                    <div style="font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-macaroni-600);margin-bottom:6px">What to think about</div>
+                    <p style="margin:0;font-size:14px;line-height:1.6;color:var(--rk-text-body)">{{ b.think }}</p>
+                    <div style="margin-top:13px;display:flex;align-items:baseline;justify-content:space-between">
+                      <span style="font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-rhino-500)">The text it would use</span>
+                      <span style="font-size:12px;color:var(--rk-text-muted)">{{ b.source }}</span>
+                    </div>
+                    <div style="margin-top:7px;background:#fff;border:1px solid var(--rk-border);border-left:3px solid var(--rk-rhino-300);border-radius:var(--rk-radius-xs);padding:14px 16px;font-family:'Public Sans',sans-serif;color:#222">{{ b.previewNode }}</div>
+                    <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+                      <sc-if value="{{ b.notAdded }}" hint-placeholder-val="{{ true }}"><span onClick="{{ b.onToggle }}" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#fff;background:var(--rk-tomato-500);border-radius:var(--rk-radius-sm);padding:8px 16px;cursor:pointer" style-hover="background:var(--rk-tomato-600)"><i data-lucide="plus" style="width:14px;height:14px"></i>Add to page</span></sc-if>
+                      <sc-if value="{{ b.added }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--rk-success)"><i data-lucide="check" style="width:14px;height:14px"></i>On your page</span><span onClick="{{ b.onToggle }}" style="font-size:12.5px;font-weight:700;color:var(--rk-text-muted);cursor:pointer;text-decoration:underline" style-hover="color:var(--rk-rhino-700)">Remove</span></sc-if>
+                      <span style="font-size:12.5px;color:var(--rk-text-muted)">You can rewrite every word in Wordsmith.</span>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="padding:24px 26px;display:flex;flex-direction:column;gap:18px;position:sticky;top:0">
+      <div>
+        <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-rhino-500);margin-bottom:8px">How much to say</div>
+        <div style="display:flex;background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-pill);padding:3px;gap:2px">
+          <span style="flex:1;text-align:center;font-size:13.5px;font-weight:700;padding:7px 0;border-radius:var(--rk-radius-pill);color:var(--rk-text-muted);cursor:pointer" style-hover="background:var(--rk-gray-100)">Short</span>
+          <span style="flex:1;text-align:center;font-size:13.5px;font-weight:700;padding:7px 0;border-radius:var(--rk-radius-pill);background:var(--rk-rhino-700);color:#fff">Middle</span>
+          <span style="flex:1;text-align:center;font-size:13.5px;font-weight:700;padding:7px 0;border-radius:var(--rk-radius-pill);color:var(--rk-text-muted);cursor:pointer" style-hover="background:var(--rk-gray-100)">Long</span>
+        </div>
+        <p style="margin:7px 2px 0;font-size:12.5px;line-height:1.5;color:var(--rk-text-muted)">Intro + your strongest evidence + CTA. Sections capped at ~300 words.</p>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+          <span style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-rhino-500)">Your page</span>
+          <span style="font-size:12px;color:var(--rk-text-muted);font-style:italic">Rough draft — words come next</span>
+        </div>
+        <div style="border:2px dashed var(--rk-border-strong);border-radius:var(--rk-radius-sm);background:var(--rk-white);padding:18px 16px;filter:grayscale(0.35)">
+          <div style="display:flex;gap:12px;margin-bottom:14px">
+            <div style="width:42%;aspect-ratio:3/4;background:#c9ccd4;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;letter-spacing:0.06em;color:#777">COVER</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:5px;padding-top:4px">
+              <div style="height:11px;background:#3a3a3a;border-radius:2px"></div>
+              <div style="height:11px;background:#3a3a3a;border-radius:2px;width:70%"></div>
+              <div style="height:4px;background:#eee;border-radius:2px;width:55%;margin-top:6px"></div>
+            </div>
+          </div>
+          <sc-if value="{{ pageEmpty }}" hint-placeholder-val="{{ false }}">
+            <div style="border:2px dashed var(--rk-tomato-300);border-radius:var(--rk-radius-sm);padding:14px;text-align:center;font-size:12.5px;font-weight:700;color:var(--rk-tomato-600);background:var(--rk-tomato-100);font-family:var(--rk-font-body),sans-serif">Your page is empty — add a block</div>
+          </sc-if>
+          <sc-for list="{{ pageSections }}" as="s" hint-placeholder-count="4">
+            <div style="position:relative;border:1px solid transparent;border-radius:3px;padding:10px 8px 7px;margin:4px -8px 0" style-hover="border-color:var(--rk-rhino-200);background:var(--rk-gray-100)">
+              <span style="position:absolute;top:-6px;left:8px;font-size:8.5px;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;background:var(--rk-rhino-700);color:#fff;border-radius:3px;padding:1.5px 6px;font-family:var(--rk-font-body),sans-serif">{{ s.label }}</span>
+              <sc-if value="{{ s.isStats }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:8px;padding-top:2px">
+                  <div style="flex:1"><div style="height:14px;background:#555;border-radius:2px;width:75%"></div><div style="height:4px;background:#ddd;border-radius:2px;margin-top:4px"></div><div style="height:4px;background:#ddd;border-radius:2px;margin-top:3px;width:80%"></div></div>
+                  <div style="flex:1"><div style="height:14px;background:#555;border-radius:2px;width:75%"></div><div style="height:4px;background:#ddd;border-radius:2px;margin-top:4px"></div><div style="height:4px;background:#ddd;border-radius:2px;margin-top:3px;width:70%"></div></div>
+                  <div style="flex:1"><div style="height:14px;background:#555;border-radius:2px;width:75%"></div><div style="height:4px;background:#ddd;border-radius:2px;margin-top:4px"></div><div style="height:4px;background:#ddd;border-radius:2px;margin-top:3px;width:85%"></div></div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ s.isText }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;flex-direction:column;gap:4px;padding-top:2px">
+                  <div style="height:5px;background:#ddd;border-radius:2px"></div>
+                  <div style="height:5px;background:#ddd;border-radius:2px"></div>
+                  <div style="height:5px;background:#ddd;border-radius:2px;width:72%"></div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ s.isBullets }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:4px;padding-top:2px">
+                  <div style="display:flex;gap:5px"><div style="width:5px;height:5px;background:#999;border-radius:50%"></div><div style="height:5px;background:#ddd;border-radius:2px;flex:1;max-width:85%"></div></div>
+                  <div style="display:flex;gap:5px"><div style="width:5px;height:5px;background:#999;border-radius:50%"></div><div style="height:5px;background:#ddd;border-radius:2px;flex:1;max-width:70%"></div></div>
+                  <div style="display:flex;gap:5px"><div style="width:5px;height:5px;background:#999;border-radius:50%"></div><div style="height:5px;background:#ddd;border-radius:2px;flex:1;max-width:78%"></div></div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ s.isToc }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:4px;padding-top:2px">
+                  <div style="display:flex;gap:6px"><div style="height:5px;background:#ddd;border-radius:2px;flex:1"></div><div style="height:5px;background:#bbb;border-radius:2px;width:10px"></div></div>
+                  <div style="display:flex;gap:6px"><div style="height:5px;background:#ddd;border-radius:2px;flex:1"></div><div style="height:5px;background:#bbb;border-radius:2px;width:10px"></div></div>
+                  <div style="display:flex;gap:6px"><div style="height:5px;background:#ddd;border-radius:2px;flex:1;max-width:80%"></div><div style="height:5px;background:#bbb;border-radius:2px;width:10px"></div></div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ s.isStory }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:4px;padding-top:2px">
+                  <div style="width:14px;height:11px;background:#c9ccd4;border-radius:2px"></div>
+                  <div style="height:5px;background:#ddd;border-radius:2px"></div>
+                  <div style="height:5px;background:#ddd;border-radius:2px;width:60%"></div>
+                  <div style="height:4px;background:#aaa;border-radius:2px;width:40%;margin-top:2px"></div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ s.isCta }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:6px;align-items:center;padding-top:2px">
+                  <div style="width:64px;height:16px;background:#3a3a3a;border-radius:3px"></div>
+                  <sc-if value="{{ s.secondary }}" hint-placeholder-val="{{ false }}"><div style="width:52px;height:16px;border:1.5px solid #999;border-radius:3px"></div></sc-if>
+                  <sc-if value="{{ s.social }}" hint-placeholder-val="{{ false }}"><div style="margin-left:auto;display:flex;gap:4px"><div style="width:11px;height:11px;background:#ccc;border-radius:2px"></div><div style="width:11px;height:11px;background:#ccc;border-radius:2px"></div><div style="width:11px;height:11px;background:#ccc;border-radius:2px"></div></div></sc-if>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <div style="margin-top:12px;text-align:center;font-size:10px;letter-spacing:0.07em;text-transform:uppercase;color:var(--rk-gray-500);font-family:var(--rk-font-body),sans-serif">— rough draft · not the real design —</div>
+        </div>
+        <div style="margin-top:14px;background:var(--rk-macaroni-100);border:1px solid var(--rk-macaroni-300);border-radius:var(--rk-radius-sm);padding:11px 14px;font-size:13px;line-height:1.5;color:var(--rk-rhino-900);display:flex;gap:9px"><i data-lucide="pencil-line" style="width:16px;height:16px;flex:none;margin-top:1px"></i><span>Structure look right? Switch to <b>Wordsmith</b> to read it top to bottom and fix the wording.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { added: { ai: true, findings: true, download: true, share: true }, expanded: null };
+  componentDidMount() { this.icons(); }
+  componentDidUpdate() { this.icons(); }
+  icons() { if (window.lucide) window.lucide.createIcons(); else setTimeout(() => this.icons(), 300); }
+  renderVals() {
+    const h = React.createElement;
+    const P = (tag, style, ...kids) => h(tag, { style }, ...kids);
+    const previews = {
+      ai: P('div', null,
+        P('p', { margin: 0, fontSize: '13.5px', lineHeight: 1.65 }, 'What if teacher preparation were built around how people actually learn? Drawing on decades of research in neuroscience and the learning sciences, this report distills five design principles used by leading-edge programs — from curriculum rooted in how learners develop to preparation that models the very teaching it preaches. Written for the people who shape preparation: program faculty, accreditors, and licensing agencies.'),
+        P('p', { margin: '8px 0 0', fontSize: '11.5px', color: '#888' }, 'AI-written · neutral voice · 72 words — you can regenerate in another voice')),
+      exec: P('div', null,
+        P('p', { margin: 0, fontSize: '13.5px', lineHeight: 1.65 }, '“Over the last several decades, we have learned a great deal about how people learn and develop from research in neuroscience; the developmental and learning sciences; and fields like anthropology and social psychology…”'),
+        P('p', { margin: '8px 0 0', fontSize: '11.5px', color: '#888' }, 'Verbatim from the report · 480 words total (first sentence shown)')),
+      highlights: h('ul', { style: { margin: 0, paddingLeft: '18px', fontSize: '13.5px', lineHeight: 1.7 } },
+        h('li', null, 'Curriculum rooted in a deep understanding of learners and development'),
+        h('li', null, 'Skills, habits, and mindsets of an equitable educator'),
+        h('li', null, 'Rich, experiential learning opportunities'),
+        h('li', null, 'Pedagogical alignment and modeling'),
+        h('li', null, 'Supportive relationships in communities of practice')),
+      findings: h('div', { style: { display: 'flex', gap: '14px' } },
+        ...[['46%', 'of U.S. children are exposed to trauma or adversity each year'], ['60%', 'of the grade gap closed when teachers learned what they share with students'], ['100%', 'of Alverno candidates experienced collaborative learning in coursework']].map(([n, t]) =>
+          h('div', { style: { flex: 1 } }, P('div', { fontWeight: 700, fontSize: '22px' }, n), P('div', { fontSize: '11.5px', lineHeight: 1.5, color: '#555', marginTop: '3px' }, t)))),
+      toc: h('div', { style: { fontSize: '13.5px', lineHeight: 1.9 } },
+        ...['Introduction', 'The Science of Learning and Development', 'Five Design Principles', 'Programs Leading the Way', 'Policy Implications'].map((c, i) => P('div', null, `${i + 1}. ${c}`))),
+      story: P('div', null,
+        P('p', { margin: 0, fontSize: '14px', fontWeight: 600, lineHeight: 1.55 }, '“Every student in my class experiences collaborative learning — because I experienced it in every course that prepared me.”'),
+        P('p', { margin: '7px 0 0', fontSize: '12.5px', color: '#555' }, 'Lily · teacher candidate, Alverno College · from p. 4, plus a 90-word narrative')),
+      download: P('div', { display: 'flex', gap: '10px' },
+        P('span', { display: 'inline-flex', alignItems: 'center', background: '#111', color: '#fff', fontWeight: 600, fontSize: '13px', borderRadius: '5px', padding: '8px 16px' }, 'Download the report (PDF)'),
+        P('span', { display: 'inline-flex', alignItems: 'center', fontSize: '12px', color: '#888' }, '4.2 MB · 81 pages')),
+      secondary: P('div', { display: 'flex', gap: '10px', alignItems: 'center' },
+        P('span', { display: 'inline-flex', alignItems: 'center', background: '#fff', color: '#111', border: '2px solid #111', fontWeight: 600, fontSize: '13px', borderRadius: '5px', padding: '7px 16px' }, 'Explore EdPrepLab'),
+        P('span', { fontSize: '12px', color: '#888' }, 'label + link are yours to set')),
+      share: P('div', { display: 'flex', gap: '10px', alignItems: 'center' },
+        P('span', { fontSize: '13px', color: '#333' }, 'Share:'),
+        ...['LinkedIn', 'Bluesky', 'Email'].map(sv => P('span', { fontSize: '12px', fontWeight: 600, border: '1px solid #ccc', borderRadius: '999px', padding: '4px 12px' }, sv))),
+    };
+    const defs = [
+      { bucket: 0, id: 'exec', name: 'Exec Summary', icon: 'file-text', iconBg: 'var(--rk-rhino-100)', iconFg: 'var(--rk-rhino-700)', what: 'The report’s own words, verbatim. Trustworthy; can run long.', whenLead: 'Best when', when: 'the report already sells itself and your readers expect rigor.', think: 'Your exec summary runs 480 words — fine for a Long page, heavy for Middle. If you use it, drop the AI Summary; two intros read like a stutter.', source: 'From your PDF · p. vi' },
+      { bucket: 0, id: 'ai', name: 'AI Summary', icon: 'sparkles', iconBg: 'var(--rk-tomato-100)', iconFg: 'var(--rk-tomato-600)', what: 'Claude writes a punchy pitch in a voice you pick: report intro · neutral · hard sell.', whenLead: 'Reach for this', when: 'when you need a hook fast and the original is too academic to skim.', think: 'Best default for a Middle page: your exec summary is rigorous but slow to start. This stays under 120 words and leads with the “what if.”', source: 'AI-drafted from all 81 pages' },
+      { bucket: 1, id: 'highlights', name: 'Highlights', icon: 'list', iconBg: 'var(--rk-rhino-100)', iconFg: 'var(--rk-rhino-700)', what: '3–5 key points as bullets.', whenLead: 'Best when', when: 'your argument is nuanced, not numeric.', think: 'The five design principles are the natural bullets — they’re the report’s spine. Redundant if you also run the AI Summary and Findings; pick two of the three.', source: 'From your PDF · pp. vi–viii' },
+      { bucket: 1, id: 'findings', name: 'Findings / facts / figures', icon: 'bar-chart-3', iconBg: 'var(--rk-tomato-100)', iconFg: 'var(--rk-tomato-600)', what: 'Headline stats — a big number beside the fact it proves.', whenLead: 'Best when', when: 'your punch is quantitative. This report has three: 46%, 60%, 100%.', think: 'These three land harder side by side than buried in a paragraph. If your key points are more nuanced than numeric, use Highlights instead.', source: 'From your PDF · pp. 2, 5, 24' },
+      { bucket: 1, id: 'toc', name: 'Table of Contents', icon: 'table-of-contents', iconBg: 'var(--rk-rhino-100)', iconFg: 'var(--rk-rhino-700)', what: 'The report’s chapters, linked.', whenLead: 'Best when', when: 'you want to signal depth — proof there’s a real report behind the page.', think: 'Signals depth, but it’s the least persuasive evidence block. On a Middle page it usually loses its slot to Findings or a story.', source: 'From your PDF · contents page' },
+      { bucket: 1, id: 'story', name: 'Storytelling', icon: 'quote', iconBg: 'var(--rk-macaroni-100)', iconFg: 'var(--rk-macaroni-600)', isNew: true, what: 'A real person’s story, pulled straight from the report.', whenLead: 'Best when', when: 'the work is about people, not just policy. We found 3 in your PDF.', think: 'Nothing builds trust like a named human. Lily’s classroom story (p. 4) is the strongest of the three we found; Carlos (p. 25) and Joselin (p. 56) are the alternates.', source: 'From your PDF · p. 4' },
+      { bucket: 2, id: 'download', name: 'Download', icon: 'download', iconBg: 'var(--rk-rhino-100)', iconFg: 'var(--rk-rhino-700)', what: 'The button for the PDF itself.', whenLead: 'Always', when: 'the anchor action — the page exists to hand off the report.', think: 'Keep it. Every landing page needs exactly one unmissable way to get the report.', source: 'Links to your uploaded PDF' },
+      { bucket: 2, id: 'secondary', name: 'Secondary action', icon: 'heart-handshake', iconBg: 'var(--rk-rhino-100)', iconFg: 'var(--rk-rhino-700)', what: 'Donate, subscribe, or contact.', whenLead: 'Reach for this', when: 'if the report is a means to an ask. One ask reads better than three.', think: 'Use only if the report is a means to an ask — a donation, a signup, a contact. Two buttons max beside Download, or nothing gets clicked.', source: 'You supply the label + link' },
+      { bucket: 2, id: 'share', name: 'Social share', icon: 'share-2', iconBg: 'var(--rk-rhino-100)', iconFg: 'var(--rk-rhino-700)', what: 'Share buttons + your org’s links.', whenLead: 'Best when', when: 'your audience amplifies — comms folks love a one-click share.', think: 'Cheap to include, quietly valuable: comms audiences amplify. It rides in the CTA row without stealing attention.', source: 'LinkedIn · Bluesky · email' },
+    ];
+    const bucketMeta = [
+      { name: 'Intro', tag: 'How the page opens', hint: 'pick one, usually' },
+      { name: 'Evidence', tag: 'Why the reader should care', hint: 'Middle pages: one is plenty' },
+      { name: 'CTA', tag: 'What you want the reader to do', hint: 'arrange the actions' },
+    ];
+    const mk = (d) => {
+      const added = !!this.state.added[d.id], exp = this.state.expanded === d.id;
+      return { ...d, added, notAdded: !added, expanded: exp, collapsed: !exp, chev: exp ? 'chevron-up' : 'chevron-down',
+        span: exp ? '1 / -1' : 'auto',
+        cardBorder: exp ? '2px solid var(--rk-rhino-700)' : (added ? '1px solid var(--rk-rhino-200)' : '1px solid var(--rk-border)'),
+        cardShadow: exp ? 'var(--rk-shadow-md)' : 'none',
+        previewNode: previews[d.id],
+        onExpand: () => this.setState(s => ({ expanded: s.expanded === d.id ? null : d.id })),
+        onToggle: (e) => { e.stopPropagation(); this.setState(s => ({ added: { ...s.added, [d.id]: !s.added[d.id] } })); },
+      };
+    };
+    const buckets = bucketMeta.map((m, i) => ({ ...m, blocks: defs.filter(d => d.bucket === i).map(mk) }));
+    const a = this.state.added;
+    const pageSections = [];
+    if (a.exec) pageSections.push({ label: 'Exec Summary', isText: true });
+    if (a.ai) pageSections.push({ label: 'AI Summary', isText: true });
+    if (a.highlights) pageSections.push({ label: 'Highlights', isBullets: true });
+    if (a.findings) pageSections.push({ label: 'Findings', isStats: true });
+    if (a.story) pageSections.push({ label: 'Story', isStory: true });
+    if (a.toc) pageSections.push({ label: 'Contents', isToc: true });
+    if (a.download || a.secondary || a.share) pageSections.push({ label: this.ctaLabel(a), isCta: true, secondary: !!a.secondary, social: !!a.share });
+    return { buckets, pageSections, pageEmpty: pageSections.length === 0, stop: (e) => e.stopPropagation() };
+  }
+  ctaLabel(a) {
+    const parts = [];
+    if (a.download) parts.push('Download');
+    if (a.secondary) parts.push('action');
+    if (a.share) parts.push('share');
+    return parts.join(' + ') || 'CTA';
+  }
+}
+</script>
+</body>
+</html>

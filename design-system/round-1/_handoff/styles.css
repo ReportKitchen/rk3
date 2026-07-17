@@ -1,0 +1,10 @@
+/* ============================================================
+   Report Kitchen — Design System
+   Global entry point. Consumers link THIS file only.
+   Keep as @import lines; no rules here.
+   ============================================================ */
+@import "tokens/fonts.css";
+@import "tokens/colors.css";
+@import "tokens/typography.css";
+@import "tokens/spacing.css";
+@import "tokens/effects.css";

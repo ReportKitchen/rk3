@@ -1,0 +1,26 @@
+/* ============================================================
+   Report Kitchen — Spacing & Layout Tokens
+   4px base grid. Generous, editorial rhythm.
+   ============================================================ */
+:root {
+  --rk-space-0: 0;
+  --rk-space-1: 0.25rem;   /* 4  */
+  --rk-space-2: 0.5rem;    /* 8  */
+  --rk-space-3: 0.75rem;   /* 12 */
+  --rk-space-4: 1rem;      /* 16 */
+  --rk-space-5: 1.5rem;    /* 24 */
+  --rk-space-6: 2rem;      /* 32 */
+  --rk-space-7: 3rem;      /* 48 */
+  --rk-space-8: 4rem;      /* 64 */
+  --rk-space-9: 6rem;      /* 96 */
+  --rk-space-10: 8rem;     /* 128 */
+
+  /* Container widths */
+  --rk-container: 1200px;   /* standard content max */
+  --rk-container-narrow: 760px;  /* reading measure (articles) */
+  --rk-container-wide: 1360px;
+  --rk-gutter: 1.5rem;
+
+  /* Section vertical rhythm */
+  --rk-section-y: 6rem;
+}

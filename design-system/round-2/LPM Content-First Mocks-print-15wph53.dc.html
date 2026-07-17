@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style data-omelette-print-defaults>
+@media print {
+  @page { margin: 0.5in; }
+  h1, h2, h3, h4, h5, h6 { break-after: avoid; }
+  figure, table, pre, blockquote, img, svg, tr, [class~="card" i] { break-inside: avoid; }
+  img, svg { max-width: 100%; }
+  p { orphans: 3; widows: 3; }
+}
+</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/colors.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/typography.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/effects.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/styles.css">
+<script src="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/_ds_bundle.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Mulish:ital,wght@0,300..900;1,400..700&amp;family=Public+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#f0eee9;font-family:var(--rk-font-body),system-ui,sans-serif}a{color:var(--rk-text-link)}a:hover{color:var(--rk-text-link-hover)}.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}.dv-tname{font:600 13px/1.2 system-ui,sans-serif;color:#1a1a1a}.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(0,0,0,.55)}.dv-card{max-width:100%;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}.dv-opt:target .dv-oid{background:#2a78d6;color:#fff}.dv-next{margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5)}.dv-note{margin:0 0 18px;max-width:920px;font:13px/1.55 system-ui,sans-serif;color:rgba(0,0,0,.6)}.dv-rowhd{width:100%;font:700 12px/1.2 system-ui,sans-serif;color:rgba(0,0,0,.7);margin:26px 0 2px;text-transform:uppercase;letter-spacing:.06em}i[data-lucide]{display:inline-block}</style>
+</helmet>
+
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Rethink: a real preview-and-adjust surface per block (before Add), + smooth motion</span></div>
+<p class="dv-note"><b>What changed.</b> The inline expand was doing three jobs badly. New model: the card stays a small teaser; clicking it opens a dedicated <b>block inspector</b> where you (1) see the block fully rendered in the page’s real voice, (2) make its choices — which facts, which AI voice, which story — and (3) then add. Choices are per-block: Findings gets a pick-list with a soft cap (“we found 8, 3–5 read best”), AI Summary gets the voice picker, Storytelling gets the person picker. Motion spec for whichever wins: panel slides/fades in 200ms ease-out, card expansion (if kept) animates height 240ms — no layout snap. Three surfaces below; <a href="#2a">2a</a> is my recommendation.</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="2a">
+<div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Inspector drawer — slides in over the “Your page” rail; pantry stays visible ★ recommended</div>
+<div class="dv-card" style="width:500px;background:var(--rk-white);border-left:4px solid var(--rk-rhino-700)">
+  <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--rk-border)">
+    <span style="width:34px;height:34px;flex:none;border-radius:var(--rk-radius-sm);background:var(--rk-tomato-100);color:var(--rk-tomato-600);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="bar-chart-3" style="width:18px;height:18px"></i></span>
+    <div style="flex:1"><div style="font-family:var(--rk-font-display);font-weight:700;font-size:17px;color:var(--rk-text-strong)">Findings / facts / figures</div><div style="font-size:12px;color:var(--rk-text-muted)">Not on your page yet</div></div>
+    <i data-lucide="x" style="width:18px;height:18px;color:var(--rk-text-muted);cursor:pointer"></i>
+  </div>
+  <div style="padding:18px 20px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px">
+      <span style="font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-rhino-500)">Preview — as it will appear</span>
+      <span style="font-size:11.5px;color:var(--rk-text-muted);font-style:italic">updates as you pick</span>
+    </div>
+    <div style="background:#fff;border:1px solid var(--rk-border);border-radius:var(--rk-radius-xs);padding:18px;font-family:'Public Sans',sans-serif;color:#111">
+      <div style="font-weight:700;font-size:15px;margin-bottom:12px">What the research shows</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <div><div style="font-weight:700;font-size:24px">46%</div><div style="font-size:10.5px;line-height:1.45;color:#555;margin-top:3px">of U.S. children are exposed to trauma or adversity each year</div></div>
+        <div><div style="font-weight:700;font-size:24px">60%</div><div style="font-size:10.5px;line-height:1.45;color:#555;margin-top:3px">of the grade gap closed when teachers learned what they share with students</div></div>
+        <div><div style="font-weight:700;font-size:24px">100%</div><div style="font-size:10.5px;line-height:1.45;color:#555;margin-top:3px">of Alverno candidates experienced collaborative learning in coursework</div></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin:18px 0 3px">
+      <span style="font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-rhino-500)">We found 8 numbers in your PDF</span>
+      <span style="font-size:12px;font-weight:700;color:var(--rk-success)">3 picked · 3–5 read best</span>
+    </div>
+    <p style="margin:0 0 10px;font-size:12px;color:var(--rk-text-muted)">Checked ones appear on the page, in this order. Drag ⠿ to reorder.</p>
+    <div style="display:flex;flex-direction:column;gap:6px;max-height:214px;overflow:hidden;position:relative">
+      <div style="display:flex;gap:10px;align-items:center;border:1px solid var(--rk-rhino-200);background:var(--rk-rhino-100);border-radius:var(--rk-radius-xs);padding:9px 11px"><span style="color:var(--rk-gray-500);cursor:grab">⠿</span><span style="width:16px;height:16px;flex:none;border-radius:4px;background:var(--rk-rhino-700);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="check" style="width:11px;height:11px;color:#fff"></i></span><span style="flex:1;font-size:12.5px;line-height:1.4;color:var(--rk-text-body)"><b>46%</b> of children exposed to trauma or adversity each year</span><span style="font-size:11px;color:var(--rk-text-muted);flex:none">p. 2</span></div>
+      <div style="display:flex;gap:10px;align-items:center;border:1px solid var(--rk-rhino-200);background:var(--rk-rhino-100);border-radius:var(--rk-radius-xs);padding:9px 11px"><span style="color:var(--rk-gray-500);cursor:grab">⠿</span><span style="width:16px;height:16px;flex:none;border-radius:4px;background:var(--rk-rhino-700);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="check" style="width:11px;height:11px;color:#fff"></i></span><span style="flex:1;font-size:12.5px;line-height:1.4;color:var(--rk-text-body)"><b>60%</b> of the grade gap closed by teacher–student connection</span><span style="font-size:11px;color:var(--rk-text-muted);flex:none">p. 5</span></div>
+      <div style="display:flex;gap:10px;align-items:center;border:1px solid var(--rk-rhino-200);background:var(--rk-rhino-100);border-radius:var(--rk-radius-xs);padding:9px 11px"><span style="color:var(--rk-gray-500);cursor:grab">⠿</span><span style="width:16px;height:16px;flex:none;border-radius:4px;background:var(--rk-rhino-700);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="check" style="width:11px;height:11px;color:#fff"></i></span><span style="flex:1;font-size:12.5px;line-height:1.4;color:var(--rk-text-body)"><b>100%</b> of Alverno candidates experienced collaborative learning</span><span style="font-size:11px;color:var(--rk-text-muted);flex:none">p. 24</span></div>
+      <div style="display:flex;gap:10px;align-items:center;border:1px solid var(--rk-border);background:var(--rk-white);border-radius:var(--rk-radius-xs);padding:9px 11px"><span style="color:var(--rk-gray-300);cursor:grab">⠿</span><span style="width:16px;height:16px;flex:none;border-radius:4px;border:1.5px solid var(--rk-border-strong)"></span><span style="flex:1;font-size:12.5px;line-height:1.4;color:var(--rk-text-muted)"><b>10%</b> of JJSE students referred out of class after restorative shift</span><span style="font-size:11px;color:var(--rk-text-muted);flex:none">p. 24</span></div>
+      <div style="display:flex;gap:10px;align-items:center;border:1px solid var(--rk-border);background:var(--rk-white);border-radius:var(--rk-radius-xs);padding:9px 11px"><span style="color:var(--rk-gray-300);cursor:grab">⠿</span><span style="width:16px;height:16px;flex:none;border-radius:4px;border:1.5px solid var(--rk-border-strong)"></span><span style="flex:1;font-size:12.5px;line-height:1.4;color:var(--rk-text-muted)"><b>5</b> design principles distilled from research + leading programs</span><span style="font-size:11px;color:var(--rk-text-muted);flex:none">p. vi</span></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;height:34px;background:linear-gradient(transparent,var(--rk-white))"></div>
+    </div>
+    <div style="text-align:center;font-size:12px;font-weight:700;color:var(--rk-rhino-700);padding:5px 0 0;cursor:pointer">Show 3 more <i data-lucide="chevron-down" style="width:12px;height:12px;vertical-align:-2px"></i></div>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;padding:14px 20px;border-top:1px solid var(--rk-border);background:var(--rk-cream)">
+    <span style="display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:#fff;background:var(--rk-tomato-500);border-radius:var(--rk-radius-sm);padding:9px 18px;cursor:pointer" style-hover="background:var(--rk-tomato-600)"><i data-lucide="plus" style="width:14px;height:14px"></i>Add with these 3</span>
+    <span style="font-size:12.5px;font-weight:700;color:var(--rk-text-muted);cursor:pointer">Cancel</span>
+    <span style="margin-left:auto;font-size:11.5px;color:var(--rk-text-muted)">You can reopen this anytime</span>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="2b">
+<div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>“Taste test” modal — full-width preview with the choices as tabs above it (AI Summary shown: this is where the voice lives)</div>
+<div class="dv-card" style="width:880px;background:var(--rk-rhino-900);padding:36px 44px">
+  <div style="background:var(--rk-white);border-radius:var(--rk-radius-md);box-shadow:var(--rk-shadow-lg);overflow:hidden">
+    <div style="display:flex;align-items:center;gap:12px;padding:16px 22px;border-bottom:1px solid var(--rk-border)">
+      <span style="width:34px;height:34px;flex:none;border-radius:var(--rk-radius-sm);background:var(--rk-tomato-100);color:var(--rk-tomato-600);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="sparkles" style="width:18px;height:18px"></i></span>
+      <div style="flex:1"><div style="font-family:var(--rk-font-display);font-weight:700;font-size:17px;color:var(--rk-text-strong)">AI Summary</div><div style="font-size:12px;color:var(--rk-text-muted)">Drafted from all 81 pages · pick the voice</div></div>
+      <i data-lucide="x" style="width:18px;height:18px;color:var(--rk-text-muted);cursor:pointer"></i>
+    </div>
+    <div style="padding:18px 22px 22px">
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <span style="font-size:12.5px;font-weight:700;border:1px solid var(--rk-border-strong);color:var(--rk-text-muted);border-radius:var(--rk-radius-pill);padding:6px 14px;cursor:pointer" style-hover="background:var(--rk-gray-100)">Report intro <span style="font-weight:400">— its own opening words</span></span>
+        <span style="font-size:12.5px;font-weight:700;background:var(--rk-rhino-700);color:#fff;border:1px solid var(--rk-rhino-700);border-radius:var(--rk-radius-pill);padding:6px 14px;cursor:pointer">Neutral <span style="font-weight:400;opacity:0.8">— clear and even</span></span>
+        <span style="font-size:12.5px;font-weight:700;border:1px solid var(--rk-border-strong);color:var(--rk-text-muted);border-radius:var(--rk-radius-pill);padding:6px 14px;cursor:pointer" style-hover="background:var(--rk-gray-100)">Hard sell <span style="font-weight:400">— lead with urgency</span></span>
+      </div>
+      <div style="background:#fff;border:1px solid var(--rk-border);border-radius:var(--rk-radius-xs);padding:26px 32px;font-family:'Public Sans',sans-serif;color:#111">
+        <p style="margin:0;font-size:16px;line-height:1.7">What if teacher preparation were built around how people actually learn? Drawing on decades of research in neuroscience and the learning sciences, this report distills five design principles used by leading-edge programs — from curriculum rooted in how learners develop to preparation that models the very teaching it preaches. Written for the people who shape preparation: program faculty, accreditors, and licensing agencies.</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:12px">
+        <span style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--rk-rhino-700);cursor:pointer" style-hover="color:var(--rk-tomato-600)"><i data-lucide="refresh-cw" style="width:13px;height:13px"></i>Try another take</span>
+        <span style="font-size:12px;color:var(--rk-text-muted)">72 words · reads in 20 seconds</span>
+        <span style="margin-left:auto;font-size:12px;color:var(--rk-text-muted);display:inline-flex;align-items:center;gap:6px"><i data-lucide="pencil-line" style="width:13px;height:13px"></i>Fine-tune the words later in Wordsmith</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;padding:14px 22px;border-top:1px solid var(--rk-border);background:var(--rk-cream)">
+      <span style="display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:#fff;background:var(--rk-tomato-500);border-radius:var(--rk-radius-sm);padding:9px 18px;cursor:pointer" style-hover="background:var(--rk-tomato-600)"><i data-lucide="plus" style="width:14px;height:14px"></i>Add the neutral take</span>
+      <span style="font-size:12.5px;font-weight:700;color:var(--rk-text-muted);cursor:pointer">Cancel</span>
+      <span style="margin-left:auto;font-size:12px;color:var(--rk-text-muted)">Prefer the report’s own words? <b style="color:var(--rk-rhino-700);cursor:pointer">Use Exec Summary instead →</b></span>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="2c">
+<div class="dv-olabel"><a class="dv-oid" href="#2c">2c</a>Inline expand, kept but tamed — animated height, two tabs: Why this block / Preview &amp; choices (Storytelling shown)</div>
+<div class="dv-card" style="width:620px;background:var(--rk-paper);padding:26px 28px">
+  <div style="background:var(--rk-white);border:2px solid var(--rk-rhino-700);border-radius:var(--rk-radius-md);padding:16px 18px;box-shadow:var(--rk-shadow-md)">
+    <div style="display:flex;gap:14px;align-items:center">
+      <span style="width:34px;height:34px;flex:none;border-radius:var(--rk-radius-sm);background:var(--rk-macaroni-100);color:var(--rk-macaroni-600);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="quote" style="width:18px;height:18px"></i></span>
+      <div style="flex:1"><span style="font-family:var(--rk-font-display);font-weight:700;font-size:16.5px;color:var(--rk-text-strong)">Storytelling</span> <span style="font-size:10.5px;font-weight:800;letter-spacing:0.06em;background:var(--rk-macaroni-500);color:var(--rk-rhino-900);border-radius:var(--rk-radius-pill);padding:2px 8px;margin-left:6px">NEW</span></div>
+      <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--rk-tomato-600);border:1px solid var(--rk-tomato-300);border-radius:var(--rk-radius-pill);padding:3px 10px;cursor:pointer"><i data-lucide="plus" style="width:13px;height:13px"></i>Add</span>
+      <i data-lucide="chevron-up" style="width:16px;height:16px;color:var(--rk-text-muted)"></i>
+    </div>
+    <div style="display:flex;gap:2px;margin:14px 0 0;border-bottom:2px solid var(--rk-border)">
+      <span style="font-size:12.5px;font-weight:700;color:var(--rk-text-muted);padding:7px 14px;cursor:pointer">Why this block</span>
+      <span style="font-size:12.5px;font-weight:700;color:var(--rk-rhino-900);padding:7px 14px;border-bottom:2px solid var(--rk-tomato-500);margin-bottom:-2px;cursor:pointer">Preview &amp; choices</span>
+    </div>
+    <div style="padding-top:14px">
+      <div style="font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-rhino-500);margin-bottom:8px">Whose story? · 3 found</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <span style="font-size:12px;font-weight:700;border:2px solid var(--rk-rhino-700);color:var(--rk-rhino-900);border-radius:var(--rk-radius-pill);padding:5px 13px;background:var(--rk-rhino-100);cursor:pointer">Lily · Alverno · p. 4</span>
+        <span style="font-size:12px;font-weight:700;border:1px solid var(--rk-border-strong);color:var(--rk-text-muted);border-radius:var(--rk-radius-pill);padding:5px 13px;cursor:pointer">Carlos · p. 25</span>
+        <span style="font-size:12px;font-weight:700;border:1px solid var(--rk-border-strong);color:var(--rk-text-muted);border-radius:var(--rk-radius-pill);padding:5px 13px;cursor:pointer">Joselin · p. 56</span>
+      </div>
+      <div style="background:#fff;border:1px solid var(--rk-border);border-left:3px solid var(--rk-rhino-300);border-radius:var(--rk-radius-xs);padding:16px 18px;font-family:'Public Sans',sans-serif;color:#111">
+        <p style="margin:0 0 8px;font-size:15px;font-weight:600;line-height:1.5">“Every student in my class experiences collaborative learning — because I experienced it in every course that prepared me.”</p>
+        <p style="margin:0;font-size:12.5px;line-height:1.6;color:#555">Lily, a teacher candidate at Alverno College, structures her 4th-grade lessons around peer sense-making… <span style="color:#999">(+ 74 more words)</span></p>
+      </div>
+    </div>
+  </div>
+  <p style="margin:14px 2px 0;font-size:12px;line-height:1.5;color:rgba(0,0,0,.5);font-family:system-ui,sans-serif">Lightest option: no new surface, but the card must animate open (240ms ease-out) and the tabs keep guidance and choices from crowding each other. Weakness: preview is cramped at card width.</p>
+</div>
+</div>
+</div>
+<div class="dv-opts" style="margin-top:28px">
+<div class="dv-opt" id="2d">
+<div class="dv-olabel"><a class="dv-oid" href="#2d">2d</a>Three-column: inventory (1-col) → inspector (center stage, always open) → your page</div>
+<div class="dv-card" style="width:1440px">
+  <dc-import name="parts/LpmChrome" mode="assemble" hint-size="100%,56px"></dc-import>
+  <div style="display:grid;grid-template-columns:430px 1fr 380px;background:var(--rk-paper);min-height:900px;align-items:stretch">
+    <div style="padding: 26px 22px; border-right: 1px solid var(--rk-border); overflow: hidden; position: relative">
+      <h1 style="font-family:var(--rk-font-display);font-weight:800;font-size:21px;letter-spacing:-0.02em;color:var(--rk-text-strong);margin:0 0 4px">Blocks</h1>
+      <p style="margin:0 0 6px;font-size:13px;line-height:1.5;color:var(--rk-text-body)">Click one to inspect and adjust it in the middle.</p>
+      <div style="font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-tomato);margin:16px 0 8px;display:flex;align-items:center;gap:8px">Intro <span style="font-weight: 400; text-transform: none; letter-spacing: 0px; color: var(--rk-text-muted);">· pick one</span></div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-sm);padding:10px 12px;display:flex;gap:11px;align-items:center;cursor:pointer" style-hover="box-shadow:var(--rk-shadow-sm)"><span style="width:28px;height:28px;flex:none;border-radius:var(--rk-radius-xs);background:var(--rk-rhino-100);color:var(--rk-rhino-700);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="file-text" style="width:15px;height:15px"></i></span><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13.5px;color:var(--rk-text-strong)">Exec Summary</div><div style="font-size:12px;line-height:1.45;color:var(--rk-text-muted);margin-top:2px">The report’s own words — rigorous, can run long.</div></div><i data-lucide="chevron-right" style="width:14px;height:14px;color:var(--rk-gray-300)"></i></div>
+        <div style="background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-sm);padding:10px 12px;display:flex;gap:11px;align-items:center;cursor:pointer" style-hover="box-shadow:var(--rk-shadow-sm)"><span style="width:28px;height:28px;flex:none;border-radius:var(--rk-radius-xs);background:var(--rk-tomato-100);color:var(--rk-tomato-600);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="sparkles" style="width:15px;height:15px"></i></span><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13.5px;color:var(--rk-text-strong)">AI Summary</div><div style="font-size:12px;line-height:1.45;color:var(--rk-text-muted);margin-top:2px">A punchy pitch in a voice you pick.</div></div><i data-lucide="check" style="width:14px;height:14px;color:var(--rk-success)"></i></div>
+      </div>
+      <div style="font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-tomato);margin:18px 0 8px;display:flex;align-items:center;gap:8px">Evidence <span style="font-weight: 400; text-transform: none; letter-spacing: 0px; color: var(--rk-text-muted);">· one is plenty</span></div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-sm);padding:10px 12px;display:flex;gap:11px;align-items:center;cursor:pointer" style-hover="box-shadow:var(--rk-shadow-sm)"><span style="width:28px;height:28px;flex:none;border-radius:var(--rk-radius-xs);background:var(--rk-rhino-100);color:var(--rk-rhino-700);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="list" style="width:15px;height:15px"></i></span><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13.5px;color:var(--rk-text-strong)">Highlights</div><div style="font-size:12px;line-height:1.45;color:var(--rk-text-muted);margin-top:2px">3–5 bullets — when your argument is nuanced, not numeric.</div></div><i data-lucide="chevron-right" style="width:14px;height:14px;color:var(--rk-gray-300)"></i></div>
+        <div style="background:var(--rk-rhino-100);border:2px solid var(--rk-rhino-700);border-radius:var(--rk-radius-sm);padding:10px 12px;display:flex;gap:11px;align-items:center;cursor:pointer;position:relative"><span style="width:28px;height:28px;flex:none;border-radius:var(--rk-radius-xs);background:var(--rk-tomato-100);color:var(--rk-tomato-600);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="bar-chart-3" style="width:15px;height:15px"></i></span><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13.5px;color:var(--rk-rhino-900)">Findings / facts</div><div style="font-size:12px;line-height:1.45;color:var(--rk-rhino-700);margin-top:2px">Headline stats — when your punch is quantitative.</div></div><i data-lucide="check" style="width:14px;height:14px;color:var(--rk-success)"></i></div>
+        <div style="background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-sm);padding:10px 12px;display:flex;gap:11px;align-items:center;cursor:pointer" style-hover="box-shadow:var(--rk-shadow-sm)"><span style="width:28px;height:28px;flex:none;border-radius:var(--rk-radius-xs);background:var(--rk-rhino-100);color:var(--rk-rhino-700);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="table-of-contents" style="width:15px;height:15px"></i></span><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13.5px;color:var(--rk-text-strong)">Table of Contents</div><div style="font-size:12px;line-height:1.45;color:var(--rk-text-muted);margin-top:2px">Chapters, linked — proof there’s a real report behind the page.</div></div><i data-lucide="chevron-right" style="width:14px;height:14px;color:var(--rk-gray-300)"></i></div>
+        <div style="background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-sm);padding:10px 12px;display:flex;gap:11px;align-items:center;cursor:pointer" style-hover="box-shadow:var(--rk-shadow-sm)"><span style="width:28px;height:28px;flex:none;border-radius:var(--rk-radius-xs);background:var(--rk-macaroni-100);color:var(--rk-macaroni-600);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="quote" style="width:15px;height:15px"></i></span><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13.5px;color:var(--rk-text-strong)">Storytelling <span style="font-size:9.5px;font-weight:800;letter-spacing:0.05em;background:var(--rk-macaroni-500);color:var(--rk-rhino-900);border-radius:var(--rk-radius-pill);padding:1.5px 6px;margin-left:4px;vertical-align:1px">NEW</span></div><div style="font-size:12px;line-height:1.45;color:var(--rk-text-muted);margin-top:2px">A real person’s story — we found 3 in your PDF.</div></div><i data-lucide="chevron-right" style="width:14px;height:14px;color:var(--rk-gray-300)"></i></div>
+      </div>
+      <div style="font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-tomato);margin:18px 0 8px;display:flex;align-items:center;gap:8px">CALL TO ACTION</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-sm);padding:10px 12px;display:flex;gap:11px;align-items:center;cursor:pointer" style-hover="box-shadow:var(--rk-shadow-sm)"><span style="width:28px;height:28px;flex:none;border-radius:var(--rk-radius-xs);background:var(--rk-rhino-100);color:var(--rk-rhino-700);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="download" style="width:15px;height:15px"></i></span><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13.5px;color:var(--rk-text-strong)">Download</div><div style="font-size:12px;line-height:1.45;color:var(--rk-text-muted);margin-top:2px">The button for the PDF itself. Keep it.</div></div><i data-lucide="check" style="width:14px;height:14px;color:var(--rk-success)"></i></div>
+        <div style="background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-sm);padding:10px 12px;display:flex;gap:11px;align-items:center;cursor:pointer" style-hover="box-shadow:var(--rk-shadow-sm)"><span style="width:28px;height:28px;flex:none;border-radius:var(--rk-radius-xs);background:var(--rk-rhino-100);color:var(--rk-rhino-700);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="heart-handshake" style="width:15px;height:15px"></i></span><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13.5px;color:var(--rk-text-strong)">Secondary action</div><div style="font-size:12px;line-height:1.45;color:var(--rk-text-muted);margin-top:2px">Donate, subscribe, or contact — one ask reads best.</div></div><i data-lucide="chevron-right" style="width:14px;height:14px;color:var(--rk-gray-300)"></i></div>
+        <div style="background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-sm);padding:10px 12px;display:flex;gap:11px;align-items:center;cursor:pointer" style-hover="box-shadow:var(--rk-shadow-sm)"><span style="width:28px;height:28px;flex:none;border-radius:var(--rk-radius-xs);background:var(--rk-rhino-100);color:var(--rk-rhino-700);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="share-2" style="width:15px;height:15px"></i></span><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13.5px;color:var(--rk-text-strong)">Social share</div><div style="font-size:12px;line-height:1.45;color:var(--rk-text-muted);margin-top:2px">One-click share for audiences that amplify.</div></div><i data-lucide="check" style="width:14px;height:14px;color:var(--rk-success)"></i></div>
+      </div>
+    <span style="position: absolute; left: 413px; top: 390px; transform: translate(0px, -50%) rotate(180deg); width: 0; height: 0; border: 8px solid transparent; border-right-color: var(--rk-rhino-700)"></span></div>
+    <div style="padding:26px 32px;border-right:1px solid var(--rk-border);background:var(--rk-cream)">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+        <span style="width:38px;height:38px;flex:none;border-radius:var(--rk-radius-sm);background:var(--rk-tomato-100);color:var(--rk-tomato-600);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="bar-chart-3" style="width:20px;height:20px"></i></span>
+        <div style="flex:1"><div style="font-family:var(--rk-font-display);font-weight:700;font-size:20px;color:var(--rk-text-strong)">Findings / facts / figures</div></div>
+        <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--rk-rhino-700);border:1px solid var(--rk-border-strong);background:var(--rk-white);border-radius:var(--rk-radius-pill);padding:4px 12px;cursor:pointer" style-hover="background:var(--rk-gray-100)"><i data-lucide="minus" style="width:13px;height:13px"></i>Remove</span>
+      </div>
+      <p style="margin:0 0 16px;font-size:13.5px;line-height:1.55;color:var(--rk-text-body)">These three land harder side by side than buried in a paragraph.</p>
+      <div style="font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-rhino-500);margin-bottom:7px">PREVIEW</div>
+      <div style="background:#fff;border:1px solid var(--rk-border);border-radius:var(--rk-radius-xs);padding:26px 30px;font-family:'Public Sans',sans-serif;color:#111">
+        <div style="font-weight:700;font-size:18px;margin-bottom:16px">What the research shows</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+          <div><div style="font-weight:700;font-size:30px">46%</div><div style="font-size:12px;line-height:1.5;color:#555;margin-top:4px">of U.S. children are exposed to trauma or adversity each year</div></div>
+          <div><div style="font-weight:700;font-size:30px">60%</div><div style="font-size:12px;line-height:1.5;color:#555;margin-top:4px">of the grade gap closed when teachers learned what they share with students</div></div>
+          <div><div style="font-weight:700;font-size:30px">100%</div><div style="font-size:12px;line-height:1.5;color:#555;margin-top:4px">of Alverno candidates experienced collaborative learning in coursework</div></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin:20px 0 3px">
+        <span style="font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-rhino-500)">We found 8 numbers in your PDF</span>
+        <span style="font-size:12px;font-weight:700;color:var(--rk-success)">3 picked · 3–5 read best</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px">
+        <div style="display:flex;gap:10px;align-items:center;border:1px solid var(--rk-rhino-200);background:var(--rk-rhino-100);border-radius:var(--rk-radius-xs);padding:9px 11px"><span style="color:var(--rk-gray-500);cursor:grab">⠿</span><span style="width:16px;height:16px;flex:none;border-radius:4px;background:var(--rk-rhino-700);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="check" style="width:11px;height:11px;color:#fff"></i></span><span style="flex:1;font-size:12.5px;line-height:1.4;color:var(--rk-text-body)"><b>46%</b> of children exposed to trauma or adversity each year</span><span style="font-size:11px;color:var(--rk-text-muted);flex:none">p. 2</span></div>
+        <div style="display:flex;gap:10px;align-items:center;border:1px solid var(--rk-rhino-200);background:var(--rk-rhino-100);border-radius:var(--rk-radius-xs);padding:9px 11px"><span style="color:var(--rk-gray-500);cursor:grab">⠿</span><span style="width:16px;height:16px;flex:none;border-radius:4px;background:var(--rk-rhino-700);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="check" style="width:11px;height:11px;color:#fff"></i></span><span style="flex:1;font-size:12.5px;line-height:1.4;color:var(--rk-text-body)"><b>60%</b> of the grade gap closed by teacher–student connection</span><span style="font-size:11px;color:var(--rk-text-muted);flex:none">p. 5</span></div>
+        <div style="display:flex;gap:10px;align-items:center;border:1px solid var(--rk-rhino-200);background:var(--rk-rhino-100);border-radius:var(--rk-radius-xs);padding:9px 11px"><span style="color:var(--rk-gray-500);cursor:grab">⠿</span><span style="width:16px;height:16px;flex:none;border-radius:4px;background:var(--rk-rhino-700);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="check" style="width:11px;height:11px;color:#fff"></i></span><span style="flex:1;font-size:12.5px;line-height:1.4;color:var(--rk-text-body)"><b>100%</b> of Alverno candidates experienced collaborative learning</span><span style="font-size:11px;color:var(--rk-text-muted);flex:none">p. 24</span></div>
+        <div style="display:flex;gap:10px;align-items:center;border:1px solid var(--rk-border);background:var(--rk-white);border-radius:var(--rk-radius-xs);padding:9px 11px"><span style="color:var(--rk-gray-300);cursor:grab">⠿</span><span style="width:16px;height:16px;flex:none;border-radius:4px;border:1.5px solid var(--rk-border-strong)"></span><span style="flex:1;font-size:12.5px;line-height:1.4;color:var(--rk-text-muted)"><b>10%</b> of JJSE students referred out of class after restorative shift</span><span style="font-size:11px;color:var(--rk-text-muted);flex:none">p. 24</span></div>
+        <div style="display:flex;gap:10px;align-items:center;border:1px solid var(--rk-border);background:var(--rk-white);border-radius:var(--rk-radius-xs);padding:9px 11px"><span style="color:var(--rk-gray-300);cursor:grab">⠿</span><span style="width:16px;height:16px;flex:none;border-radius:4px;border:1.5px solid var(--rk-border-strong)"></span><span style="flex:1;font-size:12.5px;line-height:1.4;color:var(--rk-text-muted)"><b>5</b> design principles distilled from research + leading programs</span><span style="font-size:11px;color:var(--rk-text-muted);flex:none">p. vi</span></div>
+        <div style="display:flex;gap:10px;align-items:center;border:1px solid var(--rk-border);background:var(--rk-white);border-radius:var(--rk-radius-xs);padding:9px 11px"><span style="color:var(--rk-gray-300);cursor:grab">⠿</span><span style="width:16px;height:16px;flex:none;border-radius:4px;border:1.5px solid var(--rk-border-strong)"></span><span style="flex:1;font-size:12.5px;line-height:1.4;color:var(--rk-text-muted)"><b>28</b> programs profiled across the EdPrepLab network</span><span style="font-size:11px;color:var(--rk-text-muted);flex:none">p. 61</span></div>
+      </div>
+      <div style="text-align:center;font-size:12px;font-weight:700;color:var(--rk-rhino-700);padding:8px 0 0;cursor:pointer">Show 2 more <i data-lucide="chevron-down" style="width:12px;height:12px;vertical-align:-2px"></i></div>
+
+    </div>
+    <div style="padding:26px 24px;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+        <span style="font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-rhino-500)">Your page</span>
+        <span style="font-size:11.5px;color:var(--rk-text-muted);font-style:italic">Rough draft</span>
+      </div>
+      <dc-import name="parts/RoughPreview" variant="managed" hint-size="100%,520px"></dc-import>
+      <div style="margin-top:auto;padding-top:16px">
+        <div style="font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-rhino-500);margin-bottom:8px">How much to say</div>
+        <div style="display:flex;background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-pill);padding:3px;gap:2px">
+          <span style="flex:1;text-align:center;font-size:12.5px;font-weight:700;padding:6px 0;border-radius:var(--rk-radius-pill);color:var(--rk-text-muted);cursor:pointer">Short</span>
+          <span style="flex:1;text-align:center;font-size:12.5px;font-weight:700;padding:6px 0;border-radius:var(--rk-radius-pill);background:var(--rk-rhino-700);color:#fff">Middle</span>
+          <span style="flex:1;text-align:center;font-size:12.5px;font-weight:700;padding:6px 0;border-radius:var(--rk-radius-pill);color:var(--rk-text-muted);cursor:pointer">Long</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+<p class="dv-next">Pick one and I’ll wire it into the interactive (<a class="dv-oid" href="#2a">2a</a> drawer · <a class="dv-oid" href="#2b">2b</a> modal · <a class="dv-oid" href="#2c">2c</a> tamed inline · <a class="dv-oid" href="#2d">2d</a> three-column) — including smooth motion, per-fact picking, and the AI voice switch.</p>
+</section>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Landing Page Maker — content-first redesign · sample content: “Design Principles for Teacher Preparation” (LPI &amp; EdPrepLab, July 2025, 81 pp.)</span></div>
+<p class="dv-note"><b>Reading notes.</b> Tool chrome uses the RK kit; the page-being-built renders in plain black-on-white Public Sans (the locked default look). Assemble’s preview is deliberately rough — grayscale, dashed frame, labeled “rough draft” — so it anchors without inviting design fiddling. Recommendation on flow: <b>free toggle</b> (Assemble ⇄ Wordsmith tabs in the header), with Wordsmith nudged via the “Sounding right?” hint on the preview. Recommendation on add-interaction: <b>drag from bucket to outline</b>, with click-to-add (＋) as the accessible fallback on every card.</p>
+
+<div class="dv-rowhd">1 · Assemble — main screen (two proportion takes)</div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Guidance-dominant (~70/30) — preview doubles as the outline; blocks manage in place</div>
+<div class="dv-card" style="width:1440px">
+  <dc-import name="parts/LpmChrome" mode="assemble" hint-size="100%,56px"></dc-import>
+  <div style="display:grid;grid-template-columns:1fr 420px;background:var(--rk-paper);min-height:940px">
+    <div style="padding:36px 40px;border-right:1px solid var(--rk-border)">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:8px">
+        <div>
+          <h1 style="font-family:var(--rk-font-display);font-weight:800;font-size:28px;letter-spacing:-0.02em;color:var(--rk-text-strong);margin:0 0 6px">What should this page say?</h1>
+          <p style="margin:0;font-size:15px;line-height:1.6;color:var(--rk-text-body);max-width:640px">We read all 81 pages and drafted a page from the strongest material. Add, swap, or drop blocks below — each card tells you when it earns its place.</p>
+        </div>
+      </div>
+      <sc-for list="{{ buckets }}" as="bk" hint-placeholder-count="3">
+        <div style="margin-top:26px">
+          <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:4px">
+            <span style="display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-tomato)"><span style="width:18px;height:2px;background:var(--rk-tomato)"></span>{{ bk.name }}</span>
+            <span style="font-size:13px;color:var(--rk-text-muted)">{{ bk.tag }}</span>
+            <span style="font-size:12.5px;color:var(--rk-text-muted);font-style:italic;margin-left:auto">{{ bk.hint }}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:10px">
+            <sc-for list="{{ bk.blocks }}" as="b" hint-placeholder-count="2">
+              <div style="background:var(--rk-white);border:1px solid {{ b.borderCol }};border-radius:var(--rk-radius-md);padding:16px 18px;display:flex;gap:14px;cursor:grab" style-hover="box-shadow:var(--rk-shadow-md)">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:10px;flex:none">
+                  <span style="width:34px;height:34px;border-radius:var(--rk-radius-sm);background:{{ b.iconBg }};color:{{ b.iconFg }};display:inline-flex;align-items:center;justify-content:center"><i data-lucide="{{ b.icon }}" style="width:18px;height:18px"></i></span>
+                  <span style="color:var(--rk-gray-300);letter-spacing:2px;writing-mode:vertical-rl;font-size:11px;user-select:none">⠿</span>
+                </div>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-family:var(--rk-font-display);font-weight:700;font-size:16.5px;color:var(--rk-text-strong)">{{ b.name }}</span>
+                    <sc-if value="{{ b.isNew }}" hint-placeholder-val="{{ false }}"><span style="font-size:10.5px;font-weight:800;letter-spacing:0.06em;background:var(--rk-macaroni-500);color:var(--rk-rhino-900);border-radius:var(--rk-radius-pill);padding:2px 8px">NEW</span></sc-if>
+                    <sc-if value="{{ b.added }}" hint-placeholder-val="{{ false }}"><span style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--rk-success)"><i data-lucide="check" style="width:13px;height:13px"></i>On your page</span></sc-if>
+                    <sc-if value="{{ b.notAdded }}" hint-placeholder-val="{{ true }}"><span style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--rk-tomato-600);border:1px solid var(--rk-tomato-300);border-radius:var(--rk-radius-pill);padding:3px 10px;cursor:pointer" style-hover="background:var(--rk-tomato-100)"><i data-lucide="plus" style="width:13px;height:13px"></i>Add</span></sc-if>
+                  </div>
+                  <p style="margin:6px 0 0;font-size:13.5px;line-height:1.5;color:var(--rk-text-body)">{{ b.what }}</p>
+                  <p style="margin:5px 0 0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)"><b style="color:var(--rk-rhino-500)">{{ b.whenLead }}</b> {{ b.when }}</p>
+                </div>
+                <div style="flex:none;width:64px;display:flex;flex-direction:column;gap:3px;align-self:flex-start;padding-top:4px">
+                  <sc-for list="{{ b.thumb }}" as="row" hint-placeholder-count="3">
+                    <div style="display:flex;gap:3px">
+                      <sc-for list="{{ row }}" as="seg" hint-placeholder-count="1">
+                        <div style="width:{{ seg.w }};height:{{ seg.h }};background:{{ seg.c }};border-radius:2px"></div>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="padding:24px 26px;display:flex;flex-direction:column;gap:18px">
+      <div>
+        <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-rhino-500);margin-bottom:8px">How much to say</div>
+        <div style="display:flex;background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-pill);padding:3px;gap:2px">
+          <span style="flex:1;text-align:center;font-size:13.5px;font-weight:700;padding:7px 0;border-radius:var(--rk-radius-pill);color:var(--rk-text-muted);cursor:pointer">Short</span>
+          <span style="flex:1;text-align:center;font-size:13.5px;font-weight:700;padding:7px 0;border-radius:var(--rk-radius-pill);background:var(--rk-rhino-700);color:#fff">Middle</span>
+          <span style="flex:1;text-align:center;font-size:13.5px;font-weight:700;padding:7px 0;border-radius:var(--rk-radius-pill);color:var(--rk-text-muted);cursor:pointer">Long</span>
+        </div>
+        <p style="margin:7px 2px 0;font-size:12.5px;line-height:1.5;color:var(--rk-text-muted)">Intro + your strongest evidence + CTA. Sections capped at ~300 words.</p>
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-rhino-500);margin-bottom:8px">How the cover sits</div>
+        <div style="display:flex;gap:8px">
+          <sc-for list="{{ layouts }}" as="ly" hint-placeholder-count="4">
+            <div style="flex:1;text-align:center;cursor:pointer">
+              <div style="border:2px solid {{ ly.border }};background:var(--rk-white);border-radius:var(--rk-radius-sm);padding:7px;display:flex;flex-direction:column;gap:3px;align-items:stretch">
+                <sc-for list="{{ ly.thumb }}" as="row" hint-placeholder-count="3">
+                  <div style="display:flex;gap:3px;justify-content:{{ ly.justify }}">
+                    <sc-for list="{{ row }}" as="seg" hint-placeholder-count="1">
+                      <div style="width:{{ seg.w }};height:{{ seg.h }};background:{{ seg.c }};border-radius:1.5px"></div>
+                    </sc-for>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="font-size:11px;font-weight:700;color:{{ ly.labelCol }};margin-top:4px">{{ ly.name }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+          <span style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-rhino-500)">Your page</span>
+          <span style="font-size:12px;color:var(--rk-text-muted);font-style:italic">Rough draft — words come next</span>
+        </div>
+        <dc-import name="parts/RoughPreview" variant="managed" hint-size="100%,560px"></dc-import>
+        <div style="margin-top:14px;background:var(--rk-macaroni-100);border:1px solid var(--rk-macaroni-300);border-radius:var(--rk-radius-sm);padding:11px 14px;font-size:13px;line-height:1.5;color:var(--rk-rhino-900);display:flex;gap:9px"><i data-lucide="pencil-line" style="width:16px;height:16px;flex:none;margin-top:1px"></i><span>Structure look right? Switch to <b>Wordsmith</b> to read it top to bottom and fix the wording.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Balanced (~55/45) — separate outline panel between buckets and preview (drag target is explicit)</div>
+<div class="dv-card" style="width:1440px">
+  <dc-import name="parts/LpmChrome" mode="assemble" hint-size="100%,56px"></dc-import>
+  <div style="display:grid;grid-template-columns:1fr 330px 330px;background:var(--rk-paper);min-height:940px">
+    <div style="padding:30px 32px;border-right:1px solid var(--rk-border)">
+      <h1 style="font-family:var(--rk-font-display);font-weight:800;font-size:24px;letter-spacing:-0.02em;color:var(--rk-text-strong);margin:0 0 4px">Block pantry</h1>
+      <p style="margin:0 0 4px;font-size:14px;line-height:1.55;color:var(--rk-text-body)">Drag a block into your page outline — or hit ＋. Each one says when it’s the right call.</p>
+      <sc-for list="{{ buckets }}" as="bk" hint-placeholder-count="3">
+        <div style="margin-top:20px">
+          <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:8px">
+            <span style="display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-tomato)"><span style="width:18px;height:2px;background:var(--rk-tomato)"></span>{{ bk.name }}</span>
+            <span style="font-size:12.5px;color:var(--rk-text-muted)">{{ bk.tag }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ bk.blocks }}" as="b" hint-placeholder-count="2">
+              <div style="background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-sm);padding:11px 14px;display:flex;gap:12px;align-items:flex-start;cursor:grab" style-hover="box-shadow:var(--rk-shadow-md)">
+                <span style="width:28px;height:28px;flex:none;border-radius:var(--rk-radius-xs);background:{{ b.iconBg }};color:{{ b.iconFg }};display:inline-flex;align-items:center;justify-content:center"><i data-lucide="{{ b.icon }}" style="width:15px;height:15px"></i></span>
+                <div style="flex:1;min-width:0">
+                  <div style="display:flex;align-items:center;gap:7px"><span style="font-weight:700;font-size:14px;color:var(--rk-text-strong)">{{ b.name }}</span><sc-if value="{{ b.isNew }}" hint-placeholder-val="{{ false }}"><span style="font-size:10px;font-weight:800;letter-spacing:0.05em;background:var(--rk-macaroni-500);color:var(--rk-rhino-900);border-radius:var(--rk-radius-pill);padding:1.5px 7px">NEW</span></sc-if></div>
+                  <p style="margin:3px 0 0;font-size:12.5px;line-height:1.45;color:var(--rk-text-muted)"><b style="color:var(--rk-rhino-500)">{{ b.whenLead }}</b> {{ b.when }}</p>
+                </div>
+                <sc-if value="{{ b.added }}" hint-placeholder-val="{{ false }}"><i data-lucide="check" style="width:15px;height:15px;color:var(--rk-success);flex:none;margin-top:2px"></i></sc-if>
+                <sc-if value="{{ b.notAdded }}" hint-placeholder-val="{{ true }}"><i data-lucide="plus" style="width:15px;height:15px;color:var(--rk-tomato-600);flex:none;margin-top:2px;cursor:pointer"></i></sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="padding:30px 22px;border-right:1px solid var(--rk-border);background:var(--rk-cream)">
+      <div style="font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-rhino-500);margin-bottom:2px">Page outline</div>
+      <p style="margin:0 0 14px;font-size:12.5px;color:var(--rk-text-muted)">Drafted from your PDF · reorder by dragging</p>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <sc-for list="{{ outline }}" as="o" hint-placeholder-count="5">
+          <div style="background:var(--rk-white);border:1px solid {{ o.border }};border-left:3px solid {{ o.accent }};border-radius:var(--rk-radius-sm);padding:10px 12px;display:flex;align-items:center;gap:10px" style-hover="box-shadow:var(--rk-shadow-sm)">
+            <span style="color:var(--rk-gray-300);font-size:12px;cursor:grab;user-select:none">⠿</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:700;font-size:13px;color:var(--rk-text-strong)">{{ o.name }}</div>
+              <div style="font-size:11.5px;color:var(--rk-text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.meta }}</div>
+            </div>
+            <i data-lucide="x" style="width:13px;height:13px;color:var(--rk-gray-300);cursor:pointer;flex:none"></i>
+          </div>
+        </sc-for>
+        <div style="border:2px dashed var(--rk-tomato-300);border-radius:var(--rk-radius-sm);padding:11px 12px;text-align:center;font-size:12.5px;font-weight:700;color:var(--rk-tomato-600);background:var(--rk-tomato-100)">Drop a block here</div>
+      </div>
+      <div style="margin-top:16px;font-size:12px;line-height:1.55;color:var(--rk-text-muted);display:flex;gap:8px"><i data-lucide="lightbulb" style="width:14px;height:14px;flex:none;margin-top:1px;color:var(--rk-macaroni-600)"></i><span>Middle pages read best with <b>one</b> evidence block. You have two — consider dropping Contents.</span></div>
+    </div>
+    <div style="padding:30px 22px;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px">
+        <span style="font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-rhino-500)">Preview</span>
+        <span style="font-size:11.5px;color:var(--rk-text-muted);font-style:italic">rough, on purpose</span>
+      </div>
+      <dc-import name="parts/RoughPreview" variant="plain" hint-size="100%,520px"></dc-import>
+      <div style="margin-top:auto;padding-top:14px">
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <span style="flex:1;text-align:center;font-size:12px;font-weight:700;padding:6px 0;border-radius:var(--rk-radius-pill);border:1px solid var(--rk-border);background:var(--rk-white);color:var(--rk-text-muted)">Short</span>
+          <span style="flex:1;text-align:center;font-size:12px;font-weight:700;padding:6px 0;border-radius:var(--rk-radius-pill);background:var(--rk-rhino-700);color:#fff">Middle</span>
+          <span style="flex:1;text-align:center;font-size:12px;font-weight:700;padding:6px 0;border-radius:var(--rk-radius-pill);border:1px solid var(--rk-border);background:var(--rk-white);color:var(--rk-text-muted)">Long</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          <sc-for list="{{ layouts }}" as="ly" hint-placeholder-count="4">
+            <div style="flex:1;border:2px solid {{ ly.border }};background:var(--rk-white);border-radius:var(--rk-radius-xs);padding:5px;display:flex;flex-direction:column;gap:2px;cursor:pointer">
+              <sc-for list="{{ ly.thumb }}" as="row" hint-placeholder-count="3">
+                <div style="display:flex;gap:2px;justify-content:{{ ly.justify }}">
+                  <sc-for list="{{ row }}" as="seg" hint-placeholder-count="1">
+                    <div style="width:{{ seg.w }};height:{{ seg.h }};background:{{ seg.c }};border-radius:1px"></div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="dv-rowhd">2 · Block cards, close up — default + expanded (the editorial voice test)</div>
+<div class="dv-opts">
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Findings &amp; Storytelling (default → expanded), and Exec vs AI Summary taught side-by-side</div>
+<div class="dv-card" style="width:1180px;background:var(--rk-paper);padding:34px 38px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:30px">
+    <div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-rhino-500);margin-bottom:10px">Findings — default</div>
+      <div style="background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-md);padding:18px 20px;display:flex;gap:16px">
+        <span style="width:38px;height:38px;flex:none;border-radius:var(--rk-radius-sm);background:var(--rk-tomato-100);color:var(--rk-tomato-600);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="bar-chart-3" style="width:20px;height:20px"></i></span>
+        <div style="flex:1">
+          <div style="font-family:var(--rk-font-display);font-weight:700;font-size:18px;color:var(--rk-text-strong)">Findings / facts / figures</div>
+          <p style="margin:6px 0 0;font-size:14px;line-height:1.55;color:var(--rk-text-body)">Headline stats — a big number beside the fact it proves.</p>
+          <p style="margin:6px 0 0;font-size:13.5px;line-height:1.55;color:var(--rk-text-muted)"><b style="color:var(--rk-rhino-500)">Best when</b> your punch is quantitative.</p>
+        </div>
+        <div style="flex:none;width:76px;display:flex;flex-direction:column;gap:4px;padding-top:4px">
+          <div style="display:flex;gap:4px;align-items:flex-end"><div style="width:30px;height:22px;background:var(--rk-rhino-300);border-radius:2px"></div><div style="flex:1;display:flex;flex-direction:column;gap:3px"><div style="height:4px;background:var(--rk-gray-200);border-radius:2px"></div><div style="height:4px;background:var(--rk-gray-200);border-radius:2px;width:70%"></div></div></div>
+          <div style="display:flex;gap:4px;align-items:flex-end"><div style="width:30px;height:22px;background:var(--rk-rhino-300);border-radius:2px"></div><div style="flex:1;display:flex;flex-direction:column;gap:3px"><div style="height:4px;background:var(--rk-gray-200);border-radius:2px"></div><div style="height:4px;background:var(--rk-gray-200);border-radius:2px;width:60%"></div></div></div>
+        </div>
+      </div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-rhino-500);margin:22px 0 10px">Findings — expanded (hover / focus)</div>
+      <div style="background:var(--rk-white);border:2px solid var(--rk-rhino-700);border-radius:var(--rk-radius-md);padding:18px 20px;box-shadow:var(--rk-shadow-md)">
+        <div style="display:flex;gap:16px">
+          <span style="width:38px;height:38px;flex:none;border-radius:var(--rk-radius-sm);background:var(--rk-tomato-100);color:var(--rk-tomato-600);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="bar-chart-3" style="width:20px;height:20px"></i></span>
+          <div style="flex:1">
+            <div style="font-family:var(--rk-font-display);font-weight:700;font-size:18px;color:var(--rk-text-strong)">Findings / facts / figures</div>
+            <p style="margin:6px 0 0;font-size:14px;line-height:1.55;color:var(--rk-text-body)">Headline stats — a big number beside the fact it proves.</p>
+          </div>
+        </div>
+        <div style="margin:14px 0 0;border-top:1px dashed var(--rk-border-strong);padding-top:13px">
+          <div style="font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-macaroni-600);margin-bottom:6px">What to think about</div>
+          <p style="margin:0;font-size:14px;line-height:1.6;color:var(--rk-text-body)">You’ve got three hard numbers in this report — <b>46%</b>, <b>60%</b>, and <b>100%</b> — and they’ll land harder side by side than buried in a paragraph. If your key points are more nuanced than numeric, use Highlights or a Summary instead.</p>
+          <div style="margin-top:12px;background:var(--rk-cream);border-radius:var(--rk-radius-sm);padding:10px 13px;font-size:12.5px;color:var(--rk-text-muted);display:flex;gap:8px;align-items:center"><i data-lucide="file-search" style="width:14px;height:14px;flex:none"></i>Found in your PDF: pp. 2, 5, and the discipline study on p. 24</div>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#fff;background:var(--rk-tomato-500);border-radius:var(--rk-radius-sm);padding:8px 16px;cursor:pointer"><i data-lucide="plus" style="width:14px;height:14px"></i>Add to page</span>
+          <span style="font-size:12.5px;color:var(--rk-text-muted)">or drag it into place</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-rhino-500);margin-bottom:10px">Storytelling — default (new block)</div>
+      <div style="background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-md);padding:18px 20px;display:flex;gap:16px">
+        <span style="width:38px;height:38px;flex:none;border-radius:var(--rk-radius-sm);background:var(--rk-macaroni-100);color:var(--rk-macaroni-600);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="quote" style="width:20px;height:20px"></i></span>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px"><span style="font-family:var(--rk-font-display);font-weight:700;font-size:18px;color:var(--rk-text-strong)">Storytelling</span><span style="font-size:10.5px;font-weight:800;letter-spacing:0.06em;background:var(--rk-macaroni-500);color:var(--rk-rhino-900);border-radius:var(--rk-radius-pill);padding:2px 8px">NEW</span></div>
+          <p style="margin:6px 0 0;font-size:14px;line-height:1.55;color:var(--rk-text-body)">A real person’s story, pulled straight from the report.</p>
+          <p style="margin:6px 0 0;font-size:13.5px;line-height:1.55;color:var(--rk-text-muted)"><b style="color:var(--rk-rhino-500)">Best when</b> the work is about people, not just policy.</p>
+        </div>
+        <div style="flex:none;width:76px;display:flex;flex-direction:column;gap:4px;padding-top:4px">
+          <div style="width:14px;height:11px;background:var(--rk-macaroni-300);border-radius:2px"></div>
+          <div style="height:4px;background:var(--rk-gray-200);border-radius:2px"></div>
+          <div style="height:4px;background:var(--rk-gray-200);border-radius:2px"></div>
+          <div style="height:4px;background:var(--rk-gray-200);border-radius:2px;width:55%"></div>
+          <div style="height:3px;background:var(--rk-rhino-300);border-radius:2px;width:45%;margin-top:2px"></div>
+        </div>
+      </div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-rhino-500);margin:22px 0 10px">Storytelling — expanded</div>
+      <div style="background:var(--rk-white);border:2px solid var(--rk-rhino-700);border-radius:var(--rk-radius-md);padding:18px 20px;box-shadow:var(--rk-shadow-md)">
+        <div style="display:flex;gap:16px">
+          <span style="width:38px;height:38px;flex:none;border-radius:var(--rk-radius-sm);background:var(--rk-macaroni-100);color:var(--rk-macaroni-600);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="quote" style="width:20px;height:20px"></i></span>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px"><span style="font-family:var(--rk-font-display);font-weight:700;font-size:18px;color:var(--rk-text-strong)">Storytelling</span><span style="font-size:10.5px;font-weight:800;letter-spacing:0.06em;background:var(--rk-macaroni-500);color:var(--rk-rhino-900);border-radius:var(--rk-radius-pill);padding:2px 8px">NEW</span></div>
+            <p style="margin:6px 0 0;font-size:14px;line-height:1.55;color:var(--rk-text-body)">A real person’s story, pulled straight from the report.</p>
+          </div>
+        </div>
+        <div style="margin:14px 0 0;border-top:1px dashed var(--rk-border-strong);padding-top:13px">
+          <div style="font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-macaroni-600);margin-bottom:6px">What to think about</div>
+          <p style="margin:0;font-size:14px;line-height:1.6;color:var(--rk-text-body)">Nothing builds trust like a named human. We found <b>3 personal narratives</b> in this report — Lily’s classroom story (p. 4) is the strongest. Skip this block if your report is all method and no people; a thin anecdote reads worse than none.</p>
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <span style="font-size:12px;font-weight:700;border:1px solid var(--rk-rhino-700);color:var(--rk-rhino-700);border-radius:var(--rk-radius-pill);padding:4px 12px;background:var(--rk-white)">Lily · p. 4</span>
+            <span style="font-size:12px;font-weight:700;border:1px solid var(--rk-border-strong);color:var(--rk-text-muted);border-radius:var(--rk-radius-pill);padding:4px 12px">Carlos · p. 25</span>
+            <span style="font-size:12px;font-weight:700;border:1px solid var(--rk-border-strong);color:var(--rk-text-muted);border-radius:var(--rk-radius-pill);padding:4px 12px">Joselin · p. 56</span>
+          </div>
+        </div>
+        <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#fff;background:var(--rk-tomato-500);border-radius:var(--rk-radius-sm);padding:8px 16px;cursor:pointer"><i data-lucide="plus" style="width:14px;height:14px"></i>Add Lily’s story</span>
+          <span style="font-size:12.5px;color:var(--rk-text-muted)">rendered example → <a href="#1i" style="font-weight:700">1i</a></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:30px">
+    <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-rhino-500);margin-bottom:10px">Exec Summary vs AI Summary — the card layout does the teaching (pick one, usually)</div>
+    <div style="background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-md);overflow:hidden">
+      <div style="display:grid;grid-template-columns:1fr 1fr">
+        <div style="padding:18px 20px;border-right:1px dashed var(--rk-border-strong)">
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px"><span style="width:34px;height:34px;flex:none;border-radius:var(--rk-radius-sm);background:var(--rk-rhino-100);color:var(--rk-rhino-700);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="file-text" style="width:18px;height:18px"></i></span><span style="font-family:var(--rk-font-display);font-weight:700;font-size:17px;color:var(--rk-text-strong)">Exec Summary</span></div>
+          <p style="margin:0;font-size:13.5px;line-height:1.55;color:var(--rk-text-body)">The report’s own words, verbatim. Trustworthy; can run long.</p>
+          <p style="margin:7px 0 0;font-size:13px;line-height:1.55;color:var(--rk-text-muted)"><b style="color:var(--rk-rhino-500)">Best when</b> the report already sells itself and your readers expect rigor.</p>
+        </div>
+        <div style="padding:18px 20px">
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px"><span style="width:34px;height:34px;flex:none;border-radius:var(--rk-radius-sm);background:var(--rk-tomato-100);color:var(--rk-tomato-600);display:inline-flex;align-items:center;justify-content:center"><i data-lucide="sparkles" style="width:18px;height:18px"></i></span><span style="font-family:var(--rk-font-display);font-weight:700;font-size:17px;color:var(--rk-text-strong)">AI Summary</span></div>
+          <p style="margin:0;font-size:13.5px;line-height:1.55;color:var(--rk-text-body)">Claude writes a punchy pitch in a voice you choose: report intro · neutral · hard sell.</p>
+          <p style="margin:7px 0 0;font-size:13px;line-height:1.55;color:var(--rk-text-muted)"><b style="color:var(--rk-rhino-500)">Reach for this</b> when you need a hook fast and the original is too academic to skim.</p>
+        </div>
+      </div>
+      <div style="background:var(--rk-cream);border-top:1px solid var(--rk-border);padding:12px 20px;display:flex;gap:10px;align-items:center">
+        <i data-lucide="scale" style="width:16px;height:16px;flex:none;color:var(--rk-rhino-500)"></i>
+        <span style="font-size:13.5px;line-height:1.5;color:var(--rk-text-body)"><b>Which should I pick?</b> Your exec summary runs 480 words — fine for a Long page, heavy for Middle. For this page, we’d start with the AI Summary and keep the exec summary one click away.</span>
+        <span style="margin-left:auto;flex:none;font-size:12.5px;font-weight:700;color:var(--rk-tomato-600);cursor:pointer;white-space:nowrap">Use AI Summary →</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="dv-rowhd">3 · Wordsmith — main screen</div>
+<div class="dv-opts">
+<div class="dv-opt" id="1d">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Read top-to-bottom, fix wording. Click a line, change it — B / I / lists / links only</div>
+<div class="dv-card" style="width:1440px">
+  <dc-import name="parts/LpmChrome" mode="wordsmith" hint-size="100%,56px"></dc-import>
+  <div style="background:var(--rk-gray-100);min-height:980px;position:relative">
+    <div style="display:flex;align-items:center;gap:8px;padding:12px 24px">
+      <span style="display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--rk-rhino-700);border:1px solid var(--rk-border-strong);background:var(--rk-white);border-radius:var(--rk-radius-pill);padding:6px 14px;cursor:pointer" style-hover="background:var(--rk-rhino-100)"><i data-lucide="arrow-left" style="width:14px;height:14px"></i>Assemble</span>
+      <span style="font-size:12.5px;color:var(--rk-text-muted)">to change what’s on the page</span>
+      <span style="margin-left:auto;font-size:12.5px;color:var(--rk-text-muted)">742 words · reads in about 3 min</span>
+    </div>
+    <div style="max-width:800px;margin:6px auto 40px;background:#fff;border:1px solid var(--rk-border);border-radius:var(--rk-radius-sm);box-shadow:var(--rk-shadow-sm);padding:56px 72px;font-family:'Public Sans',sans-serif;color:#111">
+      <div style="display:flex;gap:28px;align-items:flex-start;margin-bottom:34px">
+        <div style="width:150px;height:196px;flex:none;background:var(--rk-rhino-700);border-radius:3px;color:#fff;padding:14px;display:flex;flex-direction:column"><span style="font-size:9px;letter-spacing:0.08em;opacity:0.7">LEARNING POLICY INSTITUTE</span><span style="font-size:14px;font-weight:700;line-height:1.3;margin-top:8px">Design Principles for Teacher Preparation</span><span style="font-size:9px;opacity:0.7;margin-top:auto">JULY 2025</span></div>
+        <div style="flex:1">
+          <h2 style="font-family:'Public Sans',sans-serif;font-weight:700;font-size:30px;line-height:1.2;margin:0 0 10px;color:#111">Design Principles for Teacher Preparation</h2>
+          <p style="margin:0 0 12px;font-size:16px;line-height:1.55;color:#444">Enacting the science of learning and development</p>
+          <p style="margin:0;font-size:13px;line-height:1.6;color:#666">Linda Darling-Hammond, Maria E. Hyler, and Steve Wojcikiewicz, with Joy Rushing<br>Learning Policy Institute &amp; EdPrepLab · July 2025</p>
+        </div>
+      </div>
+      <p style="margin:0 0 16px;font-size:16px;line-height:1.7">Over the last several decades, we have learned a great deal about how people learn and develop — from neuroscience, the developmental and learning sciences, and fields like anthropology and social psychology.</p>
+      <div style="position:relative;background:var(--rk-macaroni-100);outline:2px solid var(--rk-macaroni-500);border-radius:3px;padding:2px 6px;margin:0 -6px 16px">
+        <div style="position:absolute;top:-44px;left:0;background:var(--rk-rhino-900);border-radius:8px;box-shadow:var(--rk-shadow-lg);display:flex;align-items:center;padding:5px 6px;gap:2px">
+          <span style="width:28px;height:26px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:14px;background:rgba(255,255,255,0.14);border-radius:5px;cursor:pointer">B</span>
+          <span style="width:28px;height:26px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-style:italic;font-size:14px;border-radius:5px;cursor:pointer">I</span>
+          <span style="width:1px;height:16px;background:rgba(255,255,255,0.25);margin:0 3px"></span>
+          <span style="width:28px;height:26px;display:inline-flex;align-items:center;justify-content:center;color:#fff;border-radius:5px;cursor:pointer"><i data-lucide="list" style="width:15px;height:15px"></i></span>
+          <span style="width:28px;height:26px;display:inline-flex;align-items:center;justify-content:center;color:#fff;border-radius:5px;cursor:pointer"><i data-lucide="link" style="width:15px;height:15px"></i></span>
+        </div>
+        <p style="margin:0;font-size:16px;line-height:1.7">This report identifies design principles for teacher preparation, built on recent syntheses of that research <b>and on the wisdom of practice found in leading-edge programs</b>.<span style="display:inline-block;width:2px;height:18px;background:#111;vertical-align:-3px;margin-left:1px"></span></p>
+      </div>
+      <p style="margin:0 0 28px;font-size:16px;line-height:1.7">It is written for the people who design preparation: program faculty, accreditors, and licensing agencies.</p>
+      <h3 style="font-family:'Public Sans',sans-serif;font-weight:700;font-size:20px;margin:0 0 16px;color:#111">What the research shows</h3>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:28px">
+        <div><div style="font-weight:700;font-size:34px;color:#111">46%</div><div style="font-size:13px;line-height:1.5;color:#555;margin-top:4px">of U.S. children are exposed to trauma or adversity each year — schools can buffer or compound it</div></div>
+        <div><div style="font-weight:700;font-size:34px;color:#111">60%</div><div style="font-size:13px;line-height:1.5;color:#555;margin-top:4px">of the grade gap closed when teachers learned what they share with their students</div></div>
+        <div><div style="font-weight:700;font-size:34px;color:#111">100%</div><div style="font-size:13px;line-height:1.5;color:#555;margin-top:4px">of Alverno candidates experienced collaborative learning in their own coursework</div></div>
+      </div>
+      <h3 style="font-family:'Public Sans',sans-serif;font-weight:700;font-size:20px;margin:0 0 12px;color:#111">Five principles for preparation</h3>
+      <ul style="margin:0 0 30px;padding-left:22px;font-size:15.5px;line-height:1.8;color:#222">
+        <li>Curriculum rooted in a deep understanding of learners and development</li>
+        <li>Skills, habits, and mindsets of an equitable educator</li>
+        <li>Rich, experiential learning opportunities</li>
+        <li>Pedagogical alignment and modeling</li>
+        <li>Supportive relationships in communities of practice</li>
+      </ul>
+      <div style="border-top:1px solid #ddd;padding-top:26px;display:flex;gap:12px">
+        <span style="display:inline-flex;align-items:center;gap:8px;background:#111;color:#fff;font-weight:600;font-size:15px;border-radius:6px;padding:12px 22px"><i data-lucide="download" style="width:16px;height:16px"></i>Download the report (PDF)</span>
+        <span style="display:inline-flex;align-items:center;background:#fff;color:#111;border:2px solid #111;font-weight:600;font-size:15px;border-radius:6px;padding:12px 22px">Explore EdPrepLab</span>
+      </div>
+    </div>
+    <div style="position:absolute;top:120px;right:36px;width:210px;background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-md);padding:14px 16px;box-shadow:var(--rk-shadow-sm)">
+      <div style="font-size:11.5px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-rhino-500);margin-bottom:6px">Wordsmith</div>
+      <p style="margin:0;font-size:12.5px;line-height:1.55;color:var(--rk-text-body)">Click any line and type. Bold, italics, lists, and links — that’s the whole toolbox, on purpose.</p>
+      <p style="margin:8px 0 0;font-size:12.5px;line-height:1.55;color:var(--rk-text-muted)">Wrong blocks, not wrong words? Head back to <b>Assemble</b>.</p>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="dv-rowhd">4 · Cover-layout presets — picker treatments + two applied</div>
+<div class="dv-opts">
+<div class="dv-opt" id="1e">
+<div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Picker A — always-available thumbnail strip (lives in the “Your page” rail)</div>
+<div class="dv-card" style="width:400px;background:var(--rk-paper);padding:24px 26px">
+  <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-rhino-500);margin-bottom:10px">How the cover sits</div>
+  <div style="display:flex;gap:9px">
+    <sc-for list="{{ layouts }}" as="ly" hint-placeholder-count="4">
+      <div style="flex:1;text-align:center;cursor:pointer">
+        <div style="border:2px solid {{ ly.border }};background:var(--rk-white);border-radius:var(--rk-radius-sm);padding:8px;display:flex;flex-direction:column;gap:3px">
+          <sc-for list="{{ ly.thumb }}" as="row" hint-placeholder-count="3">
+            <div style="display:flex;gap:3px;justify-content:{{ ly.justify }}">
+              <sc-for list="{{ row }}" as="seg" hint-placeholder-count="1">
+                <div style="width:{{ seg.w }};height:{{ seg.h }};background:{{ seg.c }};border-radius:1.5px"></div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-size:11px;font-weight:700;color:{{ ly.labelCol }};margin-top:5px">{{ ly.name }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="margin-top:12px;display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--rk-text-muted)"><span style="font-weight:700;color:var(--rk-text-body)">Cover beside:</span><span style="display:inline-flex;border:1px solid var(--rk-border-strong);border-radius:var(--rk-radius-pill);overflow:hidden"><span style="padding:3px 10px;font-size:11.5px;font-weight:700;background:var(--rk-rhino-700);color:#fff">Left</span><span style="padding:3px 10px;font-size:11.5px;font-weight:700;color:var(--rk-text-muted)">Right</span></span></div>
+  <p style="margin:12px 0 0;font-size:12.5px;line-height:1.55;color:var(--rk-text-muted)">One pick, no sliders. Date and authors ride along with the cover automatically.</p>
+</div>
+</div>
+
+<div class="dv-opt" id="1f">
+<div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>Picker B — labeled cards popover, one opinionated line each</div>
+<div class="dv-card" style="width:460px;background:var(--rk-rhino-900);padding:26px">
+  <div style="background:var(--rk-white);border-radius:var(--rk-radius-md);box-shadow:var(--rk-shadow-lg);padding:20px 22px">
+    <div style="font-family:var(--rk-font-display);font-weight:700;font-size:17px;color:var(--rk-text-strong);margin-bottom:2px">How should the cover sit?</div>
+    <p style="margin:0 0 14px;font-size:13px;color:var(--rk-text-muted)">Sized and placed for you — switch anytime.</p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ layoutsLong }}" as="ly" hint-placeholder-count="4">
+        <div style="display:flex;gap:14px;align-items:center;border:2px solid {{ ly.border }};border-radius:var(--rk-radius-sm);padding:10px 12px;cursor:pointer;background:{{ ly.bg }}" style-hover="border-color:var(--rk-rhino-300)">
+          <div style="width:56px;flex:none;display:flex;flex-direction:column;gap:2.5px;background:var(--rk-white);border:1px solid var(--rk-border);border-radius:3px;padding:5px">
+            <sc-for list="{{ ly.thumb }}" as="row" hint-placeholder-count="3">
+              <div style="display:flex;gap:2.5px;justify-content:{{ ly.justify }}">
+                <sc-for list="{{ row }}" as="seg" hint-placeholder-count="1">
+                  <div style="width:{{ seg.w }};height:{{ seg.h }};background:{{ seg.c }};border-radius:1px"></div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px"><span style="font-weight:700;font-size:14px;color:var(--rk-text-strong)">{{ ly.name }}</span><sc-if value="{{ ly.active }}" hint-placeholder-val="{{ false }}"><i data-lucide="check" style="width:14px;height:14px;color:var(--rk-tomato-600)"></i></sc-if></div>
+            <div style="font-size:12.5px;line-height:1.45;color:var(--rk-text-muted);margin-top:2px">{{ ly.desc }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="margin-top:13px;border-top:1px dashed var(--rk-border-strong);padding-top:11px;font-size:12.5px;color:var(--rk-text-muted);display:flex;gap:8px"><i data-lucide="info" style="width:14px;height:14px;flex:none;margin-top:1px"></i><span>The cover carries its metadata — <b>published July 2025 · Darling-Hammond et al.</b> — wherever it sits.</span></div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="1g2">
+<div class="dv-olabel"><a class="dv-oid" href="#1g2">1g2</a>Applied — “Cover beside (left)” and “Cover inset,” rough preview rendering</div>
+<div class="dv-card" style="width:640px;background:var(--rk-paper);padding:24px;display:flex;gap:20px">
+  <div style="flex:1">
+    <div style="font-size:11.5px;font-weight:700;color:var(--rk-text-muted);margin-bottom:8px;text-align:center">Cover beside (left)</div>
+    <dc-import name="parts/RoughPreview" variant="beside" hint-size="100%,420px"></dc-import>
+  </div>
+  <div style="flex:1">
+    <div style="font-size:11.5px;font-weight:700;color:var(--rk-text-muted);margin-bottom:8px;text-align:center">Cover inset</div>
+    <dc-import name="parts/RoughPreview" variant="inset" hint-size="100%,420px"></dc-import>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="dv-rowhd">5 · Length starter — short / middle / long as the opening choice</div>
+<div class="dv-opts">
+<div class="dv-opt" id="1g">
+<div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>Starter A — first-run moment, right after the PDF lands</div>
+<div class="dv-card" style="width:900px;background:var(--rk-rhino-900);padding:48px 56px">
+  <div style="text-align:center;margin-bottom:8px"><span style="display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-macaroni-500)"><i data-lucide="check-circle-2" style="width:15px;height:15px"></i>We read your PDF — 81 pages, 5 chapters, 3 stories</span></div>
+  <h2 style="font-family:var(--rk-font-display);font-weight:800;font-size:34px;letter-spacing:-0.02em;color:#fff;text-align:center;margin:0 0 6px">How much do you want to say?</h2>
+  <p style="text-align:center;font-size:15px;color:var(--rk-text-on-dark);opacity:0.85;margin:0 0 30px">Pick a depth — every choice starts as a fully drafted page. Switch anytime.</p>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+    <sc-for list="{{ lengths }}" as="L" hint-placeholder-count="3">
+      <div style="background:var(--rk-white);border-radius:var(--rk-radius-md);padding:22px;text-align:left;cursor:pointer;border:3px solid {{ L.border }};position:relative" style-hover="transform:translateY(-2px);box-shadow:var(--rk-shadow-md)">
+        <sc-if value="{{ L.default }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-12px;left:18px;background:var(--rk-macaroni-500);color:var(--rk-rhino-900);font-size:11px;font-weight:800;letter-spacing:0.05em;border-radius:var(--rk-radius-pill);padding:3px 11px;box-shadow:var(--rk-shadow-sm)">MOST PAGES</span></sc-if>
+        <div style="width:52px;display:flex;flex-direction:column;gap:3px;margin-bottom:14px">
+          <sc-for list="{{ L.glyph }}" as="g" hint-placeholder-count="3">
+            <div style="height:{{ g.h }};width:{{ g.w }};background:{{ g.c }};border-radius:2px"></div>
+          </sc-for>
+        </div>
+        <div style="font-family:var(--rk-font-display);font-weight:700;font-size:20px;color:var(--rk-text-strong)">{{ L.name }}</div>
+        <p style="margin:6px 0 0;font-size:13.5px;line-height:1.55;color:var(--rk-text-body)">{{ L.promise }}</p>
+        <p style="margin:10px 0 0;font-size:12.5px;color:var(--rk-text-muted)">{{ L.recipe }}</p>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="1h">
+<div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>Starter B — quiet segmented control in the rail; promise updates below the pick</div>
+<div class="dv-card" style="width:420px;background:var(--rk-paper);padding:26px 28px">
+  <div style="font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-rhino-500);margin-bottom:10px">How much to say</div>
+  <div style="display:flex;background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-pill);padding:3px;gap:2px;margin-bottom:12px">
+    <span style="flex:1;text-align:center;font-size:13.5px;font-weight:700;padding:8px 0;border-radius:var(--rk-radius-pill);color:var(--rk-text-muted);cursor:pointer" style-hover="background:var(--rk-gray-100)">Short</span>
+    <span style="flex:1;text-align:center;font-size:13.5px;font-weight:700;padding:8px 0;border-radius:var(--rk-radius-pill);background:var(--rk-rhino-700);color:#fff">Middle</span>
+    <span style="flex:1;text-align:center;font-size:13.5px;font-weight:700;padding:8px 0;border-radius:var(--rk-radius-pill);color:var(--rk-text-muted);cursor:pointer" style-hover="background:var(--rk-gray-100)">Long</span>
+  </div>
+  <div style="background:var(--rk-white);border:1px solid var(--rk-border);border-radius:var(--rk-radius-sm);padding:13px 15px">
+    <div style="font-size:13px;font-weight:700;color:var(--rk-text-strong);margin-bottom:4px">Middle — the balanced default</div>
+    <p style="margin:0;font-size:12.5px;line-height:1.55;color:var(--rk-text-body)">Intro + your strongest evidence + CTA, sections capped at ~300 words. Switching trims or restores text — nothing is lost.</p>
+  </div>
+  <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--rk-text-muted)">
+    <div style="display:flex;gap:8px;align-items:center"><i data-lucide="check" style="width:13px;height:13px;color:var(--rk-success)"></i>AI Summary <span style="opacity:0.7">— 120 words</span></div>
+    <div style="display:flex;gap:8px;align-items:center"><i data-lucide="check" style="width:13px;height:13px;color:var(--rk-success)"></i>Findings <span style="opacity:0.7">— 3 stats</span></div>
+    <div style="display:flex;gap:8px;align-items:center"><i data-lucide="check" style="width:13px;height:13px;color:var(--rk-success)"></i>Download + share</div>
+    <div style="display:flex;gap:8px;align-items:center;opacity:0.55"><i data-lucide="minus" style="width:13px;height:13px"></i>Full exec summary <span style="opacity:0.8">— saved for Long</span></div>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="dv-rowhd">6 · Storytelling block, rendered on the finished page</div>
+<div class="dv-opts">
+<div class="dv-opt" id="1i">
+<div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a>Quote + short narrative + attribution, in the page’s plain Public Sans voice</div>
+<div class="dv-card" style="width:760px;background:#fff;padding:56px 72px;font-family:'Public Sans',sans-serif;color:#111">
+  <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;margin-bottom:18px">From the report · p. 4</div>
+  <div style="font-size:26px;line-height:1.45;font-weight:600;color:#111;margin-bottom:22px">“Every student in my class experiences collaborative learning — because I experienced it in every course that prepared me.”</div>
+  <p style="margin:0 0 18px;font-size:16px;line-height:1.7;color:#333">Lily, a teacher candidate at Alverno College, structures her 4th-grade lessons around peer sense-making: students watch one another succeed, with multiple paths into every task. It isn’t improvisation — it mirrors exactly how her own professors taught her. In a recent survey, 100% of Alverno candidates said they regularly experienced collaborative learning in their coursework.</p>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="width:36px;height:36px;border-radius:50%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#666">L</div>
+    <div style="font-size:13.5px;color:#555"><b style="color:#111">Lily</b> · teacher candidate, Alverno College &nbsp;—&nbsp; <a href="#1i" style="color:#111">read her full story in the report →</a></div>
+  </div>
+</div>
+</div>
+</div>
+
+<p class="dv-next">Try next: “make <a class="dv-oid" href="#1a">1a</a>’s preview even smaller and push guidance to 80%” · “merge <a class="dv-oid" href="#1b">1b</a>’s outline panel into <a class="dv-oid" href="#1a">1a</a>” · “show the empty first-run Assemble state right after <a class="dv-oid" href="#1g">1g</a>”</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() {
+    const run = () => { if (window.lucide) window.lucide.createIcons(); };
+    run(); setTimeout(run, 400); setTimeout(run, 1200); setTimeout(run, 3000);
+  }
+  renderVals() {
+    const T = 'var(--rk-tomato-500)', T1 = 'var(--rk-tomato-100)', T6 = 'var(--rk-tomato-600)';
+    const R7 = 'var(--rk-rhino-700)', R1 = 'var(--rk-rhino-100)', R3 = 'var(--rk-rhino-300)';
+    const M5 = 'var(--rk-macaroni-500)', M1 = 'var(--rk-macaroni-100)', M6 = 'var(--rk-macaroni-600)';
+    const G = 'var(--rk-gray-200)', B = 'var(--rk-border)';
+    const bar = (w, h, c) => ({ w, h, c });
+    const blocks = (arr) => arr.map(b => ({ ...b, notAdded: !b.added, borderCol: b.added ? 'var(--rk-rhino-200)' : B }));
+    const buckets = [
+      { name: 'Intro', tag: 'How the page opens', hint: 'pick one, usually', blocks: blocks([
+        { name: 'Exec Summary', icon: 'file-text', iconBg: R1, iconFg: R7, what: 'The report’s own words, verbatim. Trustworthy; can run long.', whenLead: 'Best when', when: 'the report already sells itself and your readers expect rigor.',
+          thumb: [[bar('100%','5px',R3)],[bar('100%','4px',G)],[bar('100%','4px',G)],[bar('80%','4px',G)],[bar('100%','4px',G)],[bar('55%','4px',G)]] },
+        { name: 'AI Summary', icon: 'sparkles', iconBg: T1, iconFg: T6, added: true, what: 'Claude writes a punchy pitch in a voice you pick: report intro · neutral · hard sell.', whenLead: 'Reach for this', when: 'when you need a hook fast and the original is too academic to skim.',
+          thumb: [[bar('100%','6px',R3)],[bar('90%','4px',G)],[bar('100%','4px',G)],[bar('45%','4px',G)]] },
+      ]) },
+      { name: 'Evidence', tag: 'Why the reader should care', hint: 'Middle pages: one is plenty', blocks: blocks([
+        { name: 'Highlights', icon: 'list', iconBg: R1, iconFg: R7, what: '3–5 key points as bullets.', whenLead: 'Best when', when: 'your argument is nuanced, not numeric.',
+          thumb: [[bar('6px','4px',R3), bar('80%','4px',G)],[bar('6px','4px',R3), bar('65%','4px',G)],[bar('6px','4px',R3), bar('75%','4px',G)],[bar('6px','4px',R3), bar('55%','4px',G)]] },
+        { name: 'Findings / facts / figures', icon: 'bar-chart-3', iconBg: T1, iconFg: T6, added: true, what: 'Headline stats — a big number beside the fact it proves.', whenLead: 'Best when', when: 'your punch is quantitative. This report has three: 46%, 60%, 100%.',
+          thumb: [[bar('26px','18px',R3), bar('34px','4px',G)],[bar('26px','18px',R3), bar('28px','4px',G)]] },
+        { name: 'Table of Contents', icon: 'table-of-contents', iconBg: R1, iconFg: R7, what: 'The report’s chapters, linked.', whenLead: 'Best when', when: 'you want to signal depth — proof there’s a real report behind the page.',
+          thumb: [[bar('70%','4px',G), bar('12%','4px',R3)],[bar('60%','4px',G), bar('12%','4px',R3)],[bar('75%','4px',G), bar('12%','4px',R3)],[bar('55%','4px',G), bar('12%','4px',R3)]] },
+        { name: 'Storytelling', icon: 'quote', iconBg: M1, iconFg: M6, isNew: true, what: 'A real person’s story, pulled straight from the report.', whenLead: 'Best when', when: 'the work is about people, not just policy. We found 3 in your PDF.',
+          thumb: [[bar('12px','9px','var(--rk-macaroni-300)')],[bar('100%','4px',G)],[bar('100%','4px',G)],[bar('60%','4px',G)],[bar('40%','3px',R3)]] },
+      ]) },
+      { name: 'CTA', tag: 'What you want the reader to do', hint: 'arrange the actions', blocks: blocks([
+        { name: 'Download', icon: 'download', iconBg: R1, iconFg: R7, added: true, what: 'The button for the PDF itself.', whenLead: 'Always', when: 'the anchor action — the page exists to hand off the report.',
+          thumb: [[bar('44px','12px',R3)]] },
+        { name: 'Secondary action', icon: 'heart-handshake', iconBg: R1, iconFg: R7, what: 'Donate, subscribe, or contact.', whenLead: 'Reach for this', when: 'if the report is a means to an ask. One ask reads better than three.',
+          thumb: [[bar('44px','12px','transparent')],[bar('44px','12px',G)]] },
+        { name: 'Social share', icon: 'share-2', iconBg: R1, iconFg: R7, added: true, what: 'Share buttons + your org’s links.', whenLead: 'Best when', when: 'your audience amplifies — comms folks love a one-click share.',
+          thumb: [[bar('12px','12px',G), bar('12px','12px',G), bar('12px','12px',G)]] },
+      ]) },
+    ];
+    const outline = [
+      { name: 'Title + cover', meta: 'page fundamentals · drives the layout', border: B, accent: R3 },
+      { name: 'AI Summary', meta: 'neutral voice · 120 words', border: B, accent: T },
+      { name: 'Findings', meta: '3 stats · pp. 2, 5, 24', border: B, accent: T },
+      { name: 'Table of Contents', meta: '5 chapters', border: B, accent: R3 },
+      { name: 'Download + share', meta: 'PDF · LinkedIn, Bluesky, email', border: B, accent: R3 },
+    ];
+    const lyThumb = {
+      top: [[bar('100%','14px',R3)],[bar('100%','3px',G)],[bar('100%','3px',G)],[bar('70%','3px',G)]],
+      beside: [[bar('40%','20px',R3), bar('55%','3px',G)],[bar('40%','0px','transparent'), bar('55%','3px',G)],[bar('100%','3px',G)],[bar('60%','3px',G)]],
+      inset: [[bar('26%','12px',R3), bar('68%','3px',G)],[bar('26%','0px','transparent'), bar('68%','3px',G)],[bar('100%','3px',G)],[bar('55%','3px',G)]],
+      text: [[bar('100%','4px',R3)],[bar('100%','3px',G)],[bar('100%','3px',G)],[bar('100%','3px',G)],[bar('65%','3px',G)]],
+    };
+    const layouts = [
+      { name: 'On top', thumb: lyThumb.top, justify: 'flex-start', border: B, labelCol: 'var(--rk-text-muted)' },
+      { name: 'Beside', thumb: lyThumb.beside, justify: 'space-between', border: T, labelCol: T6, active: true },
+      { name: 'Inset', thumb: lyThumb.inset, justify: 'space-between', border: B, labelCol: 'var(--rk-text-muted)' },
+      { name: 'Text-first', thumb: lyThumb.text, justify: 'flex-start', border: B, labelCol: 'var(--rk-text-muted)' },
+    ];
+    const layoutsLong = [
+      { name: 'Cover on top', desc: 'Cover leads full-width; content stacks below. Big, formal.', thumb: lyThumb.top, justify: 'flex-start', border: B, bg: 'var(--rk-white)' },
+      { name: 'Cover beside', desc: 'Cover flanks the intro (left or right). The confident default.', thumb: lyThumb.beside, justify: 'space-between', border: T, bg: T1, active: true },
+      { name: 'Cover inset', desc: 'A smaller cover nested in the opening text — the “float” done for you.', thumb: lyThumb.inset, justify: 'space-between', border: B, bg: 'var(--rk-white)' },
+      { name: 'Text-forward', desc: 'Cover shrinks to a thumbnail (or none). For pages that lead with words.', thumb: lyThumb.text, justify: 'flex-start', border: B, bg: 'var(--rk-white)' },
+    ];
+    const lengths = [
+      { name: 'Short', promise: 'The essentials: a sharp intro and a call to action. No evidence section.', recipe: 'AI Summary · Download — a fast, skimmable teaser.', border: B,
+        glyph: [{ h: '8px', w: '100%', c: R3 }, { h: '5px', w: '70%', c: G }, { h: '10px', w: '45%', c: T }] },
+      { name: 'Middle', promise: 'Intro + your strongest evidence + CTA. Sections capped at ~300 words.', recipe: 'AI Summary · Findings · Download + share', border: T, default: true,
+        glyph: [{ h: '8px', w: '100%', c: R3 }, { h: '5px', w: '85%', c: G }, { h: '5px', w: '70%', c: G }, { h: '10px', w: '45%', c: T }] },
+      { name: 'Long', promise: 'The full pitch: complete exec summary, every evidence block, uncapped.', recipe: 'Exec Summary · Findings · Story · Contents · CTA', border: B,
+        glyph: [{ h: '8px', w: '100%', c: R3 }, { h: '5px', w: '85%', c: G }, { h: '5px', w: '90%', c: G }, { h: '5px', w: '75%', c: G }, { h: '5px', w: '80%', c: G }, { h: '10px', w: '45%', c: T }] },
+    ];
+    return { buckets, outline, layouts, layoutsLong, lengths };
+  }
+}
+</script>
+<script>
+(async () => {
+  if (!document.title || !document.title.trim()) document.title = "LPM Content-First Mocks";
+  // rAF raced with a short timeout: inside a cross-origin iframe (PrintMode),
+  // rAF can be throttled or paused even while the tab is focused, which would
+  // hang the scroll loop and never reach print(). Same pattern as
+  // buildExportSettleScript (export/shared.ts).
+  var raf = function () {
+    return Promise.race([
+      new Promise(function (r) { requestAnimationFrame(r); }),
+      new Promise(function (r) { setTimeout(r, 50); }),
+    ]);
+  };
+  var t0 = performance.now();
+  var mark = function (phase) {
+    var ms = Math.round(performance.now() - t0);
+    console.info('[autoprint]', phase, ms + 'ms');
+    try { parent.postMessage({ __omelette_autoprint: { phase: phase, ms: ms } }, '*'); } catch (e) {}
+  };
+  mark('start');
+  // Prepend so page-supplied @page / break rules (deck-stage's margin:0,
+  // author CSS) keep source-order precedence over the baseline.
+  const baseCss = document.createElement('style');
+  baseCss.textContent = "@media print {\n  figure, table { break-inside: avoid; }\n  *, *::before, *::after {\n    print-color-adjust: exact; -webkit-print-color-adjust: exact;\n    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;\n    animation-delay: -99s !important; animation-duration: .001s !important;\n    animation-iteration-count: 1 !important; animation-fill-mode: both !important;\n    animation-play-state: running !important; transition-duration: 0s !important;\n  }\n}";
+  document.head.prepend(baseCss);
+  if (document.readyState === 'loading') {
+    await new Promise((r) => document.addEventListener('DOMContentLoaded', r, { once: true }));
+  }
+  let ds = document.querySelector('deck-stage');
+  // whenDefined never resolves when nothing registers the element, so only
+  // await it when a <deck-stage> tag exists (and race a timeout regardless).
+  if (ds && !customElements.get('deck-stage')) {
+    try {
+      await Promise.race([
+        customElements.whenDefined('deck-stage'),
+        new Promise((r) => setTimeout(r, 3000)),
+      ]);
+    } catch (e) {}
+    ds = document.querySelector('deck-stage');
+  }
+  // dc-runtime assigns window.DCLogic at init and mounts into #dc-root on
+  // DOMContentLoaded; settle on that subtree so React has rendered before
+  // print(). Non-DC pages fall through to weighing body.
+  const isDc = !ds && 'DCLogic' in window;
+  const settleRoot = ds || (isDc ? document.getElementById('dc-root') : null) || document.body;
+  if (settleRoot) {
+    // Weigh only content children — skip script/style/template so inline
+    // Babel/CSS doesn't register as stable "content" before the framework
+    // has mounted anything.
+    const MEDIA = 'img,svg,canvas,video,picture,iframe,embed,object';
+    const weigh = () => {
+      let text = 0, media = 0;
+      for (const c of settleRoot.children) {
+        const t = c.tagName;
+        if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+        text += (c.textContent || '').trim().length;
+        media += c.querySelectorAll(MEDIA).length + (c.matches(MEDIA) ? 1 : 0);
+      }
+      return text + media * 100;
+    };
+    // "Non-zero and stable" alone is not sufficient to mean rendered: generic
+    // body can carry a static shell while async main content is pending, and
+    // #dc-root can carry the root DC's static text while child refs are still
+    // .sc-placeholder boxes. Gate generic on readyState 'complete', and never
+    // accept stability while a dc-runtime placeholder is present.
+    const isGeneric = settleRoot === document.body;
+    // A placeholder whose fetch failed (.sc-placeholder-error inside) keeps
+    // .sc-placeholder forever — don't wait on it. JS loop, not :has(), so an
+    // engine without :has() support can't throw out of the while and skip
+    // print() entirely.
+    var pendingPlaceholders = function () {
+      var all = settleRoot.querySelectorAll('.sc-placeholder'), n = 0;
+      for (var i = 0; i < all.length; i++)
+        if (!all[i].querySelector('.sc-placeholder-error')) n++;
+      return n;
+    };
+    const deadline = Date.now() + 15000;
+    let last = -1, stable = 0;
+    while (Date.now() < deadline) {
+      const n = weigh();
+      const ready =
+        (!isGeneric || document.readyState === 'complete') &&
+        pendingPlaceholders() === 0;
+      if (n > 0 && n === last && ready) { if (++stable >= 2) break; } else { stable = 0; }
+      last = n;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  }
+  mark('settle-done' + (settleRoot ? ' (errs=' + settleRoot.querySelectorAll('.sc-placeholder-error').length + ' pending=' + pendingPlaceholders() + ')' : ''));
+  // Project support.js may predate runtime default-seeding; push via bridge.
+  if (isDc && window.__dcSetProps && window.__dcRootName) {
+    try {
+      const dpEl = document.querySelector('script[data-dc-script]');
+      const meta = JSON.parse((dpEl && dpEl.getAttribute('data-props')) || '{}');
+      const bag = {};
+      for (const k in meta)
+        if (k[0] !== '$' && meta[k] && meta[k].default !== undefined)
+          bag[k] = meta[k].default;
+      if (Object.keys(bag).length) {
+        window.__dcSetProps(window.__dcRootName(), bag);
+        await new Promise((r) => setTimeout(r, 50));
+      }
+    } catch (e) {}
+  }
+  // Reveal content gated on scroll or visibility before printing. Lazy <img>,
+  // IntersectionObserver fade-ins, and collapsed <details> don't render while
+  // off-screen, so a long page would print with them blank or closed. Open
+  // every <details>, force native-lazy images eager, and scroll the document
+  // through its full height to trip lazy-load + IO; then wait (bounded) for the
+  // newly-triggered images. Inert for deck-stage (slides aren't scroll-gated).
+  try {
+    for (const d of document.querySelectorAll('details')) d.open = true;
+    for (const img of document.querySelectorAll('img[loading="lazy"]'))
+      img.loading = 'eager';
+    const scroller = document.scrollingElement || document.documentElement;
+    const full = Math.max(scroller.scrollHeight, document.body.scrollHeight);
+    const step = window.innerHeight || 800;
+    var scrollDeadline = Date.now() + 4000;
+    for (let y = 0; y <= full && Date.now() < scrollDeadline; y += step) {
+      window.scrollTo(0, y);
+      await raf();
+    }
+    window.scrollTo(0, 0);
+    await Promise.race([
+      Promise.all(
+        [...document.images].map((img) =>
+          img.complete
+            ? null
+            : new Promise((res) => {
+                img.addEventListener('load', res, { once: true });
+                img.addEventListener('error', res, { once: true });
+              })
+        )
+      ),
+      new Promise((r) => setTimeout(r, 4000)),
+    ]);
+  } catch (e) {}
+  mark('scroll-done');
+  try { await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 3000))]); } catch (e) {}
+  mark('fonts-done');
+  // Jump every animation to its end state so print() never captures a slide
+  // mid-entrance. Ordering matters: the 0s-transition style must be live
+  // BEFORE data-deck-active is set so attribute-keyed transitions don't
+  // start a (now-0s) run from the pre-active base.
+  const st = document.createElement('style');
+  st.textContent = '*,*::before,*::after{animation-delay:-99s !important;animation-duration:.001s !important;animation-iteration-count:1 !important;animation-fill-mode:both !important;animation-play-state:running !important;transition-duration:0s !important}';
+  document.head.appendChild(st);
+  for (const d of document.querySelectorAll('deck-stage')) {
+    for (const c of d.children) {
+      const t = c.tagName;
+      if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+      c.setAttribute('data-deck-active', '');
+    }
+  }
+  // Re-append deck-stage's @page last so no author @page can add a margin and
+  // spill each full-bleed slide onto two sheets. Backstop for old copies.
+  if (ds) {
+    let pg = document.getElementById('deck-stage-print-page');
+    if (!pg) {
+      pg = document.createElement('style');
+      pg.textContent = '@page{size:' + (+ds.getAttribute('width') || 1920) +
+        'px ' + (+ds.getAttribute('height') || 1080) + 'px;margin:0}';
+    }
+    document.body.appendChild(pg);
+  }
+  try {
+    const sweep = () => {
+      for (const a of document.getAnimations()) {
+        try { a.finish(); } catch (e) {
+          try { a.currentTime = (a.effect && a.effect.getComputedTiming().duration) || 0; a.pause(); } catch (e2) {}
+        }
+      }
+    };
+    sweep();
+    await raf();
+    sweep();
+    await raf();
+  } catch (e) {}
+  // A document that owns its print CSS (the doc-page starter injects the
+  // meta at runtime; hand-rolled print designs author it) gets no automatic
+  // page geometry and keeps its forced breaks: strip the injected default
+  // @page — write time cannot see a runtime-injected meta — skip the frame
+  // override below, and skip the fakepage-flattening further down. What
+  // still applies: the print baseline and break-hygiene defaults (no @page
+  // in either; low specificity, so the document's own print CSS wins) and
+  // the break-inside relaxation on >page elements (avoid on those cannot
+  // be honored whoever authored it).
+  var ownsPrint = !!document.querySelector('meta[name="omelette-owns-print" i]');
+  if (ownsPrint) {
+    var dst = document.querySelector('style[data-omelette-print-defaults]');
+    if (dst && dst.textContent) {
+      dst.textContent = dst.textContent.replace(/@page\b[^{}]*\{[^}]*\}/, '');
+    }
+  }
+  // Size the PDF page to the rendered design unless the file opted into
+  // standard paper via @page{size:letter|A4|…} or declared print ownership
+  // via the meta above. Decks own their own @page.
+  // Wrappers (body, …) lose padding+margin so the frame sits at (0,0); the
+  // frame itself loses only margin — its padding is INSIDE the measured
+  // rect and must stay, or content shifts and leaves a gap at bottom/right.
+  var __m = null;
+  try { __m = (() => {
+  var STAMP = true;
+  var docEl = document.documentElement;
+  var doc = { width: docEl.scrollWidth, height: docEl.scrollHeight };
+  // Name-presence check, case-insensitive — the same contract as the
+  // instant-PDF path's runtime check in deck-stage-export.ts. The name is
+  // a string literal here because that file interpolates this script into
+  // its print script, so importing a shared constant from it would be a
+  // cycle; measure.test.ts pins the literal so the two cannot drift apart
+  // silently.
+  var ownsPrint = !!document.querySelector('meta[name="omelette-owns-print" i]');
+
+  var ds = document.querySelector('deck-stage');
+  if (ds) {
+    var dw = Number(ds.getAttribute('width')) || 1920;
+    var dh = Number(ds.getAttribute('height')) || 1080;
+    var n = typeof ds.length === 'number' ? ds.length : ds.children.length;
+    var idx = typeof ds.index === 'number' ? ds.index : 0;
+    var frames = [];
+    for (var i = 0; i < n; i++) frames.push({ left: 0, top: 0, width: dw, height: dh });
+    return { kind: 'deck', source: 'declared', doc: doc, frames: frames,
+      authored: frames.map(function(){return{width:true,height:true}}),
+      deck: { width: dw, height: dh, slideCount: n, index: idx },
+      signals: { paperPage: false, pxPage: false, ownsPrint: ownsPrint } };
+  }
+
+  // Declared kind: a doc-page tag names the kind outright, so no signal
+  // heuristics run (like the deck branch above, signals report false —
+  // they describe inferred classifications only). The tag alone is not
+  // trusted: the element must have upgraded (shadowRoot present), so a
+  // leftover tag whose script was deleted falls through to the heuristics
+  // that handle plain markup.
+  var stageSx = window.scrollX || 0, stageSy = window.scrollY || 0;
+  var dp = document.querySelector('doc-page');
+  if (dp && dp.shadowRoot) {
+    // Crop to the sheet, not the host — the desk around it is screen-only
+    // chrome that must not land in PNG exports.
+    var sheet = dp.shadowRoot.querySelector('.sheet');
+    var sr = (sheet || dp).getBoundingClientRect();
+    return { kind: 'paper-doc', source: 'declared', doc: doc,
+      frames: [{ left: sr.left + stageSx, top: sr.top + stageSy,
+        width: sr.width, height: sr.height }],
+      authored: [{ width: false, height: false }],
+      signals: { paperPage: false, pxPage: false, ownsPrint: ownsPrint } };
+  }
+  var paperPage = false, pxPage = false;
+  var eachRule = function (fn) {
+    for (var s = 0; s < document.styleSheets.length; s++) {
+      var rs; try { rs = document.styleSheets[s].cssRules; } catch (e) { continue; }
+      for (var r = 0; r < rs.length; r++) {
+        fn(rs[r]);
+        if (rs[r].cssRules) for (var n = 0; n < rs[r].cssRules.length; n++) fn(rs[r].cssRules[n]);
+      }
+    }
+  };
+  eachRule(function (r) {
+    if (r.type !== 6) return;
+    var m = /\bsize\s*:\s*([^;}]+)/i.exec(r.cssText || '');
+    if (!m) return;
+    if (/\b(letter|a[3-5]|legal|ledger)\b/i.test(m[1])) paperPage = true;
+    if (/\d+(?:\.\d+)?px\b/i.test(m[1])) pxPage = true;
+  });
+  var signals = { paperPage: paperPage, pxPage: pxPage, ownsPrint: ownsPrint };
+
+  var pxVal = function (v) {
+    var m = /^(\d+(?:\.\d+)?)px$/.exec(v || ''); return m ? +m[1] : 0;
+  };
+  var authoredPx = function (el, prop) {
+    if (pxVal(el.style[prop])) return true;
+    var attr = el.getAttribute(prop);
+    if (attr && /^\d+$/.test(attr)) return true;
+    var hit = false;
+    eachRule(function (r) {
+      if (hit || r.type !== 1 || !r.style) return;
+      try { if (el.matches(r.selectorText) && pxVal(r.style[prop])) hit = true; } catch (e) {}
+    });
+    return hit;
+  };
+
+  var el = document.body, rootPxW = false;
+  for (;;) {
+    var kids = [];
+    for (var c = 0; c < el.children.length; c++) {
+      var t = el.children[c].tagName;
+      if (t !== 'SCRIPT' && t !== 'STYLE' && t !== 'TEMPLATE') kids.push(el.children[c]);
+    }
+    if (kids.length !== 1 || !(kids[0] instanceof HTMLElement)) break;
+    if (STAMP) el.setAttribute('data-om-frame-wrap', '');
+    el = kids[0];
+    rootPxW = authoredPx(el, 'width');
+    if (rootPxW) break;
+  }
+  if (!rootPxW) rootPxW = authoredPx(el, 'width');
+
+  // @page{size:letter} alone is a flowing doc; with a px-width root it's a
+  // fixed sheet pretending to be paper — fall through and size to render.
+  if (paperPage && !rootPxW) {
+    return { kind: 'paper-doc', source: 'inferred', doc: doc, signals: signals,
+      frames: [{ left: 0, top: 0, width: doc.width, height: doc.height }],
+      authored: [{ width: false, height: false }] };
+  }
+
+  var sx = window.scrollX || 0, sy = window.scrollY || 0;
+  var rectOf = function (e) {
+    var r = e.getBoundingClientRect();
+    var oy; try { oy = getComputedStyle(e).overflowY; } catch (err) {}
+    var h = oy === 'visible' ? Math.max(r.height, e.scrollHeight || 0) : r.height;
+    return { left: r.left + sx, top: r.top + sy, width: r.width, height: h };
+  };
+
+  // Multi-frame: off unless the page opts in via data-om-multi-frame on the
+  // stop element — the explicit opt-in is what guards against card grids
+  // and pricing tables that match the geometry but aren't separate
+  // canvases. Two ways to name the frames, explicit first:
+  // 1. Descendants marked data-om-frame-export (the social-frames starter
+  //    marks each asset frame; shells/panels around them are presentation,
+  //    so nesting is expected). Document order.
+  // 2. Fallback, no marked descendants: direct children with an authored px
+  //    width AND height (the original geometry heuristic).
+  // Frames may be different sizes (a gallery mixes 1080×1920 stories with
+  // 728×90 banners); data-om-frame-label rides along for export filenames.
+  if (el.hasAttribute('data-om-multi-frame')) {
+    var visOk = function (e) {
+      var cs; try { cs = getComputedStyle(e); } catch (err) { return false; }
+      return cs.display !== 'none' && cs.visibility !== 'hidden' && cs.position !== 'fixed';
+    };
+    // A frame's crop is its VISUAL box — never the scrollHeight-inflated
+    // rect that rectOf computes for page roots. Shadow-DOM hover controls
+    // (image-slot's Replace bar parks 29px below its host) and similar
+    // escaping UI contribute scrollable overflow to the frame, and the
+    // inflated height both squashes the nominal-size resize and drags
+    // content below the frame into the crop. Zoom-independent; bit every
+    // slot-bearing frame.
+    var frameRectOf = function (e) {
+      var r = e.getBoundingClientRect();
+      return { left: r.left + sx, top: r.top + sy, width: r.width, height: r.height };
+    };
+    var pushCand = function (list, e) {
+      if (!visOk(e)) return;
+      var rc = frameRectOf(e);
+      if (rc.width < 2 || rc.height < 2) return;
+      var lbl = e.getAttribute('data-om-frame-label');
+      if (lbl) rc.label = lbl;
+      list.push(rc);
+    };
+    var cands = [];
+    var marked = el.querySelectorAll('[data-om-frame-export]');
+    if (marked.length) {
+      for (var mk = 0; mk < marked.length; mk++) pushCand(cands, marked[mk]);
+    } else {
+      for (var k = 0; k < el.children.length; k++) {
+        var ch = el.children[k];
+        if (!authoredPx(ch, 'width') || !authoredPx(ch, 'height')) continue;
+        pushCand(cands, ch);
+      }
+    }
+    if (cands.length >= 2) {
+      return { kind: 'multi-frame', source: 'inferred', doc: doc, signals: signals,
+        frames: cands, authored: cands.map(function(){return{width:true,height:true}}) };
+    }
+  }
+
+  if (STAMP) el.setAttribute('data-om-frame', '');
+  return { kind: 'single-canvas', source: 'inferred', doc: doc, signals: signals,
+    frames: [rectOf(el)],
+    authored: [{ width: rootPxW, height: authoredPx(el, 'height') }] };
+})(); } catch (e) {}
+  var frame = null;
+  if (!ownsPrint && __m && __m.kind === 'single-canvas') {
+    var f = __m.frames && __m.frames[0];
+    if (f && f.width >= 200 && f.height >= 200) {
+      frame = f;
+      var fst = document.createElement('style');
+      fst.textContent = '@media print{@page{size:' + Math.ceil(f.width) + 'px ' +
+        Math.ceil(f.height) + 'px;margin:0}' +
+        'html,body,[data-om-frame-wrap]{padding:0!important;margin:0!important;background:none!important}' +
+        '[data-om-frame]{margin:0!important}}';
+      document.body.appendChild(fst);
+    }
+  }
+  // Relax break-inside on oversized elements. An element taller than a
+  // printable page can't honor break-inside: avoid — browsers either overflow
+  // it or push it whole to the next page, leaving a blank gap, then break it
+  // anyway at an arbitrary point. After the final layout (content revealed,
+  // animations jumped), find elements taller than a page that still compute
+  // break-inside: avoid and reset them to auto, so the browser breaks them at
+  // their children's boundaries instead (children keep their own avoid). PAGE_PX
+  // is a conservative portrait estimate at 96 CSS px/in — Letter/A4 usable
+  // height minus our 0.5in margins — so only clearly-oversized elements are
+  // touched and under-page elements still stay whole. Skipped for decks (slides
+  // are sized to the page) and for fixed-size canvases (frame set, or an author
+  // px-based @page) — runs as before for flowing docs on letter/A4.
+  try {
+    if (!ds && !frame && !(__m && __m.signals && __m.signals.pxPage)) {
+      const PAGE_PX = 1024;
+      // Our print defaults add a real @page margin only when the source has
+      // no @page of its own; computed style can't tell us (it reports screen
+      // media), so read the injected rule directly.
+      const defaults = document.querySelector('style[data-omelette-print-defaults]');
+      const pageInset = /@page\s*\{[^}]*margin/.test(defaults ? defaults.textContent || '' : '');
+      const SEL = 'section,article,figure,table,pre,blockquote,[class~="card" i],[class~="page" i],[class~="sheet" i]';
+      for (const el of document.body.querySelectorAll(SEL)) {
+        if (el instanceof HTMLElement && el.offsetHeight > PAGE_PX) {
+          el.setAttribute('data-om-oversized', '');
+          // Fake-paged docs simulate sheets with over-tall break-after:page
+          // boxes; honoring the break spills half-blank pages and ends a
+          // colored box mid-sheet. Flow them, and (only when we own the page
+          // inset) drop the redundant padding/background via the rule below.
+          const cs = getComputedStyle(el);
+          // An owns-print doc's forced breaks are intentional sheet
+          // boundaries, never fake-paged simulation — don't strip them.
+          // The break-inside relaxation above still applies: avoid on a
+          // >page element is impossible to honor whoever authored it.
+          if (
+            !ownsPrint &&
+            (cs.breakAfter === 'page' || cs.pageBreakAfter === 'always')
+          ) {
+            el.setAttribute('data-om-fakepage', '');
+          }
+        }
+      }
+      const ost = document.createElement('style');
+      ost.textContent = '@media print{' +
+        '[data-om-oversized]{break-inside:auto !important;page-break-inside:auto !important}' +
+        '[data-om-fakepage]{break-after:auto !important;page-break-after:auto !important}' +
+        (pageInset ? '[data-om-fakepage]{padding:0 !important;background:none !important}' : '') +
+        '}';
+      document.head.appendChild(ost);
+    }
+  } catch (e) {}
+  // macOS Preview renders Skia-PDF Luminosity soft-masks as opaque grey boxes;
+  // swap the CSS that triggers them for Preview-safe forms.
+  try {
+    for (const el of document.body.querySelectorAll('*')) {
+      const cs = getComputedStyle(el);
+
+      if (cs.boxShadow !== 'none' && cs.filter === 'none') {
+        const outs = [], kept = [];
+        for (const s of cs.boxShadow.split(/,(?![^(]*[)])/)) {
+          const t = s.trim();
+          const m = t.match(/^(rgba?[(][^)]+[)]) (-?[0-9.]+px) (-?[0-9.]+px) ([0-9.]+px) -?[0-9.]+px$/);
+          if (m && parseFloat(m[4]) > 0) outs.push('drop-shadow(' + m[2] + ' ' + m[3] + ' ' + m[4] + ' ' + m[1] + ')');
+          else kept.push(t);
+        }
+        if (outs.length) {
+          el.style.setProperty('filter', outs.join(' '), 'important');
+          el.style.setProperty('box-shadow', kept.join(', ') || 'none', 'important');
+        }
+      }
+
+      const mask = cs.maskImage && cs.maskImage !== 'none' ? cs.maskImage : cs.webkitMaskImage;
+      if (mask && mask !== 'none' && cs.filter === 'none') el.style.setProperty('filter', 'opacity(1)', 'important');
+    }
+  } catch (e) {}
+  mark('print-calling');
+  setTimeout(() => { try { window.print(); } catch (e) {} }, 200);
+})();
+</script>
+</body>
+</html>

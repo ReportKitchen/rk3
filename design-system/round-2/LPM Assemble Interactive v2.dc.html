@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/colors.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/typography.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/effects.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/styles.css">
+<script src="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/_ds_bundle.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Mulish:ital,wght@0,300..900;1,400..700&family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#f0eee9;font-family:var(--rk-font-body),system-ui,sans-serif}a{color:var(--rk-text-link)}a:hover{color:var(--rk-text-link-hover)}</style>
+</helmet>
+<div style="width:1440px;margin:24px auto;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden">
+  <dc-import name="parts/LpmChrome" mode="assemble" hint-size="100%,56px"></dc-import>
+  <div style="display:grid;grid-template-columns:430px 1fr 380px;background:var(--rk-paper);min-height:900px;align-items:stretch">
+    <div style="padding:26px 22px;border-right:1px solid var(--rk-border)">
+      <h1 style="font-family:var(--rk-font-display);font-weight:800;font-size:21px;letter-spacing:-0.02em;color:var(--rk-text-strong);margin:0 0 4px">Blocks</h1>
+      <p style="margin:0 0 6px;font-size:13px;line-height:1.5;color:var(--rk-text-body)">Click one to inspect and adjust it in the middle.</p>
+      <sc-for list="{{ buckets }}" as="bk" hint-placeholder-count="3">
+        <div>
+          <div style="font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-tomato);margin:18px 0 8px">{{ bk.name }} <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--rk-text-muted)">{{ bk.hint }}</span></div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <sc-for list="{{ bk.cards }}" as="c" hint-placeholder-count="2">
+              <div onClick="{{ c.onSelect }}" style="background:var(--rk-white);border:1px solid {{ c.border }};border-radius:var(--rk-radius-sm);padding:10px 12px;display:flex;gap:11px;align-items:center;cursor:pointer;transform:{{ c.tx }};box-shadow:{{ c.shadow }};transition:transform 240ms var(--rk-ease-out),border-color 240ms var(--rk-ease-out),box-shadow 240ms var(--rk-ease-out)" style-hover="box-shadow:var(--rk-shadow-sm)">
+                <span style="width:28px;height:28px;flex:none;border-radius:var(--rk-radius-xs);background:var(--rk-macaroni-100);color:var(--rk-macaroni-600);display:inline-flex;align-items:center;justify-content:center">{{ c.iconEl }}</span>
+                <div style="flex:1;min-width:0">
+                  <div style="font-weight:700;font-size:13.5px;color:var(--rk-text-strong)">{{ c.name }} <sc-if value="{{ c.isNew }}" hint-placeholder-val="{{ false }}"><span style="font-size:9.5px;font-weight:800;letter-spacing:0.05em;background:var(--rk-macaroni-500);color:var(--rk-rhino-900);border-radius:var(--rk-radius-pill);padding:1.5px 6px;margin-left:4px;vertical-align:1px">NEW</span></sc-if></div>
+                  <div style="font-size:12px;line-height:1.45;color:var(--rk-text-muted);margin-top:2px">{{ c.guidance }}</div>
+                </div>
+                <sc-if value="{{ c.added }}" hint-placeholder-val="{{ false }}"><span style="width:14px;height:14px;color:var(--rk-success);flex:none;display:inline-flex">{{ icCheck14 }}</span></sc-if>
+                <sc-if value="{{ c.notAdded }}" hint-placeholder-val="{{ true }}"><span style="width:14px;height:14px;color:var(--rk-gray-300);flex:none;display:inline-flex">{{ icChevR14 }}</span></sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="padding:26px 32px;border-right:1px solid var(--rk-border);background:var(--rk-cream)">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+        <span style="width:38px;height:38px;flex:none;border-radius:var(--rk-radius-sm);background:var(--rk-macaroni-100);color:var(--rk-macaroni-600);display:inline-flex;align-items:center;justify-content:center">{{ selIconEl }}</span>
+        <div style="flex:1"><div style="font-family:var(--rk-font-display);font-weight:700;font-size:20px;color:var(--rk-text-strong)">{{ selName }}</div></div>
+        <sc-if value="{{ selAdded }}" hint-placeholder-val="{{ true }}"><span onClick="{{ toggleSel }}" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--rk-rhino-700);border:1px solid var(--rk-border-strong);background:var(--rk-white);border-radius:var(--rk-radius-pill);padding:4px 12px;cursor:pointer" style-hover="background:var(--rk-gray-100)"><span style="width:13px;height:13px;display:inline-flex">{{ icMinus13 }}</span>Remove</span></sc-if>
+        <sc-if value="{{ selNotAdded }}" hint-placeholder-val="{{ false }}"><span onClick="{{ toggleSel }}" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#fff;background:var(--rk-tomato-500);border-radius:var(--rk-radius-pill);padding:5px 14px;cursor:pointer" style-hover="background:var(--rk-tomato-600)"><span style="width:13px;height:13px;display:inline-flex">{{ icPlus13 }}</span>Add to page</span></sc-if>
+      </div>
+      <p style="margin:0 0 16px;font-size:13.5px;line-height:1.55;color:var(--rk-text-body)">{{ selBlurb }}</p>
+      <sc-if value="{{ showVoice }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+          <sc-for list="{{ voices }}" as="v" hint-placeholder-count="3">
+            <span onClick="{{ v.onPick }}" style="font-size:12.5px;font-weight:700;border:1px solid {{ v.border }};background:{{ v.bg }};color:{{ v.fg }};border-radius:var(--rk-radius-pill);padding:6px 14px;cursor:pointer">{{ v.name }} <span style="font-weight:400;opacity:0.8">— {{ v.desc }}</span></span>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ showPersons }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <sc-for list="{{ persons }}" as="p" hint-placeholder-count="3">
+            <span onClick="{{ p.onPick }}" style="font-size:12px;font-weight:700;border:1px solid {{ p.border }};background:{{ p.bg }};color:{{ p.fg }};border-radius:var(--rk-radius-pill);padding:5px 13px;cursor:pointer">{{ p.label }}</span>
+          </sc-for>
+        </div>
+      </sc-if>
+      <div style="font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-rhino-500);margin-bottom:7px">Preview</div>
+      <div style="background:#fff;border:1px solid var(--rk-border);border-radius:var(--rk-radius-xs);padding:26px 30px;font-family:'Public Sans',sans-serif;color:#111">
+        <sc-if value="{{ pvAi }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0;font-size:15px;line-height:1.7">{{ aiText }}</p>
+          <p style="margin:10px 0 0;font-size:11.5px;color:#888;font-family:var(--rk-font-body),sans-serif">{{ aiMeta }}</p>
+        </sc-if>
+        <sc-if value="{{ pvExec }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0;font-size:15px;line-height:1.7">“Over the last several decades, we have learned a great deal about how people learn and develop from research in neuroscience; the developmental and learning sciences; and fields like anthropology and social psychology…”</p>
+          <p style="margin:10px 0 0;font-size:11.5px;color:#888;font-family:var(--rk-font-body),sans-serif">Verbatim from the report · 480 words total (opening shown)</p>
+        </sc-if>
+        <sc-if value="{{ pvHighlights }}" hint-placeholder-val="{{ false }}">
+          <div style="font-weight:700;font-size:17px;margin-bottom:10px">Five principles for preparation</div>
+          <ul style="margin:0;padding-left:20px;font-size:14.5px;line-height:1.8">
+            <li>Curriculum rooted in a deep understanding of learners and development</li>
+            <li>Skills, habits, and mindsets of an equitable educator</li>
+            <li>Rich, experiential learning opportunities</li>
+            <li>Pedagogical alignment and modeling</li>
+            <li>Supportive relationships in communities of practice</li>
+          </ul>
+        </sc-if>
+        <sc-if value="{{ pvFindings }}" hint-placeholder-val="{{ true }}">
+          <div style="font-weight:700;font-size:18px;margin-bottom:16px">What the research shows</div>
+          <sc-if value="{{ noFactsPicked }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-size:13px;color:#888">Nothing picked — check a number below to see it here.</p></sc-if>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+            <sc-for list="{{ pickedFacts }}" as="f" hint-placeholder-count="3">
+              <div><div style="font-weight:700;font-size:30px">{{ f.n }}</div><div style="font-size:12px;line-height:1.5;color:#555;margin-top:4px">{{ f.text }}</div></div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ pvToc }}" hint-placeholder-val="{{ false }}">
+          <div style="font-weight:700;font-size:17px;margin-bottom:10px">Inside the report</div>
+          <div style="font-size:14.5px;line-height:2">1. Introduction<br>2. The Science of Learning and Development<br>3. Five Design Principles<br>4. Programs Leading the Way<br>5. Policy Implications</div>
+        </sc-if>
+        <sc-if value="{{ pvStory }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0 0 10px;font-size:17px;font-weight:600;line-height:1.5">{{ storyQuote }}</p>
+          <p style="margin:0 0 10px;font-size:13.5px;line-height:1.65;color:#333">{{ storyBody }}</p>
+          <p style="margin:0;font-size:12px;color:#666">{{ storyAttr }}</p>
+        </sc-if>
+        <sc-if value="{{ pvDownload }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:12px;align-items:center"><span style="display:inline-flex;align-items:center;background:#111;color:#fff;font-weight:600;font-size:14px;border-radius:6px;padding:10px 20px">Download the report (PDF)</span><span style="font-size:12px;color:#888">4.2 MB · 81 pages</span></div>
+        </sc-if>
+        <sc-if value="{{ pvSecondary }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:12px;align-items:center"><span style="display:inline-flex;align-items:center;background:#fff;color:#111;border:2px solid #111;font-weight:600;font-size:14px;border-radius:6px;padding:9px 20px">Explore EdPrepLab</span><span style="font-size:12px;color:#888">label + link are yours to set</span></div>
+        </sc-if>
+        <sc-if value="{{ pvShare }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:10px;align-items:center"><span style="font-size:14px;color:#333">Share:</span><span style="font-size:12.5px;font-weight:600;border:1px solid #ccc;border-radius:999px;padding:5px 14px">LinkedIn</span><span style="font-size:12.5px;font-weight:600;border:1px solid #ccc;border-radius:999px;padding:5px 14px">Bluesky</span><span style="font-size:12.5px;font-weight:600;border:1px solid #ccc;border-radius:999px;padding:5px 14px">Email</span></div>
+        </sc-if>
+      </div>
+      <sc-if value="{{ showFacts }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin:20px 0 8px">
+          <span style="font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-rhino-500)">We found 8 numbers in your PDF</span>
+          <span style="font-size:12px;font-weight:700;color:{{ capColor }}">{{ capNote }}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+          <sc-for list="{{ facts }}" as="f" hint-placeholder-count="6">
+            <div onClick="{{ f.onToggle }}" style="display:flex;gap:10px;align-items:center;border:{{ f.rowBorder }};background:var(--rk-white);border-radius:var(--rk-radius-xs);padding:9px 11px;cursor:pointer" style-hover="box-shadow:var(--rk-shadow-sm)">
+              <span style="color:var(--rk-gray-300);cursor:grab">⠿</span>
+              <sc-if value="{{ f.checked }}" hint-placeholder-val="{{ false }}"><span style="width:16px;height:16px;flex:none;border-radius:4px;background:var(--rk-rhino-700);display:inline-flex;align-items:center;justify-content:center"><span style="width:11px;height:11px;color:#fff;display:inline-flex">{{ icCheck11 }}</span></span></sc-if>
+              <sc-if value="{{ f.unchecked }}" hint-placeholder-val="{{ true }}"><span style="width:16px;height:16px;flex:none;border-radius:4px;border:1.5px solid var(--rk-border-strong)"></span></sc-if>
+              <span style="flex:1;font-size:12.5px;line-height:1.4;color:{{ f.textCol }}"><b>{{ f.n }}</b> {{ f.text }}</span>
+              <span style="font-size:11px;color:var(--rk-text-muted);flex:none">{{ f.page }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+    <div style="padding:26px 24px;display:flex;flex-direction:column">
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
+        <div style="position:relative">
+          <div onClick="{{ toggleLengthOpen }}" style="display:flex;align-items:center;gap:11px;background:var(--rk-white);border:1px solid {{ lengthTrigBorder }};border-radius:{{ lengthTrigRadius }};padding:9px 12px;cursor:pointer" style-hover="border-color:var(--rk-border-strong)">
+            <span style="width:30px;flex:none;display:flex;flex-direction:column;gap:2.5px"><span style="height:4px;background:var(--rk-rhino-300);border-radius:2px"></span><span style="height:4px;background:var(--rk-rhino-300);border-radius:2px;width:75%"></span><span style="height:4px;background:var(--rk-rhino-300);border-radius:2px;width:50%"></span></span>
+            <div style="flex:1;min-width:0"><div style="font-size:13px;color:var(--rk-text-strong)"><span style="color:var(--rk-text-muted)">Length ·</span> <b>{{ lengthLabel }}</b></div><div style="font-size:11.5px;color:var(--rk-text-muted);margin-top:1px">{{ lengthAdvice }}</div></div>
+            <span style="width:15px;height:15px;color:var(--rk-text-muted);display:inline-flex">{{ lengthChevEl }}</span>
+          </div>
+          <sc-if value="{{ lengthOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;left:0;right:0;top:100%;background:var(--rk-white);border:1px solid var(--rk-rhino-700);border-top:1px solid var(--rk-border);border-radius:0 0 var(--rk-radius-sm) var(--rk-radius-sm);box-shadow:var(--rk-shadow-lg);padding:5px;z-index:6">
+              <sc-for list="{{ lengthOptions }}" as="o" hint-placeholder-count="3">
+                <div onClick="{{ o.onPick }}" style="display:flex;align-items:center;gap:11px;padding:8px 9px;border-radius:var(--rk-radius-xs);cursor:pointer" style-hover="background:var(--rk-gray-100)">
+                  <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700;color:var(--rk-text-strong)">{{ o.name }}</div><div style="font-size:11.5px;color:var(--rk-text-muted)">{{ o.advice }}</div></div>
+                  <sc-if value="{{ o.active }}" hint-placeholder-val="{{ false }}"><span style="width:14px;height:14px;color:var(--rk-success);flex:none;display:inline-flex">{{ icCheck14 }}</span></sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+        <div style="position:relative">
+          <div onClick="{{ toggleCoverOpen }}" style="display:flex;align-items:center;gap:11px;background:var(--rk-white);border:1px solid {{ coverTrigBorder }};border-radius:{{ coverTrigRadius }};padding:9px 12px;cursor:pointer" style-hover="border-color:var(--rk-border-strong)">
+            <span style="width:30px;flex:none;display:flex;gap:2.5px"><span style="width:13px;height:16px;background:var(--rk-rhino-300);border-radius:1px;flex:none"></span><span style="flex:1;display:flex;flex-direction:column;gap:2.5px;justify-content:center"><span style="height:3px;background:var(--rk-gray-200);border-radius:1px"></span><span style="height:3px;background:var(--rk-gray-200);border-radius:1px;width:80%"></span></span></span>
+            <div style="flex:1;min-width:0"><div style="font-size:13px;color:var(--rk-text-strong)"><span style="color:var(--rk-text-muted)">Cover ·</span> <b>{{ coverLabel }}</b></div><div style="font-size:11.5px;color:var(--rk-text-muted);margin-top:1px">{{ coverAdvice }}</div></div>
+            <span style="width:15px;height:15px;color:var(--rk-text-muted);display:inline-flex">{{ coverChevEl }}</span>
+          </div>
+          <sc-if value="{{ coverOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;left:0;right:0;top:100%;background:var(--rk-white);border:1px solid var(--rk-rhino-700);border-top:1px solid var(--rk-border);border-radius:0 0 var(--rk-radius-sm) var(--rk-radius-sm);box-shadow:var(--rk-shadow-lg);padding:5px;z-index:6">
+              <sc-for list="{{ coverOptions }}" as="o" hint-placeholder-count="4">
+                <div onClick="{{ o.onPick }}" style="display:flex;align-items:center;gap:11px;padding:8px 9px;border-radius:var(--rk-radius-xs);cursor:pointer" style-hover="background:var(--rk-gray-100)">
+                  <span style="width:30px;flex:none">
+                    <sc-if value="{{ o.isTop }}" hint-placeholder-val="{{ false }}"><span style="display:flex;flex-direction:column;gap:2px"><span style="height:9px;background:var(--rk-rhino-300);border-radius:1px"></span><span style="height:3px;background:var(--rk-gray-200);border-radius:1px"></span><span style="height:3px;background:var(--rk-gray-200);border-radius:1px;width:70%"></span></span></sc-if>
+                    <sc-if value="{{ o.isBeside }}" hint-placeholder-val="{{ false }}"><span style="display:flex;gap:2px"><span style="width:13px;height:16px;background:var(--rk-rhino-300);border-radius:1px;flex:none"></span><span style="flex:1;display:flex;flex-direction:column;gap:2px;justify-content:center"><span style="height:3px;background:var(--rk-gray-200);border-radius:1px"></span><span style="height:3px;background:var(--rk-gray-200);border-radius:1px;width:80%"></span></span></span></sc-if>
+                    <sc-if value="{{ o.isInset }}" hint-placeholder-val="{{ false }}"><span style="display:flex;gap:2px"><span style="width:9px;height:11px;background:var(--rk-rhino-300);border-radius:1px;flex:none"></span><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="height:3px;background:var(--rk-gray-200);border-radius:1px"></span><span style="height:3px;background:var(--rk-gray-200);border-radius:1px"></span><span style="height:3px;background:var(--rk-gray-200);border-radius:1px;width:80%"></span></span></span></sc-if>
+                    <sc-if value="{{ o.isText }}" hint-placeholder-val="{{ false }}"><span style="display:flex;flex-direction:column;gap:2px"><span style="height:4px;background:var(--rk-rhino-300);border-radius:1px"></span><span style="height:3px;background:var(--rk-gray-200);border-radius:1px"></span><span style="height:3px;background:var(--rk-gray-200);border-radius:1px"></span><span style="height:3px;background:var(--rk-gray-200);border-radius:1px;width:65%"></span></span></sc-if>
+                  </span>
+                  <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:700;color:var(--rk-text-strong)">{{ o.name }}</div><div style="font-size:11.5px;color:var(--rk-text-muted)">{{ o.advice }}</div></div>
+                  <sc-if value="{{ o.active }}" hint-placeholder-val="{{ false }}"><span style="width:14px;height:14px;color:var(--rk-success);flex:none;display:inline-flex">{{ icCheck14 }}</span></sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+        <span style="font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--rk-rhino-500)">Your page</span>
+        <span style="font-size:11.5px;color:var(--rk-text-muted);font-style:italic">Rough draft</span>
+      </div>
+      <div style="border:2px dashed var(--rk-border-strong);border-radius:var(--rk-radius-sm);background:var(--rk-white);padding:18px 16px;filter:grayscale(0.35)">
+        <sc-if value="{{ coverIsBeside }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;gap:12px;margin-bottom:14px">
+            <div style="width:42%;aspect-ratio:3/4;background:#c9ccd4;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;letter-spacing:0.06em;color:#777">COVER</div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:5px;padding-top:4px"><div style="height:11px;background:#3a3a3a;border-radius:2px"></div><div style="height:11px;background:#3a3a3a;border-radius:2px;width:70%"></div><div style="height:4px;background:#eee;border-radius:2px;width:55%;margin-top:6px"></div></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ coverIsTop }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:14px">
+            <div style="height:64px;background:#c9ccd4;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;letter-spacing:0.06em;color:#777;margin-bottom:8px">COVER</div>
+            <div style="height:11px;background:#3a3a3a;border-radius:2px;margin-bottom:5px"></div><div style="height:11px;background:#3a3a3a;border-radius:2px;width:70%"></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ coverIsInset }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:14px">
+            <div style="height:11px;background:#3a3a3a;border-radius:2px;margin-bottom:5px"></div><div style="height:11px;background:#3a3a3a;border-radius:2px;width:65%;margin-bottom:9px"></div>
+            <div style="display:flex;gap:10px"><div style="width:30%;aspect-ratio:3/4;background:#c9ccd4;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;letter-spacing:0.06em;color:#777;flex:none">COVER</div><div style="flex:1;display:flex;flex-direction:column;gap:5px"><div style="height:5px;background:#ddd;border-radius:2px"></div><div style="height:5px;background:#ddd;border-radius:2px"></div><div style="height:5px;background:#ddd;border-radius:2px;width:85%"></div><div style="height:5px;background:#ddd;border-radius:2px;width:60%"></div></div></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ coverIsText }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:14px">
+            <div style="height:11px;background:#3a3a3a;border-radius:2px;margin-bottom:5px"></div><div style="height:11px;background:#3a3a3a;border-radius:2px;width:70%;margin-bottom:8px"></div>
+            <div style="display:flex;gap:8px;align-items:center"><div style="width:22px;height:29px;background:#c9ccd4;border-radius:1px;flex:none"></div><div style="height:4px;background:#eee;border-radius:2px;flex:1;max-width:55%"></div></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ pageEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="border:2px dashed var(--rk-tomato-300);border-radius:var(--rk-radius-sm);padding:14px;text-align:center;font-size:12.5px;font-weight:700;color:var(--rk-tomato-600);background:var(--rk-tomato-100);font-family:var(--rk-font-body),sans-serif">Your page is empty — add a block</div>
+        </sc-if>
+        <sc-for list="{{ pageSections }}" as="s" hint-placeholder-count="4">
+          <div style="position:relative;border:1px solid transparent;border-radius:3px;padding:10px 8px 7px;margin:4px -8px 0" style-hover="border-color:var(--rk-rhino-200);background:var(--rk-gray-100)">
+            <span style="position:absolute;top:-6px;left:8px;font-size:8.5px;font-weight:800;letter-spacing:0.07em;text-transform:uppercase;background:var(--rk-rhino-700);color:#fff;border-radius:3px;padding:1.5px 6px;font-family:var(--rk-font-body),sans-serif">{{ s.label }}</span>
+            <sc-if value="{{ s.isStats }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:8px;padding-top:2px">
+                <sc-for list="{{ s.statCols }}" as="sc" hint-placeholder-count="3">
+                  <div style="flex:1"><div style="height:14px;background:#555;border-radius:2px;width:75%"></div><div style="height:4px;background:#ddd;border-radius:2px;margin-top:4px"></div><div style="height:4px;background:#ddd;border-radius:2px;margin-top:3px;width:80%"></div></div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ s.isText }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:4px;padding-top:2px"><div style="height:5px;background:#ddd;border-radius:2px"></div><div style="height:5px;background:#ddd;border-radius:2px"></div><div style="height:5px;background:#ddd;border-radius:2px;width:72%"></div></div>
+            </sc-if>
+            <sc-if value="{{ s.isBullets }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:4px;padding-top:2px"><div style="display:flex;gap:5px"><div style="width:5px;height:5px;background:#999;border-radius:50%"></div><div style="height:5px;background:#ddd;border-radius:2px;flex:1;max-width:85%"></div></div><div style="display:flex;gap:5px"><div style="width:5px;height:5px;background:#999;border-radius:50%"></div><div style="height:5px;background:#ddd;border-radius:2px;flex:1;max-width:70%"></div></div><div style="display:flex;gap:5px"><div style="width:5px;height:5px;background:#999;border-radius:50%"></div><div style="height:5px;background:#ddd;border-radius:2px;flex:1;max-width:78%"></div></div></div>
+            </sc-if>
+            <sc-if value="{{ s.isToc }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:4px;padding-top:2px"><div style="display:flex;gap:6px"><div style="height:5px;background:#ddd;border-radius:2px;flex:1"></div><div style="height:5px;background:#bbb;border-radius:2px;width:10px"></div></div><div style="display:flex;gap:6px"><div style="height:5px;background:#ddd;border-radius:2px;flex:1"></div><div style="height:5px;background:#bbb;border-radius:2px;width:10px"></div></div><div style="display:flex;gap:6px"><div style="height:5px;background:#ddd;border-radius:2px;flex:1;max-width:80%"></div><div style="height:5px;background:#bbb;border-radius:2px;width:10px"></div></div></div>
+            </sc-if>
+            <sc-if value="{{ s.isStory }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:4px;padding-top:2px"><div style="width:14px;height:11px;background:#c9ccd4;border-radius:2px"></div><div style="height:5px;background:#ddd;border-radius:2px"></div><div style="height:5px;background:#ddd;border-radius:2px;width:60%"></div><div style="height:4px;background:#aaa;border-radius:2px;width:40%;margin-top:2px"></div></div>
+            </sc-if>
+            <sc-if value="{{ s.isCta }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:6px;align-items:center;padding-top:2px">
+                <sc-if value="{{ s.download }}" hint-placeholder-val="{{ true }}"><div style="width:64px;height:16px;background:#3a3a3a;border-radius:3px"></div></sc-if>
+                <sc-if value="{{ s.secondary }}" hint-placeholder-val="{{ false }}"><div style="width:52px;height:16px;border:1.5px solid #999;border-radius:3px"></div></sc-if>
+                <sc-if value="{{ s.social }}" hint-placeholder-val="{{ false }}"><div style="margin-left:auto;display:flex;gap:4px"><div style="width:11px;height:11px;background:#ccc;border-radius:2px"></div><div style="width:11px;height:11px;background:#ccc;border-radius:2px"></div><div style="width:11px;height:11px;background:#ccc;border-radius:2px"></div></div></sc-if>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+        <div style="margin-top:12px;text-align:center;font-size:10px;letter-spacing:0.07em;text-transform:uppercase;color:var(--rk-gray-500);font-family:var(--rk-font-body),sans-serif">— rough draft · not the real design —</div>
+      </div>
+      <div style="margin-top:14px;background:var(--rk-macaroni-100);border:1px solid var(--rk-macaroni-300);border-radius:var(--rk-radius-sm);padding:11px 14px;font-size:13px;line-height:1.5;color:var(--rk-rhino-900);display:flex;gap:9px"><span style="width:16px;height:16px;flex:none;margin-top:1px;display:inline-flex">{{ icPencil16 }}</span><span>Structure look right? Step 2, <b>Wordsmith</b>, is where you fix the wording.</span></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    sel: 'findings',
+    added: { ai: true, findings: true, download: true, share: true },
+    checkedFacts: ['f46', 'f60', 'f100'],
+    voice: 'neutral', person: 'lily',
+    length: 'middle', cover: 'beside',
+    lengthOpen: false, coverOpen: false,
+  };
+  componentDidMount() { this.waitIcons(); }
+  waitIcons() { if (window.lucide && window.lucide.icons) this.forceUpdate(); else setTimeout(() => this.waitIcons(), 200); }
+  ic(name, size) {
+    const L = window.lucide;
+    if (!L || !L.icons) return null;
+    const pascal = name.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('');
+    const alt = { BarChart3: 'ChartColumn', TableOfContents: 'ListOrdered' };
+    const data = L.icons[pascal] || L.icons[alt[pascal]];
+    if (!data || !Array.isArray(data)) return null;
+    return React.createElement('svg', { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', style: { display: 'block' } },
+      data.map((n, i) => React.createElement(n[0], Object.assign({ key: i }, n[1]))));
+  }
+  renderVals() {
+    const S = this.state, set = (p) => this.setState(p);
+    const blocks = [
+      { bucket: 0, id: 'exec', name: 'Exec Summary', icon: 'file-text', guidance: 'The report’s own words — rigorous, can run long.', blurb: 'Runs 480 words — fine for a Long page, heavy for Middle. If you use it, drop the AI Summary; two intros read like a stutter.' },
+      { bucket: 0, id: 'ai', name: 'AI Summary', icon: 'sparkles', guidance: 'A punchy pitch in a voice you pick.', blurb: 'Best default for a Middle page: stays under 120 words and leads with the “what if.” Pick the voice below.' },
+      { bucket: 1, id: 'highlights', name: 'Highlights', icon: 'list', guidance: '3–5 bullets — when your argument is nuanced, not numeric.', blurb: 'The five design principles are the report’s spine. Redundant if you also run the AI Summary and Findings — pick two of the three.' },
+      { bucket: 1, id: 'findings', name: 'Findings / facts', icon: 'bar-chart-3', guidance: 'Headline stats — when your punch is quantitative.', blurb: 'These land harder side by side than buried in a paragraph.' },
+      { bucket: 1, id: 'toc', name: 'Table of Contents', icon: 'table-of-contents', guidance: 'Chapters, linked — proof there’s a real report behind the page.', blurb: 'Signals depth, but it’s the least persuasive evidence block. On a Middle page it usually loses its slot to Findings or a story.' },
+      { bucket: 1, id: 'story', name: 'Storytelling', icon: 'quote', isNew: true, guidance: 'A real person’s story — we found 3 in your PDF.', blurb: 'Nothing builds trust like a named human. Lily’s classroom story is the strongest of the three; pick whose story leads.' },
+      { bucket: 2, id: 'download', name: 'Download', icon: 'download', guidance: 'The button for the PDF itself. Keep it.', blurb: 'The anchor action — the page exists to hand off the report. Every landing page needs exactly one unmissable way to get it.' },
+      { bucket: 2, id: 'secondary', name: 'Secondary action', icon: 'heart-handshake', guidance: 'Donate, subscribe, or contact — one ask reads best.', blurb: 'Use only if the report is a means to an ask. Two buttons max beside Download, or nothing gets clicked.' },
+      { bucket: 2, id: 'share', name: 'Social share', icon: 'share-2', guidance: 'One-click share for audiences that amplify.', blurb: 'Cheap to include, quietly valuable. It rides in the CTA row without stealing attention.' },
+    ];
+    const bucketMeta = [
+      { name: 'Intro', hint: '· pick one' },
+      { name: 'Evidence', hint: '· one is plenty' },
+      { name: 'Call to action', hint: '' },
+    ];
+    const buckets = bucketMeta.map((m, i) => ({ ...m, cards: blocks.filter(b => b.bucket === i).map(b => {
+      const added = !!S.added[b.id], sel = S.sel === b.id;
+      return { ...b, added, notAdded: !added, iconEl: this.ic(b.icon, 15),
+        border: sel ? 'var(--rk-rhino-700)' : 'var(--rk-border)',
+        tx: sel ? 'translateX(22px)' : 'none',
+        shadow: sel ? 'var(--rk-shadow-sm)' : 'none',
+        onSelect: () => set({ sel: b.id }) };
+    }) }));
+    const selB = blocks.find(b => b.id === S.sel);
+    const factDefs = [
+      { id: 'f46', n: '46%', text: 'of children exposed to trauma or adversity each year', page: 'p. 2' },
+      { id: 'f60', n: '60%', text: 'of the grade gap closed by teacher–student connection', page: 'p. 5' },
+      { id: 'f100', n: '100%', text: 'of Alverno candidates experienced collaborative learning', page: 'p. 24' },
+      { id: 'f10', n: '10%', text: 'of JJSE students referred out of class after restorative shift', page: 'p. 24' },
+      { id: 'f5', n: '5', text: 'design principles distilled from research + leading programs', page: 'p. vi' },
+      { id: 'f28', n: '28', text: 'programs profiled across the EdPrepLab network', page: 'p. 61' },
+      { id: 'f2x', n: '2×', text: 'turnover among teachers who enter underprepared', page: 'p. 12' },
+      { id: 'f40', n: '40+', text: 'years of research synthesized into the principles', page: 'p. 1' },
+    ];
+    const facts = factDefs.map(f => {
+      const checked = S.checkedFacts.includes(f.id);
+      return { ...f, checked, unchecked: !checked,
+        rowBorder: checked ? '1.5px solid var(--rk-rhino-300)' : '1px solid var(--rk-border)',
+        textCol: checked ? 'var(--rk-text-body)' : 'var(--rk-text-muted)',
+        onToggle: () => set(s => ({ checkedFacts: checked ? s.checkedFacts.filter(x => x !== f.id) : [...s.checkedFacts, f.id] })) };
+    });
+    const pickedFacts = S.checkedFacts.map(id => factDefs.find(f => f.id === id));
+    const over = pickedFacts.length > 5;
+    const voiceDefs = [
+      { id: 'intro', name: 'Report intro', desc: 'its own opening words', text: '“Over the last several decades, we have learned a great deal about how people learn and develop from research in neuroscience; the developmental and learning sciences; and fields like anthropology and social psychology…”', meta: 'The report’s own opening · verbatim' },
+      { id: 'neutral', name: 'Neutral', desc: 'clear and even', text: 'What if teacher preparation were built around how people actually learn? Drawing on decades of research in neuroscience and the learning sciences, this report distills five design principles used by leading-edge programs — from curriculum rooted in how learners develop to preparation that models the very teaching it preaches. Written for the people who shape preparation: program faculty, accreditors, and licensing agencies.', meta: 'AI-written · neutral · 72 words — regenerate anytime' },
+      { id: 'sell', name: 'Hard sell', desc: 'lead with urgency', text: 'Nearly half of America’s children walk into class carrying trauma — and most new teachers were never prepared for them. We know how to fix that. This report lays out five research-backed design principles that leading programs already use, and what faculty, accreditors, and licensing agencies must do next.', meta: 'AI-written · hard sell · 55 words — regenerate anytime' },
+    ];
+    const voices = voiceDefs.map(v => {
+      const active = S.voice === v.id;
+      return { ...v, active, onPick: () => set({ voice: v.id }),
+        border: active ? 'var(--rk-rhino-700)' : 'var(--rk-border-strong)',
+        bg: active ? 'var(--rk-rhino-700)' : 'var(--rk-white)',
+        fg: active ? '#fff' : 'var(--rk-text-muted)' };
+    });
+    const curVoice = voiceDefs.find(v => v.id === S.voice);
+    const personDefs = [
+      { id: 'lily', label: 'Lily · Alverno · p. 4', quote: '“Every student in my class experiences collaborative learning — because I experienced it in every course that prepared me.”', body: 'Lily, a teacher candidate at Alverno College, structures her 4th-grade lessons around peer sense-making: students watch one another succeed, with multiple paths into every task. It mirrors exactly how her own professors taught her.', attr: 'Lily · teacher candidate, Alverno College' },
+      { id: 'carlos', label: 'Carlos · p. 25', quote: '“The same student, the same morning — one school suspends him, the other asks what happened.”', body: 'Carlos’s day, told twice, shows how a school built on relationships turns a minor altercation into a conversation instead of an exit. The report follows both paths to their very different ends.', attr: 'Carlos · “A Tale of Two Schools,” p. 25' },
+      { id: 'joselin', label: 'Joselin · p. 56', quote: '“By the time I had my own classroom, I had already taught for a year — with a mentor beside me.”', body: 'Joselin came through a teacher residency: a full year co-teaching alongside an expert before leading her own room. Her story anchors the report’s case for rich, experiential preparation.', attr: 'Joselin · residency graduate, p. 56' },
+    ];
+    const persons = personDefs.map(p => {
+      const active = S.person === p.id;
+      return { ...p, active, onPick: () => set({ person: p.id }),
+        border: active ? 'var(--rk-rhino-700)' : 'var(--rk-border-strong)',
+        bg: active ? 'var(--rk-rhino-100)' : 'var(--rk-white)',
+        fg: active ? 'var(--rk-rhino-900)' : 'var(--rk-text-muted)' };
+    });
+    const curPerson = personDefs.find(p => p.id === S.person);
+    const lengthDefs = [
+      { id: 'short', name: 'Short', advice: 'A sharp intro and a CTA — a fast teaser' },
+      { id: 'middle', name: 'Middle', advice: 'Intro + strongest evidence + CTA' },
+      { id: 'long', name: 'Long', advice: 'Full exec summary, every evidence block' },
+    ];
+    const coverDefs = [
+      { id: 'top', name: 'On top', advice: 'Full-width and formal' },
+      { id: 'beside', name: 'Beside', advice: 'The confident default' },
+      { id: 'inset', name: 'Inset', advice: 'Nested in the opening text' },
+      { id: 'text', name: 'Text-first', advice: 'Cover shrinks to a thumbnail' },
+    ];
+    const curLen = lengthDefs.find(l => l.id === S.length), curCov = coverDefs.find(c => c.id === S.cover);
+    const a = S.added;
+    const pageSections = [];
+    if (a.exec) pageSections.push({ label: 'Exec Summary', isText: true });
+    if (a.ai) pageSections.push({ label: 'AI Summary', isText: true });
+    if (a.highlights) pageSections.push({ label: 'Highlights', isBullets: true });
+    if (a.findings) pageSections.push({ label: 'Findings', isStats: true, statCols: pickedFacts.slice(0, 4).map(() => ({})) });
+    if (a.story) pageSections.push({ label: 'Story', isStory: true });
+    if (a.toc) pageSections.push({ label: 'Contents', isToc: true });
+    if (a.download || a.secondary || a.share) {
+      const parts = [];
+      if (a.download) parts.push('Download');
+      if (a.secondary) parts.push('action');
+      if (a.share) parts.push('share');
+      pageSections.push({ label: parts.join(' + '), isCta: true, download: !!a.download, secondary: !!a.secondary, social: !!a.share });
+    }
+    return {
+      buckets,
+      selIconEl: this.ic(selB.icon, 20), selName: selB.name, selBlurb: selB.blurb,
+      icCheck14: this.ic('check', 14), icCheck11: this.ic('check', 11), icChevR14: this.ic('chevron-right', 14),
+      icMinus13: this.ic('minus', 13), icPlus13: this.ic('plus', 13), icPencil16: this.ic('pencil-line', 16),
+      selAdded: !!S.added[selB.id], selNotAdded: !S.added[selB.id],
+      toggleSel: () => set(s => ({ added: { ...s.added, [selB.id]: !s.added[selB.id] } })),
+      showFacts: S.sel === 'findings', showVoice: S.sel === 'ai', showPersons: S.sel === 'story',
+      facts, pickedFacts, noFactsPicked: pickedFacts.length === 0,
+      capNote: over ? pickedFacts.length + ' picked — 3–5 read best' : '3–5 read best',
+      capColor: over ? 'var(--rk-tomato-600)' : 'var(--rk-success)',
+      voices, aiText: curVoice.text, aiMeta: curVoice.meta,
+      persons, storyQuote: curPerson.quote, storyBody: curPerson.body, storyAttr: curPerson.attr,
+      pvAi: S.sel === 'ai', pvExec: S.sel === 'exec', pvHighlights: S.sel === 'highlights', pvFindings: S.sel === 'findings',
+      pvToc: S.sel === 'toc', pvStory: S.sel === 'story', pvDownload: S.sel === 'download', pvSecondary: S.sel === 'secondary', pvShare: S.sel === 'share',
+      lengthOpen: S.lengthOpen, coverOpen: S.coverOpen,
+      toggleLengthOpen: () => set(s => ({ lengthOpen: !s.lengthOpen, coverOpen: false })),
+      toggleCoverOpen: () => set(s => ({ coverOpen: !s.coverOpen, lengthOpen: false })),
+      lengthChevEl: this.ic(S.lengthOpen ? 'chevron-up' : 'chevron-down', 15),
+      coverChevEl: this.ic(S.coverOpen ? 'chevron-up' : 'chevron-down', 15),
+      lengthTrigBorder: S.lengthOpen ? 'var(--rk-rhino-700)' : 'var(--rk-border)',
+      coverTrigBorder: S.coverOpen ? 'var(--rk-rhino-700)' : 'var(--rk-border)',
+      lengthTrigRadius: S.lengthOpen ? 'var(--rk-radius-sm) var(--rk-radius-sm) 0 0' : 'var(--rk-radius-sm)',
+      coverTrigRadius: S.coverOpen ? 'var(--rk-radius-sm) var(--rk-radius-sm) 0 0' : 'var(--rk-radius-sm)',
+      lengthLabel: curLen.name, lengthAdvice: curLen.advice,
+      coverLabel: curCov.name, coverAdvice: curCov.advice,
+      lengthOptions: lengthDefs.map(l => ({ ...l, active: S.length === l.id, onPick: (e) => { e.stopPropagation(); set({ length: l.id, lengthOpen: false }); } })),
+      coverOptions: coverDefs.map(c => ({ ...c, isTop: c.id === 'top', isBeside: c.id === 'beside', isInset: c.id === 'inset', isText: c.id === 'text', active: S.cover === c.id, onPick: (e) => { e.stopPropagation(); set({ cover: c.id, coverOpen: false }); } })),
+      coverIsBeside: S.cover === 'beside', coverIsTop: S.cover === 'top', coverIsInset: S.cover === 'inset', coverIsText: S.cover === 'text',
+      pageSections, pageEmpty: pageSections.length === 0,
+    };
+  }
+}
+</script>
+</body>
+</html>
