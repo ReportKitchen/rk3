@@ -114,6 +114,73 @@ def _toolkit(p):
 TEMPLATES = {"research": _research, "campaign": _campaign, "annual": _annual, "toolkit": _toolkit}
 
 
+# ---- guidance-driven default page (the content-first redesign) --------------
+# The guidance engine (rk3/landing/guidance.py) decides which blocks earn a place
+# and in what order; we assemble them from the extracted pieces, preferring the
+# guidance's own stats (better than the heuristic findings) and its top-ranked
+# story for the new Storytelling block.
+
+def _findings_from_guidance(p, g):
+    stats = g.get("stats") or []
+    items = [{"stat": s["value"], "text": s["fact"]} for s in stats] or p["findings"]
+    if not items:
+        return None
+    return {"type": "findings", "props": {"items": items, "heading": "What the research shows"}}
+
+
+def _story_block(g):
+    stories = g.get("stories") or []
+    if not stories:
+        return None
+    s = next((x for x in stories if x.get("strength") == "strongest"), stories[0])
+    # verbatim quote/narrative enrichment is a follow-up; for now the guidance
+    # summary carries the block (subject + kind + what happened)
+    return {"type": "storytelling", "props": {
+        "subject": s["subject"], "kind": s["kind"], "narrative": s["whatHappened"]}}
+
+
+_GUIDED = {
+    "highlights": lambda p, g: _highlights(p, "Key points"),
+    "findings": lambda p, g: _findings_from_guidance(p, g),
+    "toc": lambda p, g: _toc(p),
+    "storytelling": lambda p, g: _story_block(g),
+    "download": lambda p, g: _download(),
+    "secondary": lambda p, g: _secondary("Learn more"),
+    "share": lambda p, g: _share(),
+    "aiSummary": lambda p, g: _summary(p),
+}
+
+
+def build_from_guidance(ir: dict, name: str = "", ai: dict | None = None,
+                        guidance: dict | None = None) -> dict:
+    """Assemble the default page from the guidance engine's recommendedPage —
+    which blocks, in what order, at what length. Title + Cover are page
+    fundamentals (Title always; Cover placed per coverLayout). Falls back to the
+    archetype builder if guidance is missing."""
+    g = (guidance or {}).get("guidance") or {}
+    rp = g.get("recommendedPage") or {}
+    order = rp.get("blocks") or []
+    if not order:
+        return build_config(ir, name=name, ai=ai)
+    p = _pieces(ir, ai)
+    layout = rp.get("coverLayout") or "beside"
+    floated_cover = layout in ("beside", "inset") and "execSummary" in order
+    blocks = [_title(p)]
+    for key in order:
+        if key == "execSummary":
+            b = (_doc_summary(p, "Executive summary", with_cover=floated_cover)
+                 if p["summary_sections"] else _summary(p, "Executive summary"))
+        else:
+            b = _GUIDED.get(key, lambda p, g: None)(p, g)
+        if b:
+            blocks.append(b)
+    # a standalone cover after the Title when it isn't floated into the summary
+    if not floated_cover and layout != "textForward" and p.get("cover_src"):
+        blocks.insert(1, _cover(p))
+    _assign_ids(blocks)
+    return {"version": 1, "template": "guided", "length": rp.get("length", "middle"), "blocks": blocks}
+
+
 def _pieces(ir: dict, ai: dict | None = None) -> dict:
     """Extracted pieces with the AI content pass layered over the heuristics.
     The AI Summary varies on style × length; ``summary_variants`` is keyed by
