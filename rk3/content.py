@@ -105,6 +105,31 @@ def prompt(key: str) -> tuple[str, str | None]:
     return body, e.get("model")
 
 
+_REQUIRED = {"static": ["text"], "template": ["text"], "prompt": ["text"],
+             "ai": ["prompt", "fallback"]}
+
+
+def validate() -> list[str]:
+    """Structural check on the whole registry — run in CI / pre-commit so a
+    malformed or under-declared entry fails loudly instead of rendering wrong.
+    Checks: required fields per kind, and that every {token} used in a string is
+    declared in `tokens` (so editors and the frontend know what's available)."""
+    errs = []
+    for key, e in _load().items():
+        for f in _REQUIRED.get(e["kind"], []):
+            if not e.get(f):
+                errs.append(f"{key}: kind '{e['kind']}' requires non-empty '{f}'")
+        used = set()
+        for field in ("text", "fallback", "prompt"):
+            if e.get(field):
+                used |= set(re.findall(r"\{(\w+)\b", e[field]))
+        undeclared = used - set(e.get("tokens", []))
+        if undeclared:
+            errs.append(f"{key}: uses {sorted(undeclared)} but declares tokens "
+                        f"{sorted(e.get('tokens', []))}")
+    return errs
+
+
 def entries(scope: str | None = None, kinds=("static", "template", "ai")) -> dict:
     """Public copy for a scope, keyed, for the frontend (`/api/content`). Prompt
     bodies are never shipped to the client — only their text/fallback for `ai`.
@@ -119,3 +144,14 @@ def entries(scope: str | None = None, kinds=("static", "template", "ai")) -> dic
         val["text"] = e.get("fallback", "") if e["kind"] == "ai" else e.get("text", "")
         out[key] = val
     return out
+
+
+if __name__ == "__main__":  # `python rk3/content.py` — CI / pre-commit gate
+    import sys
+    problems = validate()
+    if problems:
+        print("content registry INVALID:")
+        for p in problems:
+            print("  -", p)
+        sys.exit(1)
+    print(f"content registry OK — {len(_load())} entries, {len(entries())} client-visible")
