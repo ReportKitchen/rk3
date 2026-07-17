@@ -189,6 +189,11 @@
   border-radius: var(--rk-radius-sm); padding: 9px 12px; margin-bottom: 4px;
   font-size: 12px; line-height: 1.45; color: var(--rk-rhino-900);
 }
+.asm-error-notice {
+  background: var(--rk-tomato-100); border: 1px solid var(--rk-tomato-300);
+  border-radius: var(--rk-radius-sm); padding: 9px 12px; margin-bottom: 4px;
+  font-size: 12px; line-height: 1.45; color: var(--rk-tomato-700);
+}
 .asm-verbatim-badge {
   display: inline-block; margin-left: 6px; vertical-align: 1px;
   font-size: 9px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;

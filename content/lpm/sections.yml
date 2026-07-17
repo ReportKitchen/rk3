@@ -11,6 +11,12 @@ cta.sub: {kind: static, text: "What you want the reader to do."}
 noai_notice:
   kind: static
   text: "AI is off — showing your report’s own summary plus a couple of sections to fill in yourself."
+# shown when AI is ON but the generation call FAILED (e.g. out of credits) — don't
+# pretend it's a normal page; say what happened and how to retry
+error_notice:
+  kind: template
+  text: "AI couldn’t generate sections — showing a basic version. Reopen this tab to retry. ({reason})"
+  tokens: [reason]
 # a section whose content is the document's own words earns this trust badge
 verbatim_badge: {kind: static, text: "your words"}
 empty: {kind: static, text: "No sections yet — turn AI on, or add wording in Wordsmith."}

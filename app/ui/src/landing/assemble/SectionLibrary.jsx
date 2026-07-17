@@ -6,12 +6,17 @@ import { Icon, BLOCK_ICONS } from "./icons.jsx";
 // Left column: "Highlights" = the AI-found meaningful sections (the star), each a
 // card that teaches what it is and whether it's on the page; below, the "Call to
 // action" scaffolding. Click a card to inspect and adjust it in the middle.
-export default function SectionLibrary({ sections, cta, sel, noai, docRead, onSelect }) {
+export default function SectionLibrary({ sections, cta, sel, noai, genError, docRead, onSelect }) {
+  const notice = genError
+    ? <div className="asm-error-notice">{t("lpm.sections.error_notice", { reason: genError })}</div>
+    : noai
+      ? <div className="asm-noai-notice">{t("lpm.sections.noai_notice")}</div>
+      : null;
   return (
     <div className="asm-col asm-col-left">
-      {noai && <div className="asm-noai-notice">{t("lpm.sections.noai_notice")}</div>}
+      {notice}
 
-      <div className="asm-bucket-name" style={{ marginTop: noai ? 8 : 0 }}>
+      <div className="asm-bucket-name" style={{ marginTop: (noai || genError) ? 8 : 0 }}>
         {t("lpm.sections.highlights.title")}
       </div>
       <p className="asm-sub">{t("lpm.sections.highlights.sub")}</p>

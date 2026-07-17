@@ -7,6 +7,7 @@ not be able to OOM the web server.
 
 import datetime
 import json
+import logging
 import re
 import subprocess
 import sys
@@ -1065,11 +1066,18 @@ def _sections(slug: str, ir: dict) -> dict:
         return json.loads(path.read_text())
     from rk3.landing import sections
     if not ai_can_generate():
-        return sections.fallback(ir)
+        return sections.fallback(ir)          # AI off by choice — the expected fallback
     try:
         data = sections.generate(ir)
-    except Exception:
-        return sections.fallback(ir)
+    except Exception as e:
+        # AI is ON but the call FAILED (e.g. out of credits, rate limit, transient).
+        # Don't silently pretend it's a normal no-AI page — surface it so the UI can
+        # say "generation failed, showing a basic version" (surface-failures rule).
+        logging.getLogger("landing").warning("sections generate failed for %s: %s", slug, e)
+        fb = sections.fallback(ir)
+        fb["noai"] = False
+        fb["error"] = str(e)[:300]
+        return fb                             # not cached — a later view retries
     path.write_text(json.dumps(data, indent=1, ensure_ascii=False))
     return data
 

@@ -25,6 +25,7 @@ export default function AssembleMaker({ doc }) {
   const [error, setError] = useState(null);
   const [docRead, setDocRead] = useState(null);   // {whatItIs,audience,coreMessage}
   const [noai, setNoai] = useState(false);
+  const [genError, setGenError] = useState(null); // AI on but generation failed
   const [defs, setDefs] = useState(null);          // title/cover/CTA defaults
 
   const [mode, setMode] = useState("assemble");
@@ -59,6 +60,7 @@ export default function AssembleMaker({ doc }) {
         setSections(secs);
         setDocRead(art.documentRead || null);
         setNoai(!!sd?.noai);
+        setGenError(sd?.error || null);
         setDefs(defaults || {});
         setLength(len);
         setCover(rec.cover || "beside");
@@ -119,8 +121,8 @@ export default function AssembleMaker({ doc }) {
       ) : (
         <div className="asm-grid">
           <SectionLibrary
-            sections={sections} cta={cta} sel={sel} noai={noai} docRead={docRead}
-            onSelect={setSel}
+            sections={sections} cta={cta} sel={sel} noai={noai} genError={genError}
+            docRead={docRead} onSelect={setSel}
           />
           <Inspector
             sel={sel} sections={sections} cta={cta} defs={defs}
