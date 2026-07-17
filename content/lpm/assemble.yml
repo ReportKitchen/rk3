@@ -1,5 +1,8 @@
 # lpm.assemble.* — copy shown in the Landing Page Maker's Assemble screen only.
 
+# Screen header (the mock's "What should this page say?" question).
+header: {kind: static, text: "What should this page say?"}
+
 # The "we found N …" lines. Tokens are declared; the frontend renders full ICU
 # so "1 story" vs "8 stories" lives in the string, not in code. To reword this
 # ("Stories reach people and we found {n} in your document") edit `text` — same
@@ -26,19 +29,4 @@ intro_line:
   fallback: "We read all {pages} pages and drafted a page from the strongest material."
   tokens: [pages]
 
-# Block-card copy (what it is / when to use). This is the editorial voice; it's
-# the same guidance the engine reasons with, surfaced to the user.
-card_findings_what:
-  kind: static
-  text: "Headline stats — a big number beside the fact it proves."
-card_findings_when:
-  kind: static
-  text: "Best when your punch is quantitative."
-
-# Storytelling now explicitly covers case studies, per the widened definition.
-card_storytelling_what:
-  kind: static
-  text: "A real story or case study — the work happening to real people."
-card_storytelling_when:
-  kind: static
-  text: "Best when the work is about people or places, not just policy — a named person's story or a program's case."
+# Block-card copy (what each block is / when to use) lives in lpm/blocks.yml.

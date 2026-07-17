@@ -1,0 +1,50 @@
+# lpm.blocks.* — the block-library cards (Assemble). The STATIC editorial copy:
+# what each block is + when it earns its place. The per-document "what to think
+# about" line (e.g. "you've got three hard numbers: 46%, 60%, 100%") is NOT here
+# — that's generated per doc by the guidance engine (shared.analysis.*).
+
+# --- bucket headers ---
+bucket.intro.title: {kind: static, text: "Intro"}
+bucket.intro.sub: {kind: static, text: "How the page opens"}
+bucket.intro.hint: {kind: static, text: "pick one, usually"}
+bucket.evidence.title: {kind: static, text: "Evidence"}
+bucket.evidence.sub: {kind: static, text: "Why the reader should care"}
+bucket.evidence.hint: {kind: static, text: "middle pages: one is plenty"}
+bucket.cta.title: {kind: static, text: "CTA"}
+bucket.cta.sub: {kind: static, text: "What you want the reader to do"}
+bucket.cta.hint: {kind: static, text: "arrange the actions"}
+
+# --- INTRO ---
+execSummary.what: {kind: static, text: "The report's own words, verbatim. Trustworthy; can run long."}
+execSummary.when: {kind: static, text: "Best when the report already sells itself and your readers expect rigor."}
+aiSummary.what:
+  kind: static
+  text: "Claude writes a punchy pitch in a voice you pick: report intro · neutral · hard sell."
+aiSummary.when:
+  kind: static
+  text: "Reach for this when you need a hook fast and the original is too academic to skim."
+
+# --- EVIDENCE ---
+highlights.what: {kind: static, text: "3–5 key points as bullets."}
+highlights.when: {kind: static, text: "Best when your argument is nuanced, not numeric."}
+findings.what: {kind: static, text: "Headline stats — a big number beside the fact it proves."}
+findings.when: {kind: static, text: "Best when your punch is quantitative."}
+toc.what: {kind: static, text: "The report's chapters, linked."}
+toc.when:
+  kind: static
+  text: "Best when you want to signal depth — proof there's a real report behind the page."
+# Storytelling widened to include case studies (a case study IS a story here).
+storytelling.what: {kind: static, text: "A real story or case study — the work happening to real people."}
+storytelling.when:
+  kind: static
+  text: "Best when the work is about people or places, not just policy — a named person's story or a program's case."
+
+# --- CTA ---
+download.what: {kind: static, text: "The button for the PDF itself."}
+download.when: {kind: static, text: "Always the anchor action — the page exists to hand off the report."}
+secondary.what: {kind: static, text: "Donate, subscribe, or contact."}
+secondary.when:
+  kind: static
+  text: "Reach for this if the report is a means to an ask. One ask reads better than three."
+share.what: {kind: static, text: "Share buttons + your org's links."}
+share.when: {kind: static, text: "Best when your audience amplifies — comms folks love a one-click share."}
