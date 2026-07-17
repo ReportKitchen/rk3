@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { t } from "../../content.js";
-import { LandingRenderer, SHARE_NETWORKS, statTreatmentsFor } from "../LandingRenderer.jsx";
+import { LandingRenderer, SHARE_NETWORKS, statTreatmentsFor, quoteTreatmentsFor } from "../LandingRenderer.jsx";
 import { PRESENTATIONS, REC_WORDS, wordCount, effectiveProse, trimProse } from "./model.js";
 import { Icon, BLOCK_ICONS } from "./icons.jsx";
 import WhiskLoader from "./WhiskLoader.jsx";
@@ -14,7 +14,7 @@ const SHARE_STYLES = ["plain", "round", "square"];
 // a friendly welcome panel.
 export default function Inspector({
   sel, sections, cta, ai, defs, slug, length,
-  onToggleSection, onToggleCta, onSetPresentation, onSetQuotePull, onSetTrimmed, onSetTreatment,
+  onToggleSection, onToggleCta, onSetPresentation, onSetQuoteTreatment, onSetTrimmed, onSetTreatment,
   onToggleAi, onAiVoice, onPatchCta,
 }) {
   if (!sel) return <Welcome />;
@@ -27,7 +27,7 @@ export default function Inspector({
       <SectionInspector
         section={section}
         onToggle={() => onToggleSection(section.id)}
-        onSetQuotePull={(pull) => onSetQuotePull(section.id, pull)}
+        onSetQuoteTreatment={(tr) => onSetQuoteTreatment(section.id, tr)}
         onSetTrimmed={(v) => onSetTrimmed(section.id, v)}
         onSetTreatment={(tr) => onSetTreatment(section.id, tr)}
       />
@@ -64,7 +64,7 @@ function AddRemove({ on, onToggle }) {
   );
 }
 
-function SectionInspector({ section, onToggle, onSetQuotePull, onSetTrimmed, onSetTreatment }) {
+function SectionInspector({ section, onToggle, onSetQuoteTreatment, onSetTrimmed, onSetTreatment }) {
   const presLabel = t(`lpm.sections.pres.${section.presentation}`);
   const config = { blocks: [{ type: "section", id: section.id, props: {
     heading: section.heading, presentation: section.presentation, prose: effectiveProse(section),
@@ -96,17 +96,16 @@ function SectionInspector({ section, onToggle, onSetQuotePull, onSetTrimmed, onS
       </div>
       {section.summary && <p className="asm-insp-blurb">{section.summary}</p>}
 
-      {/* quotes: standard vs pullquote */}
+      {/* quotes: pick a pullquote treatment (5a–5f + a quiet standard) */}
       {section.presentation === "quote" && (
         <>
           <div className="asm-eyebrow">{t("lpm.sections.how_label")}</div>
           <div className="asm-chips">
-            <button type="button"
-              className={"asm-chip" + (!section.quote?.pull ? " is-active" : "")}
-              onClick={() => onSetQuotePull(false)}>{t("lpm.sections.quote.standard")}</button>
-            <button type="button"
-              className={"asm-chip" + (section.quote?.pull ? " is-active" : "")}
-              onClick={() => onSetQuotePull(true)}>{t("lpm.sections.quote.pull")}</button>
+            {quoteTreatmentsFor(section.quote).map((tr) => (
+              <button key={tr} type="button"
+                className={"asm-chip" + ((section.quote?.treatment || "glyph") === tr ? " is-active" : "")}
+                onClick={() => onSetQuoteTreatment(tr)}>{t(`lpm.sections.quote.treatment.${tr}`)}</button>
+            ))}
           </div>
         </>
       )}

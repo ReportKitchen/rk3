@@ -289,22 +289,62 @@
   .lp-stat-rail { margin-top: 1.2em; }
 }
 
-/* quote — standard (quiet inline) vs pull (big showcased pullquote) */
-.lp-sec-quote { margin: 0; }
-.lp-sec-quote blockquote {
-  margin: 0; padding: 0 0 0 1em; border-left: 0.15em solid currentColor;
-  font-size: 1.15em; line-height: 1.5; font-style: italic;
+/* pullquote treatments (design-system/quotes 5a–5f): oversized SVG glyph in the
+   accent, greyscale type. all em-relative + --lp-accent driven. */
+.lp-quote { margin: 0; }
+.lp-quote-text {
+  margin: 0; padding: 0; border: 0; font-style: normal; font-weight: 500;
+  font-size: 1.35em; line-height: 1.5; letter-spacing: -0.01em; color: var(--lp-heading, inherit);
 }
-.lp-sec-quote figcaption { margin-top: 0.6em; font-size: 0.9em; opacity: 0.7; font-style: normal; }
-.lp-sec-quote.is-pull blockquote {
-  border: 0; padding: 0; font-style: normal; font-weight: 600;
-  font-size: 1.7em; line-height: 1.3; text-indent: -0.05em;
+.lp-quote-attr { margin: 1em 0 0; font-size: 0.85em; opacity: 0.7; }
+.lp-quote-attr strong { opacity: 1; font-weight: 700; color: var(--lp-heading, inherit); }
+.lp-quote-mark { display: block; color: var(--lp-accent, #D72E2C); line-height: 0.6; margin-bottom: 0.1em; }
+
+/* glyph (5a) + poster (5b) — oversized mark above the quote */
+.lp-quote-glyph .lp-quote-mark { font-size: 3.4em; }
+.lp-quote-poster .lp-quote-mark { font-size: 3em; }
+
+/* framed (5c) — hairline inset, the glyph breaks the top edge */
+.lp-quote-framed .lp-quote-frame {
+  border: 1.5px solid rgba(30, 39, 64, 0.15); border-radius: 0.75em;
+  padding: 1.7em 1.9em 1.6em; position: relative; margin-top: 0.7em;
 }
-.lp-sec-quote.is-pull blockquote::before {
-  content: "\201C"; /* left double quote */
-  display: block; font-size: 2.2em; line-height: 0.6; opacity: 0.25; margin-bottom: 0.1em;
+.lp-quote-framed .lp-quote-mark {
+  position: absolute; top: -0.5em; left: 1.1em; background: #fff; padding: 0 0.3em; font-size: 2.4em;
 }
-.lp-sec-quote.is-pull figcaption { margin-top: 0.8em; font-size: 0.85em; }
+.lp-quote-framed .lp-quote-text { font-size: 1.2em; }
+
+/* editorial (5d) — centred, eyebrow, attribution flanked by rules */
+.lp-quote-editorial { text-align: center; }
+.lp-quote-eyebrow {
+  font-size: 0.72em; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--lp-accent, #D72E2C); margin: 0 0 1em;
+}
+.lp-quote-editorial .lp-quote-text { font-size: 1.5em; font-weight: 600; }
+.lp-quote-attr-rules { display: flex; align-items: center; justify-content: center; gap: 0.9em; margin-top: 1.3em; }
+.lp-quote-attr-rules span { width: 1.8em; height: 1px; background: rgba(30, 39, 64, 0.25); flex: none; }
+.lp-quote-attr-rules .lp-quote-attr { margin: 0; }
+
+/* tint field (5e) — accent wash + a ghost glyph in the corner */
+.lp-quote-tint {
+  position: relative; overflow: hidden; border-radius: 0.5em; padding: 1.8em 2em;
+  background: color-mix(in srgb, var(--lp-accent, #D72E2C) 6%, white);
+}
+.lp-quote-ghost { position: absolute; top: -0.1em; right: 0.15em; color: var(--lp-accent, #D72E2C); opacity: 0.1; font-size: 9em; line-height: 1; pointer-events: none; }
+.lp-quote-tint .lp-quote-text, .lp-quote-tint .lp-quote-attr { position: relative; }
+
+/* dark (5f) — white on dark, glyph in the accent */
+.lp-quote-dark { background: var(--lp-band, #283246); border-radius: 0.5em; padding: 1.9em 2.1em; }
+.lp-quote-dark .lp-quote-mark { font-size: 3.4em; color: color-mix(in srgb, var(--lp-accent, #D72E2C) 60%, white); }
+.lp-quote-dark .lp-quote-text { color: #fff; }
+.lp-quote-dark .lp-quote-attr { color: rgba(255, 255, 255, 0.6); opacity: 1; }
+.lp-quote-dark .lp-quote-attr strong { color: rgba(255, 255, 255, 0.9); }
+
+/* standard — the quiet inline quote */
+.lp-quote-standard .lp-quote-text {
+  border-left: 0.15em solid var(--lp-accent, #D72E2C); padding-left: 1em;
+  font-size: 1.15em; font-style: italic; font-weight: 400;
+}
 
 /* steps — ordered actions in the doc's own language */
 .lp-sec-steps { margin: 0; padding: 0; list-style: none; counter-reset: lp-step; }

@@ -40,8 +40,15 @@ pres.steps: {kind: static, text: "Steps"}
 
 # inspector: adjust how a section looks
 how_label: {kind: static, text: "How it looks"}
-quote.standard: {kind: static, text: "Standard"}
-quote.pull: {kind: static, text: "Pullquote"}
+# quote treatments (design-system/quotes 5a–5f) — a settable pullquote look
+quote.eyebrow: {kind: static, text: "In their words"}
+quote.treatment.glyph: {kind: static, text: "Glyph"}
+quote.treatment.poster: {kind: static, text: "Poster"}
+quote.treatment.framed: {kind: static, text: "Framed"}
+quote.treatment.editorial: {kind: static, text: "Editorial"}
+quote.treatment.tint: {kind: static, text: "Tint"}
+quote.treatment.dark: {kind: static, text: "Dark"}
+quote.treatment.standard: {kind: static, text: "Standard"}
 # stat treatments (design-system/stats) — how the numbers are plated
 treatment_label: {kind: static, text: "How the numbers look"}
 treatment.cards: {kind: static, text: "Cards"}

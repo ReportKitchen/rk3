@@ -1,5 +1,6 @@
 import React from "react";
 import { StatIcon } from "./statIcons.jsx";
+import { QuoteGlyph } from "./quoteGlyphs.jsx";
 
 // The block components. Each takes FLAT props (matching Puck's render
 // signature) so the same components feed Puck's canvas, the static export, and
@@ -370,6 +371,68 @@ function StatCardsInner({ cards, treatment = "cards" }) {
   );
 }
 
+// Pullquote treatments (design-system/quotes 5a–5f): oversized-glyph, poster,
+// framed, editorial, tint field, and white-on-dark — all greyscale + one accent
+// (--lp-accent). The glyph is a baked SVG (no font dependency).
+export const QUOTE_TREATMENTS = ["glyph", "poster", "framed", "editorial", "tint", "dark", "standard"];
+export const quoteTreatmentsFor = () => QUOTE_TREATMENTS;
+
+function attrHtml(a) {
+  const s = String(a || "").trim();
+  if (!s) return "";
+  const i = s.indexOf("·");
+  if (i < 0) return `<strong>${escapeHtml(s)}</strong>`;
+  return `<strong>${escapeHtml(s.slice(0, i).trim())}</strong> · ${escapeHtml(s.slice(i + 1).trim())}`;
+}
+
+function QuoteBlock({ quote }) {
+  const q = quote || {};
+  if (!q.text) return null;
+  const t = QUOTE_TREATMENTS.includes(q.treatment) ? q.treatment : "glyph";
+  const attr = q.attribution
+    ? <p className="lp-quote-attr" dangerouslySetInnerHTML={{ __html: attrHtml(q.attribution) }} /> : null;
+  const Text = ({ children }) => <blockquote className="lp-quote-text">{children || q.text}</blockquote>;
+  const mark = (font) => <span className="lp-quote-mark"><QuoteGlyph font={font} size="1em" /></span>;
+
+  if (t === "standard") {
+    return <figure className="lp-quote lp-quote-standard"><Text />{attr}</figure>;
+  }
+  if (t === "framed") {
+    return (
+      <figure className="lp-quote lp-quote-framed">
+        <div className="lp-quote-frame">{mark("serif")}<Text />{attr}</div>
+      </figure>
+    );
+  }
+  if (t === "editorial") {
+    return (
+      <figure className="lp-quote lp-quote-editorial">
+        {q.eyebrow ? <p className="lp-quote-eyebrow">{q.eyebrow}</p> : null}
+        <blockquote className="lp-quote-text">{"“" + q.text + "”"}</blockquote>
+        {q.attribution ? (
+          <div className="lp-quote-attr-rules"><span /><p className="lp-quote-attr" dangerouslySetInnerHTML={{ __html: attrHtml(q.attribution) }} /><span /></div>
+        ) : null}
+      </figure>
+    );
+  }
+  if (t === "tint") {
+    return (
+      <figure className="lp-quote lp-quote-tint">
+        <span className="lp-quote-ghost"><QuoteGlyph font="rounded" size="1em" /></span>
+        <Text />{attr}
+      </figure>
+    );
+  }
+  if (t === "dark") {
+    return <figure className="lp-quote lp-quote-dark">{mark("rounded")}<Text />{attr}</figure>;
+  }
+  if (t === "poster") {
+    return <figure className="lp-quote lp-quote-poster">{mark("chunky")}<Text />{attr}</figure>;
+  }
+  // glyph (5a) — the default
+  return <figure className="lp-quote lp-quote-glyph">{mark("rounded")}<Text />{attr}</figure>;
+}
+
 export function Section({ heading, presentation, prose, bullets, cards, quote, steps, treatment }) {
   const q = quote || {};
   const hasContent =
@@ -393,12 +456,7 @@ export function Section({ heading, presentation, prose, bullets, cards, quote, s
       {presentation === "statCards" && (cards || []).length ? (
         <StatCards cards={cards} treatment={treatment} />
       ) : null}
-      {presentation === "quote" && q.text ? (
-        <figure className={"lp-sec-quote" + (q.pull ? " is-pull" : "")}>
-          <blockquote>{q.text}</blockquote>
-          {q.attribution ? <figcaption>{q.attribution}</figcaption> : null}
-        </figure>
-      ) : null}
+      {presentation === "quote" && q.text ? <QuoteBlock quote={quote} /> : null}
       {presentation === "steps" && (steps || []).length ? (
         <ol className="lp-sec-steps">
           {steps.map((s, i) => (

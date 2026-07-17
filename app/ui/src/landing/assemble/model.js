@@ -116,6 +116,11 @@ export const CTA_KEYS = ["download", "secondary", "share"];
 // so it's offered but not in the default rotation).
 export const STAT_TREATMENT_ORDER = ["cards", "icons", "band", "tiles", "list", "hero"];
 
+// same idea for quotes (design-system/quotes 5a–5f): the first quote opens on the
+// warm default "glyph", additional quotes rotate through the other looks so a
+// multi-quote doc shows the range on browse.
+export const QUOTE_TREATMENT_ORDER = ["glyph", "editorial", "tint", "poster", "framed", "dark"];
+
 // Title-case a heading — normalize ALL-CAPS ("EXECUTIVE SUMMARY") to Title Case
 // while preserving mixed-case acronyms/brands (SoLD, COVID-19) and short acronyms
 // (US, STEM) inside an otherwise mixed-case heading. RK3 had only caps DETECTION,

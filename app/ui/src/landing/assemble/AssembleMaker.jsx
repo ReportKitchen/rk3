@@ -4,7 +4,7 @@ import "../landingPage.css"; // block-render styles, reused by the previews + Wo
 import { getBlockDefaults, getAiSummary } from "../../api.js";
 import { loadContent, t } from "../../content.js";
 import { guard } from "../../errorBus.js";
-import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, wordCount, AUTO_TRIM_OVER, pickAiHeading, STAT_TREATMENT_ORDER, normalizeCover } from "./model.js";
+import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, wordCount, AUTO_TRIM_OVER, pickAiHeading, STAT_TREATMENT_ORDER, QUOTE_TREATMENT_ORDER, normalizeCover } from "./model.js";
 import Chrome from "./Chrome.jsx";
 import WhiskLoader from "./WhiskLoader.jsx";
 import SectionLibrary from "./SectionLibrary.jsx";
@@ -67,18 +67,25 @@ export default function AssembleMaker({ doc }) {
           id: `sec-${i}`,
           heading: titleCase(s.heading), summary: s.summary, role: s.role, presentation: s.presentation,
           page: s.page, strength: s.strength, verbatim: s.verbatim,
-          prose: s.prose, bullets: s.bullets, cards: s.cards, quote: s.quote, steps: s.steps,
+          prose: s.prose, bullets: s.bullets, cards: s.cards, steps: s.steps,
+          // add the editorial eyebrow; keep any explicit treatment, else rotate below.
+          // (the old pull flag maps to the quiet "standard" look.)
+          quote: { ...s.quote, eyebrow: t("lpm.sections.quote.eyebrow"),
+            treatment: s.quote?.treatment || (s.quote?.pull === false ? "standard" : null) },
           on: false,
           // long verbatim summaries default to trimmed (they can run screens)
           trimmed: s.presentation === "prose" && wordCount(s.prose) > AUTO_TRIM_OVER,
           treatment: null,
         }));
-        // give each stat section a different default treatment (variety on browse)
-        let statIdx = 0;
+        // give each stat/quote section a different default treatment (variety on browse)
+        let statIdx = 0, quoteIdx = 0;
         secs.forEach((s) => {
           if (s.presentation === "statCards") {
             s.treatment = STAT_TREATMENT_ORDER[statIdx % STAT_TREATMENT_ORDER.length];
             statIdx += 1;
+          } else if (s.presentation === "quote" && !s.quote.treatment) {
+            s.quote.treatment = QUOTE_TREATMENT_ORDER[quoteIdx % QUOTE_TREATMENT_ORDER.length];
+            quoteIdx += 1;
           }
         });
         // recommend some-on/some-off so the opening page lands in the good zone
@@ -114,9 +121,9 @@ export default function AssembleMaker({ doc }) {
     setSections((prev) => prev.map((s) => (s.id === id ? { ...s, presentation } : s)));
   }, []);
 
-  const setQuotePull = useCallback((id, pull) => {
+  const setQuoteTreatment = useCallback((id, treatment) => {
     setSections((prev) => prev.map((s) =>
-      (s.id === id ? { ...s, quote: { ...s.quote, pull } } : s)));
+      (s.id === id ? { ...s, quote: { ...s.quote, treatment } } : s)));
   }, []);
 
   const setTrimmed = useCallback((id, trimmed) => {
@@ -192,7 +199,7 @@ export default function AssembleMaker({ doc }) {
             sel={sel} sections={sections} cta={cta} ai={ai} defs={defs}
             slug={slug} length={length}
             onToggleSection={toggleSection} onToggleCta={toggleCta}
-            onSetPresentation={setPresentation} onSetQuotePull={setQuotePull}
+            onSetPresentation={setPresentation} onSetQuoteTreatment={setQuoteTreatment}
             onSetTrimmed={setTrimmed} onSetTreatment={setTreatment}
             onToggleAi={toggleAi} onAiVoice={fetchAiVoice} onPatchCta={patchCta}
           />
