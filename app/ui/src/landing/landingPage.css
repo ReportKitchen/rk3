@@ -186,7 +186,7 @@
    type scale in em (multiples of the inherited body size, not px), colour via
    inherit / currentColor, indents in em/%. That's what lets an exported section
    adopt the target site's own font, colour, and rhythm instead of fighting it. */
-.lp-section { margin: 2.2em 0; }
+.lp-section { margin: 2.2em 0; container-type: inline-size; }
 .lp-section > h2 {
   font-size: 1.4em; line-height: 1.2; margin: 0 0 0.6em;
   color: var(--lp-heading, inherit);
@@ -198,13 +198,70 @@
 .lp-sec-bullets { margin: 0; padding-left: 1.3em; }
 .lp-sec-bullets li { margin: 0.5em 0; line-height: 1.55; }
 
-/* stat cards — a big number beside the fact it proves */
-.lp-sec-stats {
-  display: flex; flex-wrap: wrap; gap: 1.6em 2em; margin: 0;
+/* stat treatments (design-system/stats): greyscale + ONE accent (--lp-accent).
+   Every treatment reflows from 1 to many stats; type scale is em-relative so it
+   inherits the host page. --cols is set inline per stat count. */
+.lp-stat-v {
+  font-weight: 800; letter-spacing: -0.02em; line-height: 1.05;
+  color: var(--lp-heading, inherit); display: inline-block;
 }
-.lp-sec-stat { flex: 1 1 8em; min-width: 7em; }
-.lp-sec-stat-v { font-size: 2.4em; font-weight: 700; line-height: 1.05; color: var(--lp-heading, inherit); }
-.lp-sec-stat-l { font-size: 0.9em; line-height: 1.45; margin-top: 0.35em; opacity: 0.8; }
+.lp-stat-l { display: block; font-size: 0.85em; line-height: 1.5; margin-top: 0.4em; opacity: 0.72; }
+
+/* cards — big number with an accent underline */
+.lp-stat-cards { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 1.7em 2em; }
+.lp-stat-cards .lp-stat-v {
+  font-size: 2.5em;
+  box-shadow: inset 0 -0.2em 0 color-mix(in srgb, var(--lp-accent, #D72E2C) 32%, transparent);
+}
+
+/* list — accent tick-rule, bold ink figure, hairline rows */
+.lp-stat-list { list-style: none; margin: 0; padding: 0; }
+.lp-stat-list li { display: flex; gap: 1em; padding: 0.85em 0; border-top: 1px solid rgba(30, 39, 64, 0.12); line-height: 1.55; }
+.lp-stat-list strong { color: var(--lp-heading, inherit); font-weight: 800; }
+.lp-stat-tick { flex: none; width: 1.4em; height: 0.2em; border-radius: 0.1em; background: var(--lp-accent, #D72E2C); margin-top: 0.6em; }
+
+/* tiles — number on a soft grey tile with an accent top rule */
+.lp-stat-tiles { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 1em; }
+.lp-stat-tile { background: rgba(30, 39, 64, 0.045); border-top: 0.16em solid var(--lp-accent, #D72E2C); border-radius: 0.7em; padding: 1.2em 1.15em; }
+.lp-stat-tiles .lp-stat-v { font-size: 2em; }
+
+/* band — dark rhythm break; white figures, accent top rules */
+.lp-stat-band {
+  background: var(--lp-band, #283246); border-radius: 0.5em; padding: 1.9em 2.1em;
+  display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 1.5em 2em;
+}
+.lp-stat-bandcell { border-top: 0.14em solid var(--lp-accent, #D72E2C); padding-top: 0.8em; }
+.lp-stat-band .lp-stat-v { font-size: 2.3em; color: #fff; }
+.lp-stat-band .lp-stat-l { color: rgba(255, 255, 255, 0.75); opacity: 1; }
+
+/* hero — one lead number + a ruled rail of the rest */
+.lp-stat-hero { display: flex; gap: 2.2em; align-items: stretch; flex-wrap: wrap; }
+.lp-stat-herolead { flex: 1 1 11em; min-width: 9em; border-left: 0.2em solid var(--lp-accent, #D72E2C); padding-left: 1.3em; }
+.lp-stat-herolead .lp-stat-v { font-size: 3.4em; }
+.lp-stat-rail { flex: 2 1 15em; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.lp-stat-railrow { display: flex; align-items: baseline; gap: 0.9em; padding: 0.65em 0; border-bottom: 1px solid rgba(30, 39, 64, 0.12); }
+.lp-stat-railrow:last-child { border-bottom: 0; }
+.lp-stat-railv { font-weight: 800; font-size: 1.4em; letter-spacing: -0.02em; color: var(--lp-heading, inherit); flex: none; min-width: 3.4em; }
+.lp-stat-rail .lp-stat-l { margin-top: 0; }
+
+/* bars — percentages only */
+.lp-stat-bars { display: flex; flex-direction: column; gap: 1.3em; }
+.lp-stat-barhd { display: flex; justify-content: space-between; align-items: baseline; gap: 1em; margin-bottom: 0.5em; }
+.lp-stat-barhd .lp-stat-l { margin-top: 0; opacity: 0.9; font-size: 0.95em; }
+.lp-stat-bars .lp-stat-v { font-size: 1.3em; flex: none; }
+.lp-stat-track { height: 0.6em; background: rgba(30, 39, 64, 0.09); border-radius: 999px; overflow: hidden; }
+.lp-stat-fill { height: 100%; background: var(--lp-accent, #D72E2C); border-radius: 999px; }
+
+/* reflow to the CONTAINER width (so a narrow preview collapses columns while the
+   full-width page keeps them) */
+@container (max-width: 34em) {
+  .lp-stat-cards, .lp-stat-tiles, .lp-stat-band { grid-template-columns: repeat(2, 1fr); }
+}
+@container (max-width: 22em) {
+  .lp-stat-cards, .lp-stat-tiles, .lp-stat-band { grid-template-columns: 1fr; }
+  .lp-stat-hero { display: block; }
+  .lp-stat-rail { margin-top: 1.2em; }
+}
 
 /* quote — standard (quiet inline) vs pull (big showcased pullquote) */
 .lp-sec-quote { margin: 0; }

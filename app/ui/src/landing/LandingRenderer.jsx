@@ -240,7 +240,93 @@ export function SecondaryCta({ label, url, bgColor, textColor }) {
 // primitive. Styling lives in landingPage.css (.lp-sec-*) and is deliberately
 // RELATIVE (em/%, inherits font + colour) so the exported section drops into the
 // host site's own CSS.
-export function Section({ heading, presentation, prose, bullets, cards, quote, steps }) {
+// Stat treatments (design-system/stats): greyscale + one settable accent
+// (--lp-accent), each reflowing from 1 to many stats. `bars` is percentage-only.
+const STAT_TREATMENTS = ["cards", "list", "tiles", "band", "hero", "bars"];
+const pctOf = (v) => {
+  const m = String(v || "").match(/(\d[\d.,]*)\s*%/);
+  return m ? Math.max(0, Math.min(100, parseFloat(m[1].replace(/,/g, "")))) : null;
+};
+export const allPercent = (cards) =>
+  (cards || []).length > 0 && cards.every((c) => pctOf(c.value) !== null);
+// which treatments are offered for this many cards / this data
+export function statTreatmentsFor(cards) {
+  const n = (cards || []).length;
+  return STAT_TREATMENTS.filter((t) => {
+    if (t === "bars") return allPercent(cards);
+    if (t === "hero") return n >= 1;
+    return true;
+  });
+}
+
+function StatCards({ cards, treatment = "cards" }) {
+  const list = (cards || []).filter((c) => c && (c.value || c.label));
+  if (!list.length) return null;
+  const t = statTreatmentsFor(list).includes(treatment) ? treatment : "cards";
+  const cols = Math.min(list.length, 3);
+  const V = ({ c }) => <span className="lp-stat-v">{c.value}</span>;
+  const L = ({ c }) => <span className="lp-stat-l" dangerouslySetInnerHTML={{ __html: c.label || "" }} />;
+
+  if (t === "list") {
+    return (
+      <ul className="lp-stat-list">
+        {list.map((c, i) => (
+          <li key={i}><span className="lp-stat-tick" /><span><strong>{c.value}</strong>{c.label ? " " : ""}<span dangerouslySetInnerHTML={{ __html: c.label || "" }} /></span></li>
+        ))}
+      </ul>
+    );
+  }
+  if (t === "tiles") {
+    return (
+      <div className="lp-stat-tiles" style={{ "--cols": cols }}>
+        {list.map((c, i) => <div key={i} className="lp-stat-tile"><V c={c} /><L c={c} /></div>)}
+      </div>
+    );
+  }
+  if (t === "band") {
+    return (
+      <div className="lp-stat-band" style={{ "--cols": cols }}>
+        {list.map((c, i) => <div key={i} className="lp-stat-bandcell"><V c={c} /><L c={c} /></div>)}
+      </div>
+    );
+  }
+  if (t === "hero") {
+    const [head, ...rail] = list;
+    return (
+      <div className="lp-stat-hero">
+        <div className="lp-stat-herolead"><span className="lp-stat-v">{head.value}</span><L c={head} /></div>
+        {rail.length ? (
+          <div className="lp-stat-rail">
+            {rail.map((c, i) => <div key={i} className="lp-stat-railrow"><span className="lp-stat-railv">{c.value}</span><L c={c} /></div>)}
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+  if (t === "bars") {
+    return (
+      <div className="lp-stat-bars">
+        {list.map((c, i) => {
+          const pct = pctOf(c.value) ?? 0;
+          return (
+            <div key={i} className="lp-stat-bar">
+              <div className="lp-stat-barhd"><L c={c} /><span className="lp-stat-v">{c.value}</span></div>
+              <div className="lp-stat-track"><div className="lp-stat-fill" style={{ width: `${pct}%` }} /></div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+  // cards (default)
+  return (
+    <div className="lp-stat-cards" style={{ "--cols": cols }}>
+      {list.map((c, i) => <div key={i} className="lp-stat-card"><V c={c} /><L c={c} /></div>)}
+    </div>
+  );
+}
+
+export function Section({ heading, presentation, prose, bullets, cards, quote, steps, treatment }) {
   const q = quote || {};
   const hasContent =
     (presentation === "prose" && prose) ||
@@ -261,14 +347,7 @@ export function Section({ heading, presentation, prose, bullets, cards, quote, s
         </ul>
       ) : null}
       {presentation === "statCards" && (cards || []).length ? (
-        <div className="lp-sec-stats">
-          {cards.map((c, i) => (
-            <div key={i} className="lp-sec-stat">
-              <div className="lp-sec-stat-v">{c.value}</div>
-              <div className="lp-sec-stat-l" dangerouslySetInnerHTML={{ __html: c.label || "" }} />
-            </div>
-          ))}
-        </div>
+        <StatCards cards={cards} treatment={treatment} />
       ) : null}
       {presentation === "quote" && q.text ? (
         <figure className={"lp-sec-quote" + (q.pull ? " is-pull" : "")}>

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { t } from "../../content.js";
-import { LandingRenderer, SHARE_NETWORKS } from "../LandingRenderer.jsx";
+import { LandingRenderer, SHARE_NETWORKS, statTreatmentsFor } from "../LandingRenderer.jsx";
 import { PRESENTATIONS, REC_WORDS, wordCount, effectiveProse, trimProse } from "./model.js";
 import { Icon, BLOCK_ICONS } from "./icons.jsx";
 import WhiskLoader from "./WhiskLoader.jsx";
@@ -14,7 +14,8 @@ const SHARE_STYLES = ["plain", "round", "square"];
 // a friendly welcome panel.
 export default function Inspector({
   sel, sections, cta, ai, defs, slug, length,
-  onToggleSection, onToggleCta, onSetPresentation, onSetQuotePull, onSetTrimmed, onToggleAi, onAiVoice, onPatchCta,
+  onToggleSection, onToggleCta, onSetPresentation, onSetQuotePull, onSetTrimmed, onSetTreatment,
+  onToggleAi, onAiVoice, onPatchCta,
 }) {
   if (!sel) return <Welcome />;
   if (sel === "ai-summary") {
@@ -28,6 +29,7 @@ export default function Inspector({
         onToggle={() => onToggleSection(section.id)}
         onSetQuotePull={(pull) => onSetQuotePull(section.id, pull)}
         onSetTrimmed={(v) => onSetTrimmed(section.id, v)}
+        onSetTreatment={(tr) => onSetTreatment(section.id, tr)}
       />
     );
   }
@@ -62,11 +64,12 @@ function AddRemove({ on, onToggle }) {
   );
 }
 
-function SectionInspector({ section, onToggle, onSetQuotePull, onSetTrimmed }) {
+function SectionInspector({ section, onToggle, onSetQuotePull, onSetTrimmed, onSetTreatment }) {
   const presLabel = t(`lpm.sections.pres.${section.presentation}`);
   const config = { blocks: [{ type: "section", id: section.id, props: {
     heading: section.heading, presentation: section.presentation, prose: effectiveProse(section),
     bullets: section.bullets, cards: section.cards, quote: section.quote, steps: section.steps,
+    treatment: section.treatment,
   } }] };
   const hasContent =
     (section.presentation === "prose" && section.prose) ||
@@ -104,6 +107,20 @@ function SectionInspector({ section, onToggle, onSetQuotePull, onSetTrimmed }) {
             <button type="button"
               className={"asm-chip" + (section.quote?.pull ? " is-active" : "")}
               onClick={() => onSetQuotePull(true)}>{t("lpm.sections.quote.pull")}</button>
+          </div>
+        </>
+      )}
+
+      {/* stat sections: how the numbers are plated (count/data-aware) */}
+      {section.presentation === "statCards" && (
+        <>
+          <div className="asm-eyebrow">{t("lpm.sections.treatment_label")}</div>
+          <div className="asm-chips">
+            {statTreatmentsFor(section.cards).map((tr) => (
+              <button key={tr} type="button"
+                className={"asm-chip" + ((section.treatment || "cards") === tr ? " is-active" : "")}
+                onClick={() => onSetTreatment(tr)}>{t(`lpm.sections.treatment.${tr}`)}</button>
+            ))}
           </div>
         </>
       )}

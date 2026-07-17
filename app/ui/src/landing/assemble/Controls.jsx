@@ -8,7 +8,7 @@ const shortLabel = (h) => (h && h.length > 18 ? h.slice(0, 17).trim() + "…" : 
 // Right column: the Cover control + a page word-count read (with zones), the
 // grayscale outline of the page (cover layout + the on-sections + CTA), and the
 // nudge toward Wordsmith.
-export default function Controls({ cover, onCover, sections, cta, ai, onWordsmith }) {
+export default function Controls({ cover, onCover, accent, onAccent, sections, cta, ai, onWordsmith }) {
   const rows = buildRows(sections, cta, ai);
   const words = pageWords(sections, ai);
   return (
@@ -21,6 +21,7 @@ export default function Controls({ cover, onCover, sections, cta, ai, onWordsmit
         />
       </div>
 
+      <AccentPicker accent={accent} onAccent={onAccent} />
       <WordCountBar words={words} />
 
       <div className="asm-page-head">
@@ -221,6 +222,27 @@ function Dropdown({ category, value, options, onPick, label, advice, glyph, opti
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// One settable accent — presets from the RK-ish palette + a custom swatch. Drives
+// --lp-accent, which every treatment/link/share reads.
+const ACCENT_PRESETS = ["#D72E2C", "#303D61", "#4C5A80", "#2E8B57", "#D99B12", "#7683A2"];
+function AccentPicker({ accent, onAccent }) {
+  return (
+    <div className="asm-accent">
+      <span className="asm-accent-label">{t("lpm.length.accent_label")}</span>
+      <div className="asm-accent-row">
+        {ACCENT_PRESETS.map((c) => (
+          <button key={c} type="button" aria-label={c}
+            className={"asm-swatch" + (accent.toLowerCase() === c.toLowerCase() ? " is-active" : "")}
+            style={{ background: c }} onClick={() => onAccent(c)} />
+        ))}
+        <label className="asm-swatch asm-swatch-custom" style={{ background: accent }} title="Custom colour">
+          <input type="color" value={accent} onChange={(e) => onAccent(e.target.value)} />
+        </label>
+      </div>
     </div>
   );
 }

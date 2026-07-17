@@ -4,7 +4,7 @@ import "../landingPage.css"; // block-render styles, reused by the previews + Wo
 import { getBlockDefaults, getAiSummary } from "../../api.js";
 import { loadContent, t } from "../../content.js";
 import { guard } from "../../errorBus.js";
-import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, wordCount, AUTO_TRIM_OVER, pickAiHeading } from "./model.js";
+import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, wordCount, AUTO_TRIM_OVER, pickAiHeading, STAT_TREATMENT_ORDER } from "./model.js";
 import Chrome from "./Chrome.jsx";
 import WhiskLoader from "./WhiskLoader.jsx";
 import SectionLibrary from "./SectionLibrary.jsx";
@@ -42,6 +42,7 @@ export default function AssembleMaker({ doc }) {
   const [sel, setSel] = useState(null);            // section id | cta key | "ai-summary"
   const [length, setLength] = useState("middle");
   const [cover, setCover] = useState("beside");
+  const [accent, setAccent] = useState("#D72E2C");   // the one settable accent
   const [cta, setCta] = useState({ download: true, secondary: false, share: true });
   // the opt-in AI Summary — the ONE AI-written section (a pitch in a chosen voice)
   const [ai, setAi] = useState({ on: false, voice: "neutral", prose: "", loading: false, fetched: false });
@@ -70,7 +71,16 @@ export default function AssembleMaker({ doc }) {
           on: false,
           // long verbatim summaries default to trimmed (they can run screens)
           trimmed: s.presentation === "prose" && wordCount(s.prose) > AUTO_TRIM_OVER,
+          treatment: null,
         }));
+        // give each stat section a different default treatment (variety on browse)
+        let statIdx = 0;
+        secs.forEach((s) => {
+          if (s.presentation === "statCards") {
+            s.treatment = STAT_TREATMENT_ORDER[statIdx % STAT_TREATMENT_ORDER.length];
+            statIdx += 1;
+          }
+        });
         // recommend some-on/some-off so the opening page lands in the good zone
         const on = recommendOn(secs);
         secs.forEach((s, i) => { s.on = on[i]; });
@@ -113,6 +123,10 @@ export default function AssembleMaker({ doc }) {
     setSections((prev) => prev.map((s) => (s.id === id ? { ...s, trimmed } : s)));
   }, []);
 
+  const setTreatment = useCallback((id, treatment) => {
+    setSections((prev) => prev.map((s) => (s.id === id ? { ...s, treatment } : s)));
+  }, []);
+
   const toggleCta = useCallback((key) => {
     setCta((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
@@ -143,7 +157,7 @@ export default function AssembleMaker({ doc }) {
   );
 
   return (
-    <div className="asm-root">
+    <div className="asm-root" style={{ "--lp-accent": accent }}>
       <Chrome
         title={doc.name || doc.slug}
         activeIdx={mode === "wordsmith" ? 1 : 0}
@@ -165,10 +179,11 @@ export default function AssembleMaker({ doc }) {
             slug={slug} length={length}
             onToggleSection={toggleSection} onToggleCta={toggleCta}
             onSetPresentation={setPresentation} onSetQuotePull={setQuotePull}
-            onSetTrimmed={setTrimmed} onToggleAi={toggleAi} onAiVoice={fetchAiVoice} onPatchCta={patchCta}
+            onSetTrimmed={setTrimmed} onSetTreatment={setTreatment}
+            onToggleAi={toggleAi} onAiVoice={fetchAiVoice} onPatchCta={patchCta}
           />
           <Controls
-            cover={cover} onCover={setCover}
+            cover={cover} onCover={setCover} accent={accent} onAccent={setAccent}
             title={title} coverAsset={coverAsset} sections={sections} cta={cta} ai={ai}
             onWordsmith={() => setMode("wordsmith")}
           />

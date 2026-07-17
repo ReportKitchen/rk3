@@ -42,6 +42,14 @@ pres.steps: {kind: static, text: "Steps"}
 how_label: {kind: static, text: "How it looks"}
 quote.standard: {kind: static, text: "Standard"}
 quote.pull: {kind: static, text: "Pullquote"}
+# stat treatments (design-system/stats) — how the numbers are plated
+treatment_label: {kind: static, text: "How the numbers look"}
+treatment.cards: {kind: static, text: "Cards"}
+treatment.list: {kind: static, text: "List"}
+treatment.tiles: {kind: static, text: "Tiles"}
+treatment.band: {kind: static, text: "Dark band"}
+treatment.hero: {kind: static, text: "Hero"}
+treatment.bars: {kind: static, text: "Bars"}
 # prose length trim (long summaries)
 length_label: {kind: static, text: "Length"}
 length.full: {kind: static, text: "Full"}

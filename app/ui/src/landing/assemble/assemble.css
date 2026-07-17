@@ -436,6 +436,25 @@
 .asm-select-opt-advice { font-size: 11.5px; color: var(--rk-text-muted); }
 .asm-select-opt-check { color: var(--rk-success); flex: none; display: inline-flex; }
 
+/* accent-colour picker (right rail) */
+.asm-accent { margin-bottom: 16px; }
+.asm-accent-label {
+  display: block; font-size: 12.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--rk-rhino-500); margin-bottom: 8px;
+}
+.asm-accent-row { display: flex; gap: 8px; align-items: center; }
+.asm-swatch {
+  width: 24px; height: 24px; border-radius: 50%; flex: none; cursor: pointer;
+  border: 2px solid var(--rk-white); box-shadow: 0 0 0 1px var(--rk-border-strong);
+  padding: 0;
+}
+.asm-swatch.is-active { box-shadow: 0 0 0 2px var(--rk-rhino-700); }
+.asm-swatch-custom { position: relative; overflow: hidden; display: inline-flex; }
+.asm-swatch-custom input {
+  position: absolute; inset: -4px; width: calc(100% + 8px); height: calc(100% + 8px);
+  opacity: 0; cursor: pointer; border: 0; padding: 0;
+}
+
 /* word-count bar (right rail) */
 .asm-wc { margin-bottom: 18px; }
 .asm-wc-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 7px; }

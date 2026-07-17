@@ -103,6 +103,11 @@ export function defaultSectionOn(sections, length) {
 // The CTA scaffolding (fixed — not AI sections). Kept as its own small group.
 export const CTA_KEYS = ["download", "secondary", "share"];
 
+// default stat-treatment rotation: when a doc has several stat sections, each
+// opens with a different treatment so browsing shows the range (bars is %-only,
+// so it's offered but not in the default rotation).
+export const STAT_TREATMENT_ORDER = ["cards", "band", "tiles", "list", "hero"];
+
 // Title-case a heading — normalize ALL-CAPS ("EXECUTIVE SUMMARY") to Title Case
 // while preserving mixed-case acronyms/brands (SoLD, COVID-19) and short acronyms
 // (US, STEM) inside an otherwise mixed-case heading. RK3 had only caps DETECTION,
@@ -171,6 +176,7 @@ export function buildSectionConfig({ title, cover, sections, cta, ai }) {
       props: {
         heading: s.heading, presentation: s.presentation, prose: effectiveProse(s),
         bullets: s.bullets, cards: s.cards, quote: s.quote, steps: s.steps,
+        treatment: s.treatment,
       },
     });
   }
