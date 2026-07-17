@@ -220,6 +220,13 @@
 .lp-stat-list strong { color: var(--lp-heading, inherit); font-weight: 800; }
 .lp-stat-tick { flex: none; width: 1.4em; height: 0.2em; border-radius: 0.1em; background: var(--lp-accent, #D72E2C); margin-top: 0.6em; }
 
+/* icons — an accent Lucide icon per stat (icon picked from the stat's words) */
+.lp-stat-icons { display: grid; grid-template-columns: repeat(var(--cols, 1), 1fr); column-gap: 2.6em; }
+.lp-stat-iconrow { display: flex; gap: 0.9em; padding: 0.85em 0; border-top: 1px solid rgba(30, 39, 64, 0.12); }
+.lp-stat-iconrow p { margin: 0; line-height: 1.55; }
+.lp-stat-icon { color: var(--lp-accent, #D72E2C); margin-top: 0.2em; flex: none; }
+.lp-stat-icons strong { color: var(--lp-heading, inherit); font-weight: 800; }
+
 /* tiles — number on a soft grey tile with an accent top rule */
 .lp-stat-tiles { display: grid; grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 1em; }
 .lp-stat-tile { background: rgba(30, 39, 64, 0.045); border-top: 0.16em solid var(--lp-accent, #D72E2C); border-radius: 0.7em; padding: 1.2em 1.15em; }
@@ -256,6 +263,7 @@
    full-width page keeps them) */
 @container (max-width: 34em) {
   .lp-stat-cards, .lp-stat-tiles, .lp-stat-band { grid-template-columns: repeat(2, 1fr); }
+  .lp-stat-icons { grid-template-columns: 1fr; }
 }
 @container (max-width: 22em) {
   .lp-stat-cards, .lp-stat-tiles, .lp-stat-band { grid-template-columns: 1fr; }

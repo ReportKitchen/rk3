@@ -46,6 +46,7 @@ quote.pull: {kind: static, text: "Pullquote"}
 treatment_label: {kind: static, text: "How the numbers look"}
 treatment.cards: {kind: static, text: "Cards"}
 treatment.list: {kind: static, text: "List"}
+treatment.icons: {kind: static, text: "Icons"}
 treatment.tiles: {kind: static, text: "Tiles"}
 treatment.band: {kind: static, text: "Dark band"}
 treatment.hero: {kind: static, text: "Hero"}

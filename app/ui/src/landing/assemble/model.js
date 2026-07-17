@@ -106,7 +106,7 @@ export const CTA_KEYS = ["download", "secondary", "share"];
 // default stat-treatment rotation: when a doc has several stat sections, each
 // opens with a different treatment so browsing shows the range (bars is %-only,
 // so it's offered but not in the default rotation).
-export const STAT_TREATMENT_ORDER = ["cards", "band", "tiles", "list", "hero"];
+export const STAT_TREATMENT_ORDER = ["cards", "icons", "band", "tiles", "list", "hero"];
 
 // Title-case a heading — normalize ALL-CAPS ("EXECUTIVE SUMMARY") to Title Case
 // while preserving mixed-case acronyms/brands (SoLD, COVID-19) and short acronyms

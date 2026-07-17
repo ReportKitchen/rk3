@@ -1,4 +1,5 @@
 import React from "react";
+import { StatIcon } from "./statIcons.jsx";
 
 // The block components. Each takes FLAT props (matching Puck's render
 // signature) so the same components feed Puck's canvas, the static export, and
@@ -242,7 +243,7 @@ export function SecondaryCta({ label, url, bgColor, textColor }) {
 // host site's own CSS.
 // Stat treatments (design-system/stats): greyscale + one settable accent
 // (--lp-accent), each reflowing from 1 to many stats. `bars` is percentage-only.
-const STAT_TREATMENTS = ["cards", "list", "tiles", "band", "hero", "bars"];
+const STAT_TREATMENTS = ["cards", "list", "icons", "tiles", "band", "hero", "bars"];
 const pctOf = (v) => {
   const m = String(v || "").match(/(\d[\d.,]*)\s*%/);
   return m ? Math.max(0, Math.min(100, parseFloat(m[1].replace(/,/g, "")))) : null;
@@ -274,6 +275,18 @@ function StatCards({ cards, treatment = "cards" }) {
           <li key={i}><span className="lp-stat-tick" /><span><strong>{c.value}</strong>{c.label ? " " : ""}<span dangerouslySetInnerHTML={{ __html: c.label || "" }} /></span></li>
         ))}
       </ul>
+    );
+  }
+  if (t === "icons") {
+    return (
+      <div className="lp-stat-icons" style={{ "--cols": list.length >= 4 ? 2 : 1 }}>
+        {list.map((c, i) => (
+          <div key={i} className="lp-stat-iconrow">
+            <span className="lp-stat-icon"><StatIcon value={c.value} label={c.label} /></span>
+            <p><strong>{c.value}</strong>{c.label ? " " : ""}<span dangerouslySetInnerHTML={{ __html: c.label || "" }} /></p>
+          </div>
+        ))}
+      </div>
     );
   }
   if (t === "tiles") {
