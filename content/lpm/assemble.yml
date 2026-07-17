@@ -1,0 +1,44 @@
+# lpm.assemble.* — copy shown in the Landing Page Maker's Assemble screen only.
+
+# The "we found N …" lines. Tokens are declared; the frontend renders full ICU
+# so "1 story" vs "8 stories" lives in the string, not in code. To reword this
+# ("Stories reach people and we found {n} in your document") edit `text` — same
+# token, live on next render.
+story_count:
+  kind: template
+  text: "We found {n, plural, one {# story} other {# stories}} in your PDF"
+  tokens: [n]
+
+stat_count:
+  kind: template
+  text: "We found {n, plural, one {# stat} other {# stats}} worth featuring"
+  tokens: [n]
+
+# The opening line can be AI-written per document when AI is on; the fallback is
+# a plain, always-safe version for when the user has AI turned off.
+intro_line:
+  kind: ai
+  model: claude-haiku-4-5
+  prompt: >
+    Write one warm, plainspoken sentence telling the user we read their
+    {pages}-page report and drafted a starting page from its strongest material.
+    No hype. One sentence.
+  fallback: "We read all {pages} pages and drafted a page from the strongest material."
+  tokens: [pages]
+
+# Block-card copy (what it is / when to use). This is the editorial voice; it's
+# the same guidance the engine reasons with, surfaced to the user.
+card_findings_what:
+  kind: static
+  text: "Headline stats — a big number beside the fact it proves."
+card_findings_when:
+  kind: static
+  text: "Best when your punch is quantitative."
+
+# Storytelling now explicitly covers case studies, per the widened definition.
+card_storytelling_what:
+  kind: static
+  text: "A real story or case study — the work happening to real people."
+card_storytelling_when:
+  kind: static
+  text: "Best when the work is about people or places, not just policy — a named person's story or a program's case."

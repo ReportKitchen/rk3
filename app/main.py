@@ -58,6 +58,15 @@ def documents():
     return docs
 
 
+@app.get("/api/content")
+def content_bundle(scope: Optional[str] = None):
+    """UI copy for the frontend `t(key, tokens)` helper: static/template strings
+    and `ai` fallbacks, keyed. Prompts are never shipped to the browser. `scope`
+    (e.g. lpm) returns that app's copy plus shared/core; omit for everything."""
+    from rk3 import content
+    return content.entries(scope=scope)
+
+
 class BatchBody(BaseModel):
     exclude: bool
 
