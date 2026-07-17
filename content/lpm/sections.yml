@@ -4,6 +4,13 @@
 
 intro.title: {kind: static, text: "Introduction"}
 intro.sub: {kind: static, text: "How the page opens — your report’s own foreword and summary."}
+
+# The AI Summary — the ONE section AI writes (a pitch in a voice you pick), not
+# your report's words. Opt-in; lives in the Introduction group.
+ai.heading: {kind: static, text: "AI Summary"}
+ai.caption: {kind: static, text: "A punchy pitch in a voice you pick — the one part AI writes, not your report."}
+ai.badge: {kind: static, text: "AI-written"}
+ai.voice_label: {kind: static, text: "Pick the voice"}
 highlights.title: {kind: static, text: "Highlights"}
 highlights.sub: {kind: static, text: "The meaningful bits we pulled from your report — pick what to feature."}
 cta.title: {kind: static, text: "Call to action"}
@@ -19,8 +26,6 @@ error_notice:
   kind: template
   text: "AI couldn’t generate sections — showing a basic version. Reopen this tab to retry. ({reason})"
   tokens: [reason]
-# a section whose content is the document's own words earns this trust badge
-verbatim_badge: {kind: static, text: "your words"}
 empty: {kind: static, text: "No sections yet — turn AI on, or add wording in Wordsmith."}
 
 # presentation-primitive labels (shown on cards + in the inspector's how-it-looks control)

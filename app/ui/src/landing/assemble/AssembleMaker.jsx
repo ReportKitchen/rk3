@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import "./assemble.css";
 import "../landingPage.css"; // block-render styles, reused by the previews + Wordsmith
-import { getBlockDefaults } from "../../api.js";
+import { getBlockDefaults, getAiSummary } from "../../api.js";
 import { loadContent } from "../../content.js";
 import { guard } from "../../errorBus.js";
-import { LENGTHS, defaultSectionOn } from "./model.js";
+import { LENGTHS, SUMMARY_LENGTH, defaultSectionOn } from "./model.js";
 import Chrome from "./Chrome.jsx";
 import SectionLibrary from "./SectionLibrary.jsx";
 import Inspector from "./Inspector.jsx";
@@ -30,14 +30,17 @@ export default function AssembleMaker({ doc }) {
 
   const [mode, setMode] = useState("assemble");
   const [sections, setSections] = useState([]);    // [{id, on, presentation, ...content}]
-  const [sel, setSel] = useState(null);            // section id | cta key
+  const [sel, setSel] = useState(null);            // section id | cta key | "ai-summary"
   const [length, setLength] = useState("middle");
   const [cover, setCover] = useState("beside");
   const [cta, setCta] = useState({ download: true, secondary: false, share: true });
+  // the opt-in AI Summary — the ONE AI-written section (a pitch in a chosen voice)
+  const [ai, setAi] = useState({ on: false, voice: "neutral", prose: "", loading: false });
 
   useEffect(() => {
     let alive = true;
     setReady(false); setError(null);
+    setAi({ on: false, voice: "neutral", prose: "", loading: false });
     loadContent("lpm")
       .then(() => Promise.all([
         getSections(slug).catch(guard("assemble: sections", null)),
@@ -101,6 +104,18 @@ export default function AssembleMaker({ doc }) {
     setCta((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
 
+  const toggleAi = useCallback(() => setAi((a) => ({ ...a, on: !a.on })), []);
+
+  // fetch (lazily) the AI-written summary for a voice at the current length
+  const fetchAiVoice = useCallback((voice) => {
+    setAi((a) => ({ ...a, voice, loading: true }));
+    getAiSummary(slug, voice, SUMMARY_LENGTH[length] || "medium")
+      .then((text) => setAi((a) => (a.voice === voice
+        ? { ...a, loading: false, prose: text ? text.split(/\n\n+/).map((p) => `<p>${p.trim()}</p>`).join("") : "" }
+        : a)))
+      .catch(() => setAi((a) => ({ ...a, loading: false })));
+  }, [slug, length]);
+
   const title = defs?.title || null;
   const coverAsset = defs?.cover || null;
 
@@ -116,22 +131,24 @@ export default function AssembleMaker({ doc }) {
       {mode === "wordsmith" ? (
         <Wordsmith
           slug={slug} title={title} coverAsset={coverAsset} cover={cover}
-          sections={sections} cta={cta} onBack={() => setMode("assemble")}
+          sections={sections} cta={cta} ai={ai} onBack={() => setMode("assemble")}
         />
       ) : (
         <div className="asm-grid">
           <SectionLibrary
-            sections={sections} cta={cta} sel={sel} noai={noai} genError={genError}
+            sections={sections} cta={cta} ai={ai} sel={sel} noai={noai} genError={genError}
             docRead={docRead} onSelect={setSel}
           />
           <Inspector
-            sel={sel} sections={sections} cta={cta} defs={defs}
+            sel={sel} sections={sections} cta={cta} ai={ai} defs={defs}
+            slug={slug} length={length}
             onToggleSection={toggleSection} onToggleCta={toggleCta}
             onSetPresentation={setPresentation} onSetQuotePull={setQuotePull}
+            onToggleAi={toggleAi} onAiVoice={fetchAiVoice}
           />
           <Controls
             length={length} cover={cover} onLength={changeLength} onCover={setCover}
-            title={title} coverAsset={coverAsset} sections={sections} cta={cta}
+            title={title} coverAsset={coverAsset} sections={sections} cta={cta} ai={ai}
             onWordsmith={() => setMode("wordsmith")}
           />
         </div>

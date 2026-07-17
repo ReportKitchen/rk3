@@ -6,7 +6,7 @@ import { Icon, BLOCK_ICONS } from "./icons.jsx";
 // Left column, three groups top-to-bottom: Introduction (the document's own
 // foreword / summary), Highlights (the meaningful body sections — the star), and
 // Call to action (the fixed scaffolding). Click a card to inspect and adjust it.
-export default function SectionLibrary({ sections, cta, sel, noai, genError, docRead, onSelect }) {
+export default function SectionLibrary({ sections, cta, ai, sel, noai, genError, docRead, onSelect }) {
   const notice = genError
     ? <div className="asm-error-notice">{t("lpm.sections.error_notice", { reason: genError })}</div>
     : noai
@@ -17,18 +17,16 @@ export default function SectionLibrary({ sections, cta, sel, noai, genError, doc
     <div className="asm-col asm-col-left">
       {notice}
 
-      {intro.length > 0 && (
-        <Group
-          title={t("lpm.sections.intro.title")} sub={t("lpm.sections.intro.sub")}
-          first={!notice}
-        >
-          {intro.map((s) => <SectionCard key={s.id} s={s} sel={sel} onSelect={onSelect} />)}
-        </Group>
-      )}
+      <Group
+        title={t("lpm.sections.intro.title")} sub={t("lpm.sections.intro.sub")}
+        first={!notice}
+      >
+        {intro.map((s) => <SectionCard key={s.id} s={s} sel={sel} onSelect={onSelect} />)}
+        {!noai && <AiCard ai={ai} sel={sel} onSelect={onSelect} />}
+      </Group>
 
       <Group
         title={t("lpm.sections.highlights.title")} sub={t("lpm.sections.highlights.sub")}
-        first={!notice && intro.length === 0}
       >
         {body.length === 0 && <p className="asm-sub">{t("lpm.sections.empty")}</p>}
         {body.map((s) => <SectionCard key={s.id} s={s} sel={sel} onSelect={onSelect} />)}
@@ -77,13 +75,34 @@ function SectionCard({ s, sel, onSelect }) {
         <Icon name={PRESENTATIONS[s.presentation]?.icon || "file-text"} size={15} />
       </span>
       <span className="asm-card-body">
-        <span className="asm-card-name">
-          {s.heading}
-          {s.verbatim && <span className="asm-verbatim-badge">{t("lpm.sections.verbatim_badge")}</span>}
-        </span>
+        <span className="asm-card-name">{s.heading}</span>
         <span className="asm-card-guidance">{s.summary || t("lpm.sections.placeholder_hint")}</span>
       </span>
       {s.on
+        ? <Icon name="check" size={14} className="asm-card-check" />
+        : <Icon name="chevron-right" size={14} className="asm-card-chev" />}
+    </button>
+  );
+}
+
+// The one AI-written option (a pitch in a chosen voice). Badged AI-written — the
+// exception in a verbatim-first page.
+function AiCard({ ai, sel, onSelect }) {
+  return (
+    <button
+      type="button"
+      className={"asm-card" + (sel === "ai-summary" ? " is-selected" : "")}
+      onClick={() => onSelect("ai-summary")}
+    >
+      <span className="asm-card-icon"><Icon name="sparkles" size={15} /></span>
+      <span className="asm-card-body">
+        <span className="asm-card-name">
+          {t("lpm.sections.ai.heading")}
+          <span className="asm-ai-badge">{t("lpm.sections.ai.badge")}</span>
+        </span>
+        <span className="asm-card-guidance">{t("lpm.sections.ai.caption")}</span>
+      </span>
+      {ai.on
         ? <Icon name="check" size={14} className="asm-card-check" />
         : <Icon name="chevron-right" size={14} className="asm-card-chev" />}
     </button>

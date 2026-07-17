@@ -6,6 +6,9 @@
 export const LENGTHS = ["short", "middle", "long"];
 export const COVERS = ["onTop", "beside", "inset", "textForward"];
 
+// page length (short/middle/long) → AI-summary length axis (short/medium/long)
+export const SUMMARY_LENGTH = { short: "short", middle: "medium", long: "long" };
+
 // ---- AI content-sections model (BACKLOG/61) --------------------------------
 // presentation primitive -> library icon + human label key
 export const PRESENTATIONS = {
@@ -46,7 +49,7 @@ export function splitSections(sections) {
 
 // Assemble the render config (title + cover + on-sections + CTA) from the section
 // state — feeds the rough page, the Wordsmith render, and export.
-export function buildSectionConfig({ title, cover, sections, cta }) {
+export function buildSectionConfig({ title, cover, sections, cta, ai }) {
   const blocks = [];
   if (title && (title.title || title.eyebrow || title.subtitle)) {
     blocks.push({ type: "title", id: "title", props: title });
@@ -55,6 +58,12 @@ export function buildSectionConfig({ title, cover, sections, cta }) {
   // float treatment is a later refinement — for now the cover leads the page)
   if (cover && cover.src && cover.layout !== "textForward") {
     blocks.push({ type: "cover", id: "cover", props: { src: cover.src, alt: cover.alt || "" } });
+  }
+  // the opt-in AI Summary leads the content (a headingless prose pitch)
+  if (ai && ai.on && ai.prose) {
+    blocks.push({ type: "section", id: "ai-summary",
+      props: { heading: "", presentation: "prose", prose: ai.prose,
+               bullets: [], cards: [], quote: {}, steps: [] } });
   }
   for (const s of sections) {
     if (!s.on) continue;

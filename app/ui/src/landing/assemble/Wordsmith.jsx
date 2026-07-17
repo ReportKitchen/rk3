@@ -12,7 +12,7 @@ const countWords = (s) => (String(s || "").trim().match(/\S+/g) || []).length;
 // the MAIN document (not a Puck iframe) with the real block components — the AI
 // sections in their own words — made editable in place (bold / italic / lists /
 // links only). Structural changes happen back in Assemble.
-export default function Wordsmith({ slug, title, coverAsset, cover, sections, cta, onBack }) {
+export default function Wordsmith({ slug, title, coverAsset, cover, sections, cta, ai, onBack }) {
   const editorRef = useRef(null);
   const [words, setWords] = useState(0);
   const [bar, setBar] = useState(null); // {top,left} of the floating toolbar
@@ -20,8 +20,8 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
   const config = useMemo(() => buildSectionConfig({
     title,
     cover: coverAsset ? { src: coverAsset.src, alt: coverAsset.alt, layout: cover } : null,
-    sections, cta,
-  }), [title, coverAsset, cover, sections, cta]);
+    sections, cta, ai,
+  }), [title, coverAsset, cover, sections, cta, ai]);
 
   const html = useMemo(() => renderToStaticMarkup(
     <LandingRenderer

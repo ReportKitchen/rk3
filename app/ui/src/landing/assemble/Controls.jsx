@@ -8,8 +8,8 @@ const shortLabel = (h) => (h && h.length > 18 ? h.slice(0, 17).trim() + "…" : 
 // Right column: the two page-shape controls (Length, Cover), the grayscale "rough
 // draft" of the page (cover layout + the on-sections + CTA), and the nudge toward
 // Wordsmith.
-export default function Controls({ length, cover, onLength, onCover, sections, cta, onWordsmith }) {
-  const rows = buildRows(sections, cta);
+export default function Controls({ length, cover, onLength, onCover, sections, cta, ai, onWordsmith }) {
+  const rows = buildRows(sections, cta, ai);
   return (
     <div className="asm-col asm-col-right">
       <div className="asm-controls">
@@ -52,9 +52,10 @@ export default function Controls({ length, cover, onLength, onCover, sections, c
   );
 }
 
-// on-sections + CTA -> rough-page rows
-function buildRows(sections, cta) {
+// AI summary (if on) + on-sections + CTA -> rough-page rows
+function buildRows(sections, cta, ai) {
   const out = [];
+  if (ai && ai.on) out.push({ label: t("lpm.sections.ai.heading"), kind: "text" });
   for (const s of sections) {
     if (!s.on) continue;
     const label = shortLabel(s.heading);
