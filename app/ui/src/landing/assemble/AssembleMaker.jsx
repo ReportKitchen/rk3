@@ -190,9 +190,11 @@ export default function AssembleMaker({ doc }) {
 
   const toggleAi = useCallback(() => setAi((a) => ({ ...a, on: !a.on })), []);
 
-  // fetch (lazily) the AI-written summary for a voice at the current length
+  // fetch (lazily) the AI-written summary for a voice at the current length.
+  // Only whisk on the FIRST load — when we already have prose (a voice switch),
+  // keep it visible and let the preview crossfade to the new text on arrival.
   const fetchAiVoice = useCallback((voice) => {
-    setAi((a) => ({ ...a, voice, loading: true }));
+    setAi((a) => ({ ...a, voice, loading: !a.prose }));
     getAiSummary(slug, voice, SUMMARY_LENGTH[length] || "medium")
       .then((text) => setAi((a) => (a.voice === voice
         ? { ...a, loading: false, fetched: true, prose: text ? text.split(/\n\n+/).map((p) => `<p>${p.trim()}</p>`).join("") : "" }

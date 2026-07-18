@@ -496,16 +496,20 @@ export function CoverBand({ cover, title, download, date, authors, resolveAsset 
   const main = tp.title || tp.text || "";
   const meta = [authors, date].filter(Boolean).join(" · ");
   if (!cover?.src && !main) return null;
+  // the cover + download are an atomic non-editable island; the text column is
+  // editable in Wordsmith (data-skey persists those edits)
   return (
-    <section className="lp-block lp-coverband" contentEditable={false}>
+    <section className="lp-block lp-coverband">
       {cover?.src ? (
-        <div className="lp-coverband-media">
+        <div className="lp-coverband-media" contentEditable={false}>
           <figure className="lp-coverband-cover"><img src={resolveAsset(cover.src)} alt={cover.alt || ""} /></figure>
           {download ? <Download {...download} downloadHref={downloadHref} bgColor="var(--lp-accent, #1E3A5F)" /> : null}
         </div>
       ) : null}
-      <div className="lp-coverband-body">
+      <div className="lp-coverband-body" data-skey="__band__">
+        {tp.eyebrow ? <p className="lp-coverband-kicker">{tp.eyebrow}</p> : null}
         {main ? <p className="lp-coverband-title">{main}</p> : null}
+        {tp.subtitle ? <p className="lp-coverband-sub">{tp.subtitle}</p> : null}
         {meta ? <p className="lp-coverband-meta">{meta}</p> : null}
       </div>
     </section>

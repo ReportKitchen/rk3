@@ -41,6 +41,7 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
   const sigByKey = useMemo(() => {
     const m = {};
     for (const b of config.blocks || []) {
+      if (b.type === "coverBand") { m.__band__ = "coverBand"; continue; }  // skey is on the band's body div
       const sk = b.props?.skey;
       if (!sk) continue;
       m[sk] = b.type === "section"
@@ -107,6 +108,8 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
     recomputeWords();
     captureEdits();
   };
+  // set the block format (paragraph / heading level) of the selection's block
+  const block = (tag) => exec("formatBlock", tag);
   // clear formatting — strip bold/italic/etc. AND any link, back to normal text
   const clearFormatting = () => {
     document.execCommand("removeFormat", false);
@@ -183,7 +186,15 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
           <div className="asm-ws-toolbar" style={{ top: bar.top, left: bar.left }} onMouseDown={(e) => e.preventDefault()}>
             <button type="button" className="asm-ws-tool" style={{ fontWeight: 800 }} title={t("lpm.wordsmith.tool.bold")} onClick={() => exec("bold")}>B</button>
             <button type="button" className="asm-ws-tool" style={{ fontStyle: "italic" }} title={t("lpm.wordsmith.tool.italic")} onClick={() => exec("italic")}>I</button>
+            <span className="asm-ws-tool-sep" />
+            <button type="button" className="asm-ws-tool asm-ws-tool-txt" title={t("lpm.wordsmith.tool.normal")} onClick={() => block("P")}>¶</button>
+            <button type="button" className="asm-ws-tool asm-ws-tool-txt" title={t("lpm.wordsmith.tool.h1")} onClick={() => block("H1")}>H1</button>
+            <button type="button" className="asm-ws-tool asm-ws-tool-txt" title={t("lpm.wordsmith.tool.h2")} onClick={() => block("H2")}>H2</button>
+            <button type="button" className="asm-ws-tool asm-ws-tool-txt" title={t("lpm.wordsmith.tool.h3")} onClick={() => block("H3")}>H3</button>
+            <button type="button" className="asm-ws-tool asm-ws-tool-txt" title={t("lpm.wordsmith.tool.h4")} onClick={() => block("H4")}>H4</button>
+            <span className="asm-ws-tool-sep" />
             <button type="button" className="asm-ws-tool" title={t("lpm.wordsmith.tool.list")} onClick={() => exec("insertUnorderedList")}><Icon name="list-bullet" size={15} /></button>
+            <button type="button" className="asm-ws-tool" title={t("lpm.wordsmith.tool.hr")} onClick={() => exec("insertHorizontalRule")}><Icon name="minus" size={16} /></button>
             <button type="button" className="asm-ws-tool" title={t("lpm.wordsmith.tool.link")} onClick={openLinkEditor}><Icon name="link" size={15} /></button>
             <span className="asm-ws-tool-sep" />
             <button type="button" className="asm-ws-tool" title={t("lpm.wordsmith.tool.clear")} onClick={clearFormatting}><Icon name="remove-formatting" size={15} /></button>

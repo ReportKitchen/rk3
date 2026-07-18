@@ -197,7 +197,7 @@ function AiInspector({ ai, onToggle, onVoice }) {
         {ai.loading
           ? <div style={{ padding: "18px 0" }}><WhiskLoader size={84} caption={t("lpm.inspector.loading")} /></div>
           : ai.prose
-            ? <div className="lp-body"><LandingRenderer config={config} /></div>
+            ? <div className="asm-voice-fade" key={ai.prose}><div className="lp-body"><LandingRenderer config={config} /></div></div>
             : ai.fetched
               ? <p className="asm-pv-empty">{t("lpm.inspector.ai_failed")}</p>
               : <div style={{ padding: "18px 0" }}><WhiskLoader size={84} caption={t("lpm.inspector.loading")} /></div>}

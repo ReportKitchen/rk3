@@ -231,12 +231,26 @@
 /* prominent on/off status: filled green check (featured) vs faint empty ring */
 .asm-on-badge {
   width: 19px; height: 19px; flex: none; border-radius: 50%;
-  border: 1.5px solid var(--rk-gray-300);
+  border: 1.5px solid var(--rk-gray-300); position: relative;
   display: inline-flex; align-items: center; justify-content: center;
 }
 .asm-on-badge.is-on {
   background: var(--rk-success); border-color: var(--rk-success); color: #fff;
   box-shadow: 0 1px 2px rgba(46, 139, 87, 0.35);
+}
+/* not-in-use: a slashed circle (status, not a clickable radio) */
+.asm-on-badge.is-off { border-color: var(--rk-gray-300); background: var(--rk-gray-50, #f6f7f9); }
+.asm-on-badge.is-off::after {
+  content: ""; position: absolute; top: 50%; left: 50%;
+  width: 13px; height: 1.5px; border-radius: 1px; background: var(--rk-gray-400, #b9bfca);
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+/* AI-summary preview: left-to-right wipe when switching voices (no whisk flash) */
+.asm-voice-fade { animation: asm-voicefade 300ms ease; }
+@keyframes asm-voicefade {
+  from { opacity: 0; clip-path: inset(0 100% 0 0); }
+  to { opacity: 1; clip-path: inset(0 0 0 0); }
 }
 
 /* ---------------- Center: inspector ---------------- */
@@ -597,18 +611,20 @@
   padding: 8px 22px; text-align: center;
 }
 .asm-ws-page {
-  max-width: 720px; margin: 34px auto 90px;
+  max-width: 720px; margin: 48px auto 110px;   /* centred, floating on the graph paper */
   background: #fff; border: 1px solid var(--rk-border);
   border-radius: var(--rk-radius-sm); box-shadow: var(--rk-shadow-md);  /* soft lift off the graph paper */
-  padding: 48px 56px;
+  padding: 52px 60px;
 }
 /* the editable region uses the real landing-page block styles (landingPage.css) */
 .asm-ws-page .lp-block { position: relative; }
 .asm-ws-page [contenteditable] { outline: none; border-radius: var(--rk-radius-xs); }
 .asm-ws-page [contenteditable]:hover { box-shadow: 0 0 0 1px var(--rk-rhino-100); }
 .asm-ws-page [contenteditable]:focus { box-shadow: 0 0 0 2px var(--rk-rhino-300); }
+/* absolute (not fixed) — positioned relative to the editor wrapper, so the
+   host-relative coords from syncBar are correct and it tracks the text on scroll */
 .asm-ws-toolbar {
-  position: fixed; z-index: 20; display: flex; gap: 2px;
+  position: absolute; z-index: 20; display: flex; gap: 2px; align-items: stretch;
   background: var(--rk-rhino-900); border-radius: var(--rk-radius-sm);
   padding: 4px; box-shadow: var(--rk-shadow-lg);
   transform: translate(-50%, -100%);
@@ -619,11 +635,12 @@
   border-radius: var(--rk-radius-xs); cursor: pointer;
 }
 .asm-ws-tool:hover { background: rgba(255, 255, 255, 0.15); }
+.asm-ws-tool-txt { width: auto; min-width: 26px; padding: 0 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.02em; }
 .asm-ws-tool-sep { width: 1px; align-self: stretch; margin: 4px 2px; background: rgba(255, 255, 255, 0.2); }
 
 /* inline link editor — a popover by the toolbar, never a blocking browser dialog */
 .asm-ws-linkpop {
-  position: fixed; z-index: 21; transform: translateX(-50%);
+  position: absolute; z-index: 21; transform: translateX(-50%);
   background: var(--rk-white); border: 1px solid var(--rk-border-strong);
   border-radius: var(--rk-radius-sm); box-shadow: var(--rk-shadow-lg);
   padding: 8px; width: 320px; max-width: 90vw;

@@ -76,7 +76,7 @@ function Group({ title, sub, first, children }) {
 function OnBadge({ on }) {
   return on
     ? <span className="asm-on-badge is-on"><Icon name="check" size={11} /></span>
-    : <span className="asm-on-badge" />;
+    : <span className="asm-on-badge is-off" />;
 }
 
 function SectionCard({ s, sel, onSelect, onMove, canUp, canDown, drag, dragRole, onReorder, setDrag }) {
