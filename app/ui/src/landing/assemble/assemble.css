@@ -717,10 +717,10 @@
 }
 .asm-ws-linknewtab input { cursor: pointer; }
 
-/* ---------------- Preview (+ the publish card) ---------------- */
-.asm-pv { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+/* ---------------- Publish (page preview + social/download rail) ---------------- */
+.asm-pub { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 /* same graph-paper ground as Wordsmith; the finished page floats on it in a frame */
-.asm-pv-canvas {
+.asm-pub-canvas {
   flex: 1; min-height: 0; display: flex; align-items: flex-start; gap: 24px;
   padding: 22px 26px;
   background:
@@ -728,58 +728,109 @@
     repeating-linear-gradient(90deg, transparent 0 27px, rgba(48, 61, 97, 0.05) 27px 28px),
     var(--rk-paper);
 }
-.asm-pv-stage { flex: 1; min-width: 0; height: 100%; display: flex; justify-content: center; }
+.asm-pub-stage { flex: 1; min-width: 0; height: 100%; display: flex; justify-content: center; }
 /* a clean window onto the page — the iframe scrolls inside it, like a browser */
-.asm-pv-frame {
+.asm-pub-frame {
   width: min(100%, 1060px); height: 100%;
   background: #fff; border: 1px solid var(--rk-border);
   border-radius: var(--rk-radius-sm); box-shadow: var(--rk-shadow-md);
   overflow: hidden;
   transition: width 260ms var(--rk-ease-out);
 }
-.asm-pv-frame.is-mobile { width: 393px; }
-.asm-pv-iframe { width: 100%; height: 100%; border: 0; display: block; }
+.asm-pub-frame.is-mobile { width: 393px; }
+.asm-pub-iframe { width: 100%; height: 100%; border: 0; display: block; }
 
 /* desktop / mobile toggle at the bar's right end */
-.asm-pv-devices {
+.asm-pub-devices {
   margin-left: auto; display: flex; gap: 2px;
   background: var(--rk-gray-100); border: 1px solid var(--rk-border);
   border-radius: var(--rk-radius-pill); padding: 3px;
 }
-.asm-pv-device {
+.asm-pub-device {
   display: inline-flex; align-items: center; gap: 6px;
   border: 0; background: transparent; font-family: inherit;
   font-size: 12.5px; font-weight: 700; color: var(--rk-text-muted);
   padding: 4px 12px; border-radius: var(--rk-radius-pill); cursor: pointer;
 }
-.asm-pv-device.is-on { background: var(--rk-white); color: var(--rk-rhino-900); box-shadow: var(--rk-shadow-sm); }
+.asm-pub-device.is-on { background: var(--rk-white); color: var(--rk-rhino-900); box-shadow: var(--rk-shadow-sm); }
 
-/* publish card — the same sticky-note spot as Wordsmith's help card */
-.asm-pv-card {
-  flex: none; width: 240px;
+/* the right rail: social graphic + download cards. Expanding the social
+   graphic widens the whole rail; the page frame gives up the space. */
+.asm-pub-rail {
+  flex: none; width: 240px; display: flex; flex-direction: column; gap: 16px;
+  transition: width 260ms var(--rk-ease-out);
+}
+.asm-pub-rail.is-wide { width: 460px; }
+.asm-pub-card {
   background: var(--rk-macaroni-100); border: 1px solid var(--rk-macaroni-300);
   border-radius: var(--rk-radius-md); box-shadow: var(--rk-shadow-sm);
   padding: 15px 17px; color: var(--rk-rhino-800);
 }
-.asm-pv-card-title {
+.asm-pub-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.asm-pub-card-head .asm-pub-card-title { margin-bottom: 0; }
+.asm-pub-card-title {
+  display: block;
   font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
   color: var(--rk-rhino-500); margin-bottom: 6px;
 }
-.asm-pv-card-body { margin: 0 0 12px; font-size: 13px; line-height: 1.55; }
-.asm-pv-dl {
+.asm-pub-card-body { margin: 0 0 12px; font-size: 13px; line-height: 1.55; }
+.asm-pub-dl {
   display: inline-flex; width: 100%; justify-content: center; align-items: center; gap: 8px;
   font-family: inherit; font-size: 13px; font-weight: 700; color: #fff;
   background: var(--rk-rhino-700); border: 0; border-radius: var(--rk-radius-sm);
   padding: 9px 14px; cursor: pointer;
 }
-.asm-pv-dl:hover { background: var(--rk-rhino-900); }
-.asm-pv-dl:disabled { opacity: 0.6; cursor: default; }
-.asm-pv-card-hint { margin: 10px 0 0; font-size: 12px; line-height: 1.5; color: var(--rk-rhino-700); }
+.asm-pub-dl:hover { background: var(--rk-rhino-900); }
+.asm-pub-dl:disabled { opacity: 0.6; cursor: default; }
+.asm-pub-card-hint { margin: 10px 0 0; font-size: 12px; line-height: 1.5; color: var(--rk-rhino-700); }
 
-/* narrow windows: the card moves above the frame, full width */
+/* social graphic card */
+.asm-pub-expand {
+  display: inline-flex; align-items: center; gap: 5px;
+  border: 0; background: none; padding: 2px 4px; cursor: pointer; font-family: inherit;
+  font-size: 11.5px; font-weight: 700; color: var(--rk-rhino-700);
+  border-radius: var(--rk-radius-xs);
+}
+.asm-pub-expand:hover { background: var(--rk-macaroni-300); }
+.asm-pub-social-img {
+  display: block; width: 100%; height: auto; margin: 0 0 10px;
+  border: 1px solid var(--rk-border-strong); border-radius: var(--rk-radius-xs);
+  background: #fff;
+}
+/* still cooking: the whisk sits where the image belongs */
+.asm-pub-social-cooking {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 10px 6px 12px; margin: 0 0 10px;
+  border: 1px dashed var(--rk-macaroni-300); border-radius: var(--rk-radius-xs);
+  background: rgba(255, 255, 255, 0.55);
+}
+.asm-pub-social-cooking p {
+  margin: 0; font-size: 12px; line-height: 1.5; text-align: center; color: var(--rk-rhino-700);
+}
+/* the share-image choice */
+.asm-pub-share { border-top: 1px dashed var(--rk-macaroni-300); padding-top: 11px; }
+.asm-pub-share-label {
+  display: block; font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--rk-rhino-500); margin-bottom: 7px;
+}
+.asm-pub-seg {
+  display: flex; gap: 2px; background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--rk-macaroni-300); border-radius: var(--rk-radius-pill); padding: 3px;
+}
+.asm-pub-seg-opt {
+  flex: 1; border: 0; background: transparent; font-family: inherit;
+  font-size: 12px; font-weight: 700; color: var(--rk-text-muted);
+  padding: 4px 10px; border-radius: var(--rk-radius-pill); cursor: pointer; white-space: nowrap;
+}
+.asm-pub-seg-opt.is-on { background: var(--rk-rhino-700); color: #fff; }
+.asm-pub-seg-opt:disabled { opacity: 0.5; cursor: default; }
+.asm-pub-share-hint { margin: 8px 0 0; font-size: 11.5px; line-height: 1.5; color: var(--rk-rhino-700); }
+
+/* narrow windows: the rail moves above the frame, full width */
 @media (max-width: 1120px) {
-  .asm-pv-canvas { flex-direction: column; align-items: center; }
-  .asm-pv-card { order: -1; width: 100%; max-width: 720px; }
-  .asm-pv-stage { width: 100%; flex: 1; min-height: 0; height: auto; align-self: stretch; }
-  .asm-pv-frame { height: 100%; }
+  .asm-pub-canvas { flex-direction: column; align-items: center; }
+  .asm-pub-rail { order: -1; width: 100%; max-width: 720px; }
+  .asm-pub-rail.is-wide { width: 100%; }
+  .asm-pub-stage { width: 100%; flex: 1; min-height: 0; height: auto; align-self: stretch; }
+  .asm-pub-frame { height: 100%; }
 }

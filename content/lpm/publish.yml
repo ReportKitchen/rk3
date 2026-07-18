@@ -1,0 +1,42 @@
+# lpm.publish.* — the Publish step: the finished page as a visitor gets it,
+# with the social graphic + publish/download options in the right rail.
+
+back_to_wordsmith: {kind: static, text: "Wordsmith"}
+back_hint: {kind: static, text: "to fix the wording"}
+frame_title: {kind: static, text: "Landing page preview"}
+
+# desktop / mobile width toggle
+device.desktop: {kind: static, text: "Desktop"}
+device.mobile: {kind: static, text: "Mobile"}
+
+# the social-graphic card (above the download card)
+social_title: {kind: static, text: "Social graphic"}
+social_blurb:
+  kind: static
+  text: "We reformatted your PDF cover into a wide social card — this is what link previews can show when the page is shared."
+social_generating:
+  kind: static
+  text: "Still being generated from your cover — it'll be available here soon."
+social_expand: {kind: static, text: "Expand"}
+social_shrink: {kind: static, text: "Shrink"}
+# the embedded share-image choice
+share_image_label: {kind: static, text: "Share preview image"}
+share_image_cover: {kind: static, text: "PDF cover"}
+share_image_social: {kind: static, text: "Social graphic"}
+share_image_hint:
+  kind: static
+  text: "Embedded in the page for social sites to pick up when someone shares the link."
+
+# the publish card
+publish_title: {kind: static, text: "Publish"}
+zip_bundled:
+  kind: static
+  text: "This is your page, ready to go. The download is one folder: the page, its images, and your PDF."
+zip_no_pdf:
+  kind: static
+  text: "This is your page, ready to go. The download is one folder: the page and its images — the download button links to your hosted PDF."
+download_zip: {kind: static, text: "Download your page (ZIP)"}
+download_building: {kind: static, text: "Packing it up…"}
+publish_hint:
+  kind: static
+  text: "Unzip it and upload the folder anywhere on your website — the page is live, and the share buttons pick up its address automatically."

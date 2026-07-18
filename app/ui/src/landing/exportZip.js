@@ -29,8 +29,10 @@ function collectImages(blocks, used = new Set()) {
 
 // Build a self-contained zip: index.html + images/ (relative paths) + the PDF.
 // No data-URIs, no references back to our server. Renders through the same
-// finalHtml builder as the Preview, so the download matches what was shown.
-export async function exportZip(slug, { config, edits, accent, docName }) {
+// finalHtml builder as the Publish preview, so the download matches what was
+// shown. `socialUrl` (the generated social graphic, when the user picked it as
+// the share image) is bundled and becomes the og:/twitter: preview image.
+export async function exportZip(slug, { config, edits, accent, docName, socialUrl }) {
   const zip = new JSZip();
 
   // bundle the PDF only when a download button actually points at the bundled
@@ -38,15 +40,26 @@ export async function exportZip(slug, { config, edits, accent, docName }) {
   const hasBundled = collectDownloads(config).some((d) => d.mode !== "url");
   const pdfHref = hasBundled ? `./${encodeURIComponent(docName)}` : "#";
 
+  // the graphic must actually fetch before the head may reference it
+  const imgFolder = zip.folder("images");
+  let socialFile = null;
+  if (socialUrl) {
+    const res = await fetch(socialUrl);
+    if (res.ok) {
+      socialFile = "social-card.png";
+      imgFolder.file(socialFile, await res.blob());
+    }
+  }
+
   const html = buildDocumentHtml({
     config, edits, accent, slug, docName,
     resolveAsset: (src) => `images/${basename(src)}`,
     downloadHref: pdfHref,
     withShareJs: true,
+    shareImage: socialFile ? `images/${socialFile}` : null,
   });
   zip.file("index.html", html);
 
-  const imgFolder = zip.folder("images");
   for (const src of collectImages(config?.blocks)) {
     const res = await fetch(`${assetBase(slug)}/${src}`);
     if (res.ok) imgFolder.file(basename(src), await res.blob());

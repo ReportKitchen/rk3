@@ -106,28 +106,39 @@ function descriptionOf(root, limit = 160) {
 const safeCssValue = (v) => String(v || "").replace(/[^#a-zA-Z0-9(),.%\s-]/g, "");
 
 // Build the page BODY as a DOM element: render, re-apply edits, retarget assets.
-// Browser-only (edits need a real DOM); both callers run client-side.
+// Browser-only (edits need a DOM); both callers run client-side. Parsed with
+// DOMParser because its documents are INERT — a detached createElement div
+// eagerly fetches every <img>, so export-relative images/… paths would 404
+// against the app origin on every zip build.
 export function buildPageRoot({ config, edits, slug, resolveAsset, downloadHref }) {
   const html = renderToStaticMarkup(
     React.createElement(LandingRenderer, { config, resolveAsset, downloadHref }),
   );
-  const root = document.createElement("div");
-  root.innerHTML = html;
+  const doc = new DOMParser().parseFromString(
+    `<div id="lp-root">${html}</div>`, "text/html");
+  const root = doc.getElementById("lp-root");
   applyEdits(root, edits, editSignatures(config));
   retargetAssets(root, { slug, resolveAsset, downloadHref });
   return root;
 }
 
-// The complete standalone document. `withShareJs` is off for the Preview iframe
-// (a srcdoc page has no real URL to share) and on for the export.
+// The complete standalone document. `withShareJs` is off for the Publish
+// iframe (a srcdoc page has no real URL to share) and on for the export.
+// `shareImage` overrides the og:/twitter: preview image (the generated social
+// graphic, already resolved for this build's context); default = the cover.
 export function buildDocumentHtml({ config, edits, accent, slug, docName,
-  resolveAsset, downloadHref, withShareJs = false }) {
+  resolveAsset, downloadHref, withShareJs = false, shareImage = null }) {
   const root = buildPageRoot({ config, edits, slug, resolveAsset, downloadHref });
 
   const title = titleOf(config) || docName || "";
   const description = descriptionOf(root);
   const cover = coverSrcOf(config);
-  const ogImage = cover ? resolveAsset(cover) : null;
+  const ogImage = shareImage || (cover ? resolveAsset(cover) : null);
+  // the generated graphic is always the standard 1200x630 social-card size
+  const ogDims = shareImage
+    ? `<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+` : "";
   const hasShare = (config?.blocks || []).some((b) => b.type === "share");
 
   return `<!doctype html>
@@ -141,7 +152,8 @@ ${description ? `<meta name="description" content="${esc(description)}">` : ""}
 <meta property="og:title" content="${esc(title || docName)}">
 ${description ? `<meta property="og:description" content="${esc(description)}">` : ""}
 ${ogImage ? `<meta property="og:image" content="${esc(ogImage)}">
-<meta name="twitter:card" content="summary_large_image">` : ""}
+${ogDims}<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${esc(ogImage)}">` : ""}
 <style>
 ${landingCss}
 :root { --lp-accent: ${safeCssValue(accent) || "#1E3A5F"}; }

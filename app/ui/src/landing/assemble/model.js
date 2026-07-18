@@ -62,7 +62,7 @@ export function mergeSaved(sections, saved) {
 }
 
 // the full assembled payload to persist
-export function toAssembled({ sections, cover, accent, length, cta, ai, edits }) {
+export function toAssembled({ sections, cover, accent, length, cta, ai, edits, shareImage }) {
   const secOut = {};
   for (const s of sections) {
     secOut[s.key] = {
@@ -73,6 +73,7 @@ export function toAssembled({ sections, cover, accent, length, cta, ai, edits })
   return {
     version: 1, cover, accent, length,
     cta, ai: { on: !!ai?.on, voice: ai?.voice || "neutral" },
+    shareImage: shareImage || "cover",   // og:/twitter: preview: "cover" | "social"
     order: sections.map((s) => s.key), sections: secOut, edits: edits || {},
   };
 }
@@ -183,6 +184,10 @@ export function defaultSectionOn(sections, length) {
 
 // The CTA scaffolding (fixed — not AI sections). Kept as its own small group.
 export const CTA_KEYS = ["download", "secondary", "share"];
+
+// The one social-post pathway the LPM uses (winner of the SocialPost tab
+// bake-off): the PDF cover reformatted into a 1200x630 card by GPT Image.
+export const SOCIAL_MODE = "openai-reformat";
 
 // default stat-treatment rotation: when a doc has several stat sections, each
 // opens with a different treatment so browsing shows the range (bars is %-only,

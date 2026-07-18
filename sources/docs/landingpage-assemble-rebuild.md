@@ -9,11 +9,15 @@ persistence (`.landing-assembled.json`) have since shipped too.
 ## UI BUILT — where it lives
 - **`app/ui/src/landing/assemble/`** — the bespoke Assemble/Wordsmith React:
   `AssembleMaker.jsx` (default export, mounted in DocumentView), `Chrome.jsx`
-  (stepper — Assemble/Wordsmith/Preview live, Publish a placeholder),
+  (three-step stepper: Assemble → Wordsmith → **Publish**),
   `SectionLibrary.jsx` (left), `Inspector.jsx` (center), `Controls.jsx` (right),
-  `Wordsmith.jsx` (contentEditable + floating toolbar), `Preview.jsx` (the
-  finished page in an isolated iframe srcdoc + the publish/download card in the
-  right rail — Preview and Publish were combined; step 4 stays parked),
+  `Wordsmith.jsx` (contentEditable + floating toolbar), `Publish.jsx` (the
+  finished page in an isolated iframe srcdoc + the right rail: the **social
+  graphic card** — the PDF cover reformatted to a 1200×630 card by the
+  social-post engine's `openai-reformat` pathway, warmed in the background when
+  Assemble loads the sections, whisk-in-place while cooking, Expand widens the
+  rail — with the PDF-cover ⇄ social-graphic share-image toggle (persisted as
+  `shareImage`), plus the download card),
   `model.js`, `icons.jsx`, `assemble.css` (`asm-*` classes on `--rk-*` tokens).
 - **`app/ui/src/landing/finalHtml.js`** — the ONE final-page builder (Preview
   iframe + export zip both call it): renders the config, re-applies Wordsmith
@@ -27,10 +31,10 @@ persistence (`.landing-assembled.json`) have since shipped too.
 - **Mounted:** `DocumentView.jsx` lazy-imports `AssembleMaker` for `tab==="landing"`.
 - **Retired (deleted):** LandingMaker/puckConfig/LandingShell/MiniPreview/puckAdapter/
   landingOptions/blockLibrary/RichText + `@measured/puck` + `react-simple-wysiwyg` deps.
-- **Known gaps (follow-ups):** Publish step is an inert stepper placeholder (the
-  publish card on Preview covers v1); hosted-on-RK public URL deferred (GoLive
-  track); JSON-LD Report schema not emitted; `Modal.jsx` + `css.js` are orphaned
-  Puck-era leftovers.
+- **Known gaps (follow-ups):** hosted-on-RK public URL deferred (GoLive track);
+  JSON-LD Report schema not emitted; no regenerate button for the social graphic
+  (a failed generation never retries — rerun from the Social Post tab);
+  `Modal.jsx` + `css.js` are orphaned Puck-era leftovers.
 
 ---
 ## Original plan (kept for reference)

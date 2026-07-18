@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./assemble.css";
 import "../landingPage.css"; // block-render styles, reused by the previews + Wordsmith
-import { getBlockDefaults, getAiSummary, getAssembled, saveAssembled } from "../../api.js";
+import { getBlockDefaults, getAiSummary, getAssembled, saveAssembled,
+  getSocialPost, generateSocialPost } from "../../api.js";
 import { loadContent, t } from "../../content.js";
 import { guard } from "../../errorBus.js";
-import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, canTrim, pickAiHeading, STAT_TREATMENT_ORDER, QUOTE_TREATMENT_ORDER, normalizeCover, assignKeys, mergeSaved, toAssembled, CTA_KEYS } from "./model.js";
+import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, canTrim, pickAiHeading, STAT_TREATMENT_ORDER, QUOTE_TREATMENT_ORDER, normalizeCover, assignKeys, mergeSaved, toAssembled, CTA_KEYS, SOCIAL_MODE } from "./model.js";
 import { useDelayed } from "./hooks.js";
 import Chrome from "./Chrome.jsx";
 import WhiskLoader from "./WhiskLoader.jsx";
@@ -12,7 +13,7 @@ import SectionLibrary from "./SectionLibrary.jsx";
 import Inspector from "./Inspector.jsx";
 import Controls from "./Controls.jsx";
 import Wordsmith from "./Wordsmith.jsx";
-import Preview from "./Preview.jsx";
+import Publish from "./Publish.jsx";
 
 const getSections = (slug) =>
   fetch(`/api/landing/${slug}/sections`).then((r) => r.json());
@@ -50,6 +51,7 @@ export default function AssembleMaker({ doc }) {
   // the opt-in AI Summary — the ONE AI-written section (a pitch in a chosen voice)
   const [ai, setAi] = useState({ on: false, voice: "neutral", prose: "", loading: false, fetched: false });
   const [edits, setEdits] = useState({});   // Wordsmith per-section text edits {skey:{html,sig}}
+  const [shareImage, setShareImage] = useState("cover");  // og:/twitter: preview: cover | social
   const loadedRef = useRef(false);           // gate the autosave until the first load hydrates
 
   useEffect(() => {
@@ -111,6 +113,7 @@ export default function AssembleMaker({ doc }) {
         setLength(len);
         setCover(saved.cover ? normalizeCover(saved.cover) : normalizeCover(rec.cover));
         if (saved.accent) setAccent(saved.accent);
+        if (saved.shareImage) setShareImage(saved.shareImage);
         setEdits(saved.edits || {});
         setCta({
           download: true, secondary: false, share: true, order: CTA_KEYS,
@@ -130,6 +133,21 @@ export default function AssembleMaker({ doc }) {
         setSel(null);   // open on the friendly welcome panel
         setReady(true);
         loadedRef.current = true;   // hydration done — autosave may run now
+
+        // The landing content is gathered — now warm the social graphic in the
+        // background (GPT Image takes a while; by Publish it should be ready).
+        // Fire-and-forget, ONCE per doc: only when the pathway has never run
+        // (a previous failure or result stays put — no cost loop on open).
+        if (!sd?.noai && defaults?.cover?.src) {
+          getSocialPost(slug)
+            .then((st) => {
+              if (st?.modes?.[SOCIAL_MODE]?.status === "empty") {
+                return generateSocialPost(slug, SOCIAL_MODE);
+              }
+              return null;
+            })
+            .catch(guard("assemble: social graphic warm-up", null));
+        }
       })
       .catch((e) => { if (alive) { setError(e); setReady(true); } });
     return () => { alive = false; };
@@ -213,12 +231,12 @@ export default function AssembleMaker({ doc }) {
   useEffect(() => {
     if (!loadedRef.current) return undefined;
     const id = setTimeout(() => {
-      saveAssembled(slug, toAssembled({ sections, cover, accent, length, cta, ai, edits }))
+      saveAssembled(slug, toAssembled({ sections, cover, accent, length, cta, ai, edits, shareImage }))
         .catch(guard("assemble: save", null));
     }, 700);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, sections, cover, accent, length, cta, ai.on, ai.voice, edits]);
+  }, [slug, sections, cover, accent, length, cta, ai.on, ai.voice, edits, shareImage]);
 
   const showBootLoader = useDelayed(!ready);
   const title = defs?.title || null;
@@ -240,20 +258,21 @@ export default function AssembleMaker({ doc }) {
     <div className="asm-root" style={{ "--lp-accent": accent }}>
       <Chrome
         title={doc.name || doc.slug}
-        activeIdx={{ assemble: 0, wordsmith: 1, preview: 2 }[mode] ?? 0}
-        onStep={(i) => setMode(["assemble", "wordsmith", "preview"][i] || "assemble")}
+        activeIdx={{ assemble: 0, wordsmith: 1, publish: 2 }[mode] ?? 0}
+        onStep={(i) => setMode(["assemble", "wordsmith", "publish"][i] || "assemble")}
       />
-      {mode === "preview" ? (
-        <Preview
+      {mode === "publish" ? (
+        <Publish
           slug={slug} docName={doc.name || slug} title={title} coverAsset={coverAsset}
           cover={cover} accent={accent} sections={sections} cta={cta} ai={ai} edits={edits}
+          noai={noai} shareImage={shareImage} onShareImage={setShareImage}
           onBack={() => setMode("wordsmith")}
         />
       ) : mode === "wordsmith" ? (
         <Wordsmith
           slug={slug} title={title} coverAsset={coverAsset} cover={cover}
           sections={sections} cta={cta} ai={ai} edits={edits} onEditsChange={onEditsChange}
-          onBack={() => setMode("assemble")} onPreview={() => setMode("preview")}
+          onBack={() => setMode("assemble")} onPublish={() => setMode("publish")}
         />
       ) : (
         <div className="asm-grid">
