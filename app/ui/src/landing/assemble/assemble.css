@@ -183,28 +183,22 @@
   text-align: left;
   width: 100%;
   font-family: inherit;
-  transition: transform 240ms var(--rk-ease-out), border-color 240ms var(--rk-ease-out), box-shadow 240ms var(--rk-ease-out);
+  /* NB: no `transform` here — dnd-kit drives transform inline for the drag/sort
+     motion; a CSS transform-transition would make the dragged card lag the pointer */
+  transition: border-color 240ms var(--rk-ease-out), box-shadow 240ms var(--rk-ease-out);
 }
 .asm-card:hover { box-shadow: var(--rk-shadow-sm); }
 .asm-card:focus-visible { outline: 2px solid var(--rk-focus-ring); outline-offset: 2px; }
-/* up/down reorder controls — appear on hover/focus */
-.asm-card-move { display: flex; flex-direction: column; gap: 1px; flex: none; opacity: 0; transition: opacity 140ms var(--rk-ease-out); }
-.asm-card:hover .asm-card-move, .asm-card:focus-within .asm-card-move { opacity: 1; }
-.asm-card-move button {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 18px; height: 15px; padding: 0; border: 0; background: transparent;
-  color: var(--rk-rhino-500); cursor: pointer; border-radius: 3px;
-}
-.asm-card-move button:hover { background: var(--rk-gray-100); color: var(--rk-rhino-700); }
-.asm-card-move button:disabled { opacity: 0.25; cursor: default; }
-/* drag grip — appears on hover/focus, signals the card can be dragged to reorder */
+/* drag grip (the sortable handle) — appears on hover/focus */
 .asm-card-grip {
   flex: none; display: inline-flex; align-items: center; color: var(--rk-rhino-300);
   cursor: grab; opacity: 0; transition: opacity 140ms var(--rk-ease-out); margin-left: -4px;
+  touch-action: none;
 }
 .asm-card:hover .asm-card-grip, .asm-card:focus-within .asm-card-grip { opacity: 1; }
-.asm-card.is-dragging { opacity: 0.45; }
-.asm-card.is-drop-target { box-shadow: inset 0 3px 0 0 var(--rk-rhino-700); }
+.asm-card-grip:active { cursor: grabbing; }
+/* the card being dragged lifts off the list (dnd-kit moves it; no ghost stays behind) */
+.asm-card.is-dragging { box-shadow: var(--rk-shadow-lg); border-color: var(--rk-rhino-400); cursor: grabbing; }
 .asm-card.is-selected {
   border-color: var(--rk-rhino-700);
   transform: translateX(22px);

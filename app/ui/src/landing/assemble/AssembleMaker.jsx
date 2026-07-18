@@ -154,30 +154,16 @@ export default function AssembleMaker({ doc }) {
     setSections((prev) => prev.map((s) => (s.id === id ? { ...s, treatment } : s)));
   }, []);
 
-  // drag-reorder: drop the dragged section just before the target (same group only)
-  const reorderSection = useCallback((dragId, targetId) => {
-    if (!dragId || dragId === targetId) return;
+  // drag-reorder (dnd-kit): move the dragged section to the target's slot within
+  // its group — arrayMove(from, to), matching the sortable's onDragEnd
+  const reorderSection = useCallback((activeId, overId) => {
+    if (!activeId || activeId === overId) return;
     setSections((prev) => {
-      const from = prev.findIndex((s) => s.id === dragId);
-      const to = prev.findIndex((s) => s.id === targetId);
+      const from = prev.findIndex((s) => s.id === activeId);
+      const to = prev.findIndex((s) => s.id === overId);
       if (from < 0 || to < 0 || prev[from].role !== prev[to].role) return prev;
       const next = prev.slice();
-      const [moved] = next.splice(from, 1);
-      next.splice(next.findIndex((s) => s.id === targetId), 0, moved);
-      return next;
-    });
-  }, []);
-
-  // reorder within a group: swap a section with its nearest same-role neighbour
-  const moveSection = useCallback((id, dir) => {
-    setSections((prev) => {
-      const i = prev.findIndex((s) => s.id === id);
-      if (i < 0) return prev;
-      let j = i + dir;
-      while (j >= 0 && j < prev.length && prev[j].role !== prev[i].role) j += dir;
-      if (j < 0 || j >= prev.length) return prev;
-      const next = prev.slice();
-      [next[i], next[j]] = [next[j], next[i]];
+      next.splice(to, 0, next.splice(from, 1)[0]);
       return next;
     });
   }, []);
@@ -246,7 +232,7 @@ export default function AssembleMaker({ doc }) {
         <div className="asm-grid">
           <SectionLibrary
             sections={sections} cta={cta} ai={ai} sel={sel} noai={noai} genError={genError}
-            docRead={docRead} onSelect={setSel} onMove={moveSection} onReorder={reorderSection}
+            docRead={docRead} onSelect={setSel} onReorder={reorderSection}
           />
           <Inspector
             sel={sel} sections={sections} cta={cta} ai={ai} defs={defs}

@@ -68,3 +68,4 @@ length.trimmed_note:
   tokens: [n]
 # the note under a placeholder (no-AI) section
 placeholder_hint: {kind: static, text: "Nothing here yet — you’ll add this in Wordsmith."}
+drag_hint: {kind: static, text: "Drag to reorder"}

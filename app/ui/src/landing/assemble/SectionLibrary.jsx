@@ -1,4 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
+import {
+  DndContext, PointerSensor, KeyboardSensor, useSensor, useSensors, closestCenter,
+} from "@dnd-kit/core";
+import {
+  SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { CSS } from "@dnd-kit/utilities";
 import { t } from "../../content.js";
 import { PRESENTATIONS, CTA_KEYS, splitSections } from "./model.js";
 import { Icon, BLOCK_ICONS } from "./icons.jsx";
@@ -6,21 +14,15 @@ import { Icon, BLOCK_ICONS } from "./icons.jsx";
 // Left column, three groups top-to-bottom: Introduction (the document's own
 // foreword / summary), Highlights (the meaningful body sections — the star), and
 // Call to action (the fixed scaffolding). Click a card to inspect and adjust it;
-// drag a card by its grip to reorder within its group (up/down keeps keyboard a11y).
-export default function SectionLibrary({ sections, cta, ai, sel, noai, genError, docRead, onSelect, onMove, onReorder }) {
+// drag a section card by its grip to reorder within its group (standard sortable:
+// neighbours slide, the card drops into place). CTAs are fixed — not reorderable.
+export default function SectionLibrary({ sections, cta, ai, sel, noai, genError, docRead, onSelect, onReorder }) {
   const notice = genError
     ? <div className="asm-error-notice">{t("lpm.sections.error_notice", { reason: genError })}</div>
     : noai
       ? <div className="asm-noai-notice">{t("lpm.sections.noai_notice")}</div>
       : null;
   const { intro, body } = splitSections(sections);
-  const [drag, setDrag] = useState({ id: null, over: null });   // {id: dragged, over: hovered target}
-  const dragRole = drag.id ? (sections.find((s) => s.id === drag.id)?.role) : null;
-  const cards = (group) => group.map((s, i) => (
-    <SectionCard key={s.id} s={s} sel={sel} onSelect={onSelect} onMove={onMove}
-      canUp={i > 0} canDown={i < group.length - 1}
-      drag={drag} dragRole={dragRole} onReorder={onReorder} setDrag={setDrag} />
-  ));
   return (
     <div className="asm-col asm-col-left">
       {notice}
@@ -30,15 +32,15 @@ export default function SectionLibrary({ sections, cta, ai, sel, noai, genError,
         sub={t("lpm.sections.intro.sub", { n: intro.length, ai: noai ? "no" : "yes" })}
         first={!notice}
       >
-        {cards(intro)}
-        {!noai && <AiCard ai={ai} sel={sel} onSelect={onSelect} />}
+        <SortableGroup items={intro} sel={sel} onSelect={onSelect} onReorder={onReorder}
+          trailing={!noai && <AiCard ai={ai} sel={sel} onSelect={onSelect} />} />
       </Group>
 
       <Group
         title={t("lpm.sections.highlights.title")} sub={t("lpm.sections.highlights.sub")}
       >
         {body.length === 0 && <p className="asm-sub">{t("lpm.sections.empty")}</p>}
-        {cards(body)}
+        <SortableGroup items={body} sel={sel} onSelect={onSelect} onReorder={onReorder} />
       </Group>
 
       <Group title={t("lpm.sections.cta.title")} sub={t("lpm.sections.cta.sub")}>
@@ -61,41 +63,66 @@ export default function SectionLibrary({ sections, cta, ai, sel, noai, genError,
   );
 }
 
+// One sortable group (its own DndContext so drags never cross into another group).
+// `trailing` is a non-sortable card shown after the sortable ones (the AI card).
+function SortableGroup({ items, sel, onSelect, onReorder, trailing }) {
+  const sensors = useSensors(
+    // a small activation distance so a plain click still selects (no accidental drag)
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const onDragEnd = ({ active, over }) => {
+    if (over && active.id !== over.id) onReorder(active.id, over.id);
+  };
+  const body = (
+    <div className="asm-cards">
+      {items.map((s) => <SectionCard key={s.id} s={s} sel={sel} onSelect={onSelect} />)}
+      {trailing || null}
+    </div>
+  );
+  if (!items.length) return body;   // nothing to sort — still show the trailing card
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter}
+      modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
+      <SortableContext items={items.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+        {body}
+      </SortableContext>
+    </DndContext>
+  );
+}
+
 function Group({ title, sub, first, children }) {
   return (
     <>
       <div className="asm-bucket-name" style={{ marginTop: first ? 0 : 18 }}>{title}</div>
       <p className="asm-sub">{sub}</p>
-      <div className="asm-cards">{children}</div>
+      {children}
     </>
   );
 }
 
-// on/off status at a glance: a filled green check when featured, a faint empty
-// ring when not.
+// in-use = a filled green check; not-in-use = a slashed circle (status, not a
+// clickable radio).
 function OnBadge({ on }) {
   return on
     ? <span className="asm-on-badge is-on"><Icon name="check" size={11} /></span>
     : <span className="asm-on-badge is-off" />;
 }
 
-function SectionCard({ s, sel, onSelect, onMove, canUp, canDown, drag, dragRole, onReorder, setDrag }) {
-  const dragging = drag.id === s.id;
-  const canDrop = drag.id && drag.id !== s.id && dragRole === s.role;  // within group only
-  const isTarget = canDrop && drag.over === s.id;
-  // a div (not a button) so the move + grip controls can nest inside
+function SectionCard({ s, sel, onSelect }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: s.id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 5 : undefined,
+  };
   return (
     <div
-      className={"asm-card" + (sel === s.id ? " is-selected" : "")
-        + (dragging ? " is-dragging" : "") + (isTarget ? " is-drop-target" : "")}
+      ref={setNodeRef} style={style}
+      className={"asm-card" + (sel === s.id ? " is-selected" : "") + (isDragging ? " is-dragging" : "")}
       role="button" tabIndex={0}
-      draggable
       onClick={() => onSelect(s.id)}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(s.id); } }}
-      onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", s.id); setDrag({ id: s.id, over: null }); }}
-      onDragEnd={() => setDrag({ id: null, over: null })}
-      onDragOver={(e) => { if (canDrop) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; if (drag.over !== s.id) setDrag((d) => ({ ...d, over: s.id })); } }}
-      onDrop={(e) => { if (canDrop) { e.preventDefault(); onReorder(drag.id, s.id); } setDrag({ id: null, over: null }); }}
     >
       <span className="asm-card-icon">
         <Icon name={PRESENTATIONS[s.presentation]?.icon || "file-text"} size={15} />
@@ -104,13 +131,10 @@ function SectionCard({ s, sel, onSelect, onMove, canUp, canDown, drag, dragRole,
         <span className="asm-card-name">{s.heading}</span>
         <span className="asm-card-guidance">{s.summary || t("lpm.sections.placeholder_hint")}</span>
       </span>
-      <span className="asm-card-move">
-        <button type="button" aria-label="Move up" disabled={!canUp}
-          onClick={(e) => { e.stopPropagation(); onMove(s.id, -1); }}><Icon name="chevron-up" size={13} /></button>
-        <button type="button" aria-label="Move down" disabled={!canDown}
-          onClick={(e) => { e.stopPropagation(); onMove(s.id, 1); }}><Icon name="chevron-down" size={13} /></button>
+      <span className="asm-card-grip" {...attributes} {...listeners}
+        aria-label={t("lpm.sections.drag_hint")} onClick={(e) => e.stopPropagation()}>
+        <Icon name="grip-vertical" size={14} />
       </span>
-      <span className="asm-card-grip" aria-hidden="true"><Icon name="grip-vertical" size={14} /></span>
       <OnBadge on={s.on} />
     </div>
   );
