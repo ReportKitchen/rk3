@@ -197,6 +197,14 @@
 }
 .asm-card-move button:hover { background: var(--rk-gray-100); color: var(--rk-rhino-700); }
 .asm-card-move button:disabled { opacity: 0.25; cursor: default; }
+/* drag grip — appears on hover/focus, signals the card can be dragged to reorder */
+.asm-card-grip {
+  flex: none; display: inline-flex; align-items: center; color: var(--rk-rhino-300);
+  cursor: grab; opacity: 0; transition: opacity 140ms var(--rk-ease-out); margin-left: -4px;
+}
+.asm-card:hover .asm-card-grip, .asm-card:focus-within .asm-card-grip { opacity: 1; }
+.asm-card.is-dragging { opacity: 0.45; }
+.asm-card.is-drop-target { box-shadow: inset 0 3px 0 0 var(--rk-rhino-700); }
 .asm-card.is-selected {
   border-color: var(--rk-rhino-700);
   transform: translateX(22px);

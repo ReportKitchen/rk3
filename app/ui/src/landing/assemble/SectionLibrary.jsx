@@ -1,21 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { t } from "../../content.js";
 import { PRESENTATIONS, CTA_KEYS, splitSections } from "./model.js";
 import { Icon, BLOCK_ICONS } from "./icons.jsx";
 
 // Left column, three groups top-to-bottom: Introduction (the document's own
 // foreword / summary), Highlights (the meaningful body sections — the star), and
-// Call to action (the fixed scaffolding). Click a card to inspect and adjust it.
-export default function SectionLibrary({ sections, cta, ai, sel, noai, genError, docRead, onSelect, onMove }) {
+// Call to action (the fixed scaffolding). Click a card to inspect and adjust it;
+// drag a card by its grip to reorder within its group (up/down keeps keyboard a11y).
+export default function SectionLibrary({ sections, cta, ai, sel, noai, genError, docRead, onSelect, onMove, onReorder }) {
   const notice = genError
     ? <div className="asm-error-notice">{t("lpm.sections.error_notice", { reason: genError })}</div>
     : noai
       ? <div className="asm-noai-notice">{t("lpm.sections.noai_notice")}</div>
       : null;
   const { intro, body } = splitSections(sections);
+  const [drag, setDrag] = useState({ id: null, over: null });   // {id: dragged, over: hovered target}
+  const dragRole = drag.id ? (sections.find((s) => s.id === drag.id)?.role) : null;
   const cards = (group) => group.map((s, i) => (
     <SectionCard key={s.id} s={s} sel={sel} onSelect={onSelect} onMove={onMove}
-      canUp={i > 0} canDown={i < group.length - 1} />
+      canUp={i > 0} canDown={i < group.length - 1}
+      drag={drag} dragRole={dragRole} onReorder={onReorder} setDrag={setDrag} />
   ));
   return (
     <div className="asm-col asm-col-left">
@@ -75,14 +79,23 @@ function OnBadge({ on }) {
     : <span className="asm-on-badge" />;
 }
 
-function SectionCard({ s, sel, onSelect, onMove, canUp, canDown }) {
-  // a div (not a button) so the up/down move buttons can nest inside
+function SectionCard({ s, sel, onSelect, onMove, canUp, canDown, drag, dragRole, onReorder, setDrag }) {
+  const dragging = drag.id === s.id;
+  const canDrop = drag.id && drag.id !== s.id && dragRole === s.role;  // within group only
+  const isTarget = canDrop && drag.over === s.id;
+  // a div (not a button) so the move + grip controls can nest inside
   return (
     <div
-      className={"asm-card" + (sel === s.id ? " is-selected" : "")}
+      className={"asm-card" + (sel === s.id ? " is-selected" : "")
+        + (dragging ? " is-dragging" : "") + (isTarget ? " is-drop-target" : "")}
       role="button" tabIndex={0}
+      draggable
       onClick={() => onSelect(s.id)}
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(s.id); } }}
+      onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", s.id); setDrag({ id: s.id, over: null }); }}
+      onDragEnd={() => setDrag({ id: null, over: null })}
+      onDragOver={(e) => { if (canDrop) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; if (drag.over !== s.id) setDrag((d) => ({ ...d, over: s.id })); } }}
+      onDrop={(e) => { if (canDrop) { e.preventDefault(); onReorder(drag.id, s.id); } setDrag({ id: null, over: null }); }}
     >
       <span className="asm-card-icon">
         <Icon name={PRESENTATIONS[s.presentation]?.icon || "file-text"} size={15} />
@@ -97,6 +110,7 @@ function SectionCard({ s, sel, onSelect, onMove, canUp, canDown }) {
         <button type="button" aria-label="Move down" disabled={!canDown}
           onClick={(e) => { e.stopPropagation(); onMove(s.id, 1); }}><Icon name="chevron-down" size={13} /></button>
       </span>
+      <span className="asm-card-grip" aria-hidden="true"><Icon name="grip-vertical" size={14} /></span>
       <OnBadge on={s.on} />
     </div>
   );

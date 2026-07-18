@@ -135,6 +135,20 @@ export default function AssembleMaker({ doc }) {
     setSections((prev) => prev.map((s) => (s.id === id ? { ...s, treatment } : s)));
   }, []);
 
+  // drag-reorder: drop the dragged section just before the target (same group only)
+  const reorderSection = useCallback((dragId, targetId) => {
+    if (!dragId || dragId === targetId) return;
+    setSections((prev) => {
+      const from = prev.findIndex((s) => s.id === dragId);
+      const to = prev.findIndex((s) => s.id === targetId);
+      if (from < 0 || to < 0 || prev[from].role !== prev[to].role) return prev;
+      const next = prev.slice();
+      const [moved] = next.splice(from, 1);
+      next.splice(next.findIndex((s) => s.id === targetId), 0, moved);
+      return next;
+    });
+  }, []);
+
   // reorder within a group: swap a section with its nearest same-role neighbour
   const moveSection = useCallback((id, dir) => {
     setSections((prev) => {
@@ -194,7 +208,7 @@ export default function AssembleMaker({ doc }) {
         <div className="asm-grid">
           <SectionLibrary
             sections={sections} cta={cta} ai={ai} sel={sel} noai={noai} genError={genError}
-            docRead={docRead} onSelect={setSel} onMove={moveSection}
+            docRead={docRead} onSelect={setSel} onMove={moveSection} onReorder={reorderSection}
           />
           <Inspector
             sel={sel} sections={sections} cta={cta} ai={ai} defs={defs}
