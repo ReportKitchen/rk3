@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { t } from "../../content.js";
 import { LandingRenderer, SHARE_NETWORKS, statTreatmentsFor, quoteTreatmentsFor } from "../LandingRenderer.jsx";
-import { PRESENTATIONS, REC_WORDS, wordCount, effectiveProse, trimProse } from "./model.js";
+import { PRESENTATIONS, wordCount, effectiveProse, trimProse, canTrim } from "./model.js";
 import { Icon, BLOCK_ICONS } from "./icons.jsx";
 import WhiskLoader from "./WhiskLoader.jsx";
 
@@ -77,8 +77,9 @@ function SectionInspector({ section, onToggle, onSetQuoteTreatment, onSetTrimmed
     (section.presentation === "statCards" && (section.cards || []).length) ||
     (section.presentation === "quote" && section.quote?.text) ||
     (section.presentation === "steps" && (section.steps || []).length);
-  // long verbatim prose gets a Full / Trimmed control (this is where we trim)
-  const trimmable = section.presentation === "prose" && wordCount(section.prose) > REC_WORDS;
+  // long verbatim prose gets a Full / Trimmed control (this is where we trim) —
+  // only when trimming actually shortens it, so short intros don't show a no-op
+  const trimmable = section.presentation === "prose" && canTrim(section.prose);
 
   return (
     <div className="asm-col asm-col-mid">

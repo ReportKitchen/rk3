@@ -35,7 +35,11 @@ export const wordCount = (html) =>
   (String(html || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().match(/\S+/g) || []).length;
 
 // Trim prose HTML to ~target words, cut at a block boundary (paragraph/heading),
-// so a screens-long verbatim summary shows just its opening.
+// so a screens-long verbatim summary shows just its opening — the block that
+// crosses the target is kept, so we land at ~target rather than well under it.
+// (The canTrim gate below decides whether trimming is even worth offering, so a
+// section that only just exceeds the target is simply never trimmed, not trimmed
+// to nothing.)
 export function trimProse(html, target = REC_WORDS) {
   const parts = String(html || "").split(/(?=<(?:p|h[1-6]|ul|ol|blockquote|div)\b)/i).filter((x) => x.trim());
   if (parts.length <= 1) return html;
@@ -48,6 +52,15 @@ export function trimProse(html, target = REC_WORDS) {
   }
   return out.join("");
 }
+
+// how many words trimming would remove — 0 means the toggle would do nothing
+export const trimSavings = (html) => wordCount(html) - wordCount(trimProse(html));
+
+// worth offering a Full/Trimmed control? only when the section is genuinely long
+// AND trimming visibly shortens it (a single un-splittable block can't be trimmed
+// at a block boundary, so we don't pretend it can).
+export const canTrim = (html) =>
+  wordCount(html) > AUTO_TRIM_OVER && trimSavings(html) >= 30;
 
 // the effective (trimmed-if-asked) prose for a section
 export const effectiveProse = (s) => (s.trimmed ? trimProse(s.prose) : s.prose);

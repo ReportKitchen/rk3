@@ -4,7 +4,7 @@ import "../landingPage.css"; // block-render styles, reused by the previews + Wo
 import { getBlockDefaults, getAiSummary } from "../../api.js";
 import { loadContent, t } from "../../content.js";
 import { guard } from "../../errorBus.js";
-import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, wordCount, AUTO_TRIM_OVER, pickAiHeading, STAT_TREATMENT_ORDER, QUOTE_TREATMENT_ORDER, normalizeCover } from "./model.js";
+import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, canTrim, pickAiHeading, STAT_TREATMENT_ORDER, QUOTE_TREATMENT_ORDER, normalizeCover } from "./model.js";
 import Chrome from "./Chrome.jsx";
 import WhiskLoader from "./WhiskLoader.jsx";
 import SectionLibrary from "./SectionLibrary.jsx";
@@ -15,11 +15,12 @@ import Wordsmith from "./Wordsmith.jsx";
 const getSections = (slug) =>
   fetch(`/api/landing/${slug}/sections`).then((r) => r.json());
 
+// Deliberately no "Reading your report" / "Almost there" — those narrate a fake
+// progress and give the canned loop away. Just neutral, true-ish work phrases.
 const LOADING_PHRASES = [
-  "lpm.assemble.loading.reading", "lpm.assemble.loading.highlights",
-  "lpm.assemble.loading.stats", "lpm.assemble.loading.quotes",
-  "lpm.assemble.loading.outline", "lpm.assemble.loading.summary",
-  "lpm.assemble.loading.polish",
+  "lpm.assemble.loading.highlights", "lpm.assemble.loading.stats",
+  "lpm.assemble.loading.quotes", "lpm.assemble.loading.outline",
+  "lpm.assemble.loading.summary",
 ];
 
 // Content-first Landing Page Maker (the AI-sections rebuild, BACKLOG/61). The
@@ -74,7 +75,7 @@ export default function AssembleMaker({ doc }) {
             treatment: s.quote?.treatment || (s.quote?.pull === false ? "standard" : null) },
           on: false,
           // long verbatim summaries default to trimmed (they can run screens)
-          trimmed: s.presentation === "prose" && wordCount(s.prose) > AUTO_TRIM_OVER,
+          trimmed: s.presentation === "prose" && canTrim(s.prose),
           treatment: null,
         }));
         // give each stat/quote section a different default treatment (variety on browse)
