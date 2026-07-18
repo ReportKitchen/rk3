@@ -569,7 +569,14 @@
 .asm-nudge-btn b { text-decoration: underline; }
 
 /* ---------------- Wordsmith ---------------- */
-.asm-ws { flex: 1; min-height: 0; overflow-y: auto; background: var(--rk-paper); }
+.asm-ws {
+  flex: 1; min-height: 0; overflow-y: auto;
+  /* same graph-paper ground as the Assemble middle panel, so the page floats on it */
+  background:
+    repeating-linear-gradient(0deg, transparent 0 27px, rgba(48, 61, 97, 0.05) 27px 28px),
+    repeating-linear-gradient(90deg, transparent 0 27px, rgba(48, 61, 97, 0.05) 27px 28px),
+    var(--rk-paper);
+}
 .asm-ws-bar {
   display: flex; align-items: center; gap: 14px;
   padding: 12px 22px; border-bottom: 1px solid var(--rk-border);
@@ -590,9 +597,9 @@
   padding: 8px 22px; text-align: center;
 }
 .asm-ws-page {
-  max-width: 720px; margin: 26px auto 80px;
+  max-width: 720px; margin: 34px auto 90px;
   background: #fff; border: 1px solid var(--rk-border);
-  border-radius: var(--rk-radius-sm); box-shadow: var(--rk-shadow-sm);
+  border-radius: var(--rk-radius-sm); box-shadow: var(--rk-shadow-md);  /* soft lift off the graph paper */
   padding: 48px 56px;
 }
 /* the editable region uses the real landing-page block styles (landingPage.css) */
@@ -612,3 +619,41 @@
   border-radius: var(--rk-radius-xs); cursor: pointer;
 }
 .asm-ws-tool:hover { background: rgba(255, 255, 255, 0.15); }
+.asm-ws-tool-sep { width: 1px; align-self: stretch; margin: 4px 2px; background: rgba(255, 255, 255, 0.2); }
+
+/* inline link editor — a popover by the toolbar, never a blocking browser dialog */
+.asm-ws-linkpop {
+  position: fixed; z-index: 21; transform: translateX(-50%);
+  background: var(--rk-white); border: 1px solid var(--rk-border-strong);
+  border-radius: var(--rk-radius-sm); box-shadow: var(--rk-shadow-lg);
+  padding: 8px; width: 320px; max-width: 90vw;
+}
+.asm-ws-linkrow { display: flex; align-items: center; gap: 5px; }
+.asm-ws-linkinput {
+  flex: 1; min-width: 0; font: inherit; font-size: 13px;
+  padding: 6px 9px; border: 1px solid var(--rk-border-strong);
+  border-radius: var(--rk-radius-xs); color: var(--rk-rhino-900);
+}
+.asm-ws-linkinput:focus { outline: none; border-color: var(--rk-rhino-500); }
+.asm-ws-linkapply {
+  flex: none; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer;
+  padding: 6px 12px; border: 0; border-radius: var(--rk-radius-xs);
+  background: var(--rk-rhino-700); color: #fff;
+}
+.asm-ws-linkapply:hover { background: var(--rk-rhino-900); }
+.asm-ws-linktext {
+  flex: none; font: inherit; font-size: 12px; cursor: pointer; padding: 5px 6px;
+  border: 0; background: none; color: var(--rk-tomato-600); border-radius: var(--rk-radius-xs);
+}
+.asm-ws-linktext:hover { background: var(--rk-gray-100); }
+.asm-ws-linkx {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; padding: 0; border: 0; background: none;
+  color: var(--rk-rhino-500); cursor: pointer; border-radius: var(--rk-radius-xs);
+}
+.asm-ws-linkx:hover { background: var(--rk-gray-100); }
+.asm-ws-linknewtab {
+  display: flex; align-items: center; gap: 6px; margin-top: 8px;
+  font-size: 12.5px; color: var(--rk-rhino-700); cursor: pointer;
+}
+.asm-ws-linknewtab input { cursor: pointer; }

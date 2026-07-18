@@ -14,8 +14,10 @@ const countWords = (s) => (String(s || "").trim().match(/\S+/g) || []).length;
 // links only). Structural changes happen back in Assemble.
 export default function Wordsmith({ slug, title, coverAsset, cover, sections, cta, ai, onBack }) {
   const editorRef = useRef(null);
+  const savedRange = useRef(null);      // selection kept alive while the link popover has focus
   const [words, setWords] = useState(0);
   const [bar, setBar] = useState(null); // {top,left} of the floating toolbar
+  const [linkEd, setLinkEd] = useState(null); // {top,left,url,newTab} inline link editor
 
   const config = useMemo(() => buildSectionConfig({
     title,
@@ -59,9 +61,60 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
     editorRef.current?.focus();
     recomputeWords();
   };
-  const link = () => {
-    const url = window.prompt("Link URL");
-    if (url) exec("createLink", url);
+  // clear formatting — strip bold/italic/etc. AND any link, back to normal text
+  const clearFormatting = () => {
+    document.execCommand("removeFormat", false);
+    document.execCommand("unlink", false);
+    editorRef.current?.focus();
+    recomputeWords();
+  };
+
+  // the anchor the current selection sits inside (for editing an existing link)
+  const selectionAnchor = () => {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return null;
+    let n = sel.getRangeAt(0).startContainer;
+    n = n.nodeType === 3 ? n.parentElement : n;
+    return n?.closest ? n.closest("a") : null;
+  };
+
+  // open the inline link editor (NEVER window.prompt — it hijacks the whole UI)
+  const openLinkEditor = () => {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    savedRange.current = sel.getRangeAt(0).cloneRange();  // survive the input stealing focus
+    const a = selectionAnchor();
+    setLinkEd({
+      top: (bar?.top ?? 0) + 44, left: bar?.left ?? 0,
+      url: a?.getAttribute("href") || "",
+      newTab: a ? a.getAttribute("target") === "_blank" : true,
+    });
+  };
+  const closeLinkEditor = () => { savedRange.current = null; setLinkEd(null); };
+
+  const restoreRange = () => {
+    const sel = window.getSelection();
+    if (savedRange.current && sel) { sel.removeAllRanges(); sel.addRange(savedRange.current); }
+  };
+  const applyLink = (url, newTab) => {
+    const clean = (url || "").trim();
+    if (!clean) { closeLinkEditor(); return; }
+    restoreRange();
+    document.execCommand("createLink", false, clean);
+    // createLink can't set target — find the anchor we just made and flag it
+    const a = selectionAnchor();
+    if (a) {
+      if (newTab) { a.setAttribute("target", "_blank"); a.setAttribute("rel", "noopener noreferrer"); }
+      else { a.removeAttribute("target"); a.removeAttribute("rel"); }
+    }
+    recomputeWords();
+    closeLinkEditor();
+  };
+  const removeLink = () => {
+    restoreRange();
+    document.execCommand("unlink", false);
+    recomputeWords();
+    closeLinkEditor();
   };
 
   const min = Math.max(1, Math.round(words / 200));
@@ -77,13 +130,21 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
       </div>
       <div className="asm-ws-help">{t("lpm.wordsmith.help")}</div>
       <div style={{ position: "relative" }}>
-        {bar && (
+        {bar && !linkEd && (
           <div className="asm-ws-toolbar" style={{ top: bar.top, left: bar.left }} onMouseDown={(e) => e.preventDefault()}>
-            <button type="button" className="asm-ws-tool" style={{ fontWeight: 800 }} onClick={() => exec("bold")}>B</button>
-            <button type="button" className="asm-ws-tool" style={{ fontStyle: "italic" }} onClick={() => exec("italic")}>I</button>
-            <button type="button" className="asm-ws-tool" onClick={() => exec("insertUnorderedList")}><Icon name="list-bullet" size={15} /></button>
-            <button type="button" className="asm-ws-tool" onClick={link}><Icon name="link" size={15} /></button>
+            <button type="button" className="asm-ws-tool" style={{ fontWeight: 800 }} title={t("lpm.wordsmith.tool.bold")} onClick={() => exec("bold")}>B</button>
+            <button type="button" className="asm-ws-tool" style={{ fontStyle: "italic" }} title={t("lpm.wordsmith.tool.italic")} onClick={() => exec("italic")}>I</button>
+            <button type="button" className="asm-ws-tool" title={t("lpm.wordsmith.tool.list")} onClick={() => exec("insertUnorderedList")}><Icon name="list-bullet" size={15} /></button>
+            <button type="button" className="asm-ws-tool" title={t("lpm.wordsmith.tool.link")} onClick={openLinkEditor}><Icon name="link" size={15} /></button>
+            <span className="asm-ws-tool-sep" />
+            <button type="button" className="asm-ws-tool" title={t("lpm.wordsmith.tool.clear")} onClick={clearFormatting}><Icon name="remove-formatting" size={15} /></button>
           </div>
+        )}
+        {linkEd && (
+          <LinkEditor
+            top={linkEd.top} left={linkEd.left} url={linkEd.url} newTab={linkEd.newTab}
+            onApply={applyLink} onRemove={removeLink} onCancel={closeLinkEditor}
+          />
         )}
         <div
           className="asm-ws-page lp-body"
@@ -95,6 +156,46 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
           onKeyUp={syncBar}
         />
       </div>
+    </div>
+  );
+}
+
+// Inline link editor — a small popover by the toolbar (NOT a browser prompt/dialog,
+// which blocks and breaks the in-place editing). URL field + open-in-new-window.
+function LinkEditor({ top, left, url, newTab, onApply, onRemove, onCancel }) {
+  const [value, setValue] = useState(url || "");
+  const [nt, setNt] = useState(!!newTab);
+  const inputRef = useRef(null);
+  useEffect(() => { inputRef.current?.focus(); inputRef.current?.select(); }, []);
+  return (
+    <div className="asm-ws-linkpop" style={{ top, left }}
+      onMouseDown={(e) => e.stopPropagation()}>
+      <div className="asm-ws-linkrow">
+        <input
+          ref={inputRef} className="asm-ws-linkinput" value={value}
+          placeholder={t("lpm.wordsmith.link.placeholder")}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") { e.preventDefault(); onApply(value, nt); }
+            if (e.key === "Escape") { e.preventDefault(); onCancel(); }
+          }}
+        />
+        <button type="button" className="asm-ws-linkapply" onClick={() => onApply(value, nt)}>
+          {t("lpm.wordsmith.link.apply")}
+        </button>
+        {url ? (
+          <button type="button" className="asm-ws-linktext" onClick={onRemove}>
+            {t("lpm.wordsmith.link.remove")}
+          </button>
+        ) : null}
+        <button type="button" className="asm-ws-linkx" onClick={onCancel} aria-label="Cancel">
+          <Icon name="x" size={14} />
+        </button>
+      </div>
+      <label className="asm-ws-linknewtab">
+        <input type="checkbox" checked={nt} onChange={(e) => setNt(e.target.checked)} />
+        {t("lpm.wordsmith.link.newtab")}
+      </label>
     </div>
   );
 }

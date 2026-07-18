@@ -13,3 +13,14 @@ help:
 nudge_back:
   kind: static
   text: "Wrong blocks, not wrong words? Head back to Assemble."
+
+# toolbar tooltips + the inline link editor (no browser dialogs)
+tool.bold: {kind: static, text: "Bold"}
+tool.italic: {kind: static, text: "Italic"}
+tool.list: {kind: static, text: "Bulleted list"}
+tool.link: {kind: static, text: "Add or edit link"}
+tool.clear: {kind: static, text: "Clear formatting"}
+link.placeholder: {kind: static, text: "Paste or type a URL"}
+link.newtab: {kind: static, text: "Open in a new window"}
+link.apply: {kind: static, text: "Apply"}
+link.remove: {kind: static, text: "Remove"}
