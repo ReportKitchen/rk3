@@ -12,6 +12,7 @@ import SectionLibrary from "./SectionLibrary.jsx";
 import Inspector from "./Inspector.jsx";
 import Controls from "./Controls.jsx";
 import Wordsmith from "./Wordsmith.jsx";
+import Preview from "./Preview.jsx";
 
 const getSections = (slug) =>
   fetch(`/api/landing/${slug}/sections`).then((r) => r.json());
@@ -239,14 +240,20 @@ export default function AssembleMaker({ doc }) {
     <div className="asm-root" style={{ "--lp-accent": accent }}>
       <Chrome
         title={doc.name || doc.slug}
-        activeIdx={mode === "wordsmith" ? 1 : 0}
-        onStep={(i) => setMode(i === 1 ? "wordsmith" : "assemble")}
+        activeIdx={{ assemble: 0, wordsmith: 1, preview: 2 }[mode] ?? 0}
+        onStep={(i) => setMode(["assemble", "wordsmith", "preview"][i] || "assemble")}
       />
-      {mode === "wordsmith" ? (
+      {mode === "preview" ? (
+        <Preview
+          slug={slug} docName={doc.name || slug} title={title} coverAsset={coverAsset}
+          cover={cover} accent={accent} sections={sections} cta={cta} ai={ai} edits={edits}
+          onBack={() => setMode("wordsmith")}
+        />
+      ) : mode === "wordsmith" ? (
         <Wordsmith
           slug={slug} title={title} coverAsset={coverAsset} cover={cover}
           sections={sections} cta={cta} ai={ai} edits={edits} onEditsChange={onEditsChange}
-          onBack={() => setMode("assemble")}
+          onBack={() => setMode("assemble")} onPreview={() => setMode("preview")}
         />
       ) : (
         <div className="asm-grid">

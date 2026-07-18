@@ -116,7 +116,7 @@
 /* detail band — full-width shaded band: small cover + download on the left, the
    report's kicker/title/subtitle centred vertically alongside */
 .lp-coverband {
-  display: flex; gap: 1.4em; align-items: center; margin: 1.6em 0;
+  display: flex; gap: 1.4em; align-items: center; margin: 1.6em auto;
   background: color-mix(in srgb, var(--lp-accent, #1E3A5F) 6%, white);
   border-radius: 0.6em; padding: 1.3em 1.5em;
 }
@@ -246,7 +246,9 @@
    type scale in em (multiples of the inherited body size, not px), colour via
    inherit / currentColor, indents in em/%. That's what lets an exported section
    adopt the target site's own font, colour, and rhythm instead of fighting it. */
-.lp-section { margin: 2.2em 0; }
+/* horizontal margins stay auto — the `.lp-page > *` centring (same specificity,
+   earlier in the file) must survive this shorthand on the full-width page */
+.lp-section { margin: 2.2em auto; }
 .lp-statwrap { container-type: inline-size; }
 .lp-section > h2 {
   font-size: 1.4em; line-height: 1.2; margin: 0 0 0.6em;

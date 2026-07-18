@@ -1,27 +1,34 @@
 # LPM Assemble/Wordsmith rebuild — executable plan (content-first pivot)
 
-**Status:** backend DONE + **UI DONE** (all 7 slices built, screenshot-verified vs
-round-2). The Puck LPM is retired. Design was LOCKED in `design-system/round-2/`.
+**Status:** backend DONE + **UI DONE** through **Preview** (2026-07-18). The Puck
+LPM is retired. Design was LOCKED in `design-system/round-2/`. NOTE: the block
+model described below was superseded by the AI-sections model (BACKLOG/61) —
+sections engine + presentations replaced the fixed catalog; drag-reorder and
+persistence (`.landing-assembled.json`) have since shipped too.
 
 ## UI BUILT — where it lives
 - **`app/ui/src/landing/assemble/`** — the bespoke Assemble/Wordsmith React:
   `AssembleMaker.jsx` (default export, mounted in DocumentView), `Chrome.jsx`
-  (stepper), `BlockLibrary.jsx` (left), `Inspector.jsx` (center — previews +
-  findings picker + AI voice + story picker), `Controls.jsx` (right — length/cover
-  dropdowns + grayscale rough page), `Wordsmith.jsx` (contentEditable + floating
-  B/I/list/link toolbar, renders the real page via `renderToStaticMarkup(LandingRenderer)`),
-  `model.js` (bucket/length model, ports `_select`), `icons.jsx` (inline lucide),
-  `assemble.css` (`asm-*` classes on `--rk-*` tokens).
+  (stepper — Assemble/Wordsmith/Preview live, Publish a placeholder),
+  `SectionLibrary.jsx` (left), `Inspector.jsx` (center), `Controls.jsx` (right),
+  `Wordsmith.jsx` (contentEditable + floating toolbar), `Preview.jsx` (the
+  finished page in an isolated iframe srcdoc + the publish/download card in the
+  right rail — Preview and Publish were combined; step 4 stays parked),
+  `model.js`, `icons.jsx`, `assemble.css` (`asm-*` classes on `--rk-*` tokens).
+- **`app/ui/src/landing/finalHtml.js`** — the ONE final-page builder (Preview
+  iframe + export zip both call it): renders the config, re-applies Wordsmith
+  edits (shared `editSignatures`), retargets edited asset URLs per context, and
+  writes the full document head (title, meta description from the first prose
+  section, og:title/description/image + twitter card, Google-font link, inlined
+  `landingPage.css`, `--lp-accent`). `exportZip.js` builds the self-contained
+  zip (index.html + images/ + the PDF when a download is bundle-mode) on top.
 - **Mounted:** `DocumentView.jsx` lazy-imports `AssembleMaker` for `tab==="landing"`.
 - **Retired (deleted):** LandingMaker/puckConfig/LandingShell/MiniPreview/puckAdapter/
   landingOptions/blockLibrary/RichText + `@measured/puck` + `react-simple-wysiwyg` deps.
-- **Content added:** block display names + library header (`lpm.blocks.*`), inspector
-  meta/own-fact keys, length/cover `category`, `assemble.page_heading` (121 entries).
-- **Known v1 gaps (follow-ups):** fact drag-reorder is visual-only (grip shown, no DnD);
-  Assemble edits aren't persisted to `.landing.json` yet (Wordsmith re-fetches `/guided`
-  for current length/cover, then filters to the added set + applies picked facts, but
-  block toggles that add a block absent from the current-length `/guided` won't render in
-  Wordsmith); Wordsmith text edits live in the DOM, not yet written back to the config.
+- **Known gaps (follow-ups):** Publish step is an inert stepper placeholder (the
+  publish card on Preview covers v1); hosted-on-RK public URL deferred (GoLive
+  track); JSON-LD Report schema not emitted; `Modal.jsx` + `css.js` are orphaned
+  Puck-era leftovers.
 
 ---
 ## Original plan (kept for reference)

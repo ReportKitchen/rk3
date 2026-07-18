@@ -2,8 +2,8 @@ import React from "react";
 import { Icon } from "./icons.jsx";
 
 // The 56px top stepper (round-2 parts/LpmChrome): Assemble → Wordsmith → Preview
-// → Publish. Numbered circles turn into a ✓ once a step is behind you. Assemble
-// and Wordsmith are wired; Preview/Publish are placeholders for later slices.
+// → Publish. Numbered circles turn into a ✓ once a step is behind you. Preview
+// carries the publish/download card, so Publish stays a placeholder.
 const STEPS = ["Assemble", "Wordsmith", "Preview", "Publish"];
 
 export default function Chrome({ title, activeIdx, onStep }) {
@@ -17,7 +17,7 @@ export default function Chrome({ title, activeIdx, onStep }) {
         {STEPS.map((name, i) => {
           const done = i < activeIdx;
           const active = i === activeIdx;
-          const clickable = i <= 1;  // only Assemble/Wordsmith are live for now
+          const clickable = i <= 2;  // Publish is not a live step yet
           return (
             <React.Fragment key={name}>
               <button

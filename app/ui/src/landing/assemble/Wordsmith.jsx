@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { t } from "../../content.js";
 import { assetBase, sourceUrl } from "../../api.js";
 import { LandingRenderer } from "../LandingRenderer.jsx";
+import { editSignatures } from "../finalHtml.js";
 import { buildSectionConfig } from "./model.js";
 import { Icon } from "./icons.jsx";
 
@@ -12,7 +13,7 @@ const countWords = (s) => (String(s || "").trim().match(/\S+/g) || []).length;
 // the MAIN document (not a Puck iframe) with the real block components — the AI
 // sections in their own words — made editable in place (bold / italic / lists /
 // links only). Structural changes happen back in Assemble.
-export default function Wordsmith({ slug, title, coverAsset, cover, sections, cta, ai, edits, onEditsChange, onBack }) {
+export default function Wordsmith({ slug, title, coverAsset, cover, sections, cta, ai, edits, onEditsChange, onBack, onPreview }) {
   const editorRef = useRef(null);
   const savedRange = useRef(null);      // selection kept alive while the link popover has focus
   const editsRef = useRef(edits);       // latest saved edits, read by the render effect w/o re-running it
@@ -39,19 +40,9 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
   ), [config, slug]);
 
   // a structural signature per editable block — an edit is only re-applied while
-  // the structure it was made against is unchanged (else the fresh render wins)
-  const sigByKey = useMemo(() => {
-    const m = {};
-    for (const b of config.blocks || []) {
-      if (b.type === "coverBand") { m.__band__ = "coverBand"; continue; }  // skey is on the band's body div
-      const sk = b.props?.skey;
-      if (!sk) continue;
-      m[sk] = b.type === "section"
-        ? `${b.props.presentation}|${b.props.treatment || ""}|${b.props.coverLayout || ""}`
-        : b.type;
-    }
-    return m;
-  }, [config]);
+  // the structure it was made against is unchanged (else the fresh render wins).
+  // Shared with the final-page builder so Preview/export re-apply identically.
+  const sigByKey = useMemo(() => editSignatures(config), [config]);
 
   const recomputeWords = useCallback(() => {
     setWords(countWords(editorRef.current?.innerText));
@@ -184,6 +175,11 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
         </button>
         <span className="asm-ws-back-hint">{t("lpm.wordsmith.back_to_assemble_hint")}</span>
         <span className="asm-ws-estimate">{t("lpm.wordsmith.read_estimate", { words, min })}</span>
+        {onPreview && (
+          <button type="button" className="asm-ws-next" onClick={onPreview}>
+            {t("lpm.wordsmith.to_preview")}<Icon name="chevron-right" size={14} />
+          </button>
+        )}
       </div>
       <div className="asm-ws-canvas">
         <aside className="asm-ws-help">
