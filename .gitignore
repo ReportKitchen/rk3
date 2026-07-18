@@ -66,3 +66,5 @@ design-system/uploads/screencapture-*.png
 
 # misc
 /rk1
+# platform private file tree (multiuser Stage 1)
+storage/

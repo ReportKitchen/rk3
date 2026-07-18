@@ -1,0 +1,14 @@
+[Unit]
+Description=RK3 platform worker (durable jobs: conversions)
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/var/www/rk3
+ExecStart=/var/www/rk3/.venv/bin/python -m rk3.platform.worker
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

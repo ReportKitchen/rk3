@@ -1316,6 +1316,11 @@ def get_source(slug: str):
     return FileResponse(src, media_type="application/pdf", filename=src.name)
 
 
+# The multiuser platform layer (auth/BFF, workspaces, projects, uploads, jobs,
+# private files) — additive; the routes above remain the staff/internal surface.
+from app.platform_api import router as _platform_router  # noqa: E402
+app.include_router(_platform_router)
+
 OUTPUT.mkdir(parents=True, exist_ok=True)
 app.mount("/output", StaticFiles(directory=OUTPUT), name="output")
 

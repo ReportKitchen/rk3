@@ -23,6 +23,24 @@ function findNode(ir, nid) {
 const _params = new URLSearchParams(window.location.search);
 const DEEPLINK = { doc: _params.get("doc"), nid: _params.get("nid") };
 
+// Platform session boot (multiuser Stage 1): make sure this browser has a
+// session. In dev mode the seeded owner signs in automatically so this box's
+// UX is unchanged; in oidc mode an anonymous visitor is sent to the provider.
+async function ensureSession() {
+  try {
+    const me = await fetch("/api/me").then((r) => r.json());
+    if (me.user) return me;
+    if (me.authMode === "dev") {
+      await fetch("/api/auth/dev-login", { method: "POST" });
+      return fetch("/api/me").then((r) => r.json());
+    }
+    window.location.href = "/api/auth/login";   // oidc: round-trip to the IdP
+    return me;
+  } catch {
+    return null;   // API down — the error banner will say so soon enough
+  }
+}
+
 export default function App() {
   const [docs, setDocs] = useState([]);
   const [selected, setSelected] = useState(DEEPLINK.doc || null);
@@ -50,6 +68,8 @@ export default function App() {
     const url = slug ? `?doc=${encodeURIComponent(slug)}` : window.location.pathname;
     window.history.pushState({ doc: slug }, "", url);
   }, []);
+
+  useEffect(() => { ensureSession(); }, []);
 
   useEffect(() => {
     const onPop = () => {

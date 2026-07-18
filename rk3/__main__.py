@@ -50,6 +50,12 @@ def main():
         meta = convert(args[1], force="--force" in args)
         print(json.dumps(meta, indent=2))
         sys.exit(0 if meta["status"] == "done" else 1)
+    elif args[:1] == ["convert-path"] and len(args) >= 3:
+        # explicit-context entry (multiuser worker): source pdf + output dir
+        from .pipeline import convert_paths
+        meta = convert_paths(args[1], args[2], force="--force" in args)
+        print(json.dumps(meta, indent=2))
+        sys.exit(0 if meta["status"] == "done" else 1)
     elif args[:1] == ["remove"] and len(args) >= 2:
         slug = resolve_slug(args[1])
         removed = remove_document(slug)

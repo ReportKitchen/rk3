@@ -142,15 +142,26 @@ def build_status(slug: str) -> dict:
 
 
 def convert(slug: str, force: bool = False) -> dict:
+    """The corpus entry: resolve a sources/ slug, then run on explicit paths."""
     source = source_for_slug(slug)
     if source is None:
         raise FileNotFoundError(f"no source PDF for slug {slug!r}")
-    outdir = output_dir(slug)
+    return convert_paths(source, output_dir(slug), force=force, slug=slug)
+
+
+def convert_paths(source, outdir, force: bool = False, slug: str = "") -> dict:
+    """The explicit-context entry (multiuser Stage 1): run the pipeline on THIS
+    source file into THIS output directory — no global sources/ scan. The
+    platform worker converts uploaded documents through here; the slug entry
+    above delegates, so both surfaces share one pipeline."""
+    from pathlib import Path
+    source = Path(source)
+    outdir = Path(outdir)
     outdir.mkdir(parents=True, exist_ok=True)
 
     cfg = load_config(source)
     meta = _read_meta(outdir)
-    meta.update({"slug": slug, "source": str(source), "status": "in_progress",
+    meta.update({"slug": slug or source.stem, "source": str(source), "status": "in_progress",
                  "started": _now(), "finished": None, "error": None})
     meta.setdefault("stages", {})
     _write_meta(outdir, meta)
@@ -189,7 +200,9 @@ def convert(slug: str, force: bool = False) -> dict:
                 "skipped": False,
             }
             _write_meta(outdir, meta)
-        if old_ir is not None and not meta["stages"]["analyze"].get("skipped"):
+        # feedback/ops remapping is keyed by corpus slug — platform documents
+        # (explicit-path runs, no slug) have no anchor history to remap
+        if slug and old_ir is not None and not meta["stages"]["analyze"].get("skipped"):
             from .remap import remap_feedback, remap_ops
             log = DebugLog(outdir, "remap")
             try:
