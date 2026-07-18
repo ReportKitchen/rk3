@@ -293,11 +293,18 @@ export function buildSectionConfig({ title, cover, sections, cta, ai }) {
   }
 
   const blocks = [...head, ...body];
-  if (cta?.download && !coverHasDownload) blocks.push({ type: "download", id: "download", props: {
-    label: cta.downloadLabel || "", mode: cta.downloadUrl ? "url" : "bundle", url: cta.downloadUrl || "" } });
-  if (cta?.secondary) blocks.push({ type: "secondaryCta", id: "secondary", props: {
-    label: cta.secondaryLabel || "", url: cta.secondaryUrl || "" } });
-  if (cta?.share) blocks.push({ type: "share", id: "share", props: {
-    networks: cta.shareNetworks, style: cta.shareStyle || "plain" } });
+  // CTAs in the user's chosen order (cta.order)
+  const ctaBlock = {
+    download: () => (cta?.download && !coverHasDownload) && { type: "download", id: "download", props: {
+      label: cta.downloadLabel || "", mode: cta.downloadUrl ? "url" : "bundle", url: cta.downloadUrl || "" } },
+    secondary: () => cta?.secondary && { type: "secondaryCta", id: "secondary", props: {
+      label: cta.secondaryLabel || "", url: cta.secondaryUrl || "" } },
+    share: () => cta?.share && { type: "share", id: "share", props: {
+      networks: cta.shareNetworks, style: cta.shareStyle || "plain" } },
+  };
+  for (const key of (cta?.order || CTA_KEYS)) {
+    const blk = ctaBlock[key] && ctaBlock[key]();
+    if (blk) blocks.push(blk);
+  }
   return { version: 1, template: "sections", blocks };
 }

@@ -1165,16 +1165,12 @@ def get_landing_assembled(slug: str):
 
 @app.post("/api/landing/{slug}/assembled")
 def post_landing_assembled(slug: str, data: dict):
+    # The accent lives here (untracked working state); we deliberately do NOT
+    # mirror it into the TRACKED .landing-theme.json on every autosave — that
+    # churned the theme file on mere doc-open. The export slice (Preview/Publish)
+    # reads the accent from here and injects --lp-accent at export time instead.
     path = _landing_path(slug, ".landing-assembled.json")
     path.write_text(json.dumps(data, indent=1, ensure_ascii=False))
-    # mirror the chosen accent into the theme's CSS vars so the static export
-    # (which reads .landing-theme.json) adopts it as --lp-accent
-    accent = (data or {}).get("accent")
-    if accent:
-        tpath = _landing_path(slug, ".landing-theme.json")
-        theme = json.loads(tpath.read_text()) if tpath.exists() else build_default_theme(_ir_for(slug))
-        theme.setdefault("vars", {})["--lp-accent"] = accent
-        tpath.write_text(json.dumps(theme, indent=1, ensure_ascii=False))
     return {"saved": True}
 
 

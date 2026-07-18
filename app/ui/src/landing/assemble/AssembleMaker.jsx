@@ -4,7 +4,8 @@ import "../landingPage.css"; // block-render styles, reused by the previews + Wo
 import { getBlockDefaults, getAiSummary, getAssembled, saveAssembled } from "../../api.js";
 import { loadContent, t } from "../../content.js";
 import { guard } from "../../errorBus.js";
-import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, canTrim, pickAiHeading, STAT_TREATMENT_ORDER, QUOTE_TREATMENT_ORDER, normalizeCover, assignKeys, mergeSaved, toAssembled } from "./model.js";
+import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, canTrim, pickAiHeading, STAT_TREATMENT_ORDER, QUOTE_TREATMENT_ORDER, normalizeCover, assignKeys, mergeSaved, toAssembled, CTA_KEYS } from "./model.js";
+import { useDelayed } from "./hooks.js";
 import Chrome from "./Chrome.jsx";
 import WhiskLoader from "./WhiskLoader.jsx";
 import SectionLibrary from "./SectionLibrary.jsx";
@@ -44,7 +45,7 @@ export default function AssembleMaker({ doc }) {
   const [length, setLength] = useState("middle");
   const [cover, setCover] = useState("beside");
   const [accent, setAccent] = useState("#1E3A5F");   // the one settable accent (dark blue default)
-  const [cta, setCta] = useState({ download: true, secondary: false, share: true });
+  const [cta, setCta] = useState({ download: true, secondary: false, share: true, order: CTA_KEYS });
   // the opt-in AI Summary — the ONE AI-written section (a pitch in a chosen voice)
   const [ai, setAi] = useState({ on: false, voice: "neutral", prose: "", loading: false, fetched: false });
   const [edits, setEdits] = useState({});   // Wordsmith per-section text edits {skey:{html,sig}}
@@ -111,7 +112,7 @@ export default function AssembleMaker({ doc }) {
         if (saved.accent) setAccent(saved.accent);
         setEdits(saved.edits || {});
         setCta({
-          download: true, secondary: false, share: true,
+          download: true, secondary: false, share: true, order: CTA_KEYS,
           downloadLabel: defaults?.download?.label || "", downloadUrl: "",
           secondaryLabel: defaults?.secondaryCta?.label || "", secondaryUrl: "",
           shareNetworks: { linkedin: true, x: true, link: true },
@@ -172,15 +173,29 @@ export default function AssembleMaker({ doc }) {
     setCta((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
 
+  // CTAs reorder like sections (arrayMove on cta.order)
+  const reorderCta = useCallback((activeKey, overKey) => {
+    if (!activeKey || activeKey === overKey) return;
+    setCta((prev) => {
+      const order = (prev.order || CTA_KEYS).slice();
+      const from = order.indexOf(activeKey);
+      const to = order.indexOf(overKey);
+      if (from < 0 || to < 0) return prev;
+      order.splice(to, 0, order.splice(from, 1)[0]);
+      return { ...prev, order };
+    });
+  }, []);
+
   const patchCta = useCallback((patch) => setCta((prev) => ({ ...prev, ...patch })), []);
 
   const toggleAi = useCallback(() => setAi((a) => ({ ...a, on: !a.on })), []);
 
   // fetch (lazily) the AI-written summary for a voice at the current length.
-  // Only whisk on the FIRST load — when we already have prose (a voice switch),
-  // keep it visible and let the preview crossfade to the new text on arrival.
+  // Always mark loading; the whisk is gated behind useDelayed so it only shows
+  // for a genuine wait (a cached voice resolves before the delay and never
+  // flashes a loader — the old prose just crossfades to the new).
   const fetchAiVoice = useCallback((voice) => {
-    setAi((a) => ({ ...a, voice, loading: !a.prose }));
+    setAi((a) => ({ ...a, voice, loading: true }));
     getAiSummary(slug, voice, SUMMARY_LENGTH[length] || "medium")
       .then((text) => setAi((a) => (a.voice === voice
         ? { ...a, loading: false, fetched: true, prose: text ? text.split(/\n\n+/).map((p) => `<p>${p.trim()}</p>`).join("") : "" }
@@ -204,14 +219,19 @@ export default function AssembleMaker({ doc }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, sections, cover, accent, length, cta, ai.on, ai.voice, edits]);
 
+  const showBootLoader = useDelayed(!ready);
   const title = defs?.title || null;
   const coverAsset = defs?.cover || null;
 
+  // the page-load whisk only appears if the load is genuinely slow (AI generating
+  // sections) — a cached load resolves first and shows nothing, not a flash
   if (!ready) return (
     <div className="asm-root">
-      <div className="asm-loading">
-        <WhiskLoader size={150} captions={booted ? LOADING_PHRASES.map((k) => t(k)) : undefined} />
-      </div>
+      {showBootLoader && (
+        <div className="asm-loading">
+          <WhiskLoader size={150} captions={booted ? LOADING_PHRASES.map((k) => t(k)) : undefined} />
+        </div>
+      )}
     </div>
   );
 
@@ -232,7 +252,7 @@ export default function AssembleMaker({ doc }) {
         <div className="asm-grid">
           <SectionLibrary
             sections={sections} cta={cta} ai={ai} sel={sel} noai={noai} genError={genError}
-            docRead={docRead} onSelect={setSel} onReorder={reorderSection}
+            docRead={docRead} onSelect={setSel} onReorder={reorderSection} onReorderCta={reorderCta}
           />
           <Inspector
             sel={sel} sections={sections} cta={cta} ai={ai} defs={defs}

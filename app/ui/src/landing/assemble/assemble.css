@@ -171,6 +171,9 @@
   color: var(--rk-text-muted);
 }
 .asm-cards { display: flex; flex-direction: column; gap: 7px; }
+/* dnd-kit's drag/sort transform lives on this outer slot; the visual .asm-card is
+   the inner element, so its own transform (the select-shift) never fights dnd's */
+.asm-card-slot { transform-origin: center; }
 .asm-card {
   background: var(--rk-white);
   border: 1px solid var(--rk-border);
@@ -183,9 +186,9 @@
   text-align: left;
   width: 100%;
   font-family: inherit;
-  /* NB: no `transform` here — dnd-kit drives transform inline for the drag/sort
-     motion; a CSS transform-transition would make the dragged card lag the pointer */
-  transition: border-color 240ms var(--rk-ease-out), box-shadow 240ms var(--rk-ease-out);
+  /* transform here is only the select-shift (on the inner card) — safe, because
+     dnd-kit drives its drag transform on the outer .asm-card-slot instead */
+  transition: transform 220ms var(--rk-ease-out), border-color 220ms var(--rk-ease-out), box-shadow 220ms var(--rk-ease-out);
 }
 .asm-card:hover { box-shadow: var(--rk-shadow-sm); }
 .asm-card:focus-visible { outline: 2px solid var(--rk-focus-ring); outline-offset: 2px; }
@@ -197,13 +200,19 @@
 }
 .asm-card:hover .asm-card-grip, .asm-card:focus-within .asm-card-grip { opacity: 1; }
 .asm-card-grip:active { cursor: grabbing; }
-/* the card being dragged lifts off the list (dnd-kit moves it; no ghost stays behind) */
-.asm-card.is-dragging { box-shadow: var(--rk-shadow-lg); border-color: var(--rk-rhino-400); cursor: grabbing; }
-.asm-card.is-selected {
-  border-color: var(--rk-rhino-700);
-  transform: translateX(22px);
-  box-shadow: var(--rk-shadow-sm);
+/* selected: emphasis (border+shadow) is separate from the shift, so a selected
+   card keeps its emphasis while dragging and only the shift is drag-suppressed */
+.asm-card.is-selected { border-color: var(--rk-rhino-700); box-shadow: var(--rk-shadow-sm); }
+.asm-card.is-shift { transform: translateX(22px); }
+/* the placeholder left in the list: a faded, same-height outline of the drop slot */
+.asm-card.is-placeholder {
+  opacity: 0.4; border-style: dashed; background: var(--rk-gray-50, #f6f7f9);
+  box-shadow: none;
 }
+.asm-card.is-placeholder:hover { box-shadow: none; }
+/* the live card carried by the DragOverlay (full size — never squished) */
+.asm-card.is-overlay { box-shadow: var(--rk-shadow-lg); border-color: var(--rk-rhino-400); cursor: grabbing; }
+.asm-card.is-overlay .asm-card-grip { opacity: 1; }
 .asm-card-icon {
   width: 28px; height: 28px; flex: none;
   border-radius: var(--rk-radius-xs);
@@ -240,11 +249,19 @@
   transform: translate(-50%, -50%) rotate(-45deg);
 }
 
-/* AI-summary preview: left-to-right wipe when switching voices (no whisk flash) */
-.asm-voice-fade { animation: asm-voicefade 300ms ease; }
-@keyframes asm-voicefade {
-  from { opacity: 0; clip-path: inset(0 100% 0 0); }
-  to { opacity: 1; clip-path: inset(0 0 0 0); }
+/* AI-summary preview crossfade: the outgoing text fades out + slides right while
+   the incoming text starts left + faded and slides into place. Two layers overlap
+   for the duration; the incoming layer holds the height. */
+.asm-xfade { position: relative; }
+.asm-xfade-out { position: absolute; inset: 0; pointer-events: none; animation: asm-xfade-out 360ms var(--rk-ease-out) forwards; }
+.asm-xfade-in { animation: asm-xfade-in 360ms var(--rk-ease-out); }
+@keyframes asm-xfade-out {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(26px); }
+}
+@keyframes asm-xfade-in {
+  from { opacity: 0; transform: translateX(-26px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 /* ---------------- Center: inspector ---------------- */
@@ -604,7 +621,9 @@
   background: var(--rk-macaroni-100); border-bottom: 1px solid var(--rk-macaroni-300);
   padding: 8px 22px; text-align: center;
 }
-.asm-ws-page {
+/* .asm-ws scope raises specificity above landingPage.css's `.lp-body { margin: 0 }`
+   (the page carries both classes) — without it the paper never centred */
+.asm-ws .asm-ws-page {
   max-width: 720px; margin: 48px auto 110px;   /* centred, floating on the graph paper */
   background: #fff; border: 1px solid var(--rk-border);
   border-radius: var(--rk-radius-sm); box-shadow: var(--rk-shadow-md);  /* soft lift off the graph paper */

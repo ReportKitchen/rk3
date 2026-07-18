@@ -21,6 +21,8 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
   const [words, setWords] = useState(0);
   const [bar, setBar] = useState(null); // {top,left} of the floating toolbar
   const [linkEd, setLinkEd] = useState(null); // {top,left,url,newTab} inline link editor
+  const linkEdRef = useRef(null);       // so syncBar can keep the toolbar up while the link editor is open
+  linkEdRef.current = linkEd;
 
   const config = useMemo(() => buildSectionConfig({
     title,
@@ -88,6 +90,9 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
   }, [html, sigByKey, recomputeWords]);
 
   const syncBar = useCallback(() => {
+    // while the link editor is open, keep the toolbar exactly where it is — the
+    // input has stolen focus/selection, but the toolbar must stay put (like any editor)
+    if (linkEdRef.current) return;
     const sel = window.getSelection();
     const ed = editorRef.current;
     if (!sel || sel.isCollapsed || sel.rangeCount === 0 || !ed) { setBar(null); return; }
@@ -182,7 +187,7 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
       </div>
       <div className="asm-ws-help">{t("lpm.wordsmith.help")}</div>
       <div style={{ position: "relative" }}>
-        {bar && !linkEd && (
+        {bar && (
           <div className="asm-ws-toolbar" style={{ top: bar.top, left: bar.left }} onMouseDown={(e) => e.preventDefault()}>
             <button type="button" className="asm-ws-tool" style={{ fontWeight: 800 }} title={t("lpm.wordsmith.tool.bold")} onClick={() => exec("bold")}>B</button>
             <button type="button" className="asm-ws-tool" style={{ fontStyle: "italic" }} title={t("lpm.wordsmith.tool.italic")} onClick={() => exec("italic")}>I</button>

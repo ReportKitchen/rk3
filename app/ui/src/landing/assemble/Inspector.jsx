@@ -1,9 +1,31 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { t } from "../../content.js";
 import { LandingRenderer, SHARE_NETWORKS, statTreatmentsFor, quoteTreatmentsFor } from "../LandingRenderer.jsx";
 import { PRESENTATIONS, wordCount, effectiveProse, trimProse, canTrim } from "./model.js";
+import { useDelayed } from "./hooks.js";
 import { Icon, BLOCK_ICONS } from "./icons.jsx";
 import WhiskLoader from "./WhiskLoader.jsx";
+
+// Crossfade between two renders: the outgoing layer fades out + slides right while
+// the incoming layer starts left + faded and slides into place. `token` changes
+// when the content changes. Keeps the old layer mounted for the animation only.
+function Crossfade({ token, children }) {
+  const [state, setState] = useState({ cur: { token, node: children }, prev: null });
+  const timer = useRef();
+  useEffect(() => {
+    setState((s) => (s.cur.token === token ? s : { cur: { token, node: children }, prev: s.cur }));
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => setState((s) => ({ cur: s.cur, prev: null })), 380);
+    return () => clearTimeout(timer.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+  return (
+    <div className="asm-xfade">
+      {state.prev && <div key={state.prev.token} className="asm-xfade-out">{state.prev.node}</div>}
+      <div key={state.cur.token} className="asm-xfade-in">{state.cur.node}</div>
+    </div>
+  );
+}
 
 const VOICES = ["intro", "neutral", "hardsell"];
 const SHARE_STYLES = ["plain", "round", "square"];
@@ -155,6 +177,7 @@ function SectionInspector({ section, onToggle, onSetQuoteTreatment, onSetTrimmed
 
 // The AI Summary — the one AI-written section. Voice taste-test + live preview.
 function AiInspector({ ai, onToggle, onVoice }) {
+  const showWhisk = useDelayed(ai.loading, 350);   // only whisk on a real wait
   // fetch the default voice the first time it's opened
   useEffect(() => {
     if (!ai.prose && !ai.loading) onVoice(ai.voice);
@@ -194,13 +217,15 @@ function AiInspector({ ai, onToggle, onVoice }) {
 
       <div className="asm-eyebrow">{t("lpm.inspector.preview_label")}</div>
       <div className="asm-secpv">
-        {ai.loading
+        {/* the whisk shows ONLY for a genuine wait (useDelayed) — a cached voice
+            resolves first, so switching just crossfades the old prose to the new */}
+        {showWhisk
           ? <div style={{ padding: "18px 0" }}><WhiskLoader size={84} caption={t("lpm.inspector.loading")} /></div>
           : ai.prose
-            ? <div className="asm-voice-fade" key={ai.prose}><div className="lp-body"><LandingRenderer config={config} /></div></div>
+            ? <Crossfade token={ai.prose}><div className="lp-body"><LandingRenderer config={config} /></div></Crossfade>
             : ai.fetched
               ? <p className="asm-pv-empty">{t("lpm.inspector.ai_failed")}</p>
-              : <div style={{ padding: "18px 0" }}><WhiskLoader size={84} caption={t("lpm.inspector.loading")} /></div>}
+              : <div style={{ minHeight: 120 }} />}
       </div>
     </div>
   );
