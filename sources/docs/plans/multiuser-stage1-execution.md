@@ -71,6 +71,11 @@ personal workspace; tenant is called `workspace` internally.
 - [x] E2E verified on this box: dev-login → create project → upload PDF →
       worker converts → artifacts served through the membership-checked route;
       anonymous and cross-workspace access refused
+- [x] Project state endpoints with optimistic concurrency (GET/PUT
+      `/api/platform/projects/{id}/state`, version check → 409 on stale — the
+      plan's conflict baseline; LPM sidecar migration will write here)
+- [x] Minimal platform-admin read surface (staff-only, 404-unadvertised):
+      `/api/platform/admin/overview` | `/admin/audit` | `/admin/jobs`
 
 ## PARKED — needs the owner
 

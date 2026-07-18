@@ -250,6 +250,43 @@ def test_project_quota_enforced(client):
     assert "limit" in last.json()["detail"]
 
 
+def test_project_state_optimistic_concurrency(client):
+    client.post("/api/auth/dev-login")
+    me = client.get("/api/me").json()
+    personal = next(w for w in me["workspaces"] if w["type"] == "personal")
+    csrf = client.cookies.get(config.CSRF_COOKIE)
+    pid = client.get(f"/api/platform/workspaces/{personal['id']}/projects").json()[0]["id"]
+
+    s = client.get(f"/api/platform/projects/{pid}/state").json()
+    assert s["version"] == 0 and s["state"] == {}
+    r = client.put(f"/api/platform/projects/{pid}/state",
+                   json={"state": {"a": 1}, "version": 0},
+                   headers={"x-csrf-token": csrf})
+    assert r.status_code == 200 and r.json()["version"] == 1
+    # a second writer holding version 0 conflicts
+    r = client.put(f"/api/platform/projects/{pid}/state",
+                   json={"state": {"b": 2}, "version": 0},
+                   headers={"x-csrf-token": csrf})
+    assert r.status_code == 409
+    assert client.get(f"/api/platform/projects/{pid}/state").json()["state"] == {"a": 1}
+
+
+def test_admin_surface_staff_only(client, db):
+    client.post("/api/auth/dev-login")
+    assert client.get("/api/platform/admin/overview").status_code == 200
+    audit_rows = client.get("/api/platform/admin/audit").json()
+    assert any(e["action"] == "auth.login" for e in audit_rows)
+    # a plain member sees nothing (404, surface unadvertised)
+    from sqlalchemy import select as _sel
+    u = db.execute(_sel(User).where(
+        User.identity_subject == config.DEV_USER_SUBJECT)).scalar_one()
+    u.platform_role = "member"
+    db.commit()
+    assert client.get("/api/platform/admin/overview").status_code == 404
+    u.platform_role = "platform_admin"
+    db.commit()
+
+
 def test_cross_workspace_isolation(client, db):
     """A signed-in user must not see another workspace's documents (404)."""
     client.post("/api/auth/dev-login")

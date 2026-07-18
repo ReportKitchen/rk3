@@ -169,6 +169,42 @@ def create_project(ws_id: uuid.UUID, body: ProjectIn, request: Request,
     return {"id": str(p.id), "name": p.name}
 
 
+class StateIn(BaseModel):
+    state: dict
+    version: int
+
+
+@router.get("/api/platform/projects/{project_id}/state")
+def get_project_state(project_id: uuid.UUID, request: Request,
+                      db: Session = Depends(get_db)):
+    user, _ = _auth(db, request)
+    p = db.get(Project, project_id)
+    if p is None or p.status != "active":
+        raise HTTPException(404, "unknown project")
+    permissions.require_member(db, user, p.workspace_id, permissions.PROJECT_VIEW)
+    return {"version": p.version, "state": p.state}
+
+
+@router.put("/api/platform/projects/{project_id}/state")
+def put_project_state(project_id: uuid.UUID, body: StateIn, request: Request,
+                      db: Session = Depends(get_db)):
+    """Optimistic concurrency (the plan's team-editing baseline): the client
+    sends the version it loaded; a stale version means someone else saved —
+    409, reload and merge. No CRDTs until demand exists."""
+    user, sess = _auth(db, request)
+    require_csrf(request, sess)
+    p = db.get(Project, project_id)
+    if p is None or p.status != "active":
+        raise HTTPException(404, "unknown project")
+    permissions.require_member(db, user, p.workspace_id, permissions.PROJECT_EDIT)
+    if body.version != p.version:
+        raise HTTPException(409, f"stale version {body.version} (current {p.version})")
+    p.state = body.state
+    p.version += 1
+    db.commit()
+    return {"version": p.version}
+
+
 # ------------------------------------------------------- upload -> document/job
 
 @router.post("/api/platform/projects/{project_id}/documents", status_code=202)
@@ -252,6 +288,57 @@ def job_status(job_id: uuid.UUID, request: Request, db: Session = Depends(get_db
         raise HTTPException(404, "unknown job")
     return {"id": str(job.id), "kind": job.kind, "status": job.status,
             "attempts": job.attempts, "error": job.error}
+
+
+# ------------------------------------------------- minimal platform admin
+
+def _require_staff(db: Session, request: Request) -> User:
+    user, _ = require_user(db, request)
+    if user.platform_role not in ("platform_admin", "support"):
+        raise HTTPException(404, "not found")   # don't advertise the surface
+    return user
+
+
+@router.get("/api/platform/admin/overview")
+def admin_overview(request: Request, db: Session = Depends(get_db)):
+    _require_staff(db, request)
+    def count(model):
+        return db.execute(select(func.count()).select_from(model)).scalar_one()
+    from rk3.platform.models import AuditEvent, SessionRecord
+    return {
+        "users": count(User), "workspaces": count(Workspace),
+        "projects": count(Project), "documents": count(Document),
+        "jobs": {s: db.execute(select(func.count()).select_from(Job)
+                               .where(Job.status == s)).scalar_one()
+                 for s in ("queued", "running", "succeeded", "failed")},
+        "sessions": count(SessionRecord), "auditEvents": count(AuditEvent),
+    }
+
+
+@router.get("/api/platform/admin/audit")
+def admin_audit(request: Request, limit: int = 100, db: Session = Depends(get_db)):
+    _require_staff(db, request)
+    from rk3.platform.models import AuditEvent
+    rows = db.execute(select(AuditEvent).order_by(AuditEvent.at.desc())
+                      .limit(min(limit, 500))).scalars().all()
+    return [{"at": e.at.isoformat(), "action": e.action,
+             "actor": str(e.actor_user_id) if e.actor_user_id else None,
+             "workspace": str(e.workspace_id) if e.workspace_id else None,
+             "target": f"{e.target_type}:{e.target_id}" if e.target_type else None,
+             "data": e.data} for e in rows]
+
+
+@router.get("/api/platform/admin/jobs")
+def admin_jobs(request: Request, status: str = "", limit: int = 100,
+               db: Session = Depends(get_db)):
+    _require_staff(db, request)
+    q = select(Job).order_by(Job.created_at.desc()).limit(min(limit, 500))
+    if status:
+        q = q.where(Job.status == status)
+    rows = db.execute(q).scalars().all()
+    return [{"id": str(j.id), "kind": j.kind, "status": j.status,
+             "attempts": j.attempts, "error": j.error[:200],
+             "createdAt": j.created_at.isoformat()} for j in rows]
 
 
 # --------------------------------------------------- private artifact serving
