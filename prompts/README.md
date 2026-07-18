@@ -22,6 +22,12 @@ the next call — no restart needed.
 | `landing-copy.system.md` | `rk3.landing.ai` | Landing Page Maker: writes concise landing-page copy from the document (no invented facts). |
 | `landing-analyze.system.md` | `rk3.landing.ai` | Landing Page Maker: identifies which existing section is the document's intro/executive summary. |
 | `landing-findings.system.md` | `rk3.landing.ai` | Landing Page Maker: extracts quantified key findings from the document. |
+| `social-openai-reformat.md` | `rk3.social_post` | Direct GPT Image edit: recompose the vertical cover as a horizontal social post. |
+| `social-gemini-reformat.md` | `rk3.social_post` | Direct Gemini image edit: one-shot recompose of the cover as a 16:9 social post. |
+| `social-cover.user.md` | `rk3.social_post` | Shared image-attached user instruction for the OpenAI and Claude analysis paths. |
+| `social-claude-reformat.system.md` | `rk3.social_post` | Claude art direction passed to GPT Image for the Claude-directed reformat path. |
+| `social-openai-rebuild.system.md` | `rk3.social_post` | OpenAI vision-to-SVG reconstruction prompt. |
+| `social-claude-rebuild.system.md` | `rk3.social_post` | Claude vision-to-SVG reconstruction prompt. |
 | `patterns/vet-candidates.system.md` | `patterns.vet` | Pattern worktrack: asks an LLM to review deterministic pattern candidates and explain accepts/rejects/wrong-type calls. |
 | `patterns/scan-document.system.md` | `patterns.scan` | Pattern worktrack: asks an LLM to independently scan document excerpts for Landing Page-relevant signals: statistics, impact statements, funding events, quotations, key findings, and recommendations. |
 

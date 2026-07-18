@@ -73,6 +73,11 @@ export const setBatchExcluded = (slug, exclude) =>
 // read-only TOC ⇔ headings reconciliation (diagnostic)
 export const getTocCompare = (slug) => fetch(`/api/toc-compare/${slug}`).then(json);
 
+export const getSocialPost = (slug) =>
+  fetch(`/api/social-post/${slug}`, { cache: "no-store" }).then(json);
+export const generateSocialPost = (slug, mode) =>
+  fetch(`/api/social-post/${slug}/${mode}`, { method: "POST" }).then(json);
+
 // vision-QA reviewer: run it over pages → issues land in the feedback queue
 export const runVisionQa = (slug, pages) =>
   fetch(`/api/qa/${slug}/run`, {

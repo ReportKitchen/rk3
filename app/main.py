@@ -32,6 +32,9 @@ from rk3.landing.ai import (
     find_findings, find_intro_section, generate_landing_ai, generate_summary_variant)
 from rk3.landing.extract import build_default_theme, theme_from_scan
 from rk3.landing.templates import ARCHETYPE_LABELS, block_defaults, build_config
+from rk3.social_post import (MODES as SOCIAL_POST_MODES,
+                             all_status as social_post_status,
+                             start_generation as start_social_post)
 
 ROOT = Path(__file__).resolve().parent.parent
 FEEDBACK = ROOT / "feedback"
@@ -317,6 +320,31 @@ def get_toc_compare(slug: str):
         return toc_compare(slug)
     except FileNotFoundError:
         raise HTTPException(404, "no output for this document")
+
+
+@app.get("/api/social-post/{slug}")
+def get_social_post(slug: str, response: Response):
+    """The experimental cover-to-social pathways and their saved results."""
+    response.headers["Cache-Control"] = "no-store"
+    if source_for_slug(slug) is None:
+        raise HTTPException(404, f"unknown document {slug!r}")
+    return social_post_status(slug)
+
+
+@app.post("/api/social-post/{slug}/{mode}", status_code=202)
+def generate_social_post(slug: str, mode: str):
+    """Regenerate one cell; the previous successful image stays until replaced."""
+    if source_for_slug(slug) is None:
+        raise HTTPException(404, f"unknown document {slug!r}")
+    if mode not in SOCIAL_POST_MODES:
+        raise HTTPException(404, f"unknown social-post mode {mode!r}")
+    try:
+        started = start_social_post(slug, mode)
+    except FileNotFoundError as exc:
+        raise HTTPException(404, str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(503, str(exc)) from exc
+    return {"started": started, **social_post_status(slug)}
 
 
 @app.post("/api/convert/{slug}")

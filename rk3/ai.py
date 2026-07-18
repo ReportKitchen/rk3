@@ -18,6 +18,24 @@ ROOT = Path(__file__).resolve().parent.parent
 _PRICING = {"claude-opus-4-8": (5.0, 25.0), "claude-opus-4-7": (5.0, 25.0),
             "claude-sonnet-4-6": (3.0, 15.0), "claude-haiku-4-5": (1.0, 5.0)}
 
+# Public standard API rates per 1M tokens, checked 2026-07-18.  These estimates
+# deliberately exclude private discounts, priority processing, and regional
+# uplifts. Sources:
+#   https://developers.openai.com/api/docs/pricing
+#   https://platform.claude.com/docs/en/about-claude/pricing
+_OPENAI_TEXT_PRICING = {
+    "gpt-5.6": (5.0, 0.50, 30.0),
+    "gpt-5.6-sol": (5.0, 0.50, 30.0),
+}
+_OPENAI_IMAGE_PRICING = {
+    # text input, image input, cached image input, image output
+    "gpt-image-2": (5.0, 8.0, 2.0, 30.0),
+}
+_GOOGLE_IMAGE_PRICING = {
+    # input, text/thinking output, image output
+    "gemini-3.1-flash-image": (0.50, 3.0, 60.0),
+}
+
 
 def _record_usage(model, usage):
     """Append per-call token usage + estimated cost to logs/api-usage.jsonl."""
@@ -34,6 +52,74 @@ def _record_usage(model, usage):
             f.write(json.dumps(rec) + "\n")
     except Exception:
         pass  # usage logging must never break a conversion
+
+
+def call_usage(provider: str, model: str, kind: str, usage,
+               request_id: str | None = None) -> dict:
+    """Normalize one provider response's usage and estimate its USD cost."""
+    if usage is None:
+        return {
+            "provider": provider,
+            "model": model,
+            "kind": kind,
+            "requestId": request_id,
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "details": {},
+            "costUsd": None,
+        }
+    input_tokens = int(getattr(usage, "input_tokens", 0) or 0)
+    output_tokens = int(getattr(usage, "output_tokens", 0) or 0)
+    details: dict[str, int] = {}
+    cost = None
+
+    if provider == "openai" and kind == "image_edit":
+        inp = getattr(usage, "input_tokens_details", None)
+        out = getattr(usage, "output_tokens_details", None)
+        text_in = int(getattr(inp, "text_tokens", 0) or 0)
+        image_in = int(getattr(inp, "image_tokens", 0) or 0)
+        image_out = int(getattr(out, "image_tokens", output_tokens) or 0)
+        details = {"textInput": text_in, "imageInput": image_in,
+                   "imageOutput": image_out}
+        rates = _OPENAI_IMAGE_PRICING.get(model)
+        if rates:
+            text_rate, image_rate, _cached_rate, output_rate = rates
+            cost = (text_in * text_rate + image_in * image_rate
+                    + image_out * output_rate) / 1_000_000
+    elif provider == "openai":
+        inp = getattr(usage, "input_tokens_details", None)
+        cached = int(getattr(inp, "cached_tokens", 0) or 0)
+        details = {"cachedInput": cached}
+        rates = _OPENAI_TEXT_PRICING.get(model)
+        if rates:
+            input_rate, cached_rate, output_rate = rates
+            cost = ((input_tokens - cached) * input_rate
+                    + cached * cached_rate
+                    + output_tokens * output_rate) / 1_000_000
+    elif provider == "anthropic":
+        cache_read = int(getattr(usage, "cache_read_input_tokens", 0) or 0)
+        cache_write = int(getattr(usage, "cache_creation_input_tokens", 0) or 0)
+        details = {"cacheReadInput": cache_read, "cacheWriteInput": cache_write}
+        rates = _PRICING.get(model)
+        if rates:
+            input_rate, output_rate = rates
+            # Social-post calls do not enable caching.  Include cache fields
+            # defensively using the normal 0.1x read / 1.25x 5m-write rates.
+            cost = (input_tokens * input_rate
+                    + cache_read * input_rate * 0.1
+                    + cache_write * input_rate * 1.25
+                    + output_tokens * output_rate) / 1_000_000
+
+    return {
+        "provider": provider,
+        "model": model,
+        "kind": kind,
+        "requestId": request_id,
+        "inputTokens": input_tokens,
+        "outputTokens": output_tokens,
+        "details": details,
+        "costUsd": round(cost, 6) if cost is not None else None,
+    }
 
 
 def usage_summary():
@@ -206,6 +292,193 @@ def vision_json(system: str, user: str, image_paths, schema: dict,
         except (json.JSONDecodeError, ValueError) as e:
             last_err = e
     raise last_err
+
+
+def vision_text(system: str, user: str, image_path, *, provider: str,
+                model: str, max_tokens: int = 12000) -> tuple[str, dict]:
+    """Ask one provider to inspect a PNG and return free-form text.
+
+    This is the provider chokepoint for outputs such as an art-direction brief
+    or SVG source, where a JSON schema would only add escaping and truncation
+    risk.  Prompts remain the caller's responsibility and must come from the
+    prompt registry.
+    """
+    import base64
+
+    image_path = Path(image_path)
+    encoded = base64.b64encode(image_path.read_bytes()).decode("ascii")
+    if provider == "anthropic":
+        import anthropic
+
+        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+        resp = client.messages.create(
+            model=model,
+            max_tokens=max_tokens,
+            system=system,
+            messages=[{"role": "user", "content": [
+                {"type": "image", "source": {
+                    "type": "base64", "media_type": "image/png",
+                    "data": encoded}},
+                {"type": "text", "text": user},
+            ]}],
+        )
+        _record_usage(model, resp.usage)
+        text = "\n".join(
+            block.text for block in resp.content if block.type == "text")
+        usage_record = call_usage(
+            provider, model, "vision_text", resp.usage,
+            getattr(resp, "_request_id", None))
+    elif provider == "openai":
+        from openai import OpenAI
+
+        client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+        resp = client.responses.create(
+            model=model,
+            instructions=system,
+            input=[{"role": "user", "content": [
+                {"type": "input_text", "text": user},
+                {"type": "input_image",
+                 "image_url": f"data:image/png;base64,{encoded}",
+                 "detail": "high"},
+            ]}],
+            max_output_tokens=max_tokens,
+        )
+        text = resp.output_text or ""
+        usage_record = call_usage(
+            provider, model, "vision_text", resp.usage,
+            getattr(resp, "_request_id", None))
+    else:
+        raise ValueError(f"unsupported vision-text provider {provider!r}")
+    text = text.strip()
+    if not text:
+        raise RuntimeError(f"{provider} vision response was empty")
+    return text, usage_record
+
+
+def edit_image(prompt: str, image_path, *, model: str, size: str,
+               quality: str = "medium") -> tuple[bytes, dict]:
+    """Edit one image with OpenAI's Image API and return the PNG bytes."""
+    import base64
+    from openai import OpenAI
+
+    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    with Path(image_path).open("rb") as image:
+        resp = client.images.edit(
+            model=model,
+            image=image,
+            prompt=prompt,
+            size=size,
+            quality=quality,
+            output_format="png",
+        )
+    encoded = resp.data[0].b64_json
+    if not encoded:
+        raise RuntimeError("OpenAI image edit returned no image data")
+    usage_record = call_usage(
+        "openai", model, "image_edit", resp.usage,
+        getattr(resp, "_request_id", None))
+    return base64.b64decode(encoded), usage_record
+
+
+def _modality_tokens(usage: dict, field: str) -> dict[str, int]:
+    return {
+        str(item.get("modality", "")).lower(): int(item.get("tokens", 0) or 0)
+        for item in usage.get(field, [])
+        if isinstance(item, dict)
+    }
+
+
+def gemini_call_usage(response: dict, model: str) -> dict:
+    """Normalize Gemini Interactions usage and estimate standard-tier cost."""
+    usage = response.get("usage") or {}
+    input_by = _modality_tokens(usage, "input_tokens_by_modality")
+    output_by = _modality_tokens(usage, "output_tokens_by_modality")
+    input_tokens = int(usage.get("total_input_tokens", 0) or 0)
+    output_tokens = int(usage.get("total_output_tokens", 0) or 0)
+    thought_tokens = int(usage.get("total_thought_tokens", 0) or 0)
+    image_output = output_by.get("image", 0) if output_by else output_tokens
+    text_output = output_by.get("text", max(0, output_tokens - image_output))
+    rates = _GOOGLE_IMAGE_PRICING.get(model)
+    cost = None
+    if rates and usage:
+        input_rate, text_output_rate, image_output_rate = rates
+        cost = (input_tokens * input_rate
+                + (text_output + thought_tokens) * text_output_rate
+                + image_output * image_output_rate) / 1_000_000
+    return {
+        "provider": "google",
+        "model": model,
+        "kind": "image_edit",
+        "requestId": response.get("id"),
+        "inputTokens": input_tokens,
+        "outputTokens": output_tokens,
+        "details": {
+            "inputByModality": input_by,
+            "outputByModality": output_by,
+            "thoughtTokens": thought_tokens,
+        },
+        "costUsd": round(cost, 6) if cost is not None else None,
+    }
+
+
+def edit_image_gemini(prompt: str, image_path, *, model: str,
+                      aspect_ratio: str = "16:9",
+                      image_size: str = "1K") -> tuple[bytes, dict, str]:
+    """One-shot image edit through Google's synchronous Interactions REST API."""
+    import base64
+    import urllib.error
+    import urllib.request
+
+    encoded = base64.b64encode(Path(image_path).read_bytes()).decode("ascii")
+    payload = {
+        "model": model,
+        "input": [
+            {"type": "text", "text": prompt},
+            {"type": "image", "mime_type": "image/png", "data": encoded},
+        ],
+        "response_format": {
+            "type": "image",
+            # Gemini 3.1 Flash Image currently rejects image/png here even
+            # though some Interactions API examples show it.  PIL decodes the
+            # returned JPEG and the social-post pipeline still saves PNG.
+            "mime_type": "image/jpeg",
+            "aspect_ratio": aspect_ratio,
+            "image_size": image_size,
+        },
+    }
+    request = urllib.request.Request(
+        "https://generativelanguage.googleapis.com/v1beta/interactions",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "x-goog-api-key": os.environ["GOOGLE_API_KEY"],
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=300) as api_response:
+            response = json.loads(api_response.read())
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")[:2000]
+        raise RuntimeError(
+            f"Google Gemini API returned HTTP {exc.code}: {detail}") from exc
+
+    if response.get("status") != "completed":
+        raise RuntimeError(
+            f"Google Gemini interaction ended with status "
+            f"{response.get('status', 'unknown')!r}")
+    image_block = next((
+        block
+        for step in reversed(response.get("steps") or [])
+        if step.get("type") == "model_output"
+        for block in reversed(step.get("content") or [])
+        if block.get("type") == "image" and block.get("data")
+    ), None)
+    if image_block is None:
+        raise RuntimeError("Google Gemini image edit returned no image data")
+    mime_type = image_block.get("mime_type") or "application/octet-stream"
+    return (base64.b64decode(image_block["data"]),
+            gemini_call_usage(response, model), mime_type)
 
 
 def _openai_json(system, user, schema, model, provider, max_tokens) -> dict:

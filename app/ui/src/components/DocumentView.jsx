@@ -12,6 +12,7 @@ import StakesPanel from "./StakesPanel.jsx";
 import QaSurface from "./QaSurface.jsx";
 import TocCompare from "./TocCompare.jsx";
 import ReviewBoard from "./ReviewBoard.jsx";
+import SocialPost from "./SocialPost.jsx";
 
 // Puck is heavy (~90kB gzip); load the Landing Page Maker only when its tab opens
 const AssembleMaker = lazy(() => import("../landing/assemble/AssembleMaker.jsx"));
@@ -26,6 +27,7 @@ const TABS = [
   { id: "stakes", label: "Stakes" },
   { id: "toc", label: "TOC ⇔ Headings" },
   { id: "landing", label: "Landing Page" },
+  { id: "social", label: "Social Post" },
 ];
 
 // injected into the iframe while editing reading order: a translucent tint +
@@ -868,6 +870,8 @@ export default function DocumentView({
             <AssembleMaker doc={doc} />
           </Suspense>
         )}
+
+        {tab === "social" && <SocialPost doc={doc} />}
       </div>
     );
   }
