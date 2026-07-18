@@ -11,12 +11,12 @@ import { QuoteGlyph } from "./quoteGlyphs.jsx";
 
 const ident = (s) => s;
 
-export function Title({ eyebrow, title, subtitle, text }) {
+export function Title({ eyebrow, title, subtitle, text, skey }) {
   const main = title || text || ""; // text: back-compat with single-field titles
   // an emptied field collapses away — no empty tag taking space in the output
   if (!eyebrow && !main && !subtitle) return null;
   return (
-    <header className="lp-block lp-title">
+    <header className="lp-block lp-title" data-skey={skey || undefined}>
       {eyebrow ? <p className="lp-eyebrow">{eyebrow}</p> : null}
       {main ? <h1>{main}</h1> : null}
       {subtitle ? <p className="lp-subtitle">{subtitle}</p> : null}
@@ -435,7 +435,7 @@ function QuoteBlock({ quote }) {
 }
 
 export function Section({ heading, presentation, prose, bullets, cards, quote, steps, treatment,
-  cover, coverLayout, coverDownload, resolveAsset = ident, downloadHref }) {
+  cover, coverLayout, coverDownload, resolveAsset = ident, downloadHref, skey }) {
   const q = quote || {};
   const hasContent =
     (presentation === "prose" && prose) ||
@@ -458,7 +458,7 @@ export function Section({ heading, presentation, prose, bullets, cards, quote, s
     </figure>
   ) : null;
   return (
-    <section className={"lp-block lp-section" + (floatCover ? " lp-has-float" : "")} data-pres={presentation}>
+    <section className={"lp-block lp-section" + (floatCover ? " lp-has-float" : "")} data-pres={presentation} data-skey={skey || undefined}>
       {showHeading ? <h2>{heading}</h2> : null}
       {floatCover}
       {presentation === "prose" && (

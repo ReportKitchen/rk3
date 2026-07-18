@@ -1151,6 +1151,33 @@ def post_landing_theme(slug: str, theme: dict):
     return {"saved": True}
 
 
+@app.get("/api/landing/{slug}/assembled")
+def get_landing_assembled(slug: str):
+    """The user's assembled state for the content-first LPM (BACKLOG/45): which
+    sections are on, their presentation/treatment/order, cover layout, accent,
+    CTA config, AI-summary choice, and per-section Wordsmith text edits. Merged
+    over the (regenerable) AI section proposal on load. {} when nothing saved."""
+    path = _landing_path(slug, ".landing-assembled.json")
+    if path.exists():
+        return json.loads(path.read_text())
+    return {}
+
+
+@app.post("/api/landing/{slug}/assembled")
+def post_landing_assembled(slug: str, data: dict):
+    path = _landing_path(slug, ".landing-assembled.json")
+    path.write_text(json.dumps(data, indent=1, ensure_ascii=False))
+    # mirror the chosen accent into the theme's CSS vars so the static export
+    # (which reads .landing-theme.json) adopts it as --lp-accent
+    accent = (data or {}).get("accent")
+    if accent:
+        tpath = _landing_path(slug, ".landing-theme.json")
+        theme = json.loads(tpath.read_text()) if tpath.exists() else build_default_theme(_ir_for(slug))
+        theme.setdefault("vars", {})["--lp-accent"] = accent
+        tpath.write_text(json.dumps(theme, indent=1, ensure_ascii=False))
+    return {"saved": True}
+
+
 def _template_url(slug: str) -> str | None:
     """The client page URL to copy styles from — config.json
     'landingpage-template.url', which the owner set."""

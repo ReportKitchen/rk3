@@ -12,9 +12,12 @@ const countWords = (s) => (String(s || "").trim().match(/\S+/g) || []).length;
 // the MAIN document (not a Puck iframe) with the real block components — the AI
 // sections in their own words — made editable in place (bold / italic / lists /
 // links only). Structural changes happen back in Assemble.
-export default function Wordsmith({ slug, title, coverAsset, cover, sections, cta, ai, onBack }) {
+export default function Wordsmith({ slug, title, coverAsset, cover, sections, cta, ai, edits, onEditsChange, onBack }) {
   const editorRef = useRef(null);
   const savedRange = useRef(null);      // selection kept alive while the link popover has focus
+  const editsRef = useRef(edits);       // latest saved edits, read by the render effect w/o re-running it
+  editsRef.current = edits;
+  const captureTimer = useRef(null);
   const [words, setWords] = useState(0);
   const [bar, setBar] = useState(null); // {top,left} of the floating toolbar
   const [linkEd, setLinkEd] = useState(null); // {top,left,url,newTab} inline link editor
@@ -33,13 +36,55 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
     />
   ), [config, slug]);
 
+  // a structural signature per editable block — an edit is only re-applied while
+  // the structure it was made against is unchanged (else the fresh render wins)
+  const sigByKey = useMemo(() => {
+    const m = {};
+    for (const b of config.blocks || []) {
+      const sk = b.props?.skey;
+      if (!sk) continue;
+      m[sk] = b.type === "section"
+        ? `${b.props.presentation}|${b.props.treatment || ""}|${b.props.coverLayout || ""}`
+        : b.type;
+    }
+    return m;
+  }, [config]);
+
   const recomputeWords = useCallback(() => {
     setWords(countWords(editorRef.current?.innerText));
   }, []);
 
+  // capture the current per-section edited HTML (keyed by skey, tagged with the
+  // structural signature) and hand it up to persist
+  const captureEdits = useCallback(() => {
+    const ed = editorRef.current;
+    if (!ed || !onEditsChange) return;
+    const map = {};
+    ed.querySelectorAll("[data-skey]").forEach((el) => {
+      const sk = el.getAttribute("data-skey");
+      map[sk] = { html: el.innerHTML, sig: sigByKey[sk] };
+    });
+    onEditsChange(map);
+  }, [onEditsChange, sigByKey]);
+
+  const onInput = useCallback(() => {
+    recomputeWords();
+    clearTimeout(captureTimer.current);
+    captureTimer.current = setTimeout(captureEdits, 500);
+  }, [recomputeWords, captureEdits]);
+
   useEffect(() => {
-    if (editorRef.current) { editorRef.current.innerHTML = html; recomputeWords(); }
-  }, [html, recomputeWords]);
+    if (!editorRef.current) return;
+    editorRef.current.innerHTML = html;
+    // re-apply saved edits where the block's structure is unchanged
+    const ed = editsRef.current || {};
+    Object.entries(ed).forEach(([sk, rec]) => {
+      if (!rec || rec.sig !== sigByKey[sk]) return;
+      const el = editorRef.current.querySelector(`[data-skey="${sk}"]`);
+      if (el) el.innerHTML = rec.html;
+    });
+    recomputeWords();
+  }, [html, sigByKey, recomputeWords]);
 
   const syncBar = useCallback(() => {
     const sel = window.getSelection();
@@ -60,6 +105,7 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
     document.execCommand(cmd, false, value);
     editorRef.current?.focus();
     recomputeWords();
+    captureEdits();
   };
   // clear formatting — strip bold/italic/etc. AND any link, back to normal text
   const clearFormatting = () => {
@@ -67,6 +113,7 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
     document.execCommand("unlink", false);
     editorRef.current?.focus();
     recomputeWords();
+    captureEdits();
   };
 
   // the anchor the current selection sits inside (for editing an existing link)
@@ -108,12 +155,14 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
       else { a.removeAttribute("target"); a.removeAttribute("rel"); }
     }
     recomputeWords();
+    captureEdits();
     closeLinkEditor();
   };
   const removeLink = () => {
     restoreRange();
     document.execCommand("unlink", false);
     recomputeWords();
+    captureEdits();
     closeLinkEditor();
   };
 
@@ -151,7 +200,7 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
           ref={editorRef}
           contentEditable
           suppressContentEditableWarning
-          onInput={recomputeWords}
+          onInput={onInput}
           onMouseUp={syncBar}
           onKeyUp={syncBar}
         />

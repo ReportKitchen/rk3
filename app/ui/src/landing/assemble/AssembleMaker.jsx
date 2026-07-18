@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./assemble.css";
 import "../landingPage.css"; // block-render styles, reused by the previews + Wordsmith
-import { getBlockDefaults, getAiSummary } from "../../api.js";
+import { getBlockDefaults, getAiSummary, getAssembled, saveAssembled } from "../../api.js";
 import { loadContent, t } from "../../content.js";
 import { guard } from "../../errorBus.js";
-import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, canTrim, pickAiHeading, STAT_TREATMENT_ORDER, QUOTE_TREATMENT_ORDER, normalizeCover } from "./model.js";
+import { LENGTHS, SUMMARY_LENGTH, recommendOn, titleCase, canTrim, pickAiHeading, STAT_TREATMENT_ORDER, QUOTE_TREATMENT_ORDER, normalizeCover, assignKeys, mergeSaved, toAssembled } from "./model.js";
 import Chrome from "./Chrome.jsx";
 import WhiskLoader from "./WhiskLoader.jsx";
 import SectionLibrary from "./SectionLibrary.jsx";
@@ -47,22 +47,27 @@ export default function AssembleMaker({ doc }) {
   const [cta, setCta] = useState({ download: true, secondary: false, share: true });
   // the opt-in AI Summary — the ONE AI-written section (a pitch in a chosen voice)
   const [ai, setAi] = useState({ on: false, voice: "neutral", prose: "", loading: false, fetched: false });
+  const [edits, setEdits] = useState({});   // Wordsmith per-section text edits {skey:{html,sig}}
+  const loadedRef = useRef(false);           // gate the autosave until the first load hydrates
 
   useEffect(() => {
     let alive = true;
-    setReady(false); setError(null);
+    setReady(false); setError(null); loadedRef.current = false;
     setAi({ on: false, voice: "neutral", prose: "", loading: false, fetched: false });
     loadContent("lpm")
       .then(() => { if (alive) setBooted(true); })
       .then(() => Promise.all([
         getSections(slug).catch(guard("assemble: sections", null)),
         getBlockDefaults(slug).catch(guard("assemble: block defaults", null)),
+        getAssembled(slug).catch(() => ({})),
       ]))
-      .then(([sd, defaults]) => {
+      .then(([sd, defaults, saved]) => {
         if (!alive) return;
+        saved = saved || {};
         const art = sd?.sections || {};
         const rec = art.recommendedPage || {};
-        const len = LENGTHS.includes(rec.length) ? rec.length : "middle";
+        const len = LENGTHS.includes(saved.length) ? saved.length
+          : (LENGTHS.includes(rec.length) ? rec.length : "middle");
         const raw = art.sections || [];
         const secs = raw.map((s, i) => ({
           id: `sec-${i}`,
@@ -92,23 +97,37 @@ export default function AssembleMaker({ doc }) {
         // recommend some-on/some-off so the opening page lands in the good zone
         const on = recommendOn(secs);
         secs.forEach((s, i) => { s.on = on[i]; });
-        setSections(secs);
-        setAi((a) => ({ ...a, heading: pickAiHeading(secs) }));   // a title the doc doesn't already use
+        assignKeys(secs);                       // stable heading-slug keys, then...
+        const merged = mergeSaved(secs, saved);  // ...apply saved overrides + order
+        setSections(merged);
+        setAi((a) => ({ ...a, heading: pickAiHeading(merged),
+          on: !!saved.ai?.on, voice: saved.ai?.voice || a.voice }));
         setDocRead(art.documentRead || null);
         setNoai(!!sd?.noai);
         setGenError(sd?.error || null);
         setDefs(defaults || {});
         setLength(len);
-        setCover(normalizeCover(rec.cover));
+        setCover(saved.cover ? normalizeCover(saved.cover) : normalizeCover(rec.cover));
+        if (saved.accent) setAccent(saved.accent);
+        setEdits(saved.edits || {});
         setCta({
           download: true, secondary: false, share: true,
           downloadLabel: defaults?.download?.label || "", downloadUrl: "",
           secondaryLabel: defaults?.secondaryCta?.label || "", secondaryUrl: "",
           shareNetworks: { linkedin: true, x: true, link: true },
           shareStyle: "plain",
+          ...(saved.cta || {}),
         });
+        // if the AI summary was saved on, warm its prose so Wordsmith can render it
+        if (saved.ai?.on) {
+          getAiSummary(slug, saved.ai.voice || "neutral", SUMMARY_LENGTH[len] || "medium")
+            .then((text) => { if (alive) setAi((a) => ({ ...a, loading: false, fetched: true,
+              prose: text ? text.split(/\n\n+/).map((p) => `<p>${p.trim()}</p>`).join("") : "" })); })
+            .catch(() => {});
+        }
         setSel(null);   // open on the friendly welcome panel
         setReady(true);
+        loadedRef.current = true;   // hydration done — autosave may run now
       })
       .catch((e) => { if (alive) { setError(e); setReady(true); } });
     return () => { alive = false; };
@@ -181,6 +200,22 @@ export default function AssembleMaker({ doc }) {
       .catch(() => setAi((a) => ({ ...a, loading: false, fetched: true })));
   }, [slug, length]);
 
+  // Wordsmith hands back per-section text edits (whole map each time)
+  const onEditsChange = useCallback((map) => setEdits(map), []);
+
+  // Autosave the assembled state next to the source (debounced), once hydrated.
+  // toAssembled only serializes ai.on/voice, so the ai-prose/loading churn during
+  // a voice fetch doesn't need to be a dependency here.
+  useEffect(() => {
+    if (!loadedRef.current) return undefined;
+    const id = setTimeout(() => {
+      saveAssembled(slug, toAssembled({ sections, cover, accent, length, cta, ai, edits }))
+        .catch(guard("assemble: save", null));
+    }, 700);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug, sections, cover, accent, length, cta, ai.on, ai.voice, edits]);
+
   const title = defs?.title || null;
   const coverAsset = defs?.cover || null;
 
@@ -202,7 +237,8 @@ export default function AssembleMaker({ doc }) {
       {mode === "wordsmith" ? (
         <Wordsmith
           slug={slug} title={title} coverAsset={coverAsset} cover={cover}
-          sections={sections} cta={cta} ai={ai} onBack={() => setMode("assemble")}
+          sections={sections} cta={cta} ai={ai} edits={edits} onEditsChange={onEditsChange}
+          onBack={() => setMode("assemble")}
         />
       ) : (
         <div className="asm-grid">

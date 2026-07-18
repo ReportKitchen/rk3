@@ -155,6 +155,13 @@ export const getLandingTemplate = (slug, archetype) =>
   fetch(`/api/landing/${slug}/template/${archetype}`).then(json);
 export const getBlockDefaults = (slug) =>
   fetch(`/api/landing/${slug}/block-defaults`).then(json);
+// the user's assembled state (section on/off + presentation + order, cover,
+// accent, cta, ai choice, Wordsmith edits) — persisted next to the source
+export const getAssembled = (slug) => fetch(`/api/landing/${slug}/assembled`).then(json);
+export const saveAssembled = (slug, data) =>
+  fetch(`/api/landing/${slug}/assembled`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
+  }).then(json);
 export const getArchetypes = () => fetch(`/api/landing-archetypes`).then(json);
 export const getAiSummary = (slug, style, length) =>
   fetch(`/api/landing/${slug}/ai-summary?style=${style}&length=${length}`)

@@ -20,6 +20,63 @@ export function normalizeCover(v) {
 // page length (short/middle/long) → AI-summary length axis (short/medium/long)
 export const SUMMARY_LENGTH = { short: "short", middle: "medium", long: "long" };
 
+// ---- persistence (BACKLOG/45): the assembled state saves next to the source and
+// merges back over the regenerable AI section proposal on load ----
+
+// a stable-ish key for a section: a slug of its own heading (the doc's framing),
+// so saved overrides + Wordsmith edits survive a re-analysis when the heading does
+const slugify = (s) =>
+  String(s || "").toLowerCase().replace(/<[^>]+>/g, " ").replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "").slice(0, 60) || "section";
+
+// assign each section a unique `key` (heading-slug, de-duped) — in place
+export function assignKeys(sections) {
+  const seen = {};
+  for (const s of sections) {
+    const base = slugify(s.heading);
+    seen[base] = (seen[base] || 0) + 1;
+    s.key = seen[base] > 1 ? `${base}-${seen[base]}` : base;
+  }
+  return sections;
+}
+
+// apply a saved assembled state's section overrides + order onto fresh sections
+export function mergeSaved(sections, saved) {
+  if (!saved || !saved.sections) return sections;
+  const byKey = saved.sections;
+  for (const s of sections) {
+    const o = byKey[s.key];
+    if (!o) continue;
+    if (typeof o.on === "boolean") s.on = o.on;
+    if (o.presentation) s.presentation = o.presentation;
+    if ("treatment" in o) s.treatment = o.treatment;
+    if (typeof o.trimmed === "boolean") s.trimmed = o.trimmed;
+    if (o.quoteTreatment) s.quote = { ...s.quote, treatment: o.quoteTreatment };
+  }
+  if (Array.isArray(saved.order) && saved.order.length) {
+    const rank = new Map(saved.order.map((k, i) => [k, i]));
+    const at = (s) => (rank.has(s.key) ? rank.get(s.key) : Infinity);
+    sections = sections.slice().sort((a, b) => at(a) - at(b));  // stable; new sections trail
+  }
+  return sections;
+}
+
+// the full assembled payload to persist
+export function toAssembled({ sections, cover, accent, length, cta, ai, edits }) {
+  const secOut = {};
+  for (const s of sections) {
+    secOut[s.key] = {
+      on: !!s.on, presentation: s.presentation, treatment: s.treatment ?? null,
+      trimmed: !!s.trimmed, quoteTreatment: s.quote?.treatment || null,
+    };
+  }
+  return {
+    version: 1, cover, accent, length,
+    cta, ai: { on: !!ai?.on, voice: ai?.voice || "neutral" },
+    order: sections.map((s) => s.key), sections: secOut, edits: edits || {},
+  };
+}
+
 // The AI Summary needs a natural page heading (the exec summary has the doc's own
 // title; this one is ours). Pick an intro word the document doesn't already use.
 const AI_HEADING_CANDIDATES = ["Summary", "Introduction", "Overview", "About"];
@@ -192,20 +249,22 @@ export function buildSectionConfig({ title, cover, sections, cta, ai }) {
     ? { label: cta.downloadLabel || "", mode: cta.downloadUrl ? "url" : "bundle", url: cta.downloadUrl || "" }
     : null;
 
-  const head = hasTitle ? [{ type: "title", id: "title", props: title }] : [];
+  const head = hasTitle ? [{ type: "title", id: "title", props: { ...title, skey: "__title__" } }] : [];
 
-  // ordered content: the opt-in AI Summary leads, then the on-sections
+  // ordered content: the opt-in AI Summary leads, then the on-sections. `skey` is
+  // the stable per-block key Wordsmith uses to store/re-apply text edits.
   const content = [];
   if (ai && ai.on && ai.prose) {
     content.push({ type: "section", id: "ai-summary",
       props: { heading: ai.heading || "", presentation: "prose", prose: ai.prose,
-               bullets: [], cards: [], quote: {}, steps: [] } });
+               bullets: [], cards: [], quote: {}, steps: [], skey: "__ai__" } });
   }
   for (const s of sections) {
     if (!s.on) continue;
     content.push({ type: "section", id: s.id, props: {
       heading: s.heading, presentation: s.presentation, prose: effectiveProse(s),
-      bullets: s.bullets, cards: s.cards, quote: s.quote, steps: s.steps, treatment: s.treatment } });
+      bullets: s.bullets, cards: s.cards, quote: s.quote, steps: s.steps, treatment: s.treatment,
+      skey: s.key } });
   }
   // the "first summary" = the first prose block (else the first block of any kind)
   let sumIdx = content.findIndex((b) => b.props.presentation === "prose");
