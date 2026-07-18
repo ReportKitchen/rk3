@@ -31,9 +31,11 @@ function collectImages(blocks, used = new Set()) {
 // No data-URIs, no references back to our server. Renders through the same
 // finalHtml builder as the Publish preview, so the download matches what was
 // shown. `socialUrl` (the generated social graphic, when the user picked it as
-// the share image) is bundled and becomes the og:/twitter: preview image.
-export async function exportZip(slug, { config, edits, accent, docName, socialUrl }) {
+// the share image) is bundled and becomes the og:/twitter: preview image;
+// `socialDocx` (a Blob) is the optional social-posts Word file.
+export async function exportZip(slug, { config, edits, accent, docName, socialUrl, socialDocx }) {
   const zip = new JSZip();
+  if (socialDocx) zip.file("social-posts.docx", socialDocx);
 
   // bundle the PDF only when a download button actually points at the bundled
   // file (not when the user hosts it at their own URL)

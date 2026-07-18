@@ -64,7 +64,7 @@ _SECTION = {
 
 SCHEMA = {
     "type": "object", "additionalProperties": False,
-    "required": ["documentRead", "recommendedPage", "sections"],
+    "required": ["documentRead", "recommendedPage", "sections", "socialPosts"],
     "properties": {
         "documentRead": {"type": "object", "additionalProperties": False,
                          "required": ["whatItIs", "audience", "coreMessage"],
@@ -74,6 +74,9 @@ SCHEMA = {
                             "properties": {"length": {"type": "string", "enum": ["short", "middle", "long"]},
                                            "cover": {"type": "string", "enum": ["onTop", "beside", "inset", "textForward"]}}},
         "sections": {"type": "array", "items": _SECTION},
+        # four ready-to-paste promotional posts (one per week for a month) —
+        # the ONE AI-written promo surface; grounded in the doc, not verbatim
+        "socialPosts": {"type": "array", "items": {"type": "string"}},
     },
 }
 
@@ -138,6 +141,7 @@ def fallback(ir: dict) -> dict:
             "documentRead": {"whatItIs": prof.get("title", ""), "audience": "", "coreMessage": ""},
             "recommendedPage": {"length": "middle", "cover": "beside"},
             "sections": sections,
+            "socialPosts": [],   # promo copy is AI-written; none without AI
         },
         "noai": True,
     }

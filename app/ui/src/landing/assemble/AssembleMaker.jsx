@@ -52,6 +52,8 @@ export default function AssembleMaker({ doc }) {
   const [ai, setAi] = useState({ on: false, voice: "neutral", prose: "", loading: false, fetched: false });
   const [edits, setEdits] = useState({});   // Wordsmith per-section text edits {skey:{html,sig}}
   const [shareImage, setShareImage] = useState("cover");  // og:/twitter: preview: cover | social
+  const [socialPosts, setSocialPosts] = useState([]);     // 4 suggested posts (sections pass)
+  const [socialDoc, setSocialDoc] = useState(false);      // bundle posts .docx in the zip
   const loadedRef = useRef(false);           // gate the autosave until the first load hydrates
 
   useEffect(() => {
@@ -107,6 +109,7 @@ export default function AssembleMaker({ doc }) {
         setAi((a) => ({ ...a, heading: pickAiHeading(merged),
           on: !!saved.ai?.on, voice: saved.ai?.voice || a.voice }));
         setDocRead(art.documentRead || null);
+        setSocialPosts(Array.isArray(art.socialPosts) ? art.socialPosts : []);
         setNoai(!!sd?.noai);
         setGenError(sd?.error || null);
         setDefs(defaults || {});
@@ -114,6 +117,7 @@ export default function AssembleMaker({ doc }) {
         setCover(saved.cover ? normalizeCover(saved.cover) : normalizeCover(rec.cover));
         if (saved.accent) setAccent(saved.accent);
         if (saved.shareImage) setShareImage(saved.shareImage);
+        setSocialDoc(!!saved.socialDoc);
         setEdits(saved.edits || {});
         setCta({
           download: true, secondary: false, share: true, order: CTA_KEYS,
@@ -231,12 +235,12 @@ export default function AssembleMaker({ doc }) {
   useEffect(() => {
     if (!loadedRef.current) return undefined;
     const id = setTimeout(() => {
-      saveAssembled(slug, toAssembled({ sections, cover, accent, length, cta, ai, edits, shareImage }))
+      saveAssembled(slug, toAssembled({ sections, cover, accent, length, cta, ai, edits, shareImage, socialDoc }))
         .catch(guard("assemble: save", null));
     }, 700);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, sections, cover, accent, length, cta, ai.on, ai.voice, edits, shareImage]);
+  }, [slug, sections, cover, accent, length, cta, ai.on, ai.voice, edits, shareImage, socialDoc]);
 
   const showBootLoader = useDelayed(!ready);
   const title = defs?.title || null;
@@ -265,7 +269,9 @@ export default function AssembleMaker({ doc }) {
         <Publish
           slug={slug} docName={doc.name || slug} title={title} coverAsset={coverAsset}
           cover={cover} accent={accent} sections={sections} cta={cta} ai={ai} edits={edits}
-          noai={noai} shareImage={shareImage} onShareImage={setShareImage}
+          noai={noai} socialPosts={socialPosts}
+          shareImage={shareImage} onShareImage={setShareImage}
+          socialDoc={socialDoc} onSocialDoc={setSocialDoc}
           onBack={() => setMode("wordsmith")}
         />
       ) : mode === "wordsmith" ? (

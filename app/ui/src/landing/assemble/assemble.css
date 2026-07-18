@@ -728,17 +728,30 @@
     repeating-linear-gradient(90deg, transparent 0 27px, rgba(48, 61, 97, 0.05) 27px 28px),
     var(--rk-paper);
 }
-.asm-pub-stage { flex: 1; min-width: 0; height: 100%; display: flex; justify-content: center; }
-/* a clean window onto the page — the iframe scrolls inside it, like a browser */
+.asm-pub-stage { flex: 1; min-width: 0; height: 100%; display: flex; justify-content: center; overflow: hidden; }
+/* a clean window onto the page — the iframe scrolls inside it, like a browser.
+   The frame keeps its TRUE layout width (width/height/transform set inline from
+   the measured stage) and ZOOMS to fit: focusing the cards scales the page down,
+   it never reflows. */
 .asm-pub-frame {
-  width: min(100%, 1060px); height: 100%;
   background: #fff; border: 1px solid var(--rk-border);
   border-radius: var(--rk-radius-sm); box-shadow: var(--rk-shadow-md);
-  overflow: hidden;
-  transition: width 260ms var(--rk-ease-out);
+  overflow: hidden; flex: none;
+  transform-origin: top center;
+  transition: transform 260ms var(--rk-ease-out);
 }
-.asm-pub-frame.is-mobile { width: 393px; }
 .asm-pub-iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+/* the focus handle between the page and the rail */
+.asm-pub-handle {
+  flex: none; align-self: center;
+  width: 24px; height: 64px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--rk-white); border: 1px solid var(--rk-border-strong);
+  border-radius: var(--rk-radius-pill); box-shadow: var(--rk-shadow-sm);
+  color: var(--rk-rhino-500); cursor: pointer; padding: 0;
+}
+.asm-pub-handle:hover { background: var(--rk-gray-100); color: var(--rk-rhino-900); }
 
 /* desktop / mobile toggle at the bar's right end */
 .asm-pub-devices {
@@ -754,44 +767,37 @@
 }
 .asm-pub-device.is-on { background: var(--rk-white); color: var(--rk-rhino-900); box-shadow: var(--rk-shadow-sm); }
 
-/* the right rail: social graphic + download cards. Expanding the social
-   graphic widens the whole rail; the page frame gives up the space. */
+/* the right rail: social graphic + posts + download cards. The focus handle
+   widens the whole rail; cards stay 100% and just get roomier. */
 .asm-pub-rail {
   flex: none; width: 240px; display: flex; flex-direction: column; gap: 16px;
+  max-height: 100%; overflow-y: auto;
   transition: width 260ms var(--rk-ease-out);
 }
-.asm-pub-rail.is-wide { width: 460px; }
+.asm-pub-rail.is-wide { width: 480px; }
 .asm-pub-card {
   background: var(--rk-macaroni-100); border: 1px solid var(--rk-macaroni-300);
   border-radius: var(--rk-radius-md); box-shadow: var(--rk-shadow-sm);
   padding: 15px 17px; color: var(--rk-rhino-800);
 }
-.asm-pub-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
-.asm-pub-card-head .asm-pub-card-title { margin-bottom: 0; }
 .asm-pub-card-title {
   display: block;
   font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
   color: var(--rk-rhino-500); margin-bottom: 6px;
 }
 .asm-pub-card-body { margin: 0 0 12px; font-size: 13px; line-height: 1.55; }
+/* auto width on purpose — a rail-wide button reads oddly long in narrow mode */
 .asm-pub-dl {
-  display: inline-flex; width: 100%; justify-content: center; align-items: center; gap: 8px;
+  display: inline-flex; justify-content: center; align-items: center; gap: 8px;
   font-family: inherit; font-size: 13px; font-weight: 700; color: #fff;
   background: var(--rk-rhino-700); border: 0; border-radius: var(--rk-radius-sm);
-  padding: 9px 14px; cursor: pointer;
+  padding: 9px 18px; cursor: pointer;
 }
 .asm-pub-dl:hover { background: var(--rk-rhino-900); }
 .asm-pub-dl:disabled { opacity: 0.6; cursor: default; }
 .asm-pub-card-hint { margin: 10px 0 0; font-size: 12px; line-height: 1.5; color: var(--rk-rhino-700); }
 
 /* social graphic card */
-.asm-pub-expand {
-  display: inline-flex; align-items: center; gap: 5px;
-  border: 0; background: none; padding: 2px 4px; cursor: pointer; font-family: inherit;
-  font-size: 11.5px; font-weight: 700; color: var(--rk-rhino-700);
-  border-radius: var(--rk-radius-xs);
-}
-.asm-pub-expand:hover { background: var(--rk-macaroni-300); }
 .asm-pub-social-img {
   display: block; width: 100%; height: auto; margin: 0 0 10px;
   border: 1px solid var(--rk-border-strong); border-radius: var(--rk-radius-xs);
@@ -807,30 +813,70 @@
 .asm-pub-social-cooking p {
   margin: 0; font-size: 12px; line-height: 1.5; text-align: center; color: var(--rk-rhino-700);
 }
-/* the share-image choice */
+/* the share-image choice — segmented control at its own width, not the rail's */
 .asm-pub-share { border-top: 1px dashed var(--rk-macaroni-300); padding-top: 11px; }
 .asm-pub-share-label {
   display: block; font-size: 11.5px; font-weight: 700; letter-spacing: 0.05em;
   text-transform: uppercase; color: var(--rk-rhino-500); margin-bottom: 7px;
 }
 .asm-pub-seg {
-  display: flex; gap: 2px; background: rgba(255, 255, 255, 0.7);
+  display: inline-flex; gap: 2px; background: rgba(255, 255, 255, 0.7);
   border: 1px solid var(--rk-macaroni-300); border-radius: var(--rk-radius-pill); padding: 3px;
 }
 .asm-pub-seg-opt {
-  flex: 1; border: 0; background: transparent; font-family: inherit;
+  border: 0; background: transparent; font-family: inherit;
   font-size: 12px; font-weight: 700; color: var(--rk-text-muted);
-  padding: 4px 10px; border-radius: var(--rk-radius-pill); cursor: pointer; white-space: nowrap;
+  padding: 4px 12px; border-radius: var(--rk-radius-pill); cursor: pointer; white-space: nowrap;
 }
 .asm-pub-seg-opt.is-on { background: var(--rk-rhino-700); color: #fff; }
 .asm-pub-seg-opt:disabled { opacity: 0.5; cursor: default; }
 .asm-pub-share-hint { margin: 8px 0 0; font-size: 11.5px; line-height: 1.5; color: var(--rk-rhino-700); }
 
-/* narrow windows: the rail moves above the frame, full width */
+/* social posts card: full posts in wide mode… */
+.asm-pub-posts { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
+.asm-pub-post {
+  background: rgba(255, 255, 255, 0.7); border: 1px solid var(--rk-macaroni-300);
+  border-radius: var(--rk-radius-sm); padding: 10px 12px;
+}
+.asm-pub-post-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+.asm-pub-post-week {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--rk-rhino-500);
+}
+.asm-pub-copy {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 0; background: none; padding: 2px 6px; cursor: pointer; font-family: inherit;
+  font-size: 11.5px; font-weight: 700; color: var(--rk-rhino-700);
+  border-radius: var(--rk-radius-xs);
+}
+.asm-pub-copy:hover { background: var(--rk-macaroni-100); }
+.asm-pub-post-text { margin: 0; font-size: 13px; line-height: 1.55; color: var(--rk-rhino-900); }
+/* …and a fading taste of them in narrow mode (click to expand) */
+.asm-pub-posts-teaser {
+  display: block; width: 100%; text-align: left; border: 0; background: none;
+  padding: 0; margin: 0 0 2px; cursor: pointer; font-family: inherit;
+}
+.asm-pub-teaser-text {
+  display: block; font-size: 12.5px; line-height: 1.55; color: var(--rk-rhino-900);
+  max-height: 60px; overflow: hidden;
+  -webkit-mask-image: linear-gradient(#000 40%, transparent);
+  mask-image: linear-gradient(#000 40%, transparent);
+}
+.asm-pub-teaser-more {
+  display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;
+  font-size: 12px; font-weight: 700; color: var(--rk-rhino-700); text-decoration: underline;
+}
+.asm-pub-docopt {
+  display: flex; align-items: flex-start; gap: 7px; margin: 0 0 4px;
+  font-size: 12.5px; line-height: 1.45; color: var(--rk-rhino-900); cursor: pointer;
+}
+.asm-pub-docopt input { margin: 2px 0 0; cursor: pointer; }
+
+/* narrow windows: the rail moves above the frame, full width; no focus handle */
 @media (max-width: 1120px) {
   .asm-pub-canvas { flex-direction: column; align-items: center; }
-  .asm-pub-rail { order: -1; width: 100%; max-width: 720px; }
+  .asm-pub-handle { display: none; }
+  .asm-pub-rail { order: -1; width: 100%; max-width: 720px; max-height: none; overflow: visible; }
   .asm-pub-rail.is-wide { width: 100%; }
   .asm-pub-stage { width: 100%; flex: 1; min-height: 0; height: auto; align-self: stretch; }
-  .asm-pub-frame { height: 100%; }
 }

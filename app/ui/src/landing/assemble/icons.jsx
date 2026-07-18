@@ -108,17 +108,17 @@ const ICONS = {
     ["rect", { width: "14", height: "20", x: "5", y: "2", rx: "2", ry: "2" }],
     ["path", { d: "M12 18h.01" }],
   ],
-  "maximize-2": [
-    ["polyline", { points: "15 3 21 3 21 9" }],
-    ["polyline", { points: "9 21 3 21 3 15" }],
-    ["line", { x1: "21", x2: "14", y1: "3", y2: "10" }],
-    ["line", { x1: "3", x2: "10", y1: "21", y2: "14" }],
+  "chevrons-left": [
+    ["path", { d: "m11 17-5-5 5-5" }],
+    ["path", { d: "m18 17-5-5 5-5" }],
   ],
-  "minimize-2": [
-    ["polyline", { points: "4 14 10 14 10 20" }],
-    ["polyline", { points: "20 10 14 10 14 4" }],
-    ["line", { x1: "14", x2: "21", y1: "10", y2: "3" }],
-    ["line", { x1: "3", x2: "10", y1: "21", y2: "14" }],
+  "chevrons-right": [
+    ["path", { d: "m6 17 5-5-5-5" }],
+    ["path", { d: "m13 17 5-5-5-5" }],
+  ],
+  copy: [
+    ["rect", { width: "14", height: "14", x: "8", y: "8", rx: "2", ry: "2" }],
+    ["path", { d: "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" }],
   ],
   "list-bullet": [
     ["line", { x1: "8", x2: "21", y1: "6", y2: "6" }],

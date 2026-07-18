@@ -12,12 +12,19 @@ persistence (`.landing-assembled.json`) have since shipped too.
   (three-step stepper: Assemble → Wordsmith → **Publish**),
   `SectionLibrary.jsx` (left), `Inspector.jsx` (center), `Controls.jsx` (right),
   `Wordsmith.jsx` (contentEditable + floating toolbar), `Publish.jsx` (the
-  finished page in an isolated iframe srcdoc + the right rail: the **social
-  graphic card** — the PDF cover reformatted to a 1200×630 card by the
-  social-post engine's `openai-reformat` pathway, warmed in the background when
-  Assemble loads the sections, whisk-in-place while cooking, Expand widens the
-  rail — with the PDF-cover ⇄ social-graphic share-image toggle (persisted as
-  `shareImage`), plus the download card),
+  finished page in an isolated iframe srcdoc + the right-rail promotion kit:
+  the **social graphic card** — the PDF cover reformatted to a 1200×630 card by
+  the social-post engine's `openai-reformat` pathway, warmed in the background
+  when Assemble loads the sections, whisk-in-place while cooking — with the
+  PDF-cover ⇄ social-graphic share-image toggle (persisted as `shareImage`);
+  the **social posts card** — 4 weekly promo posts written by the SAME sections
+  pass (`socialPosts` in the artifact), fade-out teaser in narrow mode, full
+  text + per-post Copy + "include as Word file" checkbox (persisted
+  `socialDoc`, bundled as `social-posts.docx` via `socialDocx.js`, a minimal
+  OOXML built with JSZip) in wide mode; and the download card. The **focus
+  handle** between page and rail toggles wide mode: the rail grows 240→480px
+  and the page ZOOMS (transform scale from a measured stage width — same
+  desktop layout, smaller; never reflows)),
   `model.js`, `icons.jsx`, `assemble.css` (`asm-*` classes on `--rk-*` tokens).
 - **`app/ui/src/landing/finalHtml.js`** — the ONE final-page builder (Preview
   iframe + export zip both call it): renders the config, re-applies Wordsmith

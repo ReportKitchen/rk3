@@ -62,7 +62,7 @@ export function mergeSaved(sections, saved) {
 }
 
 // the full assembled payload to persist
-export function toAssembled({ sections, cover, accent, length, cta, ai, edits, shareImage }) {
+export function toAssembled({ sections, cover, accent, length, cta, ai, edits, shareImage, socialDoc }) {
   const secOut = {};
   for (const s of sections) {
     secOut[s.key] = {
@@ -74,6 +74,7 @@ export function toAssembled({ sections, cover, accent, length, cta, ai, edits, s
     version: 1, cover, accent, length,
     cta, ai: { on: !!ai?.on, voice: ai?.voice || "neutral" },
     shareImage: shareImage || "cover",   // og:/twitter: preview: "cover" | "social"
+    socialDoc: !!socialDoc,              // bundle the social-posts Word file in the zip
     order: sections.map((s) => s.key), sections: secOut, edits: edits || {},
   };
 }

@@ -27,6 +27,29 @@ share_image_hint:
   kind: static
   text: "Embedded in the page for social sites to pick up when someone shares the link."
 
+# the focus handle between the page and the rail
+focus_cards: {kind: static, text: "Focus the cards — the page zooms out"}
+focus_page: {kind: static, text: "Back to the page"}
+
+# the social-posts card (4 suggested posts from the sections pass)
+posts_title: {kind: static, text: "Social posts"}
+posts_blurb:
+  kind: static
+  text: "Four ready-to-paste posts drawn from your report — one a week for the next month."
+posts_week: {kind: template, text: "Week {n}", tokens: [n]}
+posts_copy: {kind: static, text: "Copy"}
+posts_copied: {kind: static, text: "Copied"}
+posts_teaser_more: {kind: static, text: "Expand to read and copy all four"}
+posts_include_doc: {kind: static, text: "Include as a Word file in the download"}
+posts_cadence_hint:
+  kind: static
+  text: "A report needs more than one launch day — post at least once a week for a month, and paste your page's link at the end of each post."
+# the Word file the checkbox bundles
+docx_title: {kind: template, text: "Social posts — {title}", tokens: [title]}
+docx_intro:
+  kind: static
+  text: "Promote your report by posting at least once a week for the next month. Paste your page's link at the end of each post."
+
 # the publish card
 publish_title: {kind: static, text: "Publish"}
 zip_bundled:
