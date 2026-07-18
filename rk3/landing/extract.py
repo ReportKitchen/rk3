@@ -364,11 +364,12 @@ def extract_pieces(ir: dict) -> dict:
     }
 
 
-_DEFAULT_FONT = "'Public Sans', system-ui, -apple-system, sans-serif"
+# system stack on purpose — no web-font dependency for the exported page
+_DEFAULT_FONT = "Helvetica, Verdana, sans-serif"
 
 
 def build_default_theme(ir: dict) -> dict:
-    """System-default look: black-on-white, Public Sans, centered 800px column.
+    """System-default look: black-on-white, system sans, centered 800px column.
 
     Page-wide values only; per-element colors live on the blocks themselves."""
     return {

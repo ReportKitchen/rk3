@@ -1,7 +1,6 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import landingCss from "./landingPage.css?raw";
-import { fontHrefForTheme } from "./fonts.js";
 import { LandingRenderer } from "./LandingRenderer.jsx";
 import { assetBase, sourceUrl } from "../api.js";
 
@@ -143,7 +142,6 @@ ${description ? `<meta name="description" content="${esc(description)}">` : ""}
 ${description ? `<meta property="og:description" content="${esc(description)}">` : ""}
 ${ogImage ? `<meta property="og:image" content="${esc(ogImage)}">
 <meta name="twitter:card" content="summary_large_image">` : ""}
-<link rel="stylesheet" href="${fontHrefForTheme(null)}">
 <style>
 ${landingCss}
 :root { --lp-accent: ${safeCssValue(accent) || "#1E3A5F"}; }

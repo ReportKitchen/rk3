@@ -365,7 +365,7 @@
 .asm-preview {
   background: #fff; border: 1px solid var(--rk-border);
   border-radius: var(--rk-radius-xs); padding: 26px 30px;
-  font-family: system-ui, "Public Sans", sans-serif; color: #111;
+  font-family: Helvetica, Verdana, sans-serif; color: #111;  /* match the page's system stack */
 }
 .asm-preview p { margin: 0; }
 .asm-pv-ai { font-size: 15px; line-height: 1.7; }

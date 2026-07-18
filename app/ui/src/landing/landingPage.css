@@ -8,7 +8,9 @@
   margin: 0;
   background: var(--lp-page-bg, #ffffff);
   color: var(--lp-text, #111);
-  font-family: var(--lp-font, system-ui, sans-serif);
+  /* system stack on purpose — no web-font dependency; the page is meant to
+     adopt the host site's styling, and this is only the standalone default */
+  font-family: var(--lp-font, Helvetica, Verdana, sans-serif);
   line-height: 1.6;
 }
 /* the page background fills the whole landing-page area; the content column

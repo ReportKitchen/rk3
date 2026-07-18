@@ -19,9 +19,11 @@ persistence (`.landing-assembled.json`) have since shipped too.
   iframe + export zip both call it): renders the config, re-applies Wordsmith
   edits (shared `editSignatures`), retargets edited asset URLs per context, and
   writes the full document head (title, meta description from the first prose
-  section, og:title/description/image + twitter card, Google-font link, inlined
-  `landingPage.css`, `--lp-accent`). `exportZip.js` builds the self-contained
-  zip (index.html + images/ + the PDF when a download is bundle-mode) on top.
+  section, og:title/description/image + twitter card, inlined `landingPage.css`,
+  `--lp-accent`). NO web font — the page uses the system stack (Helvetica,
+  Verdana, sans-serif; owner 2026-07-18: Public Sans was a pointless dependency
+  when the goal is adopting the host's styling). `exportZip.js` builds the
+  self-contained zip (index.html + images/ + the PDF when bundle-mode) on top.
 - **Mounted:** `DocumentView.jsx` lazy-imports `AssembleMaker` for `tab==="landing"`.
 - **Retired (deleted):** LandingMaker/puckConfig/LandingShell/MiniPreview/puckAdapter/
   landingOptions/blockLibrary/RichText + `@measured/puck` + `react-simple-wysiwyg` deps.
