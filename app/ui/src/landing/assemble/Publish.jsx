@@ -3,7 +3,7 @@ import { t } from "../../content.js";
 import { assetBase, sourceUrl, getSocialPost } from "../../api.js";
 import { guard } from "../../errorBus.js";
 import { buildInlineDocumentHtml, extractCmsFragment, titleOf } from "../finalHtml.js";
-import { exportZip } from "../exportZip.js";
+import { exportZip, triggerDownload } from "../exportZip.js";
 import { buildSocialDocx } from "../socialDocx.js";
 import { buildSectionConfig, SOCIAL_MODE } from "./model.js";
 import WhiskLoader from "./WhiskLoader.jsx";
@@ -83,6 +83,17 @@ export default function Publish({ slug, docName, title, coverAsset, cover, accen
     if (!fragment) return;
     navigator.clipboard?.writeText(fragment);
     flash("cms");
+  };
+
+  // the cover image as a file — the CMS fragment ships without images, so the
+  // user downloads the cover here and re-inserts it with their CMS's image tool
+  const downloadCover = () => {
+    const src = coverAsset?.src;
+    if (!src) return;
+    fetch(`${assetBase(slug)}/${src}`)
+      .then((r) => (r.ok ? r.blob() : Promise.reject(new Error(`cover fetch ${r.status}`))))
+      .then((blob) => triggerDownload(blob, `report-cover.${(src.split(".").pop() || "png").toLowerCase()}`))
+      .catch(guard("publish: cover download", null));
   };
 
   const download = () => {
@@ -203,13 +214,26 @@ export default function Publish({ slug, docName, title, coverAsset, cover, accen
                     value={fragment || t("lpm.publish.cms_building")}
                     onFocus={(e) => fragment && e.target.select()}
                   />
-                  <button type="button" className="asm-pub-dl" disabled={!fragment} onClick={copyCms}>
-                    <Icon name={copied === "cms" ? "check" : "copy"} size={14} />
-                    {copied === "cms" ? t("lpm.publish.cms_copied") : t("lpm.publish.cms_copy")}
-                  </button>
+                  <ol className="asm-pub-cms-steps">
+                    <li>{t("lpm.publish.cms_step1")}</li>
+                    {coverAsset?.src ? <li>{t("lpm.publish.cms_step2")}</li> : null}
+                    <li>{t("lpm.publish.cms_step3")}</li>
+                    <li>{t("lpm.publish.cms_step4")}</li>
+                  </ol>
+                  <div className="asm-pub-btnrow">
+                    <button type="button" className="asm-pub-dl" disabled={!fragment} onClick={copyCms}>
+                      <Icon name={copied === "cms" ? "check" : "copy"} size={14} />
+                      {copied === "cms" ? t("lpm.publish.cms_copied") : t("lpm.publish.cms_copy")}
+                    </button>
+                    {coverAsset?.src ? (
+                      <button type="button" className="asm-pub-dl asm-pub-dl-ghost" onClick={downloadCover}>
+                        <Icon name="download" size={14} />
+                        {t("lpm.publish.cms_cover_download")}
+                      </button>
+                    ) : null}
+                  </div>
                 </>
               )}
-              <p className="asm-pub-card-hint">{t("lpm.publish.cms_hint")}</p>
             </div>
 
             <div className="asm-pub-card">

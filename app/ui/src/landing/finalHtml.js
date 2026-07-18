@@ -194,10 +194,26 @@ export async function buildInlineDocumentHtml(opts) {
 // A paste-into-a-CMS fragment from the inlined document: just the .lp-page div,
 // carrying the body's inherited styles (font/colour) on itself — minus
 // min-height, which must not force a viewport-tall block inside someone's page.
+// The fragment must be fully self-contained — NOTHING may point back at our
+// server. Images are stripped (the user re-inserts the cover with their CMS's
+// image tool) and download links are neutralized (they re-link their uploaded
+// PDF with the CMS's link tool); the card walks them through it.
 export function extractCmsFragment(inlinedHtml) {
   const doc = new DOMParser().parseFromString(inlinedHtml, "text/html");
   const page = doc.querySelector(".lp-page");
   if (!page) return "";
+
+  page.querySelectorAll("img").forEach((img) => img.remove());
+  // an image-only wrapper left empty (a bare float, the band's cover figure)
+  // would render as a stray shaded box — drop it; wrappers that still hold a
+  // download button stay
+  page.querySelectorAll(".lp-cover-float, .lp-coverband-cover, .lp-cover, .lp-hero")
+    .forEach((el) => { if (!el.querySelector("a, p, span, div")) el.remove(); });
+  page.querySelectorAll("a[download], a[href*='/api/source/']").forEach((a) => {
+    a.setAttribute("href", "#");
+    a.removeAttribute("download");
+  });
+
   const merged = `${doc.body.getAttribute("style") || ""};${page.getAttribute("style") || ""}`
     .split(";")
     .map((d) => d.trim())

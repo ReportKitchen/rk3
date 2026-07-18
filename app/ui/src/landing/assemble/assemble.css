@@ -766,6 +766,20 @@
   white-space: pre; overflow: auto;
 }
 .asm-pub-cms-box:focus { outline: none; border-color: var(--rk-rhino-500); }
+/* the 4-step walkthrough under the box */
+.asm-pub-cms-steps {
+  margin: 0 0 12px; padding-left: 20px;
+  font-size: 12.5px; line-height: 1.55; color: var(--rk-rhino-800);
+}
+.asm-pub-cms-steps li { margin: 0 0 6px; }
+.asm-pub-cms-steps li::marker { font-weight: 800; color: var(--rk-rhino-500); }
+.asm-pub-btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
+/* the quieter second action beside a primary one */
+.asm-pub-dl-ghost {
+  background: var(--rk-white); color: var(--rk-rhino-700);
+  border: 1px solid var(--rk-border-strong);
+}
+.asm-pub-dl-ghost:hover { background: var(--rk-gray-100); }
 
 /* desktop / mobile toggle at the bar's right end */
 .asm-pub-devices {

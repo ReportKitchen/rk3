@@ -81,7 +81,7 @@ export async function exportZip(slug, { config, edits, accent, docName, socialUr
   triggerDownload(blob, `${base}-landing.zip`);
 }
 
-function triggerDownload(blob, name) {
+export function triggerDownload(blob, name) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

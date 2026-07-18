@@ -42,20 +42,31 @@ docx_intro:
   kind: static
   text: "Promote your report by posting at least once a week for the next month. Paste your page's link at the end of each post."
 
-# copy-and-paste into a CMS (inline-styled fragment)
+# copy-and-paste into a CMS (inline-styled fragment; fully self-contained — no
+# references back to Report Kitchen, so images/PDF are re-attached in the CMS)
 cms_title: {kind: static, text: "Copy and paste into a CMS"}
 cms_blurb:
   kind: static
   text: "The whole page as one block of HTML with every style written into its tag — it survives CMS editors that strip style blocks."
+cms_step1:
+  kind: static
+  text: "Copy the HTML and paste it into your page's HTML (code) view."
+cms_step2:
+  kind: static
+  text: "Download the cover below, then put it back where it belongs with your CMS's insert-image tool."
+cms_step3:
+  kind: static
+  text: "Upload your PDF to your site, select each download button, and connect it with your CMS's link tool."
+cms_step4:
+  kind: static
+  text: "Publish — the share buttons pick up the page's address on their own."
 cms_copy: {kind: static, text: "Copy the HTML"}
 cms_copied: {kind: static, text: "Copied"}
+cms_cover_download: {kind: static, text: "Download the cover"}
 cms_building: {kind: static, text: "Preparing the HTML…"}
 cms_failed:
   kind: static
   text: "Couldn't prepare the inline HTML — try again in a moment."
-cms_hint:
-  kind: static
-  text: "Paste it into your page's HTML view. Images and the download button point back at Report Kitchen for now."
 
 # download the full page
 dl_title: {kind: static, text: "Download full page"}
