@@ -16,18 +16,19 @@ doc is the remaining two layers — the ones that turn "please don't hardcode" i
 Wire into CI (and ideally pre-commit) so a hardcoded user-facing string or an
 inline prompt **fails the build**.
 
-- **Frontend — no literal JSX strings.** Add `eslint-plugin-i18next`
-  (`no-literal-string`) or the formatjs equivalent to `app/ui`'s eslint config.
-  It flags user-facing string literals in JSX text and human-readable props.
-  Needs an **allowlist** to avoid noise on day one: className/id/test-id, aria
-  roles, URLs/paths, `data-*`, purely technical constants, and single symbols.
-  Start in `warn`, burn down the existing hardcoded copy as it's migrated, then
-  flip to `error` in CI.
-- **Python — no raw prompt into a model call.** A small custom check (a pytest,
-  or a ruff/flake8 plugin, or a grep-based CI step) that fails when a string
+- **Python — no raw prompt into a model call.** ✅ DONE (BACKLOG/45,
+  `tests/test_no_hardcoded_prompts.py`). An `ast`-based pytest fails when a string
   *literal* is passed as `system=`/`user=` to `complete_json` / `vision_json`, or
-  to `client.messages.create` outside `rk3/ai.py`. Prompts must come from
-  `content.prompt(key)` (or, until migrated, `load_prompt`).
+  when `.messages.create(...)` is called outside `rk3/ai.py`. The corpus was
+  already clean, so it ships in `error` (a plain failing test) rather than `warn`.
+  `content.prompt(key)`, `load_prompt`, variables and registry-built f-strings pass.
+- **Frontend — no literal JSX strings.** STILL OPEN. There is no eslint setup in
+  `app/ui` yet, so this is a from-scratch job: add eslint + `eslint-plugin-i18next`
+  (`no-literal-string`) with an **allowlist** (className/id/test-id, aria roles,
+  URLs/paths, `data-*`, technical constants, single symbols), start in `warn`, burn
+  down the existing hardcoded copy (aria-labels, a handful of skeleton labels), then
+  flip to `error` in CI. That burn-down is its own pass — do it when standing up the
+  frontend lint config.
 
 ## Layer 4 — structural chokepoint for prompts (strongest; optional)
 
