@@ -15,7 +15,7 @@ nudge_back:
   kind: static
   text: "Wrong blocks, not wrong words? Head back to Assemble."
 # the step-forward pill at the bar's right end
-to_publish: {kind: static, text: "Publish"}
+to_preview: {kind: static, text: "Preview"}
 
 # toolbar tooltips + the inline link editor (no browser dialogs)
 tool.bold: {kind: static, text: "Bold"}

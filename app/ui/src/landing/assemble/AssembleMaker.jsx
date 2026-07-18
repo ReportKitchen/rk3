@@ -13,6 +13,7 @@ import SectionLibrary from "./SectionLibrary.jsx";
 import Inspector from "./Inspector.jsx";
 import Controls from "./Controls.jsx";
 import Wordsmith from "./Wordsmith.jsx";
+import Preview from "./Preview.jsx";
 import Publish from "./Publish.jsx";
 
 const getSections = (slug) =>
@@ -55,6 +56,7 @@ export default function AssembleMaker({ doc }) {
   const [socialPosts, setSocialPosts] = useState([]);     // 4 suggested posts (sections pass)
   const [postsPending, setPostsPending] = useState(false); // server is backfilling an old cache
   const [socialDoc, setSocialDoc] = useState(false);      // bundle posts .docx in the zip
+  const [dlStyle, setDlStyle] = useState("embedded");     // zip stylesheet: embedded | inline
   const loadedRef = useRef(false);           // gate the autosave until the first load hydrates
 
   useEffect(() => {
@@ -120,6 +122,7 @@ export default function AssembleMaker({ doc }) {
         if (saved.accent) setAccent(saved.accent);
         if (saved.shareImage) setShareImage(saved.shareImage);
         setSocialDoc(!!saved.socialDoc);
+        if (saved.dlStyle) setDlStyle(saved.dlStyle);
         setEdits(saved.edits || {});
         setCta({
           download: true, secondary: false, share: true, order: CTA_KEYS,
@@ -259,12 +262,12 @@ export default function AssembleMaker({ doc }) {
   useEffect(() => {
     if (!loadedRef.current) return undefined;
     const id = setTimeout(() => {
-      saveAssembled(slug, toAssembled({ sections, cover, accent, length, cta, ai, edits, shareImage, socialDoc }))
+      saveAssembled(slug, toAssembled({ sections, cover, accent, length, cta, ai, edits, shareImage, socialDoc, dlStyle }))
         .catch(guard("assemble: save", null));
     }, 700);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, sections, cover, accent, length, cta, ai.on, ai.voice, edits, shareImage, socialDoc]);
+  }, [slug, sections, cover, accent, length, cta, ai.on, ai.voice, edits, shareImage, socialDoc, dlStyle]);
 
   const showBootLoader = useDelayed(!ready);
   const title = defs?.title || null;
@@ -286,8 +289,8 @@ export default function AssembleMaker({ doc }) {
     <div className="asm-root" style={{ "--lp-accent": accent }}>
       <Chrome
         title={doc.name || doc.slug}
-        activeIdx={{ assemble: 0, wordsmith: 1, publish: 2 }[mode] ?? 0}
-        onStep={(i) => setMode(["assemble", "wordsmith", "publish"][i] || "assemble")}
+        activeIdx={{ assemble: 0, wordsmith: 1, preview: 2, publish: 3 }[mode] ?? 0}
+        onStep={(i) => setMode(["assemble", "wordsmith", "preview", "publish"][i] || "assemble")}
       />
       {mode === "publish" ? (
         <Publish
@@ -296,13 +299,20 @@ export default function AssembleMaker({ doc }) {
           noai={noai} socialPosts={socialPosts} postsPending={postsPending}
           shareImage={shareImage} onShareImage={setShareImage}
           socialDoc={socialDoc} onSocialDoc={setSocialDoc}
-          onBack={() => setMode("wordsmith")}
+          dlStyle={dlStyle} onDlStyle={setDlStyle}
+          onBack={() => setMode("preview")}
+        />
+      ) : mode === "preview" ? (
+        <Preview
+          slug={slug} docName={doc.name || slug} title={title} coverAsset={coverAsset}
+          cover={cover} accent={accent} sections={sections} cta={cta} ai={ai} edits={edits}
+          onBack={() => setMode("wordsmith")} onPublish={() => setMode("publish")}
         />
       ) : mode === "wordsmith" ? (
         <Wordsmith
           slug={slug} title={title} coverAsset={coverAsset} cover={cover}
           sections={sections} cta={cta} ai={ai} edits={edits} onEditsChange={onEditsChange}
-          onBack={() => setMode("assemble")} onPublish={() => setMode("publish")}
+          onBack={() => setMode("assemble")} onPreview={() => setMode("preview")}
         />
       ) : (
         <div className="asm-grid">

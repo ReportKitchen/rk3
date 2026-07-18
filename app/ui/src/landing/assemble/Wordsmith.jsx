@@ -13,7 +13,7 @@ const countWords = (s) => (String(s || "").trim().match(/\S+/g) || []).length;
 // the MAIN document (not a Puck iframe) with the real block components — the AI
 // sections in their own words — made editable in place (bold / italic / lists /
 // links only). Structural changes happen back in Assemble.
-export default function Wordsmith({ slug, title, coverAsset, cover, sections, cta, ai, edits, onEditsChange, onBack, onPublish }) {
+export default function Wordsmith({ slug, title, coverAsset, cover, sections, cta, ai, edits, onEditsChange, onBack, onPreview }) {
   const editorRef = useRef(null);
   const savedRange = useRef(null);      // selection kept alive while the link popover has focus
   const editsRef = useRef(edits);       // latest saved edits, read by the render effect w/o re-running it
@@ -175,9 +175,9 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
         </button>
         <span className="asm-ws-back-hint">{t("lpm.wordsmith.back_to_assemble_hint")}</span>
         <span className="asm-ws-estimate">{t("lpm.wordsmith.read_estimate", { words, min })}</span>
-        {onPublish && (
-          <button type="button" className="asm-ws-next" onClick={onPublish}>
-            {t("lpm.wordsmith.to_publish")}<Icon name="chevron-right" size={14} />
+        {onPreview && (
+          <button type="button" className="asm-ws-next" onClick={onPreview}>
+            {t("lpm.wordsmith.to_preview")}<Icon name="chevron-right" size={14} />
           </button>
         )}
       </div>

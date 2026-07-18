@@ -109,8 +109,9 @@ const safeCssValue = (v) => String(v || "").replace(/[^#a-zA-Z0-9(),.%\s-]/g, ""
 // Browser-only (edits need a DOM); both callers run client-side. Parsed with
 // DOMParser because its documents are INERT — a detached createElement div
 // eagerly fetches every <img>, so export-relative images/… paths would 404
-// against the app origin on every zip build.
-export function buildPageRoot({ config, edits, slug, resolveAsset, downloadHref }) {
+// against the app origin on every zip build. `cmsSafe` compensates for the two
+// ::after float-clearfixes, which inline styles can't carry — real clear divs.
+export function buildPageRoot({ config, edits, slug, resolveAsset, downloadHref, cmsSafe = false }) {
   const html = renderToStaticMarkup(
     React.createElement(LandingRenderer, { config, resolveAsset, downloadHref }),
   );
@@ -119,6 +120,13 @@ export function buildPageRoot({ config, edits, slug, resolveAsset, downloadHref 
   const root = doc.getElementById("lp-root");
   applyEdits(root, edits, editSignatures(config));
   retargetAssets(root, { slug, resolveAsset, downloadHref });
+  if (cmsSafe) {
+    root.querySelectorAll(".lp-docsum-body, .lp-section.lp-has-float").forEach((el) => {
+      const clear = doc.createElement("div");
+      clear.setAttribute("style", "clear:both");
+      el.appendChild(clear);
+    });
+  }
   return root;
 }
 
@@ -127,8 +135,8 @@ export function buildPageRoot({ config, edits, slug, resolveAsset, downloadHref 
 // `shareImage` overrides the og:/twitter: preview image (the generated social
 // graphic, already resolved for this build's context); default = the cover.
 export function buildDocumentHtml({ config, edits, accent, slug, docName,
-  resolveAsset, downloadHref, withShareJs = false, shareImage = null }) {
-  const root = buildPageRoot({ config, edits, slug, resolveAsset, downloadHref });
+  resolveAsset, downloadHref, withShareJs = false, shareImage = null, cmsSafe = false }) {
+  const root = buildPageRoot({ config, edits, slug, resolveAsset, downloadHref, cmsSafe });
 
   const title = titleOf(config) || docName || "";
   const description = descriptionOf(root);
@@ -167,4 +175,33 @@ ${hasShare && withShareJs ? `<script>${SHARE_JS}</script>` : ""}
 </body>
 </html>
 `;
+}
+
+// The CMS-safe variant: the same document with every rule folded into inline
+// style attributes (server does the cascade via css-inline; custom properties
+// are resolved to concrete values first, so sanitizers can't break them).
+export async function buildInlineDocumentHtml(opts) {
+  const html = buildDocumentHtml({ ...opts, cmsSafe: true });
+  const res = await fetch("/api/inline-css", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ html, vars: { "--lp-accent": opts.accent || "" } }),
+  });
+  if (!res.ok) throw new Error(`inline-css failed: ${res.status}`);
+  return (await res.json()).html;
+}
+
+// A paste-into-a-CMS fragment from the inlined document: just the .lp-page div,
+// carrying the body's inherited styles (font/colour) on itself — minus
+// min-height, which must not force a viewport-tall block inside someone's page.
+export function extractCmsFragment(inlinedHtml) {
+  const doc = new DOMParser().parseFromString(inlinedHtml, "text/html");
+  const page = doc.querySelector(".lp-page");
+  if (!page) return "";
+  const merged = `${doc.body.getAttribute("style") || ""};${page.getAttribute("style") || ""}`
+    .split(";")
+    .map((d) => d.trim())
+    .filter((d) => d && !/^min-height\s*:/i.test(d) && !/^margin\s*:/i.test(d));
+  page.setAttribute("style", merged.join("; "));
+  return page.outerHTML;
 }

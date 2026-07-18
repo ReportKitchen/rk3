@@ -1,15 +1,11 @@
-# lpm.publish.* — the Publish step: the finished page as a visitor gets it,
-# with the social graphic + publish/download options in the right rail.
+# lpm.publish.* — the Publish step: the dedicated export surface. Left = the
+# promotion kit (social graphic, share-image choice, weekly posts); right =
+# getting the page out (CMS copy box, full-page ZIP with a stylesheet choice).
 
-back_to_wordsmith: {kind: static, text: "Wordsmith"}
-back_hint: {kind: static, text: "to fix the wording"}
-frame_title: {kind: static, text: "Landing page preview"}
+back_to_preview: {kind: static, text: "Preview"}
+back_hint: {kind: static, text: "to check the page"}
 
-# desktop / mobile width toggle
-device.desktop: {kind: static, text: "Desktop"}
-device.mobile: {kind: static, text: "Mobile"}
-
-# the social-graphic card (above the download card)
+# the social-graphic card
 social_title: {kind: static, text: "Social graphic"}
 social_blurb:
   kind: static
@@ -17,8 +13,6 @@ social_blurb:
 social_generating:
   kind: static
   text: "Still being generated from your cover — it'll be available here soon."
-social_expand: {kind: static, text: "Expand"}
-social_shrink: {kind: static, text: "Shrink"}
 # the embedded share-image choice
 share_image_label: {kind: static, text: "Share preview image"}
 share_image_cover: {kind: static, text: "PDF cover"}
@@ -26,10 +20,6 @@ share_image_social: {kind: static, text: "Social graphic"}
 share_image_hint:
   kind: static
   text: "Embedded in the page for social sites to pick up when someone shares the link."
-
-# the focus handle between the page and the rail
-focus_cards: {kind: static, text: "Focus the cards — the page zooms out"}
-focus_page: {kind: static, text: "Back to the page"}
 
 # the social-posts card (4 suggested posts from the sections pass)
 posts_title: {kind: static, text: "Social posts"}
@@ -39,7 +29,6 @@ posts_blurb:
 posts_week: {kind: template, text: "Week {n}", tokens: [n]}
 posts_copy: {kind: static, text: "Copy"}
 posts_copied: {kind: static, text: "Copied"}
-posts_teaser_more: {kind: static, text: "Expand to read and copy all four"}
 posts_generating:
   kind: static
   text: "Still being written from your report — they'll appear here soon."
@@ -53,14 +42,38 @@ docx_intro:
   kind: static
   text: "Promote your report by posting at least once a week for the next month. Paste your page's link at the end of each post."
 
-# the publish card
-publish_title: {kind: static, text: "Publish"}
+# copy-and-paste into a CMS (inline-styled fragment)
+cms_title: {kind: static, text: "Copy and paste into a CMS"}
+cms_blurb:
+  kind: static
+  text: "The whole page as one block of HTML with every style written into its tag — it survives CMS editors that strip style blocks."
+cms_copy: {kind: static, text: "Copy the HTML"}
+cms_copied: {kind: static, text: "Copied"}
+cms_building: {kind: static, text: "Preparing the HTML…"}
+cms_failed:
+  kind: static
+  text: "Couldn't prepare the inline HTML — try again in a moment."
+cms_hint:
+  kind: static
+  text: "Paste it into your page's HTML view. Images and the download button point back at Report Kitchen for now."
+
+# download the full page
+dl_title: {kind: static, text: "Download full page"}
+dl_style_label: {kind: static, text: "Stylesheet"}
+dl_embedded: {kind: static, text: "Embedded"}
+dl_inline: {kind: static, text: "Inline styles"}
+dl_embedded_hint:
+  kind: static
+  text: "One clean style block in the page head — best when you control the page."
+dl_inline_hint:
+  kind: static
+  text: "Every style written into its tag — for strict CMS editors that strip style blocks."
 zip_bundled:
   kind: static
-  text: "This is your page, ready to go. The download is one folder: the page, its images, and your PDF."
+  text: "One folder: the page, its images, and your PDF."
 zip_no_pdf:
   kind: static
-  text: "This is your page, ready to go. The download is one folder: the page and its images — the download button links to your hosted PDF."
+  text: "One folder: the page and its images — the download button links to your hosted PDF."
 download_zip: {kind: static, text: "Download your page (ZIP)"}
 download_building: {kind: static, text: "Packing it up…"}
 publish_hint:

@@ -1238,6 +1238,19 @@ def post_landing_assembled(slug: str, data: dict):
     return {"saved": True}
 
 
+@app.post("/api/inline-css")
+def landing_inline_css(body: dict):
+    """Fold the landing page's stylesheet into inline style attributes — the
+    CMS-safe variant (some CMSes strip <style> blocks on paste). `vars` carries
+    the concrete custom-property values (accent) to resolve before inlining.
+    (Not under /api/landing/{slug} — that catch-all would swallow the path.)"""
+    from rk3.landing.inlinecss import inline_html
+    html = body.get("html") or ""
+    if not html:
+        raise HTTPException(400, "no html provided")
+    return {"html": inline_html(html, body.get("vars") or {})}
+
+
 def _template_url(slug: str) -> str | None:
     """The client page URL to copy styles from — config.json
     'landingpage-template.url', which the owner set."""

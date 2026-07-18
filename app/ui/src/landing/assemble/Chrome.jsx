@@ -1,11 +1,11 @@
 import React from "react";
 import { Icon } from "./icons.jsx";
 
-// The 56px top stepper (round-2 parts/LpmChrome, reduced to three steps):
-// Assemble → Wordsmith → Publish. Numbered circles turn into a ✓ once a step is
-// behind you. Publish = the full-page preview + the publish rail (social
-// graphic, download) — the separate Preview/Publish split was collapsed.
-const STEPS = ["Assemble", "Wordsmith", "Publish"];
+// The 56px top stepper (round-2 parts/LpmChrome): Assemble → Wordsmith →
+// Preview → Publish. Numbered circles turn into a ✓ once a step is behind you.
+// Preview is the pure page check; Publish is the dedicated export surface
+// (social kit, CMS copy box, download options).
+const STEPS = ["Assemble", "Wordsmith", "Preview", "Publish"];
 
 export default function Chrome({ title, activeIdx, onStep }) {
   return (

@@ -1,0 +1,12 @@
+# lpm.preview.* — the Preview step: the finished page exactly as a visitor gets
+# it, in an isolated frame with a desktop/mobile width toggle. Publishing lives
+# on the next step.
+
+back_to_wordsmith: {kind: static, text: "Wordsmith"}
+back_hint: {kind: static, text: "to fix the wording"}
+frame_title: {kind: static, text: "Landing page preview"}
+to_publish: {kind: static, text: "Publish"}
+
+# desktop / mobile width toggle
+device.desktop: {kind: static, text: "Desktop"}
+device.mobile: {kind: static, text: "Mobile"}

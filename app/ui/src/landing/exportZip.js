@@ -1,5 +1,5 @@
 import JSZip from "jszip";
-import { buildDocumentHtml, titleOf } from "./finalHtml.js";
+import { buildDocumentHtml, buildInlineDocumentHtml, titleOf } from "./finalHtml.js";
 import { assetBase, sourceUrl } from "../api.js";
 
 const basename = (src) => src.split("/").pop();
@@ -32,8 +32,9 @@ function collectImages(blocks, used = new Set()) {
 // finalHtml builder as the Publish preview, so the download matches what was
 // shown. `socialUrl` (the generated social graphic, when the user picked it as
 // the share image) is bundled and becomes the og:/twitter: preview image;
-// `socialDocx` (a Blob) is the optional social-posts Word file.
-export async function exportZip(slug, { config, edits, accent, docName, socialUrl, socialDocx }) {
+// `socialDocx` (a Blob) is the optional social-posts Word file. `inlineCss`
+// writes every style into the tags (the CMS-safe variant) instead of a <style>.
+export async function exportZip(slug, { config, edits, accent, docName, socialUrl, socialDocx, inlineCss }) {
   const zip = new JSZip();
   if (socialDocx) zip.file("social-posts.docx", socialDocx);
 
@@ -53,7 +54,8 @@ export async function exportZip(slug, { config, edits, accent, docName, socialUr
     }
   }
 
-  const html = buildDocumentHtml({
+  const build = inlineCss ? buildInlineDocumentHtml : buildDocumentHtml;
+  const html = await build({
     config, edits, accent, slug, docName,
     resolveAsset: (src) => `images/${basename(src)}`,
     downloadHref: pdfHref,
