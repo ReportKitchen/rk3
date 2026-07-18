@@ -43,7 +43,7 @@ export default function AssembleMaker({ doc }) {
   const [sel, setSel] = useState(null);            // section id | cta key | "ai-summary"
   const [length, setLength] = useState("middle");
   const [cover, setCover] = useState("beside");
-  const [accent, setAccent] = useState("#D72E2C");   // the one settable accent
+  const [accent, setAccent] = useState("#1E3A5F");   // the one settable accent (dark blue default)
   const [cta, setCta] = useState({ download: true, secondary: false, share: true });
   // the opt-in AI Summary — the ONE AI-written section (a pitch in a chosen voice)
   const [ai, setAi] = useState({ on: false, voice: "neutral", prose: "", loading: false, fetched: false });

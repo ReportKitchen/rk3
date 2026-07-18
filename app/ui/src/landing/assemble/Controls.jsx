@@ -22,8 +22,8 @@ export default function Controls({ cover, onCover, accent, onAccent, sections, c
       </div>
 
       <div className="asm-rail-row">
-        <AccentPicker accent={accent} onAccent={onAccent} />
         <WordCountBar words={words} />
+        <AccentPicker accent={accent} onAccent={onAccent} />
       </div>
 
       <div className="asm-page-head">
@@ -219,23 +219,18 @@ function Dropdown({ category, value, options, onPick, label, advice, glyph, opti
   );
 }
 
-// One settable accent — presets from the RK-ish palette + a custom swatch. Drives
-// --lp-accent, which every treatment/link/share reads.
-const ACCENT_PRESETS = ["#D72E2C", "#303D61", "#4C5A80", "#2E8B57", "#D99B12", "#7683A2"];
+// One settable accent — a single custom colour box (no palette presets; nobody
+// wants RK's brand colours as their own accent). Drives --lp-accent, which every
+// treatment/link/share reads.
 function AccentPicker({ accent, onAccent }) {
   return (
     <div className="asm-accent">
       <span className="asm-accent-label">{t("lpm.length.accent_label")}</span>
-      <div className="asm-accent-row">
-        {ACCENT_PRESETS.map((c) => (
-          <button key={c} type="button" aria-label={c}
-            className={"asm-swatch" + (accent.toLowerCase() === c.toLowerCase() ? " is-active" : "")}
-            style={{ background: c }} onClick={() => onAccent(c)} />
-        ))}
-        <label className="asm-swatch asm-swatch-custom" style={{ background: accent }} title="Custom colour">
-          <input type="color" value={accent} onChange={(e) => onAccent(e.target.value)} />
-        </label>
-      </div>
+      <label className="asm-accent-box" title={t("lpm.length.accent_pick")}>
+        <span className="asm-accent-chip" style={{ background: accent }} />
+        <span className="asm-accent-hex">{(accent || "").toUpperCase()}</span>
+        <input type="color" value={accent} onChange={(e) => onAccent(e.target.value)} />
+      </label>
     </div>
   );
 }

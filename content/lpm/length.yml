@@ -7,6 +7,7 @@ category: {kind: static, text: "Length"}
 
 # one settable accent colour — often one colour is enough to "feel" like you
 accent_label: {kind: static, text: "Accent"}
+accent_pick: {kind: static, text: "Pick an accent colour"}
 
 # word-count bar (replaces the length dropdown): total page words + a zone read
 wordcount_label: {kind: static, text: "Page length"}
