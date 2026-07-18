@@ -1,5 +1,5 @@
 import React from "react";
-import { StatIcon } from "./statIcons.jsx";
+import { StatIcon, assignStatIcons } from "./statIcons.jsx";
 import { QuoteGlyph } from "./quoteGlyphs.jsx";
 
 // The block components. Each takes FLAT props (matching Puck's render
@@ -310,11 +310,12 @@ function StatCardsInner({ cards, treatment = "cards" }) {
     );
   }
   if (t === "icons") {
+    const names = assignStatIcons(list);   // distinct icon per stat, no repeats
     return (
       <div className="lp-stat-icons" style={{ "--cols": list.length >= 4 ? 2 : 1 }}>
         {list.map((c, i) => (
           <div key={i} className="lp-stat-iconrow">
-            <span className="lp-stat-icon"><StatIcon value={c.value} label={c.label} /></span>
+            <span className="lp-stat-icon"><StatIcon name={names[i]} value={c.value} label={c.label} /></span>
             <p><strong>{c.value}</strong>{c.label ? " " : ""}<span dangerouslySetInnerHTML={{ __html: c.label || "" }} /></p>
           </div>
         ))}
