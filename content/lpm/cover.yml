@@ -10,11 +10,12 @@ metadata_note:
   text: "The cover carries its metadata — {meta} — wherever it sits."
   tokens: [meta]
 
-beside.title: {kind: static, text: "Cover beside"}
-beside.line: {kind: static, text: "Cover on the left, title on the right, content below. The confident default."}
+# title always leads full-width; the cover sits inside or after the first summary
+floatRight.title: {kind: static, text: "Float right"}
+floatRight.line: {kind: static, text: "The cover floats into the first summary, text wrapping around it. The clean default."}
 
-floatRight.title: {kind: static, text: "Cover right"}
-floatRight.line: {kind: static, text: "Title on the left, cover on the right, content below. Flips the default."}
+floatBoxed.title: {kind: static, text: "Boxed, with download"}
+floatBoxed.line: {kind: static, text: "The cover floats into the summary in a shaded card, a download button under it."}
 
-textForward.title: {kind: static, text: "Text-forward"}
-textForward.line: {kind: static, text: "The cover shrinks to a small thumbnail so the words lead."}
+band.title: {kind: static, text: "Detail band"}
+band.line: {kind: static, text: "A shaded band after the summary: cover, title, and a download button."}

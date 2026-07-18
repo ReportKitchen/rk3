@@ -434,7 +434,8 @@ function QuoteBlock({ quote }) {
   return <figure className="lp-quote lp-quote-glyph">{mark("rounded")}<Text />{attr}</figure>;
 }
 
-export function Section({ heading, presentation, prose, bullets, cards, quote, steps, treatment }) {
+export function Section({ heading, presentation, prose, bullets, cards, quote, steps, treatment,
+  cover, coverLayout, coverDownload, resolveAsset = ident, downloadHref }) {
   const q = quote || {};
   const hasContent =
     (presentation === "prose" && prose) ||
@@ -445,9 +446,21 @@ export function Section({ heading, presentation, prose, bullets, cards, quote, s
   if (!heading && !hasContent) return null;
   // a pullquote is self-contained — no heading sitting right on top of it
   const showHeading = heading && presentation !== "quote";
+  // a cover floated into this summary (BACKLOG/45): the text wraps around it, so a
+  // long title can't trap white space beside it. contentEditable=false keeps the
+  // media an atomic island inside Wordsmith (and makes it paint reliably there).
+  const floatCover = cover?.src && (coverLayout === "floatRight" || coverLayout === "floatBoxed") ? (
+    <figure className={"lp-cover-float lp-cover-" + coverLayout} contentEditable={false}>
+      <img src={resolveAsset(cover.src)} alt={cover.alt || ""} />
+      {coverLayout === "floatBoxed" && coverDownload ? (
+        <Download {...coverDownload} downloadHref={downloadHref} bgColor="var(--lp-accent, #1E3A5F)" />
+      ) : null}
+    </figure>
+  ) : null;
   return (
-    <section className="lp-block lp-section" data-pres={presentation}>
+    <section className={"lp-block lp-section" + (floatCover ? " lp-has-float" : "")} data-pres={presentation}>
       {showHeading ? <h2>{heading}</h2> : null}
+      {floatCover}
       {presentation === "prose" && (
         <div className="lp-rich" dangerouslySetInnerHTML={{ __html: prose || "" }} />
       )}
@@ -474,11 +487,36 @@ export function Section({ heading, presentation, prose, bullets, cards, quote, s
   );
 }
 
+// Cover detail band (BACKLOG/45): a shaded full-width band placed after the first
+// summary — a small cover with a download button beneath it, and the report title
+// (plus authors/date when the document gives us them) alongside. contentEditable
+// =false so the whole band is an atomic island in Wordsmith.
+export function CoverBand({ cover, title, download, date, authors, resolveAsset = ident, downloadHref }) {
+  const tp = title || {};
+  const main = tp.title || tp.text || "";
+  const meta = [authors, date].filter(Boolean).join(" · ");
+  if (!cover?.src && !main) return null;
+  return (
+    <section className="lp-block lp-coverband" contentEditable={false}>
+      {cover?.src ? (
+        <div className="lp-coverband-media">
+          <figure className="lp-coverband-cover"><img src={resolveAsset(cover.src)} alt={cover.alt || ""} /></figure>
+          {download ? <Download {...download} downloadHref={downloadHref} bgColor="var(--lp-accent, #1E3A5F)" /> : null}
+        </div>
+      ) : null}
+      <div className="lp-coverband-body">
+        {main ? <p className="lp-coverband-title">{main}</p> : null}
+        {meta ? <p className="lp-coverband-meta">{meta}</p> : null}
+      </div>
+    </section>
+  );
+}
+
 export const BLOCKS = {
   title: Title, summary: Summary, docSummary: DocSummary, cover: Cover, hero: Hero,
   toc: Toc, highlights: Highlights, findings: Findings, storytelling: Storytelling,
   share: Share, download: Download, secondaryCta: SecondaryCta, section: Section,
-  masthead: Masthead,
+  masthead: Masthead, coverBand: CoverBand,
 };
 
 // Render one block, recursing into the media slot (nested blocks become the

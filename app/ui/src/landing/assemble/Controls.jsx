@@ -9,7 +9,7 @@ const shortLabel = (h) => (h && h.length > 18 ? h.slice(0, 17).trim() + "…" : 
 // grayscale outline of the page (cover layout + the on-sections + CTA), and the
 // nudge toward Wordsmith.
 export default function Controls({ cover, onCover, accent, onAccent, sections, cta, ai, onWordsmith }) {
-  const rows = buildRows(sections, cta, ai);
+  const rows = buildRows(sections, cta, ai, cover);
   const words = pageWords(sections, ai);
   return (
     <div className="asm-col asm-col-right">
@@ -52,7 +52,10 @@ export default function Controls({ cover, onCover, accent, onAccent, sections, c
 }
 
 // AI summary (if on) + on-sections + CTA -> rough-page rows
-function buildRows(sections, cta, ai) {
+function buildRows(sections, cta, ai, cover) {
+  // boxed/band covers carry the download button themselves, so it isn't also
+  // repeated in the foot CTA row
+  const coverHasDownload = cta.download && (cover === "floatBoxed" || cover === "band");
   const out = [];
   if (ai && ai.on) out.push({ label: ai.heading || t("lpm.sections.ai.heading"), kind: "text" });
   for (const s of sections) {
@@ -64,12 +67,13 @@ function buildRows(sections, cta, ai) {
     else if (s.presentation === "steps") out.push({ label, kind: "steps", n: Math.min((s.steps || []).length || 3, 4) });
     else out.push({ label, kind: "text" });
   }
+  const footDownload = cta.download && !coverHasDownload;
   const parts = [];
-  if (cta.download) parts.push("Download");
+  if (footDownload) parts.push("Download");
   if (cta.secondary) parts.push("action");
   if (cta.share) parts.push("share");
-  if (cta.download || cta.secondary || cta.share) {
-    out.push({ label: parts.join(" + "), kind: "cta", download: cta.download, secondary: cta.secondary, social: cta.share });
+  if (footDownload || cta.secondary || cta.share) {
+    out.push({ label: parts.join(" + "), kind: "cta", download: footDownload, secondary: cta.secondary, social: cta.share });
   }
   return out;
 }
@@ -143,41 +147,58 @@ function SectionSkeleton({ section }) {
   );
 }
 
+// The title always leads full width; the cover then floats into the first summary
+// (float / boxed) or sits in a shaded band after it.
 function CoverSkeleton({ cover }) {
-  if (cover === "beside") {
+  const title = (
+    <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 12 }}>
+      <div className="asm-pp-line" style={{ height: 12 }} />
+      <div className="asm-pp-line" style={{ height: 12, width: "62%" }} />
+      <div className="asm-pp-faint" style={{ height: 4, width: "45%", marginTop: 5 }} />
+    </div>
+  );
+  const wrapLines = (n, cutAt) => (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
+      {Array.from({ length: n }).map((_, i) => (
+        <div key={i} className="asm-pp-row" style={{ width: i >= cutAt ? "100%" : "88%" }} />
+      ))}
+    </div>
+  );
+  const shaded = { background: "var(--rk-rhino-50, #eef1f7)", border: "1px solid var(--rk-border)", borderRadius: 6 };
+  const button = { height: 9, borderRadius: 3, background: "var(--lp-accent, #1E3A5F)", marginTop: 6 };
+
+  if (cover === "band") {
     return (
-      <div style={{ display: "flex", gap: 12, marginBottom: 14 }}>
-        <div className="asm-pp-cover" style={{ width: "40%", aspectRatio: "3 / 4" }}>COVER</div>
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5, paddingTop: 4 }}>
-          <div className="asm-pp-line" style={{ height: 11 }} />
-          <div className="asm-pp-line" style={{ height: 11, width: "70%" }} />
-          <div className="asm-pp-faint" style={{ height: 4, width: "55%", marginTop: 6 }} />
+      <div style={{ marginBottom: 14 }}>
+        {title}
+        <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 10 }}>
+          {[100, 100, 70].map((w, i) => <div key={i} className="asm-pp-row" style={{ width: `${w}%` }} />)}
+        </div>
+        <div style={{ ...shaded, display: "flex", gap: 10, padding: 8 }}>
+          <div style={{ width: "24%", flex: "none" }}>
+            <div className="asm-pp-cover" style={{ width: "100%", aspectRatio: "3 / 4", fontSize: 0 }} />
+            <div style={button} />
+          </div>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4, paddingTop: 3 }}>
+            <div className="asm-pp-line" style={{ height: 9 }} />
+            <div className="asm-pp-faint" style={{ height: 4, width: "55%" }} />
+          </div>
         </div>
       </div>
     );
   }
-  if (cover === "floatRight") {
-    // title left, cover right
-    return (
-      <div style={{ display: "flex", gap: 12, marginBottom: 14 }}>
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5, paddingTop: 4 }}>
-          <div className="asm-pp-line" style={{ height: 11 }} />
-          <div className="asm-pp-line" style={{ height: 11, width: "70%" }} />
-          <div className="asm-pp-faint" style={{ height: 4, width: "55%", marginTop: 6 }} />
-        </div>
-        <div className="asm-pp-cover" style={{ width: "40%", aspectRatio: "3 / 4" }}>COVER</div>
-      </div>
-    );
-  }
-  // textForward — a small thumbnail on the right, words lead
+  // floatRight / floatBoxed — cover floats into the summary at right, text wraps
+  const boxed = cover === "floatBoxed";
   return (
-    <div style={{ display: "flex", gap: 10, marginBottom: 14, alignItems: "flex-start" }}>
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 5, paddingTop: 2 }}>
-        <div className="asm-pp-line" style={{ height: 11 }} />
-        <div className="asm-pp-line" style={{ height: 11, width: "72%" }} />
-        <div className="asm-pp-faint" style={{ height: 4, width: "60%", marginTop: 6 }} />
+    <div style={{ marginBottom: 14 }}>
+      {title}
+      <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+        {wrapLines(6, 3)}
+        <div style={{ width: "36%", flex: "none", ...(boxed ? { ...shaded, padding: 6 } : {}) }}>
+          <div className="asm-pp-cover" style={{ width: "100%", aspectRatio: "3 / 4", fontSize: 0 }} />
+          {boxed && <div style={button} />}
+        </div>
       </div>
-      <div className="asm-pp-cover" style={{ width: 26, height: 34, flex: "none", fontSize: 0 }} />
     </div>
   );
 }
@@ -261,36 +282,45 @@ function WordCountBar({ words }) {
   );
 }
 
+// A mini page: title lines on top (full width), then the layout-specific cover.
 function CoverGlyph({ id }) {
-  const bar = { background: "var(--rk-gray-200)", borderRadius: 1, height: 3 };
+  const bar = { background: "var(--rk-gray-200)", borderRadius: 1, height: 2.5 };
   const rhino = { background: "var(--rk-rhino-300)", borderRadius: 1 };
-  if (id === "floatRight") {
-    // lines wrapping around a small cover box at top-right
+  const titleRows = (
+    <>
+      <span style={{ ...bar, height: 3, background: "var(--rk-rhino-300)" }} />
+      <span style={{ ...bar, height: 3, width: "60%", background: "var(--rk-rhino-300)" }} />
+    </>
+  );
+  if (id === "band") {
+    // title, a line or two, then a shaded band with a tiny cover
     return (
-      <span style={{ width: 30, display: "flex", gap: 2 }}>
-        <span style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-          <span style={bar} /><span style={bar} /><span style={{ ...bar, width: "80%" }} />
+      <span style={{ width: 30, display: "flex", flexDirection: "column", gap: 2 }}>
+        {titleRows}
+        <span style={{ ...bar }} />
+        <span style={{ display: "flex", gap: 2, padding: 1.5, background: "var(--rk-rhino-50, #eef1f7)", borderRadius: 2 }}>
+          <span style={{ ...rhino, width: 6, height: 8, flex: "none" }} />
+          <span style={{ flex: 1, display: "flex", flexDirection: "column", gap: 1.5, justifyContent: "center" }}>
+            <span style={bar} /><span style={{ ...bar, width: "70%" }} />
+          </span>
         </span>
-        <span style={{ ...rhino, width: 9, height: 11, flex: "none" }} />
       </span>
     );
   }
-  if (id === "textForward") {
-    return (
-      <span style={{ width: 30, display: "flex", gap: 2 }}>
-        <span style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2, justifyContent: "center" }}>
-          <span style={bar} /><span style={bar} /><span style={{ ...bar, width: "70%" }} />
-        </span>
-        <span style={{ ...rhino, width: 6, height: 8, flex: "none" }} />
-      </span>
-    );
-  }
-  // beside: cover box left, lines right
+  // floatRight / floatBoxed — title, then lines wrapping a small cover at right
+  const boxed = id === "floatBoxed";
   return (
-    <span style={{ width: 30, display: "flex", gap: 2 }}>
-      <span style={{ ...rhino, width: 13, height: 16, flex: "none" }} />
-      <span style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2, justifyContent: "center" }}>
-        <span style={bar} /><span style={{ ...bar, width: "80%" }} />
+    <span style={{ width: 30, display: "flex", flexDirection: "column", gap: 2 }}>
+      {titleRows}
+      <span style={{ display: "flex", gap: 2, marginTop: 1 }}>
+        <span style={{ flex: 1, display: "flex", flexDirection: "column", gap: 1.5 }}>
+          <span style={bar} /><span style={bar} /><span style={{ ...bar, width: "85%" }} />
+        </span>
+        <span style={boxed
+          ? { flex: "none", padding: 1, background: "var(--rk-rhino-50, #eef1f7)", borderRadius: 2, display: "flex" }
+          : { display: "flex" }}>
+          <span style={{ ...rhino, width: 8, height: 10, flex: "none" }} />
+        </span>
       </span>
     </span>
   );

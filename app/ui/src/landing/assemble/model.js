@@ -4,14 +4,17 @@
 // present, filter, and assemble them into a render config.
 
 export const LENGTHS = ["short", "middle", "long"];
-// cover layouts (BACKLOG/43): "on top" is gone — report covers are too tall for
-// full-width. beside = cover-left/title-right; floatRight = cover floats in the
-// opening; textForward = a small thumbnail.
-export const COVERS = ["beside", "floatRight", "textForward"];
-// map the guidance engine's older cover values onto the new set
+// cover layouts (BACKLOG/45): the title always leads full-width — a cover floated
+// NEXT to the title left trapped white space past the title's end. Instead the
+// cover sits inside or after the first summary. floatRight = floats into the
+// summary alone; floatBoxed = floats in a shaded card with a download button;
+// band = a shaded detail band after the summary.
+export const COVERS = ["floatRight", "floatBoxed", "band"];
+// map the guidance engine's / older cover values onto the new set
 export function normalizeCover(v) {
-  const m = { onTop: "beside", inset: "floatRight", beside: "beside", floatRight: "floatRight", textForward: "textForward" };
-  return m[v] || "beside";
+  const m = { floatRight: "floatRight", floatBoxed: "floatBoxed", band: "band",
+    beside: "floatRight", onTop: "band", inset: "floatBoxed", textForward: "floatRight" };
+  return m[v] || "floatRight";
 }
 
 // page length (short/middle/long) → AI-summary length axis (short/medium/long)
@@ -178,39 +181,60 @@ export function splitSections(sections) {
 }
 
 // Assemble the render config (title + cover + on-sections + CTA) from the section
-// state — feeds the rough page, the Wordsmith render, and export.
+// state — feeds the rough page, the Wordsmith render, and export. The title
+// always leads full-width; the cover is woven into (or set just after) the first
+// summary so a title that runs past the cover can't trap white space beside it.
 export function buildSectionConfig({ title, cover, sections, cta, ai }) {
-  const blocks = [];
   const hasTitle = title && (title.title || title.eyebrow || title.subtitle);
   const hasCover = cover && cover.src;
-  const layout = cover?.layout;
-  // beside = cover left / title right; floatRight = cover right; textForward =
-  // small cover (thumb) on the right. All render as a flex masthead + content below.
-  const variant = layout === "floatRight" ? "right" : layout === "textForward" ? "thumb" : "beside";
-  if (hasTitle && hasCover) {
-    blocks.push({ type: "masthead", id: "masthead", props: { cover: { src: cover.src, alt: cover.alt || "" }, title, variant } });
-  } else {
-    if (hasCover) blocks.push({ type: "cover", id: "cover", props: { src: cover.src, alt: cover.alt || "" } });
-    if (hasTitle) blocks.push({ type: "title", id: "title", props: title });
-  }
-  // the opt-in AI Summary leads the content, under a natural heading
+  const layout = normalizeCover(cover?.layout);
+  const dl = cta?.download
+    ? { label: cta.downloadLabel || "", mode: cta.downloadUrl ? "url" : "bundle", url: cta.downloadUrl || "" }
+    : null;
+
+  const head = hasTitle ? [{ type: "title", id: "title", props: title }] : [];
+
+  // ordered content: the opt-in AI Summary leads, then the on-sections
+  const content = [];
   if (ai && ai.on && ai.prose) {
-    blocks.push({ type: "section", id: "ai-summary",
+    content.push({ type: "section", id: "ai-summary",
       props: { heading: ai.heading || "", presentation: "prose", prose: ai.prose,
                bullets: [], cards: [], quote: {}, steps: [] } });
   }
   for (const s of sections) {
     if (!s.on) continue;
-    blocks.push({
-      type: "section", id: s.id,
-      props: {
-        heading: s.heading, presentation: s.presentation, prose: effectiveProse(s),
-        bullets: s.bullets, cards: s.cards, quote: s.quote, steps: s.steps,
-        treatment: s.treatment,
-      },
-    });
+    content.push({ type: "section", id: s.id, props: {
+      heading: s.heading, presentation: s.presentation, prose: effectiveProse(s),
+      bullets: s.bullets, cards: s.cards, quote: s.quote, steps: s.steps, treatment: s.treatment } });
   }
-  if (cta?.download) blocks.push({ type: "download", id: "download", props: {
+  // the "first summary" = the first prose block (else the first block of any kind)
+  let sumIdx = content.findIndex((b) => b.props.presentation === "prose");
+  if (sumIdx < 0 && content.length) sumIdx = 0;
+
+  // a boxed/band cover carries the download button, so it isn't also repeated
+  // at the foot of the page
+  const coverHasDownload = hasCover && dl && (layout === "floatBoxed" || layout === "band");
+
+  const body = content.slice();
+  if (hasCover && sumIdx >= 0 && (layout === "floatRight" || layout === "floatBoxed")) {
+    // float the cover inside the first summary section
+    const target = body[sumIdx];
+    body[sumIdx] = { ...target, props: { ...target.props,
+      cover: { src: cover.src, alt: cover.alt || "" }, coverLayout: layout,
+      coverDownload: layout === "floatBoxed" ? dl : null } };
+  } else if (hasCover && layout === "band") {
+    // a detail band right after the first summary (or leading, if no content)
+    const band = { type: "coverBand", id: "cover-band", props: {
+      cover: { src: cover.src, alt: cover.alt || "" }, title, download: dl,
+      date: title?.date || "", authors: title?.authors || "" } };
+    body.splice(sumIdx >= 0 ? sumIdx + 1 : 0, 0, band);
+  } else if (hasCover) {
+    // nothing to attach to (empty page): a bare cover after the title
+    body.unshift({ type: "cover", id: "cover", props: { src: cover.src, alt: cover.alt || "" } });
+  }
+
+  const blocks = [...head, ...body];
+  if (cta?.download && !coverHasDownload) blocks.push({ type: "download", id: "download", props: {
     label: cta.downloadLabel || "", mode: cta.downloadUrl ? "url" : "bundle", url: cta.downloadUrl || "" } });
   if (cta?.secondary) blocks.push({ type: "secondaryCta", id: "secondary", props: {
     label: cta.secondaryLabel || "", url: cta.secondaryUrl || "" } });
