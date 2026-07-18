@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whisk loader</title>
+<style>
+  @property --phi {
+    syntax: "<angle>";
+    inherits: true;
+    initial-value: 0deg;
+  }
+
+  :root {
+    --tilt: 26deg;         /* how far off-vertical the whisk leans */
+    --speed: 1.6s;         /* time for one full twirl */
+    --persp: 620px;        /* smaller = stronger 3D size difference */
+    --pivot: 52%;          /* vertical pivot point (52% = just below middle) */
+    --whisk-h: 250px;
+    --bg: #faf7f4;
+    --ink: #2a2622;
+    --accent: #D72E2B;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+  }
+
+  .stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 34px;
+  }
+
+  /* perspective lives on the parent so depth is real */
+  .scene {
+    perspective: var(--persp);
+    perspective-origin: 50% 42%;
+    width: 160px;
+    height: 320px;
+    display: grid;
+    place-items: center;
+  }
+
+  .whisk {
+    height: var(--whisk-h);
+    aspect-ratio: 10.2 / 42.2;
+    transform-style: preserve-3d;
+    transform-origin: 50% var(--pivot);
+    /* fixed tilt whose DIRECTION precesses -> conical motion, always facing you */
+    transform: rotateY(var(--phi)) rotateX(var(--tilt)) rotateY(calc(-1 * var(--phi)));
+    animation: precess var(--speed) linear infinite;
+    will-change: transform;
+  }
+  .whisk-svg { width: 100%; height: 100%; display: block; }
+
+  /* Smooth path: interpolate the scalar angle, recompute transform each frame */
+  @keyframes precess {
+    from { --phi: 0deg; }
+    to   { --phi: 360deg; }
+  }
+
+  /* Fallback for browsers without @property (can't animate a custom angle):
+     sample phi finely with regular keyframes instead. */
+  @supports not (background: paint(worklet)) {
+    /* no-op marker */
+  }
+  @supports not (top: var(--phi)) {}
+
+  /* Soft contact shadow that pulses with the twirl for a bit of grounding */
+  .shadow {
+    width: 90px; height: 16px; margin-top: -8px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(0,0,0,.20), rgba(0,0,0,0));
+    animation: shadowPulse var(--speed) linear infinite;
+    filter: blur(1px);
+  }
+  @keyframes shadowPulse {
+    0%,100% { transform: scaleX(1);   opacity:.5; }
+    50%     { transform: scaleX(.72); opacity:.32; }
+  }
+
+  .label {
+    font-size: 14px; letter-spacing: .14em; text-transform: uppercase;
+    color: #8a8078; font-weight: 600;
+  }
+  .label b { color: var(--accent); font-weight: 600; }
+  .dots::after {
+    content: ""; animation: dots 1.4s steps(4,end) infinite;
+  }
+  @keyframes dots {
+    0% {content:"";} 25%{content:".";} 50%{content:"..";} 75%{content:"...";} 100%{content:"";}
+  }
+
+  /* --- tuning panel (optional; delete this block + the <div class=controls> to ship clean) --- */
+  .controls {
+    position: fixed; left: 16px; bottom: 16px;
+    display: grid; gap: 8px 12px; grid-template-columns: auto 140px auto;
+    align-items: center;
+    background: rgba(255,255,255,.85); backdrop-filter: blur(6px);
+    padding: 14px 16px; border-radius: 12px; border: 1px solid #eadfd6;
+    font-size: 12px; color: #6b6259; box-shadow: 0 6px 24px rgba(0,0,0,.06);
+  }
+  .controls label { white-space: nowrap; }
+  .controls output { font-variant-numeric: tabular-nums; text-align: right; }
+  .controls input { width: 140px; accent-color: var(--accent); }
+  .controls h4 { grid-column: 1/-1; margin: 0 0 2px; font-size: 11px; letter-spacing:.1em; text-transform:uppercase; color:#a89e94; }
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="scene">
+      <div class="whisk">
+        <svg class="whisk-svg" preserveAspectRatio="xMidYMid meet" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewBox="0 0 10.2 42.2" xml:space="preserve">
+<style type="text/css">.st0{fill:#D72E2B;}</style>
+<!-- translate(10.2,0) rotate(90) maps the original horizontal whisk to vertical:
+     handle (originally left, x 0-16) -> top; blades (originally right) -> bottom -->
+<g transform="translate(10.2,0) rotate(90)">
+	<g>
+		<g>
+			<path class="st0" d="M16.1,4.7c0-1-0.8-1.8-1.7-1.8L1.8,2.7C0.8,2.7,0,3.5,0,4.4c0,1,0.8,1.8,1.7,1.8l12.6,0.2
+				C15.3,6.5,16,5.7,16.1,4.7z M0.8,4.5c0-0.4,0.4-0.8,0.8-0.8c0.4,0,0.8,0.4,0.8,0.8c0,0.4-0.4,0.8-0.8,0.8C1.2,5.2,0.8,4.9,0.8,4.5
+				z"/>
+		</g>
+		<g>
+			<g>
+				<path class="st0" d="M20,4.8C20,4.8,20,4.8,20,4.8c0-0.1,0.1-0.2,0.2-0.2C20.8,4.4,34.5,0,37.2,0c2.8,0,5,2.4,5,5.2
+					c0,2.8-2.4,5.1-5.2,5l0,0c-2.7,0-16.2-4.9-16.8-5.1C20.1,5,20,4.9,20,4.8z M41.7,5.1c0-2.5-2-4.5-4.5-4.6
+					c-2.3,0-13.2,3.4-16.1,4.3c2.9,1,13.7,4.8,16,4.9C39.5,9.7,41.6,7.7,41.7,5.1C41.7,5.1,41.7,5.1,41.7,5.1z M37,9.9L37,9.9L37,9.9
+					z"/>
+			</g>
+			<g>
+				<path class="st0" d="M20,4.8C20,4.8,20,4.8,20,4.8c0-0.1,0.1-0.2,0.2-0.2c0.6-0.1,14.3-2.8,16.9-2.8c2.8,0,5,1.6,5,3.4
+					c0,0,0,0,0,0c0,0.9-0.6,1.8-1.6,2.4c-1,0.6-2.2,0.9-3.6,0.9c-2.7,0-16.2-3.3-16.8-3.4C20.1,5,20,4.9,20,4.8z M41.7,5.1
+					c0-1.5-2-2.8-4.5-2.9c-2.2,0-12.2,1.9-15.7,2.6C24.8,5.6,34.8,7.9,37,7.9c1.2,0,2.4-0.3,3.3-0.8C41.2,6.6,41.6,5.9,41.7,5.1
+					C41.7,5.2,41.7,5.2,41.7,5.1z"/>
+			</g>
+			<g>
+				<path class="st0" d="M20,4.8C20,4.8,20,4.8,20,4.8c0-0.1,0.1-0.2,0.2-0.3c0.6,0,14.2-1,16.9-0.9c1.3,0,2.5,0.2,3.5,0.4
+					c1.1,0.3,1.6,0.7,1.6,1.1c0,1-2.7,1.4-5.1,1.4l0,0c-2.7,0-16.2-1.4-16.8-1.5C20.1,5,20,4.9,20,4.8z M41.7,5.2
+					c0-0.1-0.2-0.4-1.2-0.6c-0.9-0.2-2.1-0.4-3.4-0.4c-1.9,0-9.5,0.4-13.8,0.7C27.6,5.3,35.2,6,37.1,6C40,6.1,41.6,5.5,41.7,5.2
+					L41.7,5.2z M37,6.3L37,6.3L37,6.3z"/>
+			</g>
+		</g>
+		<g>
+			<rect x="18" y="2.3" transform="matrix(1.756758e-02 -0.9998 0.9998 1.756758e-02 13.783 23.5703)" class="st0" width="1.9" height="4.9"/>
+		</g>
+	</g>
+</g>
+</svg>
+      </div>
+    </div>
+    <div class="shadow"></div>
+    <div class="label"><b>Report</b> &nbsp;loading<span class="dots"></span></div>
+  </div>
+
+  <!-- Optional live-tuning panel -->
+  <div class="controls">
+    <h4>Tune</h4>
+    <label>Tilt</label>
+    <input id="tilt" type="range" min="0" max="55" value="26">
+    <output id="tiltv">26°</output>
+
+    <label>Speed</label>
+    <input id="speed" type="range" min="0.6" max="4" step="0.1" value="1.6">
+    <output id="speedv">1.6s</output>
+
+    <label>3D depth</label>
+    <input id="persp" type="range" min="300" max="1400" value="620">
+    <output id="perspv">620</output>
+
+    <label>Pivot</label>
+    <input id="pivot" type="range" min="30" max="70" value="52">
+    <output id="pivotv">52%</output>
+  </div>
+
+  <script>
+    const root = document.documentElement.style;
+    const bind = (id, cssVar, fmt, unit='') => {
+      const el = document.getElementById(id);
+      const out = document.getElementById(id+'v');
+      const apply = () => { root.setProperty(cssVar, el.value+unit); out.textContent = fmt(el.value); };
+      el.addEventListener('input', apply); apply();
+    };
+    bind('tilt','--tilt', v=>v+'°','deg');
+    bind('speed','--speed', v=>v+'s','s');
+    bind('persp','--persp', v=>v, 'px');
+    bind('pivot','--pivot', v=>v+'%','%');
+  </script>
+</body>
+</html>

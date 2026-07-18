@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/colors.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/typography.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/effects.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/styles.css">
+<script src="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/_ds_bundle.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Mulish:ital,wght@0,300..900;1,400..700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:var(--rk-paper,#FBF7F0);font-family:"Mulish",system-ui,sans-serif}
+a{color:var(--rk-tomato-600,#BD2523);text-decoration:none}
+a:hover{color:var(--rk-tomato-700,#A31E1C);text-decoration:underline}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(48,61,97,.1);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 6px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1E2740;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 15px/1.2 "Bricolage Grotesque",sans-serif;color:#1E2740}
+.dv-intro{font:400 13px/1.55 "Mulish",sans-serif;color:#4C5A80;max-width:720px;margin:0 0 24px}
+.dv-opts{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(48,61,97,.1);color:#1E2740;border-radius:5px;text-decoration:none}
+.dv-oid:hover{text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 12px/1.3 "Mulish",sans-serif;color:rgba(30,39,64,.6)}
+.dv-card{max-width:100%;background:#fff;border:1px solid #E4E1D9;border-radius:8px;box-shadow:0 1px 3px rgba(48,61,97,.06);overflow:hidden}
+.dv-opt:target .dv-oid{background:#D72E2C;color:#fff}
+.dv-next{margin:26px 0 0;font:12px/1.5 "Mulish",sans-serif;color:rgba(30,39,64,.5)}
+</style>
+<script src="https://unpkg.com/lucide@latest"></script>
+</helmet>
+<section class="dv-turn" id="t3">
+<div class="dv-thd"><a class="dv-tid" href="#t3">3</a><span class="dv-tname">Best at the extremes — 1 stat and 6 stats</span></div>
+<p class="dv-intro">For a single number: <a class="dv-oid" href="#2f">2f</a>'s rule-only hero (the type carries it) and <a class="dv-oid" href="#2d">2d</a>'s dark band (color does the emphasis, so one number never feels sparse). For six: <a class="dv-oid" href="#1b">1b</a>'s big-number grid (2×3 stays scannable) and <a class="dv-oid" href="#2a">2a</a>'s icon list (vertical rhythm handles long descriptions without truncation).</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="3a">
+<div class="dv-olabel"><a class="dv-oid" href="#3a">3a</a>Single — rule-only hero (from <a class="dv-oid" href="#2f">2f</a>)</div>
+<div class="dv-card" style="width:560px;padding:48px 52px">
+  <div style="border-left:3px solid var(--rk-tomato);padding-left:32px">
+    <div style="font-family:'Mulish',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-text-muted);margin-bottom:14px">Key figure</div>
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:88px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:var(--rk-ink)">$105tn</div>
+    <p style="margin:16px 0 0;font-size:16px;line-height:1.55;color:var(--rk-text-body);max-width:380px">more wealth owned by men than women globally — four times the size of the US economy</p>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="3b">
+<div class="dv-olabel"><a class="dv-oid" href="#3b">3b</a>Single — dark band (from <a class="dv-oid" href="#2d">2d</a>); color fills the space one number can't</div>
+<div class="dv-card" style="width:640px;background:var(--rk-rhino-700);border-color:var(--rk-rhino-900);padding:52px 56px;text-align:center">
+  <div style="font-family:'Mulish',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,.65);margin-bottom:16px">By the numbers</div>
+  <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:96px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:#fff">476 years</div>
+  <p style="margin:18px auto 0;font-size:16px;line-height:1.55;color:rgba(255,255,255,.75);max-width:440px">how long the five wealthiest men would take to exhaust their combined wealth spending a million dollars daily</p>
+</div>
+</div>
+
+<div class="dv-opt" id="3c">
+<div class="dv-olabel"><a class="dv-oid" href="#3c">3c</a>Six — big-number grid, 2×3 (from <a class="dv-oid" href="#1b">1b</a>)</div>
+<div class="dv-card" style="width:720px;padding:40px 44px">
+  <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.01em;color:var(--rk-rhino-900);margin:0 0 30px">Inequality in numbers</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:34px 36px">
+    <div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:36px;font-weight:800;letter-spacing:-0.02em;line-height:1.05;color:var(--rk-rhino-900);display:inline-block;box-shadow:inset 0 -9px 0 var(--rk-macaroni-300)">476 yrs</div>
+      <p style="margin:10px 0 0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)">for the five wealthiest men to exhaust their wealth at $1M a day</p>
+    </div>
+    <div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:36px;font-weight:800;letter-spacing:-0.02em;line-height:1.05;color:var(--rk-rhino-900);display:inline-block;box-shadow:inset 0 -9px 0 var(--rk-macaroni-300)">$105tn</div>
+      <p style="margin:10px 0 0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)">more wealth owned by men than women globally</p>
+    </div>
+    <div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:36px;font-weight:800;letter-spacing:-0.02em;line-height:1.05;color:var(--rk-rhino-900);display:inline-block;box-shadow:inset 0 -9px 0 var(--rk-macaroni-300)">43%</div>
+      <p style="margin:10px 0 0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)">of global financial assets owned by the richest 1%</p>
+    </div>
+    <div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:36px;font-weight:800;letter-spacing:-0.02em;line-height:1.05;color:var(--rk-rhino-900);display:inline-block;box-shadow:inset 0 -9px 0 var(--rk-macaroni-300)">7 in 10</div>
+      <p style="margin:10px 0 0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)">of the biggest corporations have a billionaire CEO or principal shareholder</p>
+    </div>
+    <div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:36px;font-weight:800;letter-spacing:-0.02em;line-height:1.05;color:var(--rk-rhino-900);display:inline-block;box-shadow:inset 0 -9px 0 var(--rk-macaroni-300)">1,200 yrs</div>
+      <p style="margin:10px 0 0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)">for a female health worker to earn a Fortune 100 CEO's average annual pay</p>
+    </div>
+    <div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:36px;font-weight:800;letter-spacing:-0.02em;line-height:1.05;color:var(--rk-rhino-900);display:inline-block;box-shadow:inset 0 -9px 0 var(--rk-macaroni-300)">15.8%</div>
+      <p style="margin:10px 0 0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)">the wealth of a typical Black household in the USA relative to a white one</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="3d">
+<div class="dv-olabel"><a class="dv-oid" href="#3d">3d</a>Six — icon list, two columns (from <a class="dv-oid" href="#2a">2a</a>); long descriptions never truncate</div>
+<div class="dv-card" style="width:760px;padding:36px 40px">
+  <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.01em;color:var(--rk-rhino-900);margin:0 0 18px">Inequality in numbers</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;column-gap:40px">
+    <div style="display:flex;gap:14px;padding:13px 0;border-top:1px solid var(--rk-border)">
+      <i data-lucide="hourglass" style="flex:none;width:19px;height:19px;color:var(--rk-tomato);margin-top:2px"></i>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">476 years</strong> for the five wealthiest men to exhaust their wealth at $1M a day</p>
+    </div>
+    <div style="display:flex;gap:14px;padding:13px 0;border-top:1px solid var(--rk-border)">
+      <i data-lucide="scale" style="flex:none;width:19px;height:19px;color:var(--rk-tomato);margin-top:2px"></i>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">$105tn</strong> more wealth owned by men than women globally</p>
+    </div>
+    <div style="display:flex;gap:14px;padding:13px 0;border-top:1px solid var(--rk-border)">
+      <i data-lucide="pie-chart" style="flex:none;width:19px;height:19px;color:var(--rk-tomato);margin-top:2px"></i>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">43%</strong> of global financial assets owned by the richest 1%</p>
+    </div>
+    <div style="display:flex;gap:14px;padding:13px 0;border-top:1px solid var(--rk-border)">
+      <i data-lucide="building-2" style="flex:none;width:19px;height:19px;color:var(--rk-tomato);margin-top:2px"></i>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">7 in 10</strong> of the biggest corporations have a billionaire CEO or principal shareholder</p>
+    </div>
+    <div style="display:flex;gap:14px;padding:13px 0;border-top:1px solid var(--rk-border)">
+      <i data-lucide="stethoscope" style="flex:none;width:19px;height:19px;color:var(--rk-tomato);margin-top:2px"></i>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">1,200 years</strong> for a female health worker to earn a Fortune 100 CEO's annual pay</p>
+    </div>
+    <div style="display:flex;gap:14px;padding:13px 0;border-top:1px solid var(--rk-border)">
+      <i data-lucide="home" style="flex:none;width:19px;height:19px;color:var(--rk-tomato);margin-top:2px"></i>
+      <p style="margin:0;font-size:14px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">15.8%</strong> — wealth of a typical Black household in the USA relative to a white one</p>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "show <a class="dv-oid" href="#3c">3c</a> at 4 and 5 (odd counts)" · "make <a class="dv-oid" href="#3b">3b</a> left-aligned" · "swap <a class="dv-oid" href="#3d">3d</a> icons for round-rect bullets"</p>
+</section>
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Riffs on <a class="dv-oid" href="#1a">1a</a>, <a class="dv-oid" href="#1c">1c</a>, <a class="dv-oid" href="#1e">1e</a>, <a class="dv-oid" href="#1f">1f</a></span></div>
+<p class="dv-intro">Assumption baked in: greyscale base + one settable accent (shown as tomato). Icons, bullets, and bars take the accent; everything else is ink/grey.</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="2a">
+<div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>List with Lucide icons — icon per stat, accent-colored</div>
+<div class="dv-card" style="width:520px;padding:32px 36px">
+  <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.01em;color:var(--rk-rhino-900);margin:0 0 20px">Inequality in numbers</h3>
+  <div style="display:flex;flex-direction:column">
+    <div style="display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--rk-border)">
+      <i data-lucide="hourglass" style="flex:none;width:20px;height:20px;color:var(--rk-tomato);margin-top:2px"></i>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">476 years</strong> — how long the five wealthiest men would take to exhaust their combined wealth spending a million dollars daily</p>
+    </div>
+    <div style="display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--rk-border)">
+      <i data-lucide="pie-chart" style="flex:none;width:20px;height:20px;color:var(--rk-tomato);margin-top:2px"></i>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">43%</strong> of all global financial assets are owned by the world's richest 1%</p>
+    </div>
+    <div style="display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--rk-border)">
+      <i data-lucide="scale" style="flex:none;width:20px;height:20px;color:var(--rk-tomato);margin-top:2px"></i>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">$105tn</strong> more wealth owned by men than women globally — four times the size of the US economy</p>
+    </div>
+    <div style="display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--rk-border)">
+      <i data-lucide="building-2" style="flex:none;width:20px;height:20px;color:var(--rk-tomato);margin-top:2px"></i>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">7 in 10</strong> of the world's biggest corporations have a billionaire CEO or principal shareholder</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="2b">
+<div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>List with round-rect bullets — no icon picking needed</div>
+<div class="dv-card" style="width:520px;padding:32px 36px">
+  <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.01em;color:var(--rk-rhino-900);margin:0 0 20px">Inequality in numbers</h3>
+  <div style="display:flex;flex-direction:column">
+    <div style="display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--rk-border)">
+      <span style="flex:none;width:10px;height:10px;background:var(--rk-tomato);border-radius:3px;margin-top:6px"></span>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">476 years</strong> — how long the five wealthiest men would take to exhaust their combined wealth spending a million dollars daily</p>
+    </div>
+    <div style="display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--rk-border)">
+      <span style="flex:none;width:10px;height:10px;background:var(--rk-tomato);border-radius:3px;margin-top:6px"></span>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">43%</strong> of all global financial assets are owned by the world's richest 1%</p>
+    </div>
+    <div style="display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--rk-border)">
+      <span style="flex:none;width:10px;height:10px;background:var(--rk-tomato);border-radius:3px;margin-top:6px"></span>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">$105tn</strong> more wealth owned by men than women globally — four times the size of the US economy</p>
+    </div>
+    <div style="display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--rk-border)">
+      <span style="flex:none;width:10px;height:10px;background:var(--rk-tomato);border-radius:3px;margin-top:6px"></span>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">7 in 10</strong> of the world's biggest corporations have a billionaire CEO or principal shareholder</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="2c">
+<div class="dv-olabel"><a class="dv-oid" href="#2c">2c</a>Icon tiles on light grey — accent only in the icon</div>
+<div class="dv-card" style="width:640px;padding:36px 40px">
+  <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.01em;color:var(--rk-rhino-900);margin:0 0 24px">Improving state governance</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+    <div style="background:var(--rk-gray-100);border-radius:12px;padding:20px 18px;display:flex;flex-direction:column;gap:12px">
+      <i data-lucide="landmark" style="width:26px;height:26px;color:var(--rk-tomato)"></i>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:32px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:var(--rk-rhino-900)">29%</div>
+      <p style="margin:0;font-size:13px;line-height:1.5;color:var(--rk-text-body)">of the population trust governments in LAC, below OECD and global averages</p>
+    </div>
+    <div style="background:var(--rk-gray-100);border-radius:12px;padding:20px 18px;display:flex;flex-direction:column;gap:12px">
+      <i data-lucide="trending-down" style="width:26px;height:26px;color:var(--rk-tomato)"></i>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:32px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:var(--rk-rhino-900)">4.4%</div>
+      <p style="margin:0;font-size:13px;line-height:1.5;color:var(--rk-text-body)">of GDP lost to inefficiency in public spending alone</p>
+    </div>
+    <div style="background:var(--rk-gray-100);border-radius:12px;padding:20px 18px;display:flex;flex-direction:column;gap:12px">
+      <i data-lucide="calendar-clock" style="width:26px;height:26px;color:var(--rk-tomato)"></i>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:32px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:var(--rk-rhino-900)">28 days</div>
+      <p style="margin:0;font-size:13px;line-height:1.5;color:var(--rk-text-body)">to start a business in LAC, versus nine days in the OECD</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="2d">
+<div class="dv-olabel"><a class="dv-oid" href="#2d">2d</a>Dark band, white-only type — accent color drives the band; type is white + tints</div>
+<div class="dv-card" style="width:760px;background:var(--rk-rhino-700);border-color:var(--rk-rhino-900);padding:44px 48px">
+  <div style="font-family:'Mulish',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,.65);margin-bottom:10px">By the numbers</div>
+  <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:26px;font-weight:700;letter-spacing:-0.01em;color:#fff;margin:0 0 32px">The scale of the divide, quantified</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px 40px">
+    <div style="border-top:2px solid rgba(255,255,255,.28);padding-top:16px">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:44px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:#fff">476 yrs</div>
+      <p style="margin:10px 0 0;font-size:13.5px;line-height:1.5;color:rgba(255,255,255,.75)">for the five wealthiest men to exhaust their wealth at $1M a day</p>
+    </div>
+    <div style="border-top:2px solid rgba(255,255,255,.28);padding-top:16px">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:44px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:#fff">7 in 10</div>
+      <p style="margin:10px 0 0;font-size:13.5px;line-height:1.5;color:rgba(255,255,255,.75)">of the biggest corporations have a billionaire CEO or principal shareholder</p>
+    </div>
+    <div style="border-top:2px solid rgba(255,255,255,.28);padding-top:16px">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:44px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:#fff">1,200 yrs</div>
+      <p style="margin:10px 0 0;font-size:13.5px;line-height:1.5;color:rgba(255,255,255,.75)">for a female health worker to earn a Fortune 100 CEO's average annual pay</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="2e">
+<div class="dv-olabel"><a class="dv-oid" href="#2e">2e</a>Hero + rail, flat greyscale — hero on a grey panel with a thick ink top rule; rail keeps hairlines</div>
+<div class="dv-card" style="width:680px;padding:40px 44px">
+  <div style="display:flex;gap:36px;align-items:stretch">
+    <div style="flex:none;background:var(--rk-gray-100);border-top:4px solid var(--rk-ink);padding:26px 28px;max-width:270px">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:56px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:var(--rk-ink)">476<span style="font-size:30px"> years</span></div>
+      <p style="margin:12px 0 0;font-size:14px;line-height:1.5;color:var(--rk-text-body)">how long the five wealthiest men would take to exhaust their combined wealth spending $1M daily</p>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0">
+      <div style="display:flex;align-items:baseline;gap:14px;padding:12px 0;border-bottom:1px solid var(--rk-gray-200)">
+        <span style="flex:none;font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:800;color:var(--rk-ink);min-width:86px">43%</span>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)">of global financial assets owned by the richest 1%</p>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:14px;padding:12px 0;border-bottom:1px solid var(--rk-gray-200)">
+        <span style="flex:none;font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:800;color:var(--rk-ink);min-width:86px">$105tn</span>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)">more wealth owned by men than women globally</p>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:14px;padding:12px 0">
+        <span style="flex:none;font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:800;color:var(--rk-ink);min-width:86px">7 in 10</span>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)">of the biggest corporations have a billionaire CEO or principal shareholder</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="2f">
+<div class="dv-olabel"><a class="dv-oid" href="#2f">2f</a>Hero + rail, ruled — no boxes at all; a vertical rule divides hero from rail</div>
+<div class="dv-card" style="width:680px;padding:40px 44px">
+  <div style="display:flex;gap:0;align-items:stretch">
+    <div style="flex:none;max-width:270px;padding-right:36px">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:64px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:var(--rk-ink)">476<span style="font-size:32px"> years</span></div>
+      <p style="margin:14px 0 0;font-size:14px;line-height:1.5;color:var(--rk-text-body)">how long the five wealthiest men would take to exhaust their combined wealth spending $1M daily</p>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;min-width:0;border-left:2px solid var(--rk-ink);padding-left:36px">
+      <div>
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:800;color:var(--rk-ink)">43%</span>
+        <p style="margin:2px 0 0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)">of global financial assets owned by the richest 1%</p>
+      </div>
+      <div>
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:800;color:var(--rk-ink)">$105tn</span>
+        <p style="margin:2px 0 0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)">more wealth owned by men than women globally</p>
+      </div>
+      <div>
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:800;color:var(--rk-ink)">7 in 10</span>
+        <p style="margin:2px 0 0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)">of the biggest corporations have a billionaire CEO or principal shareholder</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "show <a class="dv-oid" href="#2a">2a</a> and <a class="dv-oid" href="#2e">2e</a> at 1 and 6 stats" · "swap the accent color to see how they hold up" · "merge <a class="dv-oid" href="#2c">2c</a> tiles into <a class="dv-oid" href="#2d">2d</a>'s band"</p>
+</section>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Stat presentation treatments — Landing Page Maker</span></div>
+<p class="dv-intro">Six ways to plate a set of extracted stats, roughly safe → playful. All work from 1–6 stats: card grids reflow (1 = single wide, 2–3 = one row, 4–6 = two rows); list styles just grow. Bars only appear when the stat is a percentage; otherwise that treatment falls back to a plain big number. Sample stats pulled from both reports.</p>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Accent list — safest; works at any count, bullet replaced by a tomato tick rule</div>
+<div class="dv-card" style="width:520px;padding:32px 36px">
+  <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.01em;color:var(--rk-rhino-900);margin:0 0 20px">Inequality in numbers</h3>
+  <div style="display:flex;flex-direction:column;gap:0">
+    <div style="display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--rk-border)">
+      <span style="flex:none;width:22px;height:3px;background:var(--rk-tomato);border-radius:2px;margin-top:9px"></span>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">476 years</strong> — how long the five wealthiest men would take to exhaust their combined wealth spending a million dollars daily</p>
+    </div>
+    <div style="display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--rk-border)">
+      <span style="flex:none;width:22px;height:3px;background:var(--rk-tomato);border-radius:2px;margin-top:9px"></span>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">43%</strong> of all global financial assets are owned by the world's richest 1%</p>
+    </div>
+    <div style="display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--rk-border)">
+      <span style="flex:none;width:22px;height:3px;background:var(--rk-tomato);border-radius:2px;margin-top:9px"></span>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">$105tn</strong> more wealth owned by men than women globally — four times the size of the US economy</p>
+    </div>
+    <div style="display:flex;gap:16px;padding:14px 0;border-top:1px solid var(--rk-border)">
+      <span style="flex:none;width:22px;height:3px;background:var(--rk-tomato);border-radius:2px;margin-top:9px"></span>
+      <p style="margin:0;font-size:15px;line-height:1.55;color:var(--rk-text-body)"><strong style="color:var(--rk-rhino-900)">7 in 10</strong> of the world's biggest corporations have a billionaire CEO or principal shareholder</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Big-number cards — classic stat grid, macaroni underline on the figure</div>
+<div class="dv-card" style="width:640px;padding:36px 40px">
+  <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.01em;color:var(--rk-rhino-900);margin:0 0 28px">Inequality in numbers</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px 36px">
+    <div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:40px;font-weight:800;letter-spacing:-0.02em;line-height:1.05;color:var(--rk-rhino-900);display:inline-block;box-shadow:inset 0 -10px 0 var(--rk-macaroni-300)">476 yrs</div>
+      <p style="margin:10px 0 0;font-size:13.5px;line-height:1.5;color:var(--rk-text-muted)">for the five wealthiest men to exhaust their wealth at $1M a day</p>
+    </div>
+    <div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:40px;font-weight:800;letter-spacing:-0.02em;line-height:1.05;color:var(--rk-rhino-900);display:inline-block;box-shadow:inset 0 -10px 0 var(--rk-macaroni-300)">$105tn</div>
+      <p style="margin:10px 0 0;font-size:13.5px;line-height:1.5;color:var(--rk-text-muted)">more wealth owned by men than women globally</p>
+    </div>
+    <div>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:40px;font-weight:800;letter-spacing:-0.02em;line-height:1.05;color:var(--rk-rhino-900);display:inline-block;box-shadow:inset 0 -10px 0 var(--rk-macaroni-300)">43%</div>
+      <p style="margin:10px 0 0;font-size:13.5px;line-height:1.5;color:var(--rk-text-muted)">of global financial assets owned by the richest 1%</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Icon + number pairs — Lucide line icons on cream tiles</div>
+<div class="dv-card" style="width:640px;padding:36px 40px">
+  <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.01em;color:var(--rk-rhino-900);margin:0 0 24px">Improving state governance</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+    <div style="background:var(--rk-cream);border-radius:12px;padding:20px 18px;display:flex;flex-direction:column;gap:12px">
+      <i data-lucide="landmark" style="width:26px;height:26px;color:var(--rk-tomato)"></i>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:32px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:var(--rk-rhino-900)">29%</div>
+      <p style="margin:0;font-size:13px;line-height:1.5;color:var(--rk-text-body)">of the population trust governments in LAC, below OECD and global averages</p>
+    </div>
+    <div style="background:var(--rk-cream);border-radius:12px;padding:20px 18px;display:flex;flex-direction:column;gap:12px">
+      <i data-lucide="trending-down" style="width:26px;height:26px;color:var(--rk-tomato)"></i>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:32px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:var(--rk-rhino-900)">4.4%</div>
+      <p style="margin:0;font-size:13px;line-height:1.5;color:var(--rk-text-body)">of GDP lost to inefficiency in public spending alone</p>
+    </div>
+    <div style="background:var(--rk-cream);border-radius:12px;padding:20px 18px;display:flex;flex-direction:column;gap:12px">
+      <i data-lucide="calendar-clock" style="width:26px;height:26px;color:var(--rk-tomato)"></i>
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:32px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:var(--rk-rhino-900)">28 days</div>
+      <p style="margin:0;font-size:13px;line-height:1.5;color:var(--rk-text-body)">to start a business in LAC, versus nine days in the OECD</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="1d">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Mini bar chart — percentages only; bar animates on load, value sits at bar end</div>
+<div class="dv-card" style="width:520px;padding:36px 40px">
+  <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.01em;color:var(--rk-rhino-900);margin:0 0 6px">The scale of the divide</h3>
+  <p style="margin:0 0 26px;font-size:13.5px;color:var(--rk-text-muted)">Share, as extracted from the report</p>
+  <div style="display:flex;flex-direction:column;gap:22px">
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:8px">
+        <p style="margin:0;font-size:14px;line-height:1.45;color:var(--rk-text-body)">Global financial assets owned by the richest 1%</p>
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:800;color:var(--rk-rhino-900)">43%</span>
+      </div>
+      <div style="height:10px;background:var(--rk-gray-100);border-radius:999px;overflow:hidden"><div style="width:43%;height:100%;background:var(--rk-tomato);border-radius:999px"></div></div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:8px">
+        <p style="margin:0;font-size:14px;line-height:1.45;color:var(--rk-text-body)">Population trusting governments in LAC</p>
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:800;color:var(--rk-rhino-900)">29%</span>
+      </div>
+      <div style="height:10px;background:var(--rk-gray-100);border-radius:999px;overflow:hidden"><div style="width:29%;height:100%;background:var(--rk-tomato);border-radius:999px"></div></div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:8px">
+        <p style="margin:0;font-size:14px;line-height:1.45;color:var(--rk-text-body)">Wealth of a typical Black household in the USA relative to a typical white household</p>
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:20px;font-weight:800;color:var(--rk-rhino-900)">15.8%</span>
+      </div>
+      <div style="height:10px;background:var(--rk-gray-100);border-radius:999px;overflow:hidden"><div style="width:15.8%;height:100%;background:var(--rk-tomato);border-radius:999px"></div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="1e">
+<div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Rhino inverse band — full-bleed dark section, macaroni figures; strong page-rhythm break</div>
+<div class="dv-card" style="width:760px;background:var(--rk-rhino-700);border-color:var(--rk-rhino-900);padding:44px 48px">
+  <div style="font-family:'Mulish',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--rk-macaroni);margin-bottom:10px">By the numbers</div>
+  <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-size:26px;font-weight:700;letter-spacing:-0.01em;color:#fff;margin:0 0 32px">The scale of the divide, quantified</h3>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px 40px">
+    <div style="border-top:2px solid var(--rk-rhino-500);padding-top:16px">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:44px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:var(--rk-macaroni)">476 yrs</div>
+      <p style="margin:10px 0 0;font-size:13.5px;line-height:1.5;color:var(--rk-text-on-dark)">for the five wealthiest men to exhaust their wealth at $1M a day</p>
+    </div>
+    <div style="border-top:2px solid var(--rk-rhino-500);padding-top:16px">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:44px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:var(--rk-macaroni)">7 in 10</div>
+      <p style="margin:10px 0 0;font-size:13.5px;line-height:1.5;color:var(--rk-text-on-dark)">of the biggest corporations have a billionaire CEO or principal shareholder</p>
+    </div>
+    <div style="border-top:2px solid var(--rk-rhino-500);padding-top:16px">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:44px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:var(--rk-macaroni)">1,200 yrs</div>
+      <p style="margin:10px 0 0;font-size:13.5px;line-height:1.5;color:var(--rk-text-on-dark)">for a female health worker to earn a Fortune 100 CEO's average annual pay</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="1f">
+<div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>Hero stat + supporting — one headline number as a "sticker" with the RK offset shadow, rest as a compact rail. Great for 1 stat; scales by adding rail rows</div>
+<div class="dv-card" style="width:680px;padding:40px 44px">
+  <div style="display:flex;gap:40px;align-items:flex-start">
+    <div style="flex:none;background:var(--rk-macaroni-100);border:2px solid var(--rk-rhino-700);border-radius:16px;box-shadow:6px 6px 0 var(--rk-rhino-700);padding:28px 30px;max-width:280px">
+      <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:56px;font-weight:800;letter-spacing:-0.02em;line-height:1;color:var(--rk-tomato)">476<span style="font-size:30px"> years</span></div>
+      <p style="margin:12px 0 0;font-size:14px;line-height:1.5;color:var(--rk-rhino-700)">how long the five wealthiest men would take to exhaust their combined wealth spending $1M daily</p>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:0;min-width:0">
+      <div style="display:flex;align-items:baseline;gap:14px;padding:12px 0;border-bottom:1px dashed var(--rk-border-strong)">
+        <span style="flex:none;font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:800;color:var(--rk-rhino-900);min-width:86px">43%</span>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)">of global financial assets owned by the richest 1%</p>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:14px;padding:12px 0;border-bottom:1px dashed var(--rk-border-strong)">
+        <span style="flex:none;font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:800;color:var(--rk-rhino-900);min-width:86px">$105tn</span>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)">more wealth owned by men than women globally</p>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:14px;padding:12px 0">
+        <span style="flex:none;font-family:'Bricolage Grotesque',sans-serif;font-size:24px;font-weight:800;color:var(--rk-rhino-900);min-width:86px">7 in 10</span>
+        <p style="margin:0;font-size:13px;line-height:1.5;color:var(--rk-text-muted)">of the biggest corporations have a billionaire CEO or principal shareholder</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "show <a class="dv-oid" href="#1b">1b</a> at 1 and 6 stats" · "make <a class="dv-oid" href="#1c">1c</a> icons macaroni on rhino tiles" · "combine <a class="dv-oid" href="#1d">1d</a> bars into <a class="dv-oid" href="#1e">1e</a>'s dark band"</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  componentDidMount() {
+    const tryIcons = () => { if (window.lucide) { window.lucide.createIcons(); } else { setTimeout(tryIcons, 200); } };
+    tryIcons();
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Report Kitchen Whisk Loader</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --ink: #6f5a52;
+      --accent: #d72e2b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: var(--bg);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+    }
+
+    .loader {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      user-select: none;
+    }
+
+    svg {
+      width: 240px;
+      height: 240px;
+      display: block;
+      overflow: visible;
+    }
+
+    .caption {
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(111, 90, 82, 0.86);
+    }
+
+    .dots {
+      display: inline-flex;
+      gap: 4px;
+      margin-left: 2px;
+      vertical-align: middle;
+    }
+
+    .dots span {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.25;
+      animation: dotBlink 1s infinite;
+    }
+
+    .dots span:nth-child(2) { animation-delay: 0.15s; }
+    .dots span:nth-child(3) { animation-delay: 0.30s; }
+
+    @keyframes dotBlink {
+      0%, 80%, 100% { opacity: 0.22; transform: translateY(0); }
+      40% { opacity: 1; transform: translateY(-1px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="loader">
+    <svg viewBox="0 0 240 240" role="img" aria-label="Animated Report Kitchen whisk loading icon">
+      <g id="whiskMatrix">
+        <!--
+          The inner group uses the exact original RK whisk path data.
+          We translate the original connector/pivot to the origin, then rotate
+          it upright so the handle points up and the whisk head points down.
+        -->
+        <g id="whiskBase" transform="rotate(90) translate(-20.1 -4.75)">
+          <path fill="#D72E2B" d="M16.1,4.7c0-1-0.8-1.8-1.7-1.8L1.8,2.7C0.8,2.7,0,3.5,0,4.4c0,1,0.8,1.8,1.7,1.8l12.6,0.2 C15.3,6.5,16,5.7,16.1,4.7z M0.8,4.5c0-0.4,0.4-0.8,0.8-0.8c0.4,0,0.8,0.4,0.8,0.8c0,0.4-0.4,0.8-0.8,0.8C1.2,5.2,0.8,4.9,0.8,4.5 z"/>
+          <path fill="#D72E2B" d="M20,4.8C20,4.8,20,4.8,20,4.8c0-0.1,0.1-0.2,0.2-0.2C20.8,4.4,34.5,0,37.2,0c2.8,0,5,2.4,5,5.2 c0,2.8-2.4,5.1-5.2,5l0,0c-2.7,0-16.2-4.9-16.8-5.1C20.1,5,20,4.9,20,4.8z M41.7,5.1c0-2.5-2-4.5-4.5-4.6 c-2.3,0-13.2,3.4-16.1,4.3c2.9,1,13.7,4.8,16,4.9C39.5,9.7,41.6,7.7,41.7,5.1C41.7,5.1,41.7,5.1,41.7,5.1z M37,9.9L37,9.9L37,9.9 z"/>
+          <path fill="#D72E2B" d="M20,4.8C20,4.8,20,4.8,20,4.8c0-0.1,0.1-0.2,0.2-0.2c0.6-0.1,14.3-2.8,16.9-2.8c2.8,0,5,1.6,5,3.4 c0,0,0,0,0,0c0,0.9-0.6,1.8-1.6,2.4c-1,0.6-2.2,0.9-3.6,0.9c-2.7,0-16.2-3.3-16.8-3.4C20.1,5,20,4.9,20,4.8z M41.7,5.1 c0-1.5-2-2.8-4.5-2.9c-2.2,0-12.2,1.9-15.7,2.6C24.8,5.6,34.8,7.9,37,7.9c1.2,0,2.4-0.3,3.3-0.8C41.2,6.6,41.6,5.9,41.7,5.1 C41.7,5.2,41.7,5.2,41.7,5.1z"/>
+          <path fill="#D72E2B" d="M20,4.8C20,4.8,20,4.8,20,4.8c0-0.1,0.1-0.2,0.2-0.3c0.6,0,14.2-1,16.9-0.9c1.3,0,2.5,0.2,3.5,0.4 c1.1,0.3,1.6,0.7,1.6,1.1c0,1-2.7,1.4-5.1,1.4l0,0c-2.7,0-16.2-1.4-16.8-1.5C20.1,5,20,4.9,20,4.8z M41.7,5.2 c0-0.1-0.2-0.4-1.2-0.6c-0.9-0.2-2.1-0.4-3.4-0.4c-1.9,0-9.5,0.4-13.8,0.7C27.6,5.3,35.2,6,37.1,6C40,6.1,41.6,5.5,41.7,5.2 L41.7,5.2z"/>
+          <rect x="18" y="2.3" width="1.9" height="4.9" transform="matrix(1.756758e-02 -0.9998 0.9998 1.756758e-02 13.783 23.5703)" fill="#D72E2B"/>
+        </g>
+      </g>
+    </svg>
+
+    <div class="caption">
+      Loading<span class="dots"><span></span><span></span><span></span></span>
+    </div>
+  </div>
+
+  <script>
+    const whiskMatrix = document.getElementById('whiskMatrix');
+
+    const pivotScreen = { x: 120, y: 100 };
+    const focal = 390;
+    const camera = 490;
+    const cone = Math.PI / 6.6;
+    const speed = 2 * Math.PI / 1220;
+    const sizeMultiplier = 3.8;
+
+    function vec(x, y, z) { return { x, y, z }; }
+    function cross(a, b) {
+      return vec(
+        a.y * b.z - a.z * b.y,
+        a.z * b.x - a.x * b.z,
+        a.x * b.y - a.y * b.x
+      );
+    }
+    function len(v) { return Math.hypot(v.x, v.y, v.z); }
+    function norm(v) {
+      const l = len(v) || 1;
+      return vec(v.x / l, v.y / l, v.z / l);
+    }
+
+    function project(p) {
+      const s = focal / (camera - p.z);
+      return {
+        x: pivotScreen.x + p.x * s,
+        y: pivotScreen.y + p.y * s,
+        s,
+        z: p.z
+      };
+    }
+
+    function update(t) {
+      const theta = t * speed;
+
+      // Original-feeling motion basis from the first exact-logo version.
+      const axis = norm(vec(
+        Math.sin(cone) * Math.cos(theta),
+        Math.cos(cone),
+        Math.sin(cone) * Math.sin(theta)
+      ));
+
+      const ref = Math.abs(axis.z) < 0.92 ? vec(0, 0, 1) : vec(1, 0, 0);
+      const side = norm(cross(ref, axis));
+
+      // Build a local affine map from the source whisk coordinates:
+      // source x = across the whisk width, source y = down the whisk axis.
+      const O = project(vec(0, 0, 0));
+      const X = project(side);
+      const Y = project(axis);
+
+      const a = (X.x - O.x) * sizeMultiplier;
+      const b = (X.y - O.y) * sizeMultiplier;
+      const c = (Y.x - O.x) * sizeMultiplier;
+      const d = (Y.y - O.y) * sizeMultiplier;
+      const e = O.x;
+      const f = O.y;
+
+      whiskMatrix.setAttribute('transform', `matrix(${a.toFixed(5)} ${b.toFixed(5)} ${c.toFixed(5)} ${d.toFixed(5)} ${e.toFixed(5)} ${f.toFixed(5)})`);
+
+      requestAnimationFrame(update);
+    }
+
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html>

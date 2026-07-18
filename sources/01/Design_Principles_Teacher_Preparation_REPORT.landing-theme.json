@@ -7,7 +7,7 @@
   "--lp-content-bg": "#ffffff",
   "--lp-text": "#111111",
   "--lp-heading": "#111111",
-  "--lp-accent": "#1b4965",
+  "--lp-accent": "#3c74be",
   "--lp-font": "'Public Sans', system-ui, -apple-system, sans-serif"
  },
  "preview": {

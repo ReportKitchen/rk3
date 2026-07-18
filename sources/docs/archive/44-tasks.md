@@ -1,0 +1,3 @@
+- check design-system/quotes for treatments on pullquotes.  I like all the 5a-5f -- don't bother with round 4.   It may seem like I'm reversing my decision on making this about content instead of design, but I actually think offering a few fun treatments like this will really help.  I frequently hear "how do I jazz this up" -- content people often have no quick way to knock out design elements.  This is far more valuble than trying to match their current look.  we can do an awful lot with black, white, and one accent.
+  - we can't count on any particular font, so I made quote SVGs from several fonts with various looking quotes.  those are in docs/assets.
+
