@@ -40,6 +40,9 @@ posts_week: {kind: template, text: "Week {n}", tokens: [n]}
 posts_copy: {kind: static, text: "Copy"}
 posts_copied: {kind: static, text: "Copied"}
 posts_teaser_more: {kind: static, text: "Expand to read and copy all four"}
+posts_generating:
+  kind: static
+  text: "Still being written from your report — they'll appear here soon."
 posts_include_doc: {kind: static, text: "Include as a Word file in the download"}
 posts_cadence_hint:
   kind: static

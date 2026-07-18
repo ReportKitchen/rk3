@@ -53,6 +53,7 @@ export default function AssembleMaker({ doc }) {
   const [edits, setEdits] = useState({});   // Wordsmith per-section text edits {skey:{html,sig}}
   const [shareImage, setShareImage] = useState("cover");  // og:/twitter: preview: cover | social
   const [socialPosts, setSocialPosts] = useState([]);     // 4 suggested posts (sections pass)
+  const [postsPending, setPostsPending] = useState(false); // server is backfilling an old cache
   const [socialDoc, setSocialDoc] = useState(false);      // bundle posts .docx in the zip
   const loadedRef = useRef(false);           // gate the autosave until the first load hydrates
 
@@ -110,6 +111,7 @@ export default function AssembleMaker({ doc }) {
           on: !!saved.ai?.on, voice: saved.ai?.voice || a.voice }));
         setDocRead(art.documentRead || null);
         setSocialPosts(Array.isArray(art.socialPosts) ? art.socialPosts : []);
+        setPostsPending(!!sd?.postsPending);
         setNoai(!!sd?.noai);
         setGenError(sd?.error || null);
         setDefs(defaults || {});
@@ -156,6 +158,28 @@ export default function AssembleMaker({ doc }) {
       .catch((e) => { if (alive) { setError(e); setReady(true); } });
     return () => { alive = false; };
   }, [slug]);
+
+  // An old sections cache is having its posts backfilled server-side — poll
+  // until they land (or give up quietly after ~3 minutes; the card just hides).
+  useEffect(() => {
+    if (!postsPending) return undefined;
+    let tries = 0;
+    const id = setInterval(() => {
+      tries += 1;
+      getSections(slug)
+        .then((sd) => {
+          const posts = sd?.sections?.socialPosts;
+          if (Array.isArray(posts)) {
+            setSocialPosts(posts);
+            setPostsPending(false);
+          } else if (tries >= 36) {
+            setPostsPending(false);
+          }
+        })
+        .catch(() => { if (tries >= 36) setPostsPending(false); });
+    }, 5000);
+    return () => clearInterval(id);
+  }, [postsPending, slug]);
 
   const toggleSection = useCallback((id) => {
     setSections((prev) => prev.map((s) => (s.id === id ? { ...s, on: !s.on } : s)));
@@ -269,7 +293,7 @@ export default function AssembleMaker({ doc }) {
         <Publish
           slug={slug} docName={doc.name || slug} title={title} coverAsset={coverAsset}
           cover={cover} accent={accent} sections={sections} cta={cta} ai={ai} edits={edits}
-          noai={noai} socialPosts={socialPosts}
+          noai={noai} socialPosts={socialPosts} postsPending={postsPending}
           shareImage={shareImage} onShareImage={setShareImage}
           socialDoc={socialDoc} onSocialDoc={setSocialDoc}
           onBack={() => setMode("wordsmith")}

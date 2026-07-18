@@ -17,7 +17,7 @@ import { Icon } from "./icons.jsx";
 // The handle between page and rail is a focus toggle: wide mode grows the rail
 // and ZOOMS the page (scales it — same desktop layout, smaller), never reflows it.
 export default function Publish({ slug, docName, title, coverAsset, cover, accent,
-  sections, cta, ai, edits, noai, socialPosts, shareImage, onShareImage,
+  sections, cta, ai, edits, noai, socialPosts, postsPending, shareImage, onShareImage,
   socialDoc, onSocialDoc, onBack }) {
   const [device, setDevice] = useState("desktop");
   const [zipping, setZipping] = useState(false);
@@ -185,11 +185,16 @@ export default function Publish({ slug, docName, title, coverAsset, cover, accen
             </div>
           )}
 
-          {posts.length > 0 && (
+          {(posts.length > 0 || postsPending) && (
             <div className="asm-pub-card">
               <span className="asm-pub-card-title">{t("lpm.publish.posts_title")}</span>
               <p className="asm-pub-card-body">{t("lpm.publish.posts_blurb")}</p>
-              {wide ? (
+              {posts.length === 0 ? (
+                <div className="asm-pub-social-cooking">
+                  <WhiskLoader size={84} />
+                  <p>{t("lpm.publish.posts_generating")}</p>
+                </div>
+              ) : wide ? (
                 <>
                   <div className="asm-pub-posts">
                     {posts.map((p, i) => (

@@ -1084,6 +1084,36 @@ def get_landing_guided(slug: str, length: Optional[str] = None, cover: Optional[
                                guidance=_guidance(slug, ir), length=length, cover=cover)
 
 
+# slugs with a posts-only backfill in flight (see _sections)
+_posts_backfill: set = set()
+_posts_backfill_lock = threading.Lock()
+
+
+def _backfill_posts(slug: str, ir: dict, path: Path) -> None:
+    """Write socialPosts into a cached sections artifact that predates them —
+    in the background, WITHOUT touching the (possibly user-curated) sections."""
+    from rk3.landing import sections
+
+    def work() -> None:
+        try:
+            posts = sections.generate_posts(ir)
+            cur = json.loads(path.read_text())   # re-read: don't clobber a newer write
+            cur.setdefault("sections", {})["socialPosts"] = posts
+            path.write_text(json.dumps(cur, indent=1, ensure_ascii=False))
+        except Exception as e:
+            logging.getLogger("landing").warning(
+                "social-posts backfill failed for %s: %s", slug, e)
+        finally:
+            with _posts_backfill_lock:
+                _posts_backfill.discard(slug)
+
+    with _posts_backfill_lock:
+        if slug in _posts_backfill:
+            return
+        _posts_backfill.add(slug)
+    threading.Thread(target=work, daemon=True, name=f"posts-backfill-{slug}").start()
+
+
 def _sections(slug: str, ir: dict) -> dict:
     """The AI content-sections artifact (BACKLOG/61): the doc's meaningful sections
     in its own words + presentation primitives. Cached per doc next to the source.
@@ -1091,7 +1121,13 @@ def _sections(slug: str, ir: dict) -> dict:
     off or the call fails (the fallback is not cached, so it upgrades when AI is on)."""
     path = _landing_path(slug, ".landing-sections.json")
     if path.exists():
-        return json.loads(path.read_text())
+        data = json.loads(path.read_text())
+        # a cache from before socialPosts existed: backfill just the posts in the
+        # background and tell the client they're coming (it polls, like the graphic)
+        if "socialPosts" not in (data.get("sections") or {}) and ai_can_generate():
+            _backfill_posts(slug, ir, path)
+            data["postsPending"] = True
+        return data
     from rk3.landing import sections
     if not ai_can_generate():
         return sections.fallback(ir)          # AI off by choice — the expected fallback

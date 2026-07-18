@@ -81,6 +81,28 @@ SCHEMA = {
 }
 
 
+POSTS_SCHEMA = {
+    "type": "object", "additionalProperties": False,
+    "required": ["socialPosts"],
+    "properties": {"socialPosts": {"type": "array", "items": {"type": "string"}}},
+}
+
+
+def generate_posts(ir: dict) -> list[str]:
+    """The posts-only pass: backfill socialPosts into a sections artifact that
+    predates them, WITHOUT regenerating the (possibly user-curated) sections.
+    Raises on any AI error — the caller decides what to do."""
+    p = guidance.profile(ir)
+    system, model = content.prompt("shared.analysis.social_posts_system")
+    task, _ = content.prompt("shared.analysis.social_posts_task")
+    user = (
+        f"Document title: {p['title']}\n\n"
+        f"FULL DOCUMENT:\n{guidance._full_text(ir)}\n\n{task}"
+    )
+    data = complete_json(system, user, POSTS_SCHEMA, max_tokens=1500, model=model)
+    return data.get("socialPosts") or []
+
+
 def generate(ir: dict) -> dict:
     """Run the AI sections pass. Returns {profile, sections}. Raises on any AI
     error — the caller decides whether to cache, retry, or drop to the fallback."""

@@ -157,6 +157,33 @@ noai.story.note:
   kind: static
   text: "Find a compelling story or case study in the report and feature it here."
 
+# Posts-only backfill: sections artifacts generated before socialPosts existed
+# get just the posts written and merged in (the curated sections stay untouched).
+social_posts_system:
+  kind: prompt
+  model: claude-opus-4-8
+  description: >
+    System prompt for the standalone social-posts pass (backfilling sections
+    artifacts that predate socialPosts).
+  text: |
+    You write short social posts that promote ONE long report. You did the
+    reading; the user may barely know this document. These are promotional posts
+    (your words, not verbatim quotes from the page), but every number, name, and
+    claim must come from the document — never invent. Concrete and plain, one
+    idea per post — no breathless marketing voice.
+
+social_posts_task:
+  kind: prompt
+  description: The standalone social-posts pass's task instructions.
+  text: |
+    Produce the JSON:
+    - socialPosts: EXACTLY four posts, one per week for a month of promotion, each
+      a different angle on the report — e.g. the headline number; a featured quote
+      or story; why it matters now; what the reader should do. Each stands alone
+      (a reader sees only one), runs under ~280 characters so it fits anywhere,
+      uses at most one hashtag, and ends where the user's page link will follow.
+      Plain text only — no emoji walls, no thread markers, no invented urgency.
+
 sections_task:
   kind: prompt
   description: The sections engine's task instructions (what JSON to produce).
