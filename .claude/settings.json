@@ -7,5 +7,17 @@
       "Bash(.venv/bin/python -m rk3 list)",
       "Bash(/var/www/rk3/.venv/bin/python *)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh"
+          }
+        ]
+      }
+    ]
   }
 }
