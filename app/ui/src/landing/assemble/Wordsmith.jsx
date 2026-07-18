@@ -185,8 +185,12 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
         <span className="asm-ws-back-hint">{t("lpm.wordsmith.back_to_assemble_hint")}</span>
         <span className="asm-ws-estimate">{t("lpm.wordsmith.read_estimate", { words, min })}</span>
       </div>
-      <div className="asm-ws-help">{t("lpm.wordsmith.help")}</div>
-      <div style={{ position: "relative" }}>
+      <div className="asm-ws-canvas">
+        <aside className="asm-ws-help">
+          <div className="asm-ws-help-title">{t("lpm.wordsmith.help_title")}</div>
+          <p className="asm-ws-help-body">{t("lpm.wordsmith.help")}</p>
+        </aside>
+        <div className="asm-ws-pagewrap" style={{ position: "relative" }}>
         {bar && (
           <div className="asm-ws-toolbar" style={{ top: bar.top, left: bar.left }} onMouseDown={(e) => e.preventDefault()}>
             <button type="button" className="asm-ws-tool" style={{ fontWeight: 800 }} title={t("lpm.wordsmith.tool.bold")} onClick={() => exec("bold")}>B</button>
@@ -220,6 +224,7 @@ export default function Wordsmith({ slug, title, coverAsset, cover, sections, ct
           onMouseUp={syncBar}
           onKeyUp={syncBar}
         />
+        </div>
       </div>
     </div>
   );

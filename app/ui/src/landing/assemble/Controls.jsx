@@ -9,7 +9,7 @@ const shortLabel = (h) => (h && h.length > 18 ? h.slice(0, 17).trim() + "…" : 
 // grayscale outline of the page (cover layout + the on-sections + CTA), and the
 // nudge toward Wordsmith.
 export default function Controls({ cover, onCover, accent, onAccent, sections, cta, ai, onWordsmith }) {
-  const rows = buildRows(sections, cta, ai, cover);
+  const rows = buildRows(sections, cta, ai);
   const words = pageWords(sections, ai);
   return (
     <div className="asm-col asm-col-right">
@@ -52,10 +52,7 @@ export default function Controls({ cover, onCover, accent, onAccent, sections, c
 }
 
 // AI summary (if on) + on-sections + CTA -> rough-page rows
-function buildRows(sections, cta, ai, cover) {
-  // boxed/band covers carry the download button themselves, so it isn't also
-  // repeated in the foot CTA row
-  const coverHasDownload = cta.download && (cover === "floatBoxed" || cover === "band");
+function buildRows(sections, cta, ai) {
   const out = [];
   if (ai && ai.on) out.push({ label: ai.heading || t("lpm.sections.ai.heading"), kind: "text" });
   for (const s of sections) {
@@ -67,13 +64,12 @@ function buildRows(sections, cta, ai, cover) {
     else if (s.presentation === "steps") out.push({ label, kind: "steps", n: Math.min((s.steps || []).length || 3, 4) });
     else out.push({ label, kind: "text" });
   }
-  const footDownload = cta.download && !coverHasDownload;
   const parts = [];
-  if (footDownload) parts.push("Download");
+  if (cta.download) parts.push("Download");
   if (cta.secondary) parts.push("action");
   if (cta.share) parts.push("share");
-  if (footDownload || cta.secondary || cta.share) {
-    out.push({ label: parts.join(" + "), kind: "cta", download: footDownload, secondary: cta.secondary, social: cta.share });
+  if (cta.download || cta.secondary || cta.share) {
+    out.push({ label: parts.join(" + "), kind: "cta", download: cta.download, secondary: cta.secondary, social: cta.share });
   }
   return out;
 }

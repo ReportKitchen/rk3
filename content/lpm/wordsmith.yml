@@ -7,9 +7,10 @@ read_estimate:
   kind: template
   text: "{words} words · reads in about {min} min"
   tokens: [words, min]
+help_title: {kind: static, text: "Editing this page"}
 help:
   kind: static
-  text: "Click any line and type. Bold, italics, lists, and links — that's the whole toolbox, on purpose."
+  text: "Click any line and type. Select text for the toolbar: headings, bold, italics, lists, links, and dividers — a focused toolbox, on purpose."
 nudge_back:
   kind: static
   text: "Wrong blocks, not wrong words? Head back to Assemble."

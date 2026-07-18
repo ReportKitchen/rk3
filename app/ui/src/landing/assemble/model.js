@@ -270,10 +270,8 @@ export function buildSectionConfig({ title, cover, sections, cta, ai }) {
   let sumIdx = content.findIndex((b) => b.props.presentation === "prose");
   if (sumIdx < 0 && content.length) sumIdx = 0;
 
-  // a boxed/band cover carries the download button, so it isn't also repeated
-  // at the foot of the page
-  const coverHasDownload = hasCover && dl && (layout === "floatBoxed" || layout === "band");
-
+  // a boxed/band cover carries its own download button — and the CTA download
+  // still appears at the foot when it's on (a download at the top AND bottom is fine)
   const body = content.slice();
   if (hasCover && sumIdx >= 0 && (layout === "floatRight" || layout === "floatBoxed")) {
     // float the cover inside the first summary section
@@ -295,7 +293,7 @@ export function buildSectionConfig({ title, cover, sections, cta, ai }) {
   const blocks = [...head, ...body];
   // CTAs in the user's chosen order (cta.order)
   const ctaBlock = {
-    download: () => (cta?.download && !coverHasDownload) && { type: "download", id: "download", props: {
+    download: () => cta?.download && { type: "download", id: "download", props: {
       label: cta.downloadLabel || "", mode: cta.downloadUrl ? "url" : "bundle", url: cta.downloadUrl || "" } },
     secondary: () => cta?.secondary && { type: "secondaryCta", id: "secondary", props: {
       label: cta.secondaryLabel || "", url: cta.secondaryUrl || "" } },

@@ -47,7 +47,7 @@ export default function SectionLibrary({ sections, cta, ai, sel, noai, genError,
         first={!notice}
       >
         <SortableList items={intro.map(sectItem)} sel={sel} onSelect={onSelect} onReorder={onReorder}
-          trailing={!noai && <CardShell item={aiItem} selected={sel === "ai-summary"} onSelect={onSelect} />} />
+          trailing={!noai && <CardShell item={aiItem} selected={sel === "ai-summary"} shift={sel === "ai-summary"} onSelect={onSelect} />} />
       </Group>
 
       <Group title={t("lpm.sections.highlights.title")} sub={t("lpm.sections.highlights.sub")}>

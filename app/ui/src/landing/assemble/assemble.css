@@ -616,11 +616,32 @@
 .asm-ws-back:hover { background: var(--rk-gray-100); }
 .asm-ws-back-hint { font-size: 12px; color: var(--rk-text-muted); font-weight: 400; }
 .asm-ws-estimate { margin-left: auto; font-size: 12.5px; color: var(--rk-text-muted); }
+/* the content area below the top bar: a query container + the positioning context
+   for the help card. contain:layout (from container-type) makes it the containing
+   block for the absolutely-placed card. */
+.asm-ws-canvas { position: relative; container-type: inline-size; }
+
+/* help sticky-note (grows into a fuller card later). Wide windows: it floats in
+   the right margin, its top aligned with the page top. Narrow: full-width above. */
 .asm-ws-help {
-  font-size: 12.5px; color: var(--rk-rhino-700);
-  background: var(--rk-macaroni-100); border-bottom: 1px solid var(--rk-macaroni-300);
-  padding: 8px 22px; text-align: center;
+  background: var(--rk-macaroni-100); border: 1px solid var(--rk-macaroni-300);
+  border-radius: var(--rk-radius-md); box-shadow: var(--rk-shadow-sm);
+  padding: 15px 17px; color: var(--rk-rhino-800);
 }
+.asm-ws-help-title {
+  font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--rk-rhino-500); margin-bottom: 6px;
+}
+.asm-ws-help-body { margin: 0; font-size: 13px; line-height: 1.55; }
+@container (min-width: 1260px) {
+  .asm-ws-help {
+    position: absolute; top: 48px; left: 50%; margin-left: calc(360px + 30px); width: 236px;
+  }
+}
+@container (max-width: 1259.98px) {
+  .asm-ws-help { max-width: 720px; margin: 30px auto 0; }
+}
+
 /* .asm-ws scope raises specificity above landingPage.css's `.lp-body { margin: 0 }`
    (the page carries both classes) — without it the paper never centred */
 .asm-ws .asm-ws-page {
