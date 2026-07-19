@@ -659,17 +659,35 @@ and storage.
 ## Decisions to settle before implementation
 
 1. Are subscriptions always workspace-owned? **Recommendation: yes.**
+   → **DECIDED (owner, 2026-07-18): yes.**
 2. Can a user belong to multiple workspaces? **Recommendation: yes.**
+   → **DECIDED: yes.**
 3. Does every signup receive a personal workspace? **Recommendation: yes.**
+   → **DECIDED: yes.**
 4. Can free users create teams, or only paid users?
+   → **DECIDED: paid users only.**
 5. What are the free LPM limits for projects, pages, storage, AI generations,
    and retention?
+   → **DECIDED: the seeded defaults stand** (3 projects / 5 docs / 50 MB /
+   150 pages / 20 AI-month). They are `plan_entitlements` rows for `lpm_free` —
+   change the DB rows (see the execution plan's "changing free limits"), not code.
 6. Do paid plans charge per workspace, per seat, by usage, or a hybrid?
+   → **DECIDED: per workspace, with usage moving customers up tiers.**
 7. Does a project belong to the whole workspace or selected members/groups?
+   → **DECIDED: the whole workspace.**
 8. When a paid plan ends, are projects read-only, exportable, or unavailable?
+   → **DECIDED: unavailable — the workspace is inaccessible.** (Free-plan
+   workspaces never lapse; implementation of paid-lapse lockout lands with
+   Stage 3 billing.)
 9. How long are source documents and generated artifacts retained?
+   → **DECIDED: no pruning for now; revisit later.**
 10. Is public sharing/publishing part of LPM, or is export the only outward
     action?
+    → **DECIDED: export only.** User testing may surface demand; not expected.
+
+**Identity provider — DECIDED (owner, 2026-07-18): ZITADEL.** AGPL accepted
+(no modification intended). Operationally the better fit here: a single Go
+binary against the PostgreSQL we already run — no JVM, no container required.
 
 The strongest near-term path is therefore: self-host Keycloak, introduce an
 app-owned workspace/entitlement model in PostgreSQL, move documents to private

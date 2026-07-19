@@ -1,0 +1,23 @@
+# ZITADEL first-instance bootstrap (applied once by `setup`/`start-from-init`).
+# Creates the org, a human admin (verified email, no forced password change),
+# and a machine user whose PAT is written to PatPath — the bootstrap script
+# uses that PAT to create the RK3 OIDC application via the management API.
+FirstInstance:
+  PatPath: /var/www/rk3/development/zitadel/bootstrap.pat
+  Org:
+    Name: Report Kitchen
+    Human:
+      UserName: rk-admin
+      FirstName: RK
+      LastName: Admin
+      Email:
+        Address: rk-admin@rk3.local
+        Verified: true
+      # password comes from ZITADEL_FIRSTINSTANCE_ORG_HUMAN_PASSWORD (env)
+      PasswordChangeRequired: false
+    Machine:
+      Machine:
+        Username: rk3-bootstrap
+        Name: rk3-bootstrap
+      Pat:
+        ExpirationDate: "2029-01-01T00:00:00Z"

@@ -1,0 +1,13 @@
+[Unit]
+Description=ZITADEL identity provider (RK3)
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=ubuntu
+ExecStart=/var/www/rk3/development/zitadel/run-zitadel.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

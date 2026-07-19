@@ -68,3 +68,6 @@ design-system/uploads/screencapture-*.png
 /rk1
 # platform private file tree (multiuser Stage 1)
 storage/
+
+# never commit the bootstrap PAT
+development/zitadel/bootstrap.pat

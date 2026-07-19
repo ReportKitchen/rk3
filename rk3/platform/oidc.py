@@ -91,11 +91,23 @@ def finish_login(code: str, state: str, flow_cookie: str) -> dict:
         raise ValueError("issuer mismatch")
     if config.OIDC_CLIENT_ID not in ([claims.get("aud")] if isinstance(claims.get("aud"), str) else (claims.get("aud") or [])):
         raise ValueError("audience mismatch")
-    return {
+    out = {
         "sub": claims["sub"],
         "email": claims.get("email") or "",
         "name": claims.get("name") or claims.get("preferred_username") or "",
     }
+    # Not every provider asserts profile claims into the id_token (ZITADEL
+    # doesn't by default) — the userinfo endpoint is the portable source.
+    if not out["email"] or not out["name"]:
+        try:
+            ui = httpx.get(discovery()["userinfo_endpoint"],
+                           headers={"Authorization": f"Bearer {token['access_token']}"},
+                           timeout=10).raise_for_status().json()
+            out["email"] = out["email"] or ui.get("email") or ""
+            out["name"] = out["name"] or ui.get("name") or ui.get("preferred_username") or ""
+        except httpx.HTTPError:
+            pass  # claims stay as asserted; the profile can fill in next login
+    return out
 
 
 FLOW_COOKIE = _FLOW_COOKIE

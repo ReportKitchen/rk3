@@ -77,19 +77,67 @@ personal workspace; tenant is called `workspace` internally.
 - [x] Minimal platform-admin read surface (staff-only, 404-unadvertised):
       `/api/platform/admin/overview` | `/admin/audit` | `/admin/jobs`
 
+## Identity: ZITADEL — STOOD UP (2026-07-18, owner chose it; AGPL accepted)
+
+ZITADEL v4.16.1 runs on this box as the identity provider — a single Go
+binary against our existing PostgreSQL (that's why it beat Keycloak here: no
+JVM, no container).
+
+- **Service**: `systemctl status zitadel` (unit tracked at
+  `development/zitadel/zitadel.service` → `run-zitadel.sh`, which pulls
+  secrets from `.env`: `ZITADEL_DB_PASSWORD`, `ZITADEL_MASTERKEY`,
+  `ZITADEL_ADMIN_PASSWORD`). Issuer/console: `http://localhost:9800`
+  (console login: `rk-admin@rk3.local` / `ZITADEL_ADMIN_PASSWORD` from .env).
+- **DB**: role+db `zitadel` on the same Postgres 16.
+- **RK3 OIDC app**: project `rk3` / app `rk3-web` (client id + secret in
+  `.env` as `RK3_OIDC_*`), created via the bootstrap machine-user PAT
+  (`development/zitadel/bootstrap.pat` — gitignored, it's a live credential).
+- **Login v1 note**: ZITADEL v4 defaults to its NEW login (a separate
+  Next.js service the bare binary doesn't ship). The instance feature
+  `loginV2.required=false` is set, so the BUILT-IN v1 login page serves.
+  Deploying login-v2 is optional later polish.
+- **VERIFIED end-to-end**: anonymous visit → redirect → real ZITADEL
+  password login (test user `testuser@rk3.local`) → PKCE code exchange →
+  id_token JWKS-verified → userinfo enrichment (ZITADEL doesn't assert
+  email/profile into the id_token by default; `oidc.py` falls back to the
+  userinfo endpoint — portable across providers) → user upserted by subject →
+  personal workspace auto-created with `lpm_free` → session cookie → app.
+- **To flip the main app to real login**: set `RK3_AUTH_MODE=oidc` and
+  `RK3_OIDC_REDIRECT_URL=http://127.0.0.1:8300/api/auth/callback` in `.env`
+  (the :8300 redirect URI is already registered on the app) and restart rk3.
+  Dev mode remains the default on this box for frictionless work.
+- **Still parked within identity**: SMTP/SES wiring (self-registration email
+  verification + recovery need it), a production domain + TLS
+  (ExternalDomain/ExternalSecure), and the signup UX beyond ZITADEL's stock
+  register screen.
+
+## Changing the free-tier limits (owner: "document where to change them")
+
+The numbers are `plan_entitlements` rows, read per request — no restart:
+
+```sql
+-- current limits
+sudo -u postgres psql rk3 -c \
+  "SELECT feature, limit_int FROM plan_entitlements WHERE plan_key='lpm_free';"
+-- e.g. raise the project cap
+sudo -u postgres psql rk3 -c \
+  "UPDATE plan_entitlements SET limit_int=10 \
+   WHERE plan_key='lpm_free' AND feature='lpm.projects.max';"
+```
+
+Per-workspace exceptions: add an `entitlement_grants` row
+(`source='admin_grant'`, optional `valid_until`, a `reason`) — the most
+generous valid grant wins.
+
 ## PARKED — needs the owner
 
 1. **AWS**: RDS, private S3 bucket, SES (and IAM). Until then: local Postgres,
-   local private storage tree, no email (so no verification/recovery — which
-   is also why Keycloak stand-up is pointless this second).
-2. **Keycloak**: no Docker/Java on this box. Decide Keycloak vs ZITADEL
-   (plan recommends Keycloak; AGPL review for ZITADEL), then stand it up and
-   fill `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`,
-   `OIDC_REDIRECT_URL` in `.env` and set `AUTH_MODE=oidc`. The client side is
-   built and discovery-driven.
-3. **Decisions 4–10** from the plan (team creation for free users, real free
-   limits, pricing shape, per-project ACLs, end-of-plan behavior, retention,
-   public hosting vs export-only). Placeholders noted above.
+   local private storage tree, no outbound email.
+2. **Decisions 4–10**: **ANSWERED 2026-07-18** — recorded inline in
+   `docs/DEFERRED/multi-user-platform-plan.md` (teams paid-only; seeded free
+   limits stand; per-workspace pricing w/ usage tiers; project belongs to the
+   workspace; lapsed plan = workspace unavailable [Stage 3 implements];
+   no pruning yet; export-only, no public sharing).
 4. **Customer-facing app shell**: Stage 1's "private project list + upload"
    UI for LPM-only customers (the current SPA is the staff/internal surface).
    Needs a design pass — parked rather than improvised.

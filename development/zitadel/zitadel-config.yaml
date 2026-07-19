@@ -1,0 +1,25 @@
+# ZITADEL runtime config (dev box). Secrets come from the environment:
+#   ZITADEL_DATABASE_POSTGRES_USER_PASSWORD / .._ADMIN_PASSWORD  (see .env)
+# Issuer/console: http://localhost:9800
+Port: 9800
+ExternalDomain: localhost
+ExternalPort: 9800
+ExternalSecure: false
+TLS:
+  Enabled: false
+
+Database:
+  postgres:
+    Host: 127.0.0.1
+    Port: 5432
+    Database: zitadel
+    MaxOpenConns: 10
+    MaxIdleConns: 5
+    User:
+      Username: zitadel
+      SSL:
+        Mode: disable
+    Admin:
+      Username: zitadel
+      SSL:
+        Mode: disable
