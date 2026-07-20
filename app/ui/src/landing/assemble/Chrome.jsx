@@ -3,14 +3,20 @@ import { Icon } from "./icons.jsx";
 
 // The 56px top stepper (round-2 parts/LpmChrome): Assemble → Wordsmith →
 // Preview → Publish. Numbered circles turn into a ✓ once a step is behind you.
-// Preview is the pure page check; Publish is the dedicated export surface
-// (social kit, CMS copy box, download options).
+// Two skins: the staff app's white bar, and the customer shell's black bar
+// (`dark`, per the shell spec) with a home-logo and the user's avatar.
 const STEPS = ["Assemble", "Wordsmith", "Preview", "Publish"];
 
-export default function Chrome({ title, activeIdx, onStep }) {
+export default function Chrome({ title, activeIdx, onStep, dark, onHome, initial }) {
   return (
-    <div className="asm-chrome">
-      <span className="asm-chrome-logo">Report Kitchen</span>
+    <div className={"asm-chrome" + (dark ? " is-dark" : "")}>
+      {dark && onHome ? (
+        <button type="button" className="asm-chrome-home" onClick={onHome} title="Home">
+          <span className="asm-chrome-logo">Report Kitchen</span>
+        </button>
+      ) : (
+        <span className="asm-chrome-logo">Report Kitchen</span>
+      )}
       <span className="asm-chrome-badge">Landing Page Maker</span>
       <span className="asm-chrome-divider" />
       <span className="asm-chrome-title" title={title}>{title}</span>
@@ -35,6 +41,7 @@ export default function Chrome({ title, activeIdx, onStep }) {
           );
         })}
       </div>
+      {initial ? <span className="asm-chrome-avatar">{initial}</span> : null}
     </div>
   );
 }

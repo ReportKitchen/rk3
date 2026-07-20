@@ -1,0 +1,17 @@
+# lpm.door.* — the unauthenticated front door at app.reportkitchen.com
+# (round-1 "01 Front Door"). Credentials are never typed here; the buttons
+# hand off to the identity provider.
+
+title: {kind: static, text: "Landing Page Maker"}
+pitch:
+  kind: static
+  text: "Upload your PDF and build a polished landing page for it — without wrestling with a CMS. Choose what to say, refine the words, and download the finished page when you're happy."
+feat1: {kind: static, text: "Start from the PDF you already have"}
+feat2: {kind: static, text: "Simple, guided self-serve builder"}
+feat3: {kind: static, text: "Free for individuals; plans for teams"}
+learn_lead: {kind: static, text: "New here?"}
+learn_link: {kind: static, text: "Learn more about Landing Page Maker"}
+card_title: {kind: static, text: "Welcome"}
+signin: {kind: static, text: "Sign in"}
+signup_lead: {kind: static, text: "No account yet?"}
+signup: {kind: static, text: "Start building free"}

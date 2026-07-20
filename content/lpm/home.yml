@@ -1,0 +1,47 @@
+# lpm.home.* — the signed-in customer home (round-3 "LPM Home v2" + the
+# round-1 AI-level selector, in the left rail per the shell spec).
+
+kicker: {kind: static, text: "Welcome back"}
+kicker_name: {kind: template, text: "Welcome back, {name}", tokens: [name]}
+h1: {kind: static, text: "Turn a report into a landing page"}
+intro:
+  kind: static
+  text: "Upload a PDF and we'll build a landing page from it — a summary, key stats, pullquotes, and a download link. Review and edit everything, then download your finished page. Or pick up where you left off below."
+
+drop_title: {kind: static, text: "Drop a PDF here to start a new page"}
+drop_or: {kind: static, text: "or"}
+drop_browse: {kind: static, text: "browse your files"}
+drop_limit: {kind: template, text: "up to {mb} MB", tokens: [mb]}
+uploading: {kind: static, text: "Uploading your PDF…"}
+limit_reached:
+  kind: template
+  text: "You've used all {max} pages on your plan — delete one or upgrade to add more."
+  tokens: [max]
+
+reports_title: {kind: static, text: "Your reports"}
+plan_counter: {kind: template, text: "{used} of {max} pages on your plan", tokens: [used, max]}
+empty: {kind: static, text: "Nothing here yet — your pages appear as you make them."}
+processing: {kind: static, text: "Reading your PDF — about a minute…"}
+failed: {kind: static, text: "We couldn't read this PDF."}
+pages: {kind: template, text: "{n, plural, one {# page} other {# pages}}", tokens: [n]}
+
+help_title: {kind: static, text: "Getting started"}
+help_body:
+  kind: static
+  text: "Drop in a PDF and we'll draft your page in about a minute. You review and edit everything before downloading."
+
+ai_title: {kind: static, text: "Select your level of AI"}
+ai_sub: {kind: static, text: "Applies to pages you make from now on."}
+ai_default_badge: {kind: static, text: "Default"}
+ai.none.title: {kind: static, text: "No AI"}
+ai.none.desc:
+  kind: static
+  text: "We only read the document's structure. Nothing is analyzed or written by AI."
+ai.analysis.title: {kind: static, text: "Analysis only"}
+ai.analysis.desc:
+  kind: static
+  text: "AI helps find sections, findings, and figures — but never generates content."
+ai.full.title: {kind: static, text: "Allow AI content generation"}
+ai.full.desc:
+  kind: static
+  text: "AI can draft summaries and headlines — always with your review before anything is published."

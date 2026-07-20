@@ -124,6 +124,27 @@
 .asm-step.is-active .asm-step-label { color: var(--rk-rhino-900); }
 .asm-step-sep { color: var(--rk-gray-300); flex: none; }
 
+/* customer-shell skin: the sitewide black bar (round-1 topbar) */
+.asm-chrome.is-dark { background: var(--rk-rhino-900); border-bottom-color: var(--rk-rhino-900); }
+.asm-chrome.is-dark .asm-chrome-logo { color: #fff; }
+.asm-chrome.is-dark .asm-chrome-badge { color: var(--rk-rhino-200); border-color: rgba(255, 255, 255, 0.3); }
+.asm-chrome.is-dark .asm-chrome-divider { background: rgba(255, 255, 255, 0.25); }
+.asm-chrome.is-dark .asm-chrome-title { color: #fff; }
+.asm-chrome.is-dark .asm-step:hover:not(.is-active) { background: rgba(255, 255, 255, 0.1); }
+.asm-chrome.is-dark .asm-step.is-active { background: rgba(255, 255, 255, 0.16); }
+.asm-chrome.is-dark .asm-step-circle { background: transparent; border-color: rgba(255, 255, 255, 0.4); color: var(--rk-rhino-200); }
+.asm-chrome.is-dark .asm-step.is-done .asm-step-circle { border-color: var(--rk-macaroni-300); color: var(--rk-macaroni-300); }
+.asm-chrome.is-dark .asm-step.is-active .asm-step-circle { background: #fff; border-color: #fff; color: var(--rk-rhino-900); }
+.asm-chrome.is-dark .asm-step-label { color: var(--rk-rhino-200); }
+.asm-chrome.is-dark .asm-step.is-active .asm-step-label { color: #fff; }
+.asm-chrome.is-dark .asm-step-sep { color: rgba(255, 255, 255, 0.3); }
+.asm-chrome-home { background: none; border: 0; padding: 0; cursor: pointer; display: flex; font: inherit; }
+.asm-chrome-avatar {
+  width: 30px; height: 30px; border-radius: 999px; flex: none; margin-left: 6px;
+  background: var(--rk-rhino-500); color: #fff; display: flex; align-items: center;
+  justify-content: center; font-size: 12px; font-weight: 700;
+}
+
 /* ---------------- Grid shell ---------------- */
 .asm-grid {
   display: grid;

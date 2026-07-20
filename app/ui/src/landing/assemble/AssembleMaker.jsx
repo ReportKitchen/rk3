@@ -32,7 +32,7 @@ const LOADING_PHRASES = [
 // the user picks which to keep, adjusts each section's presentation, then fixes
 // the wording in Wordsmith. "Highlights" = the AI sections (the star of the
 // screen); the CTA scaffolding sits beside them.
-export default function AssembleMaker({ doc }) {
+export default function AssembleMaker({ doc, dark = false, onHome, user }) {
   const slug = doc.slug;
   const [ready, setReady] = useState(false);
   const [booted, setBooted] = useState(false);    // content bundle loaded (for the loader caption)
@@ -291,6 +291,8 @@ export default function AssembleMaker({ doc }) {
         title={doc.name || doc.slug}
         activeIdx={{ assemble: 0, wordsmith: 1, preview: 2, publish: 3 }[mode] ?? 0}
         onStep={(i) => setMode(["assemble", "wordsmith", "preview", "publish"][i] || "assemble")}
+        dark={dark} onHome={onHome}
+        initial={user ? (user.name || user.email || "?").trim()[0]?.toUpperCase() : null}
       />
       {mode === "publish" ? (
         <Publish

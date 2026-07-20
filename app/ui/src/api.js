@@ -151,7 +151,33 @@ export const getIr = (slug) =>
 export const docUrl = (slug) => `/output/${ENGINE}/${slug}/index.html`;
 
 // landing page maker
-export const assetBase = (slug) => `/output/${ENGINE}/${slug}`;
+// platform documents (UUID "slugs") serve assets through the membership-
+// checked files route; corpus docs keep the public output tree
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export const assetBase = (slug) =>
+  UUID_RE.test(slug) ? `/api/platform/documents/${slug}/files` : `/output/${ENGINE}/${slug}`;
+
+// ---- platform shell (multiuser) ----
+export const csrfToken = () =>
+  decodeURIComponent(document.cookie.match(/(?:^|;\s*)rk3_csrf=([^;]*)/)?.[1] || "");
+export const getMe = () => fetch("/api/me").then(json);
+export const devLogin = () => fetch("/api/auth/dev-login", { method: "POST" }).then(json);
+export const getReports = () => fetch("/api/platform/reports").then(json);
+export const uploadReport = (file) => {
+  const fd = new FormData();
+  fd.append("file", file);
+  return fetch("/api/platform/reports", {
+    method: "POST", headers: { "x-csrf-token": csrfToken() }, body: fd,
+  }).then(json);
+};
+export const patchWorkspaceSettings = (wsId, patch) =>
+  fetch(`/api/platform/workspaces/${wsId}/settings`, {
+    method: "PATCH",
+    headers: { "x-csrf-token": csrfToken(), "Content-Type": "application/json" },
+    body: JSON.stringify(patch),
+  }).then(json);
+export const logout = () =>
+  fetch("/api/auth/logout", { method: "POST", headers: { "x-csrf-token": csrfToken() } }).then(json);
 export const sourceUrl = (slug) => `/api/source/${slug}`;
 
 export const getLanding = (slug) => fetch(`/api/landing/${slug}`).then(json);
