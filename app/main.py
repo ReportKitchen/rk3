@@ -54,6 +54,40 @@ _GATE_OPEN_PREFIXES = (
 _STAFF_ROLES = ("platform_admin", "support")
 
 
+# legacy routes that ALSO serve platform documents when the {slug} is a doc
+# UUID — members of the owning workspace pass (the landing engine is shared)
+_MEMBER_PASS_PREFIXES = ("/api/landing/", "/api/social-post/", "/api/source/",
+                         "/api/landing-theme/")
+
+
+def _member_passes(request, db) -> bool | None:
+    """None = not a platform-doc request; True/False = membership verdict."""
+    import uuid as _uuid
+    from rk3.platform import permissions as perms
+    from rk3.platform.auth import current_user
+    from rk3.platform.docbridge import is_platform_doc
+    from rk3.platform.models import Document
+    p = request.url.path
+    if not p.startswith(_MEMBER_PASS_PREFIXES):
+        return None
+    seg = next((s for s in p.split("/") if is_platform_doc(s)), None)
+    if seg is None:
+        return None
+    got = current_user(db, request)
+    if got is None:
+        return False
+    doc = db.get(Document, _uuid.UUID(seg))
+    if doc is None:
+        return False
+    if got[0].platform_role in _STAFF_ROLES:
+        return True
+    m = perms.membership_for(db, got[0], doc.workspace_id)
+    if m is None:
+        return False
+    needed = perms.PROJECT_VIEW if request.method in ("GET", "HEAD") else perms.PROJECT_EDIT
+    return needed in perms.permissions_for(m.role)
+
+
 @app.middleware("http")
 async def _staff_gate(request, call_next):
     from fastapi.responses import JSONResponse
@@ -66,6 +100,11 @@ async def _staff_gate(request, call_next):
         db_gen = get_db()
         db = next(db_gen)
         try:
+            verdict = _member_passes(request, db)
+            if verdict is True:
+                return await call_next(request)
+            if verdict is False:
+                return JSONResponse({"detail": "not found"}, status_code=404)
             got = current_user(db, request)
             if got is None:
                 return JSONResponse({"detail": "not signed in"}, status_code=401)
@@ -357,11 +396,18 @@ def get_toc_compare(slug: str):
         raise HTTPException(404, "no output for this document")
 
 
+def _known_doc(slug: str) -> bool:
+    from rk3.platform.docbridge import doc_info, is_platform_doc
+    if is_platform_doc(slug):
+        return doc_info(slug) is not None
+    return source_for_slug(slug) is not None
+
+
 @app.get("/api/social-post/{slug}")
 def get_social_post(slug: str, response: Response):
     """The experimental cover-to-social pathways and their saved results."""
     response.headers["Cache-Control"] = "no-store"
-    if source_for_slug(slug) is None:
+    if not _known_doc(slug):
         raise HTTPException(404, f"unknown document {slug!r}")
     return social_post_status(slug)
 
@@ -369,7 +415,7 @@ def get_social_post(slug: str, response: Response):
 @app.post("/api/social-post/{slug}/{mode}", status_code=202)
 def generate_social_post(slug: str, mode: str):
     """Regenerate one cell; the previous successful image stays until replaced."""
-    if source_for_slug(slug) is None:
+    if not _known_doc(slug):
         raise HTTPException(404, f"unknown document {slug!r}")
     if mode not in SOCIAL_POST_MODES:
         raise HTTPException(404, f"unknown social-post mode {mode!r}")
@@ -988,13 +1034,26 @@ def pattern_scan_decide(slug: str, d: PatternScanDecision):
 # derived from ir.json on first access and only persisted once the user edits.
 
 def _ir_for(slug: str) -> dict:
-    ir_path = output_dir(slug) / "ir.json"
+    # platform documents (UUID "slugs") read their latest run's IR (docbridge)
+    from rk3.platform.docbridge import doc_info, is_platform_doc
+    if is_platform_doc(slug):
+        info = doc_info(slug)
+        if info is None or info["run_dir"] is None:
+            raise HTTPException(404, f"{slug!r} has no converted run yet")
+        ir_path = info["run_dir"] / "ir.json"
+    else:
+        ir_path = output_dir(slug) / "ir.json"
     if not ir_path.exists():
         raise HTTPException(404, f"{slug!r} has no IR yet (not converted)")
     return json.loads(ir_path.read_text())
 
 
 def _landing_path(slug: str, suffix: str) -> Path:
+    from rk3.platform.docbridge import is_platform_doc, landing_dir
+    if is_platform_doc(slug):
+        # private landing/ dir beside the uploaded source (e.g. ".landing-
+        # sections.json" -> landing/landing-sections.json)
+        return landing_dir(slug) / suffix.lstrip(".")
     src = source_for_slug(slug)
     if src is None:
         raise HTTPException(404, f"unknown document {slug!r}")
@@ -1002,6 +1061,10 @@ def _landing_path(slug: str, suffix: str) -> Path:
 
 
 def _doc_name(slug: str) -> str:
+    from rk3.platform.docbridge import doc_info, is_platform_doc
+    if is_platform_doc(slug):
+        info = doc_info(slug)
+        return info["name"] if info else ""
     src = source_for_slug(slug)
     return src.name if src else ""
 
@@ -1154,6 +1217,20 @@ def _sections(slug: str, ir: dict) -> dict:
     in its own words + presentation primitives. Cached per doc next to the source.
     Always returns something — drops to the functional no-AI fallback when AI is
     off or the call fails (the fallback is not cached, so it upgrades when AI is on)."""
+    # platform docs honor the workspace's AI level: "none" means the no-AI
+    # fallback page (the user's explicit choice — never silently upgraded)
+    from rk3.platform.docbridge import doc_info, is_platform_doc
+    if is_platform_doc(slug):
+        info = doc_info(slug)
+        if info is not None:
+            from rk3.platform.db import session_scope as _scope
+            from rk3.platform.models import Workspace as _WS
+            with _scope() as _db:
+                ws = _db.get(_WS, info["workspace_id"])
+                if ws is not None and (ws.settings or {}).get("aiLevel") == "none":
+                    from rk3.landing import sections as _sections_mod
+                    return _sections_mod.fallback(ir)
+
     path = _landing_path(slug, ".landing-sections.json")
     if path.exists():
         data = json.loads(path.read_text())
@@ -1344,7 +1421,15 @@ def scan_landing_template(slug: str):
 @app.get("/api/source/{slug}")
 def get_source(slug: str):
     """The original PDF — powers the landing page Download CTA and lets the
-    export bundle the file into the zip."""
+    export bundle the file into the zip. Platform docs serve from private
+    storage (the middleware has already checked membership for UUID slugs)."""
+    from rk3.platform.docbridge import doc_info, is_platform_doc
+    if is_platform_doc(slug):
+        info = doc_info(slug)
+        if info is None or info["source"] is None or not info["source"].exists():
+            raise HTTPException(404, f"unknown document {slug!r}")
+        return FileResponse(info["source"], media_type="application/pdf",
+                            filename=info["name"])
     src = source_for_slug(slug)
     if src is None or not src.exists():
         raise HTTPException(404, f"unknown document {slug!r}")

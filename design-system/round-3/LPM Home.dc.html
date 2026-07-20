@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/colors.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/typography.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/tokens/effects.css">
+<link rel="stylesheet" href="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/styles.css">
+<script src="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/_ds_bundle.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+body{margin:0;background:var(--rk-paper);font-family:"Mulish",system-ui,sans-serif}
+a{color:var(--rk-tomato);text-decoration:none}
+a:hover{color:var(--rk-tomato-600,#BD2523);text-decoration:underline}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+
+<header style="background:#fff;border-bottom:1px solid var(--rk-border);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:64px">
+  <div style="display:flex;align-items:center;gap:14px">
+    <img src="_ds/report-kitchen-design-system-07c3a770-3a5c-47ea-92a3-b45bd72215f0/assets/logo-red.svg" alt="Report Kitchen" style="height:30px">
+    <span style="font-size:13px;font-weight:700;color:var(--rk-rhino-900);border-left:1px solid var(--rk-border);padding-left:14px;letter-spacing:0.02em">Landing Page Maker</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:20px">
+    <a href="#" style="font-size:13.5px;font-weight:600;color:var(--rk-text-body)">Help</a>
+    <div style="width:34px;height:34px;border-radius:999px;background:var(--rk-rhino-700);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">JW</div>
+  </div>
+</header>
+
+<main style="width:100%;max-width:1160px;margin:0 auto;padding:48px 40px 80px;box-sizing:border-box;display:grid;grid-template-columns:1fr 250px;gap:36px;align-items:start">
+
+<div style="min-width:0;display:flex;flex-direction:column;gap:32px">
+
+  <div>
+    <div style="font-size:12px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--rk-blueberry,#7683A2);margin-bottom:10px">Welcome back, Jordan</div>
+    <h1 style="font-family:'Bricolage Grotesque',sans-serif;font-size:38px;font-weight:700;letter-spacing:-0.02em;line-height:1.15;color:var(--rk-rhino-900);margin:0 0 12px">What's on the menu today?</h1>
+    <p style="margin:0;font-size:16px;line-height:1.65;color:var(--rk-text-body);max-width:640px">Upload a report and we'll turn it into a landing page — a summary, key stats, pullquotes, and a download link, ready to edit and publish. Or pick up where you left off below.</p>
+  </div>
+
+  <div style="background:#fff;border:1.5px dashed var(--rk-rhino-300,#8E99BD);border-radius:14px;padding:36px 32px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;cursor:pointer" style-hover="border-color:var(--rk-tomato);background:#FFFDFA">
+    <i data-lucide="file-up" style="width:32px;height:32px;color:var(--rk-tomato)"></i>
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:700;color:var(--rk-rhino-900)">Drop a PDF here to start a new page</div>
+    <p style="margin:0;font-size:13.5px;color:var(--rk-text-muted)">or <a href="#">browse your files</a> · up to 200 MB</p>
+  </div>
+
+  <div>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:14px">
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.01em;color:var(--rk-rhino-900);margin:0">Your reports</h2>
+      <span style="font-size:13px;color:var(--rk-text-muted)">3 of 5 pages on your plan</span>
+    </div>
+    <div style="background:#fff;border:1px solid var(--rk-border);border-radius:12px;overflow:hidden">
+      <sc-for list="{{ reports }}" as="r" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:18px;padding:18px 24px;border-bottom:1px solid var(--rk-border);cursor:pointer" style-hover="background:var(--rk-cream)">
+          <div style="flex:none;width:44px;height:56px;background:var(--rk-gray-100);border:1px solid var(--rk-border);border-radius:4px;display:flex;align-items:center;justify-content:center">
+            <i data-lucide="file-text" style="width:18px;height:18px;color:var(--rk-blueberry,#7683A2)"></i>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:15px;font-weight:700;color:var(--rk-rhino-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.title }}</div>
+            <div style="font-size:12.5px;color:var(--rk-text-muted);margin-top:3px">{{ r.meta }}</div>
+          </div>
+          <span style="flex:none;font-size:11.5px;font-weight:700;letter-spacing:0.04em;padding:4px 10px;border-radius:999px;background:{{ r.badgeBg }};color:{{ r.badgeFg }}">{{ r.status }}</span>
+          <span style="flex:none;font-size:13.5px;font-weight:700;color:var(--rk-tomato);display:flex;align-items:center;gap:5px">{{ r.action }} <i data-lucide="arrow-right" style="width:14px;height:14px"></i></span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div>
+    <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;letter-spacing:-0.01em;color:var(--rk-rhino-900);margin:0 0 6px">How much should AI cook?</h2>
+    <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:var(--rk-text-body);max-width:640px">Applies to every new page you make. You can always change it per page.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+      <sc-for list="{{ aiLevels }}" as="lv" hint-placeholder-count="3">
+        <div onClick="{{ lv.pick }}" style="background:#fff;border:{{ lv.border }};border-radius:12px;padding:20px;cursor:pointer;position:relative" style-hover="box-shadow:var(--rk-shadow-md)">
+          <sc-if value="{{ lv.selected }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;top:14px;right:14px;width:20px;height:20px;border-radius:999px;background:var(--rk-tomato);display:flex;align-items:center;justify-content:center"><i data-lucide="check" style="width:12px;height:12px;color:#fff"></i></div>
+          </sc-if>
+          <i data-lucide="{{ lv.icon }}" style="width:24px;height:24px;color:var(--rk-tomato);margin-bottom:12px"></i>
+          <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:16px;font-weight:700;color:var(--rk-rhino-900);margin-bottom:6px">{{ lv.name }}</div>
+          <p style="margin:0;font-size:13px;line-height:1.55;color:var(--rk-text-muted)">{{ lv.desc }}</p>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+</div>
+
+<aside style="display:flex;flex-direction:column;gap:16px;position:sticky;top:24px">
+  <div style="background:#FBF0D3;border:1px solid #EDD9A3;border-radius:10px;padding:18px 20px">
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--rk-rhino-700);margin-bottom:8px">Getting started</div>
+    <p style="margin:0;font-size:13px;line-height:1.6;color:var(--rk-rhino-900)">Drop in a PDF and we'll draft your page in about a minute. Nothing publishes until you say so — review and edit everything first.</p>
+  </div>
+  <div style="background:#FBF0D3;border:1px solid #EDD9A3;border-radius:10px;padding:18px 20px">
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--rk-rhino-700);margin-bottom:8px">Your AI setting</div>
+    <p style="margin:0;font-size:13px;line-height:1.6;color:var(--rk-rhino-900)">"Sous-chef" drafts the page but flags every AI-written passage for your review. Change it below any time.</p>
+  </div>
+  <div style="background:#FBF0D3;border:1px solid #EDD9A3;border-radius:10px;padding:18px 20px">
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--rk-rhino-700);margin-bottom:8px">Picking up a draft</div>
+    <p style="margin:0;font-size:13px;line-height:1.6;color:var(--rk-rhino-900)">Reports marked <strong>Draft</strong> reopen in the editor exactly where you left off. <strong>Published</strong> pages can be edited and republished.</p>
+  </div>
+</aside>
+
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { ai: 1 };
+  componentDidMount() {
+    const t = () => { if (window.lucide) window.lucide.createIcons(); else setTimeout(t, 200); };
+    t();
+  }
+  componentDidUpdate() { if (window.lucide) window.lucide.createIcons(); }
+  renderVals() {
+    const sel = this.state.ai;
+    const levels = [
+      { icon: 'pen-line', name: 'You cook', desc: 'AI extracts structure only — headings, stats, quotes. All summary text is yours to write.' },
+      { icon: 'chef-hat', name: 'Sous-chef', desc: 'AI drafts summaries and picks highlights, and flags every AI-written passage for review.' },
+      { icon: 'sparkles', name: "Chef's choice", desc: 'AI writes the whole first draft. Fastest path to a publishable page.' },
+    ];
+    return {
+      reports: [
+        { title: 'Democratizing the Imagination of the Future', meta: 'RWJF · uploaded Jul 12 · 84 pages', status: 'DRAFT', badgeBg: '#FBF0D3', badgeFg: '#8A6A14', action: 'Keep editing' },
+        { title: 'Inequality Inc.', meta: 'Oxfam · uploaded Jun 28 · 122 pages', status: 'PUBLISHED', badgeBg: '#E7EDE4', badgeFg: '#3E6B4A', action: 'View page' },
+        { title: 'Improving State Governance in LAC', meta: 'IDB · uploaded Jun 3 · 96 pages', status: 'PUBLISHED', badgeBg: '#E7EDE4', badgeFg: '#3E6B4A', action: 'View page' },
+      ],
+      aiLevels: levels.map((lv, i) => ({
+        ...lv,
+        selected: i === sel,
+        border: i === sel ? '2px solid var(--rk-tomato)' : '1px solid var(--rk-border)',
+        pick: () => this.setState({ ai: i }),
+      })),
+    };
+  }
+}
+</script>
+</body>
+</html>

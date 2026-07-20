@@ -295,6 +295,181 @@ def job_status(job_id: uuid.UUID, request: Request, db: Session = Depends(get_db
             "attempts": job.attempts, "error": job.error}
 
 
+# ---------------------------------------------- home: reports + doc files
+
+def _lpm_workspace(db: Session, user: User) -> Workspace:
+    """The workspace new uploads land in: the first active membership whose
+    role can create projects (personal first). One-workspace users just work."""
+    rows = db.execute(
+        select(Membership, Workspace)
+        .join(Workspace, Membership.workspace_id == Workspace.id)
+        .where(Membership.user_id == user.id, Membership.status == "active",
+               Workspace.status == "active")
+        .order_by(Workspace.type.desc())  # personal > internal alphabetically-ish
+    ).all()
+    for m, w in rows:
+        if w.type != "internal" and permissions.PROJECT_CREATE in permissions.permissions_for(m.role):
+            return w
+    for m, w in rows:
+        if permissions.PROJECT_CREATE in permissions.permissions_for(m.role):
+            return w
+    raise HTTPException(403, "no workspace you can create pages in")
+
+
+async def _ingest(db: Session, user: User, ws_id, project: Project, file: UploadFile) -> dict:
+    """Shared upload core: store the PDF, cap by entitlement, queue a convert."""
+    if (file.filename or "").lower().rsplit(".", 1)[-1] != "pdf":
+        raise HTTPException(400, "only PDF uploads are supported")
+    max_mb = entitlements.require_feature(db, ws_id, "lpm.upload_mb.max")
+    doc = Document(workspace_id=ws_id, project_id=project.id,
+                   name=(file.filename or "document.pdf")[:300])
+    db.add(doc)
+    db.flush()
+    key = source_key(ws_id, project.id, doc.id)
+    storage = get_storage()
+    size = storage.save_stream(key, file.file)
+    if max_mb is not None and size > max_mb * 1024 * 1024:
+        storage.delete_prefix(f"workspaces/{ws_id}/projects/{project.id}/documents/{doc.id}")
+        db.delete(doc)
+        db.commit()
+        raise HTTPException(413, f"file exceeds the {max_mb} MB limit")
+    doc.storage_key = key
+    doc.size_bytes = size
+    run = Run(document_id=doc.id)
+    db.add(run)
+    db.flush()
+    run.storage_prefix = run_prefix(ws_id, project.id, doc.id, run.id)
+    job = jobs.enqueue(db, "convert",
+                       {"document_id": str(doc.id), "run_id": str(run.id)},
+                       workspace_id=ws_id)
+    audit.record(db, "document.upload", actor=user.id, workspace=ws_id,
+                 target_type="document", target_id=str(doc.id), data={"bytes": size})
+    return {"document": {"id": str(doc.id), "name": doc.name, "status": doc.status},
+            "run": {"id": str(run.id)}, "job": {"id": str(job.id), "status": job.status}}
+
+
+@router.post("/api/platform/reports", status_code=202)
+async def upload_report(file: UploadFile, request: Request,
+                        db: Session = Depends(get_db)):
+    """The Home drop zone: one PDF = one report = one auto-created project."""
+    user, sess = _auth(db, request)
+    require_csrf(request, sess)
+    ws = _lpm_workspace(db, user)
+    entitlements.require_feature(db, ws.id, "lpm.access")
+    count = db.execute(select(func.count()).select_from(Project).where(
+        Project.workspace_id == ws.id, Project.status == "active",
+        Project.tool_key == "lpm")).scalar_one()
+    entitlements.require_quota(db, ws.id, "lpm.projects.max", count)
+    name = (file.filename or "Untitled").rsplit(".", 1)[0][:200] or "Untitled"
+    project = Project(workspace_id=ws.id, tool_key="lpm", name=name)
+    db.add(project)
+    db.flush()
+    audit.record(db, "project.create", actor=user.id, workspace=ws.id,
+                 target_type="project", target_id=str(project.id))
+    out = await _ingest(db, user, ws.id, project, file)
+    db.commit()
+    out["project"] = {"id": str(project.id), "name": project.name}
+    return out
+
+
+@router.get("/api/platform/reports")
+def list_reports(request: Request, db: Session = Depends(get_db)):
+    """The Home list: every LPM report the user can see, newest first, with
+    what the shell needs — status (drives the whisk), thumbnail, last touch."""
+    user, _ = _auth(db, request)
+    ws = _lpm_workspace(db, user)
+    feats = entitlements.workspace_features(db, ws.id)
+    rows = db.execute(
+        select(Project, Document)
+        .join(Document, Document.project_id == Project.id, isouter=True)
+        .where(Project.workspace_id == ws.id, Project.status == "active",
+               Project.tool_key == "lpm")
+        .order_by(Project.created_at.desc())).all()
+    reports = []
+    for p, d in rows:
+        last = p.updated_at or p.created_at
+        thumb = None
+        if d is not None:
+            if d.created_at and d.created_at > last:
+                last = d.created_at
+            try:
+                from rk3.platform.docbridge import doc_info, files_base
+                info = doc_info(str(d.id))
+                if info and info["doc_dir"] is not None:
+                    assembled = info["doc_dir"] / "landing" / "landing-assembled.json"
+                    if assembled.exists():
+                        from datetime import datetime, timezone
+                        m = datetime.fromtimestamp(assembled.stat().st_mtime, tz=timezone.utc)
+                        if m > last:
+                            last = m
+                if info and info["run_dir"] is not None and \
+                        (info["run_dir"] / "pages" / "page-0001.png").exists():
+                    thumb = f"{files_base(str(d.id))}/pages/page-0001.png"
+            except Exception:
+                pass
+        reports.append({
+            "projectId": str(p.id), "title": p.name,
+            "documentId": str(d.id) if d else None,
+            "status": d.status if d else "empty",
+            "pages": d.pages if d else None,
+            "thumb": thumb,
+            "lastModified": last.isoformat(),
+        })
+    return {
+        "workspace": {"id": str(ws.id), "name": ws.name,
+                      "aiLevel": (ws.settings or {}).get("aiLevel", "full")},
+        "plan": {"used": len(reports), "max": feats.get("lpm.projects.max")},
+        "reports": reports,
+    }
+
+
+class SettingsIn(BaseModel):
+    aiLevel: str | None = None
+
+
+@router.patch("/api/platform/workspaces/{ws_id}/settings")
+def patch_settings(ws_id: uuid.UUID, body: SettingsIn, request: Request,
+                   db: Session = Depends(get_db)):
+    user, sess = _auth(db, request)
+    require_csrf(request, sess)
+    permissions.require_member(db, user, ws_id, permissions.PROJECT_EDIT)
+    ws = db.get(Workspace, ws_id)
+    settings = dict(ws.settings or {})
+    if body.aiLevel is not None:
+        if body.aiLevel not in ("none", "analysis", "full"):
+            raise HTTPException(400, "aiLevel must be none|analysis|full")
+        settings["aiLevel"] = body.aiLevel
+    ws.settings = settings
+    audit.record(db, "workspace.settings", actor=user.id, workspace=ws_id,
+                 data=settings)
+    db.commit()
+    return {"settings": settings}
+
+
+@router.get("/api/platform/documents/{doc_id}/files/{path:path}")
+def serve_doc_file(doc_id: uuid.UUID, path: str, request: Request,
+                   db: Session = Depends(get_db)):
+    """Membership-checked asset serving for the editor: run outputs by relative
+    path (pages/…, images) and landing artifacts under landing/… — the private
+    replacement for the corpus's public /output tree."""
+    user, _ = _auth(db, request)
+    doc = db.get(Document, doc_id)
+    if doc is None:
+        raise HTTPException(404, "unknown document")
+    permissions.require_member(db, user, doc.workspace_id, permissions.PROJECT_VIEW)
+    from rk3.platform.docbridge import doc_info
+    info = doc_info(str(doc_id))
+    if info is None:
+        raise HTTPException(404, "unknown document")
+    base = info["doc_dir"] if path.startswith("landing/") else info["run_dir"]
+    if base is None:
+        raise HTTPException(404, "not converted yet")
+    full = (base / path).resolve()
+    if not str(full).startswith(str(base.resolve())) or not full.is_file():
+        raise HTTPException(404, "no such file")
+    return FileResponse(full)
+
+
 # ------------------------------------------------- minimal platform admin
 
 def _require_staff(db: Session, request: Request) -> User:

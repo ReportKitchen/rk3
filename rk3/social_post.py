@@ -46,10 +46,19 @@ ET.register_namespace("", "http://www.w3.org/2000/svg")
 
 
 def _cover_path(slug: str) -> Path:
+    from rk3.platform.docbridge import doc_info, is_platform_doc
+    if is_platform_doc(slug):
+        info = doc_info(slug)
+        if info is None or info["run_dir"] is None:
+            return Path("/nonexistent")
+        return info["run_dir"] / "pages" / "page-0001.png"
     return output_dir(slug) / "pages" / "page-0001.png"
 
 
 def _social_dir(slug: str) -> Path:
+    from rk3.platform.docbridge import is_platform_doc, landing_dir
+    if is_platform_doc(slug):
+        return landing_dir(slug) / "social-post"
     return output_dir(slug) / "social-post"
 
 
@@ -69,6 +78,10 @@ def _usage_path(slug: str, mode: str) -> Path:
 def _artifact_url(slug: str, mode: str, path: Path) -> str:
     # mtime cache busting means a replaced image appears immediately without
     # forcing no-store on every generated image response.
+    from rk3.platform.docbridge import files_base, is_platform_doc
+    if is_platform_doc(slug):
+        return (f"{files_base(slug)}/landing/social-post/{path.name}"
+                f"?v={path.stat().st_mtime_ns}")
     return (f"/output/pdfium/{slug}/social-post/{path.name}"
             f"?v={path.stat().st_mtime_ns}")
 
@@ -103,11 +116,15 @@ def mode_status(slug: str, mode: str) -> dict:
 
 
 def all_status(slug: str) -> dict:
+    from rk3.platform.docbridge import files_base, is_platform_doc
     cover = _cover_path(slug)
+    cover_url = None
+    if cover.exists():
+        cover_url = (f"{files_base(slug)}/pages/page-0001.png" if is_platform_doc(slug)
+                     else f"/output/pdfium/{slug}/pages/page-0001.png")
     return {
         "slug": slug,
-        "cover": (f"/output/pdfium/{slug}/pages/page-0001.png"
-                  if cover.exists() else None),
+        "cover": cover_url,
         "modes": {mode: mode_status(slug, mode) for mode in MODES},
     }
 

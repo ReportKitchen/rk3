@@ -52,6 +52,7 @@ class Workspace(Base):
     name: Mapped[str] = mapped_column(String(200))
     type: Mapped[str] = mapped_column(String(32), default="personal")  # personal|team|internal
     status: Mapped[str] = mapped_column(String(32), default="active")  # active|suspended
+    settings: Mapped[dict] = mapped_column(JSONB, default=dict)  # e.g. {"aiLevel": "full"}
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     memberships: Mapped[list["Membership"]] = relationship(back_populates="workspace")

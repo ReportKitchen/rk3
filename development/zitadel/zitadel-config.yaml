@@ -2,9 +2,9 @@
 #   ZITADEL_DATABASE_POSTGRES_USER_PASSWORD / .._ADMIN_PASSWORD  (see .env)
 # Issuer/console: http://localhost:9800
 Port: 9800
-ExternalDomain: localhost
-ExternalPort: 9800
-ExternalSecure: false
+ExternalDomain: auth.reportkitchen.com
+ExternalPort: 443
+ExternalSecure: true
 TLS:
   Enabled: false
 
