@@ -46,15 +46,20 @@ def _jwks() -> dict:
     return _jwks_cache
 
 
-def begin_login() -> tuple[str, str]:
-    """-> (authorization redirect URL, signed flow-cookie value)."""
+def begin_login(login_hint: str = "", signup: bool = False) -> tuple[str, str]:
+    """-> (authorization redirect URL, signed flow-cookie value).
+
+    `login_hint` prefills the identifier (the marketing-site email-capture
+    pattern: www collects ONLY the email and forwards it — passwords are never
+    typed anywhere but the IdP). `signup` sends prompt=create so a "Sign up"
+    button lands on the registration form, not the login form."""
     verifier = secrets.token_urlsafe(48)
     challenge = base64.urlsafe_b64encode(
         hashlib.sha256(verifier.encode()).digest()).rstrip(b"=").decode()
     state = secrets.token_urlsafe(24)
     flow = _serializer().dumps({"v": verifier, "s": state, "t": int(time.time())})
     from urllib.parse import urlencode
-    url = discovery()["authorization_endpoint"] + "?" + urlencode({
+    params = {
         "response_type": "code",
         "client_id": config.OIDC_CLIENT_ID,
         "redirect_uri": config.OIDC_REDIRECT_URL,
@@ -62,7 +67,12 @@ def begin_login() -> tuple[str, str]:
         "state": state,
         "code_challenge": challenge,
         "code_challenge_method": "S256",
-    })
+    }
+    if login_hint:
+        params["login_hint"] = login_hint[:320]
+    if signup:
+        params["prompt"] = "create"
+    url = discovery()["authorization_endpoint"] + "?" + urlencode(params)
     return url, flow
 
 

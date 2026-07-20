@@ -41,52 +41,63 @@ def _kind(path: Path) -> str:
 
 
 def handle_convert(db, job: Job) -> None:
-    """payload: {document_id, run_id} — convert the uploaded source into the
-    run's private storage prefix and register every produced file."""
+    """payload: {document_id, run_id} — the plan's worker shape, backend-
+    agnostic: download the source into an isolated temp workspace, run the
+    pipeline there, upload the outputs to the run's storage prefix, register
+    every produced file. Works identically on local disk and S3."""
+    import tempfile
+
     storage = get_storage()
     doc = db.get(Document, uuid.UUID(job.payload["document_id"]))
     run = db.get(Run, uuid.UUID(job.payload["run_id"]))
     if doc is None or run is None:
         raise RuntimeError("job references a missing document/run")
 
-    src = storage.path(doc.storage_key)
-    outdir = storage.path(run.storage_prefix)
     run.status = "running"
     run.started_at = datetime.now(timezone.utc)
     doc.status = "processing"
     db.commit()
 
-    cmd = [sys.executable, "-m", "rk3", "convert-path", str(src), str(outdir)]
-    r = subprocess.run(cmd, cwd=ROOT, timeout=config.CONVERT_TIMEOUT_SECONDS,
-                       stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-    (outdir / "convert.log").write_text(
-        f"$ {' '.join(cmd)}\nexit={r.returncode}\n\n{r.stdout or ''}")
+    with tempfile.TemporaryDirectory(prefix="rk3-convert-") as tmp:
+        tmpdir = Path(tmp)
+        src = tmpdir / "source.pdf"
+        storage.download_to(doc.storage_key, src)
+        outdir = tmpdir / "out"
+        outdir.mkdir()
 
-    ok = r.returncode == 0
-    if ok:
-        count = 0
-        for p in sorted(outdir.rglob("*")):
-            if not p.is_file():
-                continue
-            db.add(Artifact(run_id=run.id, kind=_kind(p),
-                            rel_path=str(p.relative_to(outdir)),
-                            size_bytes=p.stat().st_size))
-            count += 1
-        # page count from the produced IR
-        try:
-            import json
-            ir = json.loads((outdir / "ir.json").read_text())
-            if isinstance(ir.get("pages"), list):
-                doc.pages = len(ir["pages"])
-        except Exception:
-            pass
-        run.status = "succeeded"
-        doc.status = "converted"
-        log.info("convert ok: doc=%s run=%s artifacts=%d", doc.id, run.id, count)
-    else:
-        run.status = "failed"
-        run.error = (r.stdout or "")[-2000:]
-        doc.status = "failed"
+        cmd = [sys.executable, "-m", "rk3", "convert-path", str(src), str(outdir)]
+        r = subprocess.run(cmd, cwd=ROOT, timeout=config.CONVERT_TIMEOUT_SECONDS,
+                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        (outdir / "convert.log").write_text(
+            f"$ {' '.join(cmd)}\nexit={r.returncode}\n\n{r.stdout or ''}")
+
+        ok = r.returncode == 0
+        if ok:
+            uploaded = storage.upload_dir(outdir, run.storage_prefix)
+            for rel, size in uploaded:
+                db.add(Artifact(run_id=run.id, kind=_kind(Path(rel)),
+                                rel_path=rel, size_bytes=size))
+            # page count from the produced IR (pages is a dict keyed by number)
+            try:
+                import json
+                pages = json.loads((outdir / "ir.json").read_text()).get("pages")
+                if isinstance(pages, (dict, list)) and pages:
+                    doc.pages = len(pages)
+            except Exception:
+                pass
+            run.status = "succeeded"
+            doc.status = "converted"
+            log.info("convert ok: doc=%s run=%s artifacts=%d", doc.id, run.id, len(uploaded))
+        else:
+            # keep the log inspectable even on failure
+            try:
+                storage.save_bytes(f"{run.storage_prefix}/convert.log",
+                                   (outdir / "convert.log").read_bytes())
+            except Exception:
+                pass
+            run.status = "failed"
+            run.error = (r.stdout or "")[-2000:]
+            doc.status = "failed"
     run.finished_at = datetime.now(timezone.utc)
     db.commit()
     if not ok:

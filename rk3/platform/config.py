@@ -36,6 +36,12 @@ OIDC_REDIRECT_URL = os.environ.get("RK3_OIDC_REDIRECT_URL", "")
 
 # private file tree (NOT under the public /output mount)
 STORAGE_ROOT = Path(os.environ.get("RK3_STORAGE_ROOT", str(ROOT / "storage")))
+# storage backend: local (this box) | s3 (production)
+STORAGE_BACKEND = os.environ.get("RK3_STORAGE_BACKEND", "local")
+S3_BUCKET = os.environ.get("RK3_S3_BUCKET", "")
+S3_REGION = os.environ.get("RK3_S3_REGION", "us-east-1")
+S3_ACCESS_KEY = os.environ.get("AWS_S3_ACCESS_KEY", "")
+S3_SECRET_KEY = os.environ.get("AWS_S3_SECRET_KEY", "")
 
 SESSION_TTL_DAYS = int(os.environ.get("RK3_SESSION_TTL_DAYS", "30"))
 SESSION_COOKIE = "rk3_session"

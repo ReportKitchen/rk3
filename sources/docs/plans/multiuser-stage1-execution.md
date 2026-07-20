@@ -129,10 +129,41 @@ Per-workspace exceptions: add an `entitlement_grants` row
 (`source='admin_grant'`, optional `valid_until`, a `reason`) — the most
 generous valid grant wins.
 
+## S3 + SES — wired (2026-07-20, owner delivered creds)
+
+- **S3 (`rk3-storage`, us-east-1)**: `S3Storage` implements the same adapter
+  interface (worker contract: `download_to` source → convert in a temp dir →
+  `upload_dir` outputs; serving: 307 redirect to a short-lived presigned URL).
+  The worker is now backend-agnostic — the local backend uses the identical
+  temp-dir flow. **Every primitive round-tripped live against the bucket**
+  (save/exists/download_to/upload_dir/presigned-GET/delete). This box stays
+  `RK3_STORAGE_BACKEND=local`; production flips one env var (+ bucket/region
+  already in `.env`).
+- **SES SMTP**: credentials are derived from the IAM secret (documented AWS
+  derivation) — auth verified against all US SMTP endpoints. ZITADEL's SMTP
+  config is SET AND ACTIVATED (SES us-east-1, sender
+  `noreply@reportkitchen.com`). **Blocked on exactly one owner action: verify
+  an SES identity** — verify the `reportkitchen.com` DOMAIN in the SES console
+  (adds DKIM DNS records; enables any @reportkitchen.com sender), and request
+  production access to leave the SES sandbox. Until then sends get
+  `554 not verified` (tested).
+
+## Domain shape (owner considering app.reportkitchen.com)
+
+- `www.` (WordPress) = marketing. **Links only, never a credentials form** —
+  passwords are typed exclusively on the IdP origin (the OIDC security model).
+  - Log in button → `https://app.reportkitchen.com/api/auth/login`
+  - Sign up button → `…/api/auth/login?signup=1` (prompt=create → lands on
+    the registration form)
+  - Email-capture form → `…/api/auth/login?signup=1&login_hint=<email>`
+    (prefills the form; the form collects ONLY the email)
+- `app.` = RK3 (FastAPI + SPA). `auth.` = ZITADEL (it needs its own hostname:
+  ExternalDomain/ExternalSecure + TLS at go-live).
+
 ## PARKED — needs the owner
 
-1. **AWS**: RDS, private S3 bucket, SES (and IAM). Until then: local Postgres,
-   local private storage tree, no outbound email.
+1. **AWS remaining**: RDS (Postgres is box-local), SES **identity
+   verification + production access** (see above — the one email blocker).
 2. **Decisions 4–10**: **ANSWERED 2026-07-18** — recorded inline in
    `docs/DEFERRED/multi-user-platform-plan.md` (teams paid-only; seeded free
    limits stand; per-workspace pricing w/ usage tiers; project belongs to the

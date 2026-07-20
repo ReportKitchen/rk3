@@ -44,11 +44,16 @@ def dev_login(request: Request, response: Response, db: Session = Depends(get_db
 
 
 @router.get("/api/auth/login")
-def oidc_login(request: Request, db: Session = Depends(get_db)):
+def oidc_login(request: Request, login_hint: str = "", signup: bool = False,
+               db: Session = Depends(get_db)):
+    """The link target for ANY site (e.g. the WordPress www): a "Log in"
+    button links here plain; a "Sign up" button adds ?signup=1 (lands on the
+    registration form); an email-capture form adds &login_hint=<email> so the
+    form arrives prefilled. Credentials are only ever typed on the IdP."""
     if config.AUTH_MODE != "oidc":
         raise HTTPException(404, "dev mode: use POST /api/auth/dev-login")
     from rk3.platform import oidc
-    url, flow = oidc.begin_login()
+    url, flow = oidc.begin_login(login_hint=login_hint, signup=signup)
     resp = RedirectResponse(url, status_code=302)
     resp.set_cookie(oidc.FLOW_COOKIE, flow, httponly=True, samesite="lax",
                     secure=request.url.scheme == "https", max_age=oidc.FLOW_TTL, path="/")
@@ -358,7 +363,12 @@ def serve_artifact(artifact_id: uuid.UUID, request: Request,
     if doc is None:
         raise HTTPException(404, "unknown artifact")
     permissions.require_member(db, user, doc.workspace_id, permissions.PROJECT_VIEW)
-    path = get_storage().path(f"{run.storage_prefix}/{art.rel_path}")
+    storage = get_storage()
+    key = f"{run.storage_prefix}/{art.rel_path}"
+    url = storage.url_for(key)          # S3: short-lived presigned redirect
+    if url:
+        return RedirectResponse(url, status_code=307)
+    path = storage.path(key)            # local: stream the file
     if not path.exists():
         raise HTTPException(404, "artifact file missing")
     return FileResponse(path)
