@@ -169,9 +169,10 @@ generous valid grant wins.
    limits stand; per-workspace pricing w/ usage tiers; project belongs to the
    workspace; lapsed plan = workspace unavailable [Stage 3 implements];
    no pruning yet; export-only, no public sharing).
-4. **Customer-facing app shell**: Stage 1's "private project list + upload"
-   UI for LPM-only customers (the current SPA is the staff/internal surface).
-   Needs a design pass — parked rather than improvised.
+4. **login-v2 before live-live** (owner): self-host ZITADEL's login-v2 app at
+   auth. to collapse the Front Door -> IdP two-step into one styled screen.
+   (The customer shell itself SHIPPED 2026-07-20 — Front Door / Home / editor
+   on the docbridge; see the shell commit for the full picture.)
 5. **Untrusted-PDF isolation** for public launch: separate worker
    container/host, resource limits, egress control (plan §pipeline). The
    worker currently isolates via subprocess + timeout like the existing app.
