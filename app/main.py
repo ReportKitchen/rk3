@@ -41,6 +41,41 @@ FEEDBACK = ROOT / "feedback"
 
 app = FastAPI(title="RK3")
 
+# ---- staff gate (multiuser Stage 1) ----------------------------------------
+# app.reportkitchen.com is public now. Everything below in this file is the
+# STAFF surface (the corpus/internal app) and must not be world-readable. The
+# platform routes carry their own auth; the legacy API + /output require a
+# signed-in staff user. The SPA's static files stay open (compiled JS only).
+_GATE_OPEN_PREFIXES = (
+    "/api/auth/", "/api/me", "/api/platform/", "/api/files/",
+    "/api/content",      # UI copy bundle — needed by every client incl. customer shell
+    "/api/inline-css",   # pure HTML transformer, no data exposure
+)
+_STAFF_ROLES = ("platform_admin", "support")
+
+
+@app.middleware("http")
+async def _staff_gate(request, call_next):
+    from fastapi.responses import JSONResponse
+    p = request.url.path
+    gated = (p.startswith("/api/") and not p.startswith(_GATE_OPEN_PREFIXES)) \
+        or p.startswith("/output/")
+    if gated:
+        from rk3.platform.auth import current_user
+        from rk3.platform.db import get_db
+        db_gen = get_db()
+        db = next(db_gen)
+        try:
+            got = current_user(db, request)
+            if got is None:
+                return JSONResponse({"detail": "not signed in"}, status_code=401)
+            if got[0].platform_role not in _STAFF_ROLES:
+                return JSONResponse({"detail": "staff only"}, status_code=403)
+        finally:
+            db_gen.close()
+    return await call_next(request)
+
+
 _active: set[str] = set()
 # a save that lands WHILE a convert is running must not be dropped: the
 # running convert already read the ops/config files and won't see it. Mark

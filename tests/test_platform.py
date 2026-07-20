@@ -287,6 +287,23 @@ def test_admin_surface_staff_only(client, db):
     db.commit()
 
 
+def test_staff_gate_on_legacy_api(client, db):
+    """The corpus/staff surface must not be world- or member-readable."""
+    client.post("/api/auth/logout")
+    assert client.get("/api/documents").status_code == 401       # anonymous
+    assert client.get("/api/me").status_code == 200              # platform: open
+    client.post("/api/auth/dev-login")
+    assert client.get("/api/documents").status_code == 200       # staff
+    from sqlalchemy import select as _sel
+    u = db.execute(_sel(User).where(
+        User.identity_subject == config.DEV_USER_SUBJECT)).scalar_one()
+    u.platform_role = "member"
+    db.commit()
+    assert client.get("/api/documents").status_code == 403       # plain member
+    u.platform_role = "platform_admin"
+    db.commit()
+
+
 def test_cross_workspace_isolation(client, db):
     """A signed-in user must not see another workspace's documents (404)."""
     client.post("/api/auth/dev-login")
